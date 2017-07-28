@@ -23,14 +23,14 @@ class coupling_card:
         ## Output files
         self.identifier      = "_".join([self.process,"C",str(self.coupling),str(self.value)]).replace('.','p')
         self.outDir          = "/".join([self.dataDir, self.identifier])
-        self.paramCardFile   = "/".join([self.outDir,"%s_customizecards.dat"%(self.process)])
-        self.procCardFile    = "/".join([self.outDir,"%s_proc_card.dat"%(self.process)])
-        self.runCardFile     = "/".join([self.outDir,"%s_run_card.dat"%(self.process)])
+        self.paramCardFile   = "/".join([self.outDir,"%s_customizecards.dat"%(self.identifier)])
+        self.procCardFile    = "/".join([self.outDir,"%s_proc_card.dat"%(self.identifier)])
+        self.runCardFile     = "/".join([self.outDir,"%s_run_card.dat"%(self.identifier)])
 
     def setNCouplings(self, nCouplings):
         self.nCouplings = nCouplings
 
-    def writeCards(self):
+    def writeCards(self,v=1):
 
         if not os.path.isdir(self.outDir):
             os.makedirs(self.outDir)
@@ -61,5 +61,5 @@ class coupling_card:
 
         ## copy the run card
         shutil.copyfile(self.runTemplate,self.runCardFile)
-        if os.path.isdir(self.outDir):
+        if os.path.isdir(self.outDir) and v>0:
             print "Written cards to %s"%self.outDir
