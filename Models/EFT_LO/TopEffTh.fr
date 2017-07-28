@@ -1,0 +1,274 @@
+(***************************************************************************************************************)
+(******                       This is the FeynRules mod-file for the Top effective theory                 ******)
+(******                                                                                                   ******)
+(******     Authors: C. Degrande                                                                          ******)
+(******                                                                                                   ******)
+(***************************************************************************************************************)
+
+M$ModelName = "TopEffTh";
+
+
+M$Information = {Authors -> {"C. Degrande"},
+             Version -> "1.1",
+             Date -> "04. 11. 2010",
+             Institutions -> {"Universite catholique de Louvain (CP3)"},
+             Emails -> {"celine.degrande@uclouvain.be"},
+             URLs -> "http://feynrules.phys.ucl.ac.be"};
+
+FeynmanGauge = False;
+
+(*version 1.1 four-fermion without intermediate heavy particles, updated for the new sm.fr*)
+
+
+M$InteractionOrderHierarchy = {
+{QCD,2},
+{QED,4},
+{NP,1}
+}
+
+M$InteractionOrderLimit = {
+{NP,2}
+}
+
+
+
+(****************  Parameters *************)
+
+M$Parameters = {
+
+  (* External parameters *)
+
+  Lambda== {
+        ParameterType -> External,
+        ParameterName -> Lambda,
+        BlockName -> DIM6,
+	  InteractionOrder -> {NP,-1},
+        Value -> 1000,
+	  TeX -> \[CapitalLambda],
+        Description -> "Scale of the new physics"},
+
+  RC3phiq== {
+        ParameterType -> External,
+        ParameterName -> RC3phiq,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subsuperscript[RC,\[Phi]q,"(3)"],
+        Description -> "Real part of the coefficient of O3phiq"},
+
+  IC3phiq== {
+        ParameterType -> External,
+        ParameterName -> IC3phiq,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subsuperscript[IC,\[Phi]q,"(3)"],
+        Description -> "Imaginary part of the coefficient of O3phiq"},
+
+  RCtW== {
+        ParameterType -> External,
+        ParameterName -> RCtW,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subscript[RC,tW],
+        Description -> "Real part of the coefficient of OtW"},
+
+  ICtW== {
+        ParameterType -> External,
+        ParameterName -> ICtW,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subscript[IC,tW],
+        Description -> "Imaginary part of the coefficient of OtW"},
+
+  RCtG== {
+        ParameterType -> External,
+        ParameterName -> RCtG,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subscript[RC,tG],
+        Description -> "Real part of the coefficient of OtG"},
+
+  ICtG== {
+        ParameterType -> External,
+        ParameterName -> ICtG,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subscript[IC,tG],
+        Description -> "Imaginary part of the coefficient of OtG"},
+
+  CG== {
+        ParameterType -> External,
+        ParameterName -> CG,
+        BlockName -> DIM6,
+        Value -> 1,
+	  TeX -> Subscript[C,G],
+        Description -> "coefficient of OG"},
+
+  CphiG== {
+        ParameterType -> External,
+        ParameterName -> CphiG,
+        BlockName -> DIM6,
+	  InteractionOrder -> {QED,1},
+        Value -> 1,
+	  TeX -> Subscript[C,\[Phi]G],
+        Description -> "coefficient of OphiG"},
+
+(*Four-fermion operators parameters*)
+
+  C13qq== {
+        ParameterType -> External,
+        ParameterName -> C13qq,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qq,"(1,3)"],
+        Description -> "coefficient of O13qq"},
+
+  C81qq== {
+        ParameterType -> External,
+        ParameterName -> C81qq,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qq,"(8,1)"],
+        Description -> "coefficient of O81qq"},
+
+  C83qq== {
+        ParameterType -> External,
+        ParameterName -> C83qq,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qq,"(8,3)"],
+        Description -> "coefficient of O83qq"},
+
+  C8ut== {
+        ParameterType -> External,
+        ParameterName -> C8ut,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,ut,"(8)"],
+        Description -> "coefficient of O8ut"},
+
+  C8dt== {
+        ParameterType -> External,
+        ParameterName -> C8dt,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,dt,"(8)"],
+        Description -> "coefficient of O8dt"},
+
+  C1qu== {
+        ParameterType -> External,
+        ParameterName -> C1qu,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qu,"(1)"],
+        Description -> "coefficient of O1qu"},
+
+  C1qd== {
+        ParameterType -> External,
+        ParameterName -> C1qd,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qd,"(1)"],
+        Description -> "coefficient of O1qd"},
+
+  C1qt== {
+        ParameterType -> External,
+        ParameterName -> C1qt,
+        BlockName -> FourFermion,
+        Value -> 1,
+	  TeX -> Subsuperscript[C,qt,"(1)"],
+        Description -> "coefficient of O1qt"},
+
+
+(* Internal parameters *)
+
+
+  C3phiq== {
+        ParameterType -> Internal,
+	  ComplexParameter->True,
+        ParameterName -> C3phiq,
+	  InteractionOrder -> {QED,1},
+        Value -> RC3phiq + I IC3phiq,
+	  TeX -> Subsuperscript[C,\[Phi]q,"(3)"],
+        Description -> "coefficient of O3phiq"},
+
+  CtW== {
+        ParameterType -> Internal,
+	  ComplexParameter->True,
+        ParameterName -> CtW,
+	  InteractionOrder -> {QED,1},
+        Value -> RCtW + I ICtW,
+	  TeX -> Subscript[C,tW],
+        Description -> "coefficient of OtW"},
+
+  CtG== {
+        ParameterType -> Internal,
+	  ComplexParameter->True,
+	  InteractionOrder -> {QED,1},
+        ParameterName -> CtG,
+        Value -> RCtG + I ICtG,
+	  TeX -> Subscript[C,tG],
+        Description -> "coefficient of OtG"}
+
+}
+
+
+LnH := C3phiq/Lambda^2 Module[{ii,jj,kk,ll,mm,cc,sp,sp1,mu,ff},
+ExpandIndices[ I*Phibar[ii]DC[Phi[jj],mu]2*Ta[kk,ii,jj] 2*Ta[kk,ll,mm]  QLbar[sp,ll,3,cc].QL[sp1,mm,3,cc] Ga[mu,sp,sp1] , FlavorExpand -> {SU2D,SU2W}]];
+L3phiq :=LnH+ HC[LnH]
+
+
+LtWnH:=Module[{ii,cc1,cc2,sp,sp1,sp2,jj,kk,aa},
+ExpandIndices[ CtW/Lambda^2*QLbar[sp, kk, 3, cc1].uR [sp2, 3, cc1]I/2(Ga[mu,sp,sp1]Ga[nu,sp1,sp2]-Ga[nu,sp,sp1]Ga[mu,sp1,sp2]) Phibar[jj] Eps[ii, jj] 2*Ta[aa,kk,ii] FS[Wi,mu,nu,aa] , FlavorExpand -> {SU2D,SU2W}]];
+LtW:=LtWnH+HC[LtWnH];
+
+LtGnH := CtG/Lambda^2 Module[{ii,cc1,cc2,sp,sp1,sp2,jj,kk,aa},
+ExpandIndices[ QLbar[sp, ii, 3, cc1].uR [sp2, 3, cc2]I/2*(Ga[mu,sp,sp1]Ga[nu,sp1,sp2]-Ga[nu,sp,sp1]Ga[mu,sp1,sp2]) Phibar[jj] Eps[ii, jj] 2*T[aa,cc1,cc2] FS[G,mu,nu,aa] , FlavorExpand -> {SU2D,SU2W}]];
+LtG = LtGnH+HC[LtGnH];
+
+LG := CG/Lambda^2 Module[{aa, bb, cc, mu, nu, rho},
+    f[aa, bb, cc] FS[G, mu, nu, aa] FS[G, nu, rho, bb] FS[G, rho, mu,  cc]];
+
+LphiG := CphiG/Lambda^2/2 Module[{aa, mu, nu},
+ExpandIndices[ (Phibar[kk] Phi[kk] - vev^2/2) FS[G, mu, nu, aa] FS[G, mu, nu, aa] , FlavorExpand -> {SU2D,SU2W}]];(*-v^2/2 ensure the right normalisation of the kinematic term at the O(Lambda^-2)*)
+
+(*Four-fermion operators*)
+
+(*For single top*)
+
+L13qq:=C13qq /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,3,cc].QL[sp2,kk,3,cc] Ga[mu,sp1,sp2]2*Ta[ii,jj,kk]) (QLbar[sp3,jj1,1,cc1].QL[sp4,kk1,1,cc1] Ga[mu,sp3,sp4]2*Ta[ii,jj1,kk1]+QLbar[sp3,jj1,2,cc1].QL[sp4,kk1,2,cc1] Ga[mu,sp3,sp4]2*Ta[ii,jj1,kk1]), FlavorExpand -> {SU2D,SU2W}]];
+
+(*Triplet octed for qq->tt*)
+
+L83qq:=C83qq /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,3,cc].QL[sp2,kk,3,cc2] Ga[mu,sp1,sp2]2*Ta[ii,jj,kk]) T[aa,cc,cc2]T[aa,cc3,cc4](QLbar[sp3,jj1,1,cc3].QL[sp4,kk1,1,cc4] Ga[mu,sp3,sp4]2*Ta[ii,jj1,kk1]+QLbar[sp3,jj1,2,cc3].QL[sp4,kk1,2,cc4] Ga[mu,sp3,sp4]2*Ta[ii,jj1,kk1]), FlavorExpand -> {SU2D,SU2W}]];
+
+(*Octet for qq->tt*)
+
+L81qq:=C81qq /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,3,cc].QL[sp2,jj,3,cc2] Ga[mu,sp1,sp2]) T[aa,cc,cc2]T[aa,cc3,cc4](QLbar[sp3,jj1,1,cc3].QL[sp4,jj1,1,cc4] Ga[mu,sp3,sp4]+QLbar[sp3,jj1,2,cc3].QL[sp4,jj1,2,cc4] Ga[mu,sp3,sp4]), FlavorExpand -> {SU2D,SU2W}]];
+
+L8dt:=C8dt /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (uRbar[sp1,3,cc].uR[sp2,3,cc2] Ga[mu,sp1,sp2]) T[aa,cc,cc2]T[aa,cc3,cc4](dRbar[sp3,1,cc3].dR[sp4,1,cc4] Ga[mu,sp3,sp4]+dRbar[sp3,2,cc3].dR[sp4,2,cc4] Ga[mu,sp3,sp4]), FlavorExpand -> {SU2D,SU2W}]];
+
+L8ut:=C8ut /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (uRbar[sp1,3,cc].uR[sp2,3,cc2] Ga[mu,sp1,sp2]) T[aa,cc,cc2]T[aa,cc3,cc4](uRbar[sp3,1,cc3].uR[sp4,1,cc4] Ga[mu,sp3,sp4]+uRbar[sp3,2,cc3].uR[sp4,2,cc4] Ga[mu,sp3,sp4]), FlavorExpand -> {SU2D,SU2W}]];
+
+(*t singlet for qq->tt*)
+
+L1qu:=C1qu /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,3,cc].uR[sp1,1,cc] ) (uRbar[sp3,1,cc3].QL[sp3,jj,3,cc3])+(QLbar[sp1,jj,3,cc].uR[sp1,2,cc] ) (uRbar[sp3,2,cc3].QL[sp3,jj,3,cc3]), FlavorExpand -> {SU2D,SU2W}]];
+
+L1qt:=C1qt /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,1,cc].uR[sp1,3,cc] ) (uRbar[sp3,3,cc3].QL[sp3,jj,1,cc3])+(QLbar[sp1,jj,2,cc].uR[sp1,3,cc] ) (uRbar[sp3,3,cc3].QL[sp3,jj,2,cc3]), FlavorExpand -> {SU2D,SU2W}]];
+
+L1qd:=C1qd /Lambda^2 Module[{ii,jj,kk,kk1,jj1,mu,aa,cc,sp1,sp2,sp3,sp4,cc1,cc2,cc3},
+ExpandIndices[ (QLbar[sp1,jj,3,cc].dR[sp1,1,cc] ) (dRbar[sp3,1,cc3].QL[sp3,jj,3,cc3])+(QLbar[sp1,jj,3,cc].dR[sp1,2,cc] ) (dRbar[sp3,2,cc3].QL[sp3,jj,3,cc3]), FlavorExpand -> {SU2D,SU2W}]];
+
+L6:=L1qd+L1qu+L1qt+L8ut+L8dt+L81qq+L83qq+L13qq+LphiG+LG+LtG+LtW+L3phiq;
