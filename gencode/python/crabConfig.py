@@ -7,7 +7,7 @@ class crab:
         os.system("source ")
 
     def config(self):
-
+        return
 
     def launch(self):
         print 'Launching jobs with config:'
@@ -16,3 +16,4 @@ class crab:
         self.crabDir = "" #should be the absolute path
 
     def status(self, crabDir):
+        return
