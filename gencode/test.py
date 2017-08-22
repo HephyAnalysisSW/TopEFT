@@ -24,7 +24,8 @@ def main():
 
 
 def getXsec(cv,config):
-    HEL_couplings = coupling("newcoup", HEL_couplings_newcoup)
+    HEL_couplings = couplings()
+    HEL_couplings = addBlock("newcoup", HEL_couplings_newcoup)
     HEL_couplings.setCoupling('cuW',cv)
 
     print "cuW", cv

@@ -14,15 +14,16 @@ args = argParser.parse_args()
 print args.couplings
 
 toList = args.couplings.split(" ")
-couplings = zip(toList[::2], map(float,toList[1::2]))
+activeCouplings = zip(toList[::2], map(float,toList[1::2]))
 
 
 config = configuration(args.model)
 config.setup()
 
 if args.model == "HEL_UFO":
-    coup = coupling("newcoup", HEL_couplings_newcoup)
-    for c in couplings:
+    coup = couplings()
+    coup.addBlock("newcoup", HEL_couplings_newcoup)
+    for c in activeCouplings:
         if not coup.setCoupling(c[0],c[1]):
             raise NotImplementedError("Coupling %s is not known"%c[0])
 

@@ -21,8 +21,6 @@ class configuration:
         else:
             self.model = model
         self.abspath = os.path.abspath('./')
-        #self.uniqueDir = hashlib.md5(str(time.time())).hexdigest()
-        #self.uniquePath = '/'.join([self.abspath, self.uniqueDir])
         self.makeUniquePath()
         self.MG5tarball = '/'.join([self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz'])
         self.GPtarball = '/'.join([self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz'])
@@ -47,7 +45,6 @@ class configuration:
         subprocess.call(['tar', 'xaf', self.GPtarball, '--directory', self.centralGridpack])
         print "Preparing madgraph"
         subprocess.call(['tar', 'xaf', self.MG5tarball, '--directory', self.MG5])
-
         print "### FINISHED ###"
 
     def makeUniquePath(self):
@@ -61,38 +58,45 @@ class configuration:
     def connectDB(self,DBFile):
         self.xsecDB = Cache(DBFile, verbosity=2)
         print "Loaded DB from %s"%self.DBFile
-    # connect DB, load mg, gridpack, template files (proc_cards)
 
     def clean(self):
-        print "Cleaning up, deleting %s"%self.uniquePath
-        shutil.rmtree(self.uniquePath)
+        if os.path.isdir(self.uniquePath):
+            print "Cleaning up, deleting %s"%self.uniquePath
+            shutil.rmtree(self.uniquePath)
 
 class coupling:
-    def __init__(self, blockname, couplingNames):
-        self.blockname = blockname
-        self.couplingNames = couplingNames
-        self.couplingValues = [0]*len(couplingNames)
-        for c in couplingNames:
-            setattr(self, c, 0)
+    def __init__(self, blockname, couplingName, couplingValue):
+        self.blockname  = blockname
+        self.name       = couplingName
+        self.value      = couplingValue
+    
+    def getTuple(self):
+        return (self.name, self.value)
+    
+    def getStringTuple(self):
+        return (self.name, "{:.3}".format(self.value))
+
+class couplings:
+    def __init__(self):
+        self.l = []
+        self.blocks = []
+
+    def add(self, coupling):
+        if coupling.blockname not in self.blocks:
+            self.blocks.append(coupling.blockname)
+        if not coupling.name in [ a.name for a in self.l ]:
+            self.l.append(coupling)
+
+    def addBlock(self, blockname, names):
+        for n in names:
+            self.add(coupling(blockname, n, 0))
 
     def setCoupling(self, couplingName, couplingValue):
-        if hasattr(self,couplingName):
-            setattr(self,couplingName,couplingValue)
-            self.couplingValues[self.couplingNames.index(couplingName)] = couplingValue
-            return True
-        else:
-            print "Don't know coupling %s"%couplingName
-            return False
-
-    def setAllCouplings(self, couplingValues):
-        self.couplingValues = couplingValues
-        for i,c in enumerate(self.couplingNames):
-            self.setCoupling(c, couplingValues[i])
-            #setattr(self, c, couplingValues[i])
-
-    def resetCouplings(self):
-        for c in self.couplingNames:
-            setattr(self, c, 0)
+        for c in self.l:
+            if c.name == couplingName:
+                c.value = couplingValue
+                return True
+        return False
 
 class process(configuration):
     def __init__(self, process, nEvents, config):
@@ -100,20 +104,20 @@ class process(configuration):
         self.processCard = process+'.dat'
         self.nEvents = nEvents
         self.config = config
-        self.couplings = []
+        self.couplings = couplings()
         self.xsec = 0
         self.gridpack = "None"
         
-    def addCoupling(self, coupling):
-        self.couplings.append(coupling)
+    def addCoupling(self, couplings):
+        self.couplings = couplings
 
     def updateRestrictCard(self):
         out = open(self.config.restrictCard, 'w')
         with open(self.config.restrictCardTemplate, 'r') as f:
             rewrite = False
             for line in f:
-                for c in self.couplings:
-                    if c.blockname in line:
+                for block in self.couplings.blocks:
+                    if block in line:
                         rewrite = True
                         writeNewBlock = True
                 if rewrite and "##############" in line:
@@ -121,11 +125,12 @@ class process(configuration):
                 if not rewrite:
                     out.write(line)
                 elif writeNewBlock:
-                    for c in self.couplings:
-                        if c.blockname in line:
-                            out.write("Block %s\n"%c.blockname)
-                            for i,v in enumerate(c.couplingNames):
-                                out.write("{:5} {:15.6} # {}\n".format(i+1, float(c.couplingValues[i]), v))
+                    for block in self.couplings.blocks:
+                        if block in line:
+                            out.write("Block %s\n"%block)
+                            for i,coup in enumerate(self.couplings.l):
+                                if coup.blockname == block:
+                                    out.write("{:5} {:15.6} # {}\n".format(i+1, float(coup.value), coup.name))
                     writeNewBlock = False
 
     def run(self, keepGridpack=True, overwrite=False):
@@ -196,17 +201,19 @@ class process(configuration):
 
     def getNonZeroCoupling(self):
         nonZeroCouplings = []
-        for couplings in self.couplings:
-            for i,c in enumerate(couplings.couplingValues):
-                if c != 0:
-                    nonZeroCouplings += [(couplings.couplingNames[i],"{:.3}".format(c))]
+        for coup in self.couplings.l:
+            if coup.value != 0 and coup.value != 0.:
+                nonZeroCouplings += [coup.getStringTuple()]
+            #for i,c in enumerate(couplings.couplingValues):
+            #    if c != 0:
+            #        nonZeroCouplings += [(couplings.couplingNames[i],"{:.3}".format(c))]
         return nonZeroCouplings
 
     def makeNameString(self):
         nonZeroCouplingStr = ''
         nonZeroCouplings = self.getNonZeroCoupling()
         for nZ in nonZeroCouplings:
-            nonZeroCouplingStr += '_'.join([nZ[0], str(nZ[1]).replace('-','m').replace('.','p')])
+            nonZeroCouplingStr += '_'.join([nZ[0], str("{:.3}".format(nZ[1])).replace('-','m').replace('.','p')])
                 
         self.nameString = '_'.join([self.config.model, self.process, nonZeroCouplingStr])
     
@@ -217,24 +224,24 @@ class process(configuration):
     
     def getColumns(self):
         self.columns = ["model", "process"]
-        for couplings in self.couplings:
-            self.columns += [c for c in couplings]
+        for couplings in self.couplings.l:
+            self.columns += [c.name for c in couplings]
         self.columns += ["nEvents", "xsec", "gridpack"]
         self.columns += stati
 
     def getEntries(self):
         self.columns = [self.config.model, self.process]
-        for couplings in self.couplings:
-            self.columns += [c for c in couplings]
+        for couplings in self.couplings.l:
+            self.columns += [c.value for c in couplings]
         self.columns += [self.nEvents, self.xsec, self.gridpack]
         self.columns += [self.GS_status, self.GS_dataset, self.GS_crabdir, self.DIGI_status, self.DIGI_dataset, self.DIGI_crabdir, self.RECO_status, selfRECO_dataset, self.RECO_crabdir, self.MA_status, self.MA_dataset, self.MA_crabdir]
     
     def getKey(self):
         cn = []
         cv = []
-        for c in self.couplings:
-            cn += c.couplingNames
-            cv += c.couplingValues
+        for c in self.couplings.l:
+            cn += [c.name]
+            cv += [c.value]
         key = self.config.model, self.process, str(cn), str(cv)
         return key
     
