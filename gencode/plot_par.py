@@ -7,11 +7,14 @@ ROOT.setTDRStyle()
 
 model = 'HEL_UFO'
 
-coup = 'cuW'
-couplingValues = [ i*0.077/15 for i in range(-15,15) ]
+#coup = 'cuW'
+#couplingValues = [ i*0.077/15 for i in range(-15,15) ]
 
 #coup = 'cuG'
 #couplingValues = [ i*0.007/15 for i in range(-15,15) ]
+
+coup = 'cuB'
+couplingValues = [ i*0.3/15 for i in range(-15,15) ]
 
 
 config = configuration(model)

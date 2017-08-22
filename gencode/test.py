@@ -1,7 +1,7 @@
 from TopEFT.gencode.EFT import *
 
 
-couplingValues = [0.051,0.056,0.061,0.066,0.072]
+couplingValues = [0.0525]#,0.056,0.061,0.066,0.072]
 
 def main():
     config = configuration('HEL_UFO')
@@ -20,12 +20,13 @@ def main():
         #ttz_test.run(keepGridpack=False)
     
     #del ttz_test
+    config.clean()
     del config
 
 
 def getXsec(cv,config):
     HEL_couplings = couplings()
-    HEL_couplings = addBlock("newcoup", HEL_couplings_newcoup)
+    HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
     HEL_couplings.setCoupling('cuW',cv)
 
     print "cuW", cv
