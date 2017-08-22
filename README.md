@@ -4,7 +4,10 @@ Repository for work on top quark coupling measurements
 Use a gridpack used for central MC production (ttZ01j_5f_MLM_tarball.tar.xz) and replace model relevant information to obtain cross-sections and MC samples for EFT models. The Madgraph tarball contains the customized Higgs Effective Lagrangian (HEL) UFO where first and second generation couplings are disabled.
 All masses, couplings and widths are synchronized with the values used in central productions during the creation of the tarball.
 
-Prepare a gridpack with gencode/test.py
+Prepare a gridpack using the code in `gencode`, e.g. for ttZ using the Higgs Effective Lagrangion (only one implemented so far) and setting to Wilson coefficients to non-zero values:
+```
+python makeTarball.py --model HEL_UFO --process ttZ --couplings "cuW 0.01 cuG 0.001" 
+```
 
 Cross sections are reported, gridpacks stored in gencode/data/gridpacks
 Automatic launch of production on crab is work in progress.
