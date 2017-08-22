@@ -1,14 +1,35 @@
 from TopEFT.gencode.EFT import *
 
-config = configuration('HEL_UFO')
-config.setup()
 
-HEL_couplings = coupling("newcoup", HEL_couplings_newcoup)
-HEL_couplings.setCoupling('cuW',0.013)
+couplingValues = [0.051,0.056,0.061,0.066,0.072]
 
-ttz_test = process("ttZ", 50000, config)
-ttz_test.addCoupling(HEL_couplings)
+def main():
+    config = configuration('HEL_UFO')
+    config.setup()
+    
+    #HEL_couplings = coupling("newcoup", HEL_couplings_newcoup)
+    #HEL_couplings.setCoupling('cuW',0.051)
 
-ttz_test.run()
+    for cv in couplingValues:
+        getXsec(cv,config)
+        #HEL_couplings.setCoupling('cuW',0.061)
 
-del config
+        #ttz_test = process("ttZ", 50000, config)
+        #ttz_test.addCoupling(HEL_couplings)
+    
+        #ttz_test.run(keepGridpack=False)
+    
+    #del ttz_test
+    del config
+
+
+def getXsec(cv,config):
+    HEL_couplings = coupling("newcoup", HEL_couplings_newcoup)
+    HEL_couplings.setCoupling('cuW',cv)
+
+    print "cuW", cv
+    ttz_test = process("ttZ", 50000, config)
+    ttz_test.addCoupling(HEL_couplings)
+
+    ttz_test.run(keepGridpack=False)
+
