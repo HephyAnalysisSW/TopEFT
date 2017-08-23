@@ -132,20 +132,27 @@ class process(configuration):
                     for block in self.couplings.blocks:
                         if block in line:
                             out.write("Block %s\n"%block)
+                            j = 1
                             for i,coup in enumerate(self.couplings.l):
                                 if coup.blockname == block:
-                                    out.write("{:5} {:15.6} # {}\n".format(i+1, float(coup.value), coup.name))
+                                    out.write("{:5} {:15.6} # {}\n".format(j, float(coup.value), coup.name))
+                                    j += 1
                     writeNewBlock = False
 
     def writeProcessCard(self):
+        templateProcessCard = '/'.join([self.config.processCards,self.processCard])
+        self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
         out = open(self.tmpProcessCard, 'w')
-            with open(self.processCard, 'r') as f:
-                for line in f:
-                    if "import model" in line:
-                        out.write("import model %s-no_b_mass\n\n"%p.config.model)
-                    else:
-                        out.write(line)
-                out.write("output {} -nojpeg".format(self.config.uniqueDir+'/processtmp'))
+        with open(templateProcessCard, 'r') as f:
+            for line in f:
+                if "import model" in line:
+                    out.write("import model %s-no_b_mass\n\n"%self.config.model)
+                elif "NP=1" in line and self.config.model == "TopEffTh":
+                    out.write(line.replace("NP=1","NP=2"))
+                else:
+                    out.write(line)
+            out.write("output {} -nojpeg".format(self.config.uniqueDir+'/processtmp'))
+        out.close()
 
     def run(self, keepGridpack=True, overwrite=False):
         if not self.config.xsecDB.contains(self.getKey()) or overwrite:
@@ -153,7 +160,7 @@ class process(configuration):
             self.updateRestrictCard()
 
             shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
-            self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
+            #self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
             #shutil.copyfile('/'.join([self.config.processCards,self.processCard]), self.tmpProcessCard)
             
             self.writeProcessCard()
