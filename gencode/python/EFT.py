@@ -11,8 +11,12 @@ HEL_couplings_newcoup =\
     'cHe','cuB','cuW','cuG','cdB','cdW','cdG','clB','clW',
     'c3W','c3G','c2W','c2B','c2G','tcHW','tcHB','tcG','tcA',
     'tc3W','tc3G']
-TOP_EFT_couplings_dim6 = []
-TOP_EFT_couplings_fourfermion = []
+
+TOP_EFT_couplings_dim6 =\
+    ['Lambda', 'RC3phiq', 'IC3phiq', 'RCtW', 'ICtW', 'RCtG', 'ICtG', 'CG', 'CphiG']
+
+TOP_EFT_couplings_fourfermion =\
+    ['C13qq', 'C81qq', 'C83qq', 'C8ut', 'C8dt', 'C1qu', 'C1qd', 'C1qt']
 
 class configuration:
     def __init__(self, model, cache="xsec_DB.pkl"):
@@ -133,17 +137,29 @@ class process(configuration):
                                     out.write("{:5} {:15.6} # {}\n".format(i+1, float(coup.value), coup.name))
                     writeNewBlock = False
 
+    def writeProcessCard(self):
+        out = open(self.tmpProcessCard, 'w')
+            with open(self.processCard, 'r') as f:
+                for line in f:
+                    if "import model" in line:
+                        out.write("import model %s-no_b_mass\n\n"%p.config.model)
+                    else:
+                        out.write(line)
+                out.write("output {} -nojpeg".format(self.config.uniqueDir+'/processtmp'))
+
     def run(self, keepGridpack=True, overwrite=False):
         if not self.config.xsecDB.contains(self.getKey()) or overwrite:
-            self.updateRestrictCard()
-            shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
-            tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
-            shutil.copyfile('/'.join([self.config.processCards,self.processCard]), tmpProcessCard)
 
-            with open(tmpProcessCard, 'a') as f:
-                f.write("output {} -nojpeg".format(self.config.uniqueDir+'/processtmp'))
+            self.updateRestrictCard()
+
+            shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
+            self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
+            #shutil.copyfile('/'.join([self.config.processCards,self.processCard]), self.tmpProcessCard)
+            
+            self.writeProcessCard()
+            
             print "Calculating diagrams"
-            output = subprocess.check_output(["python",self.config.MG5+'/bin/mg5_aMC', '-f', tmpProcessCard])
+            output = subprocess.check_output(["python",self.config.MG5+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
             
             print "Preparing files"
             shutil.copyfile(self.config.centralGridpack+'/process/madevent/Cards/run_card.dat', self.config.uniquePath+'/processtmp/Cards/run_card.dat')
