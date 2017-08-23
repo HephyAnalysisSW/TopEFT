@@ -24,12 +24,12 @@ couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
 print len(couplingPairs)
 
 #processes = ['ttZ','ttW','ttH']
-processes = ['ttZ']
+processes = ['ttH']
 submitCMD = "submitBatch.py --title='2D' "
 #submitCMD = "echo "
 
 for p in processes:
-    for c in couplingPairs[30:]:
+    for c in couplingPairs[:10]:
         couplingStr = "%s_%s_%s_%s"%(nonZeroCouplings[0], c[0], nonZeroCouplings[1], c[1])
         os.system(submitCMD+"'python makeTarball.py --model HEL_UFO --process "+p+" --noGridpack --couplings="+couplingStr+"'")
         time.sleep(60) # need to distribute load, shouldn't start with 40 jobs at a time

@@ -1,10 +1,15 @@
 import ROOT,os
 from TopEFT.gencode.EFT import *
 from TopEFT.gencode.user import plot_directory
+from TopEFT.gencode.helpers import toGraph2D
+from TopEFT.gencode.niceColorPalette import niceColorPalette
 import itertools
 
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
+ROOT.gStyle.SetNumberContours(255)
+
+#niceColorPalette(255)
 
 model = 'HEL_UFO'
 
@@ -48,6 +53,7 @@ cans = []
 pads = []
 m = 0
 
+
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
 latex1.SetTextSize(0.04)
@@ -55,46 +61,65 @@ latex1.SetTextAlign(11)
 
 
 for p in processes:
-    #hists.append(ROOT.TGraph(len(couplingValues)))
-    #hists.append(ROOT.TH1F(p.process,"",len(couplingValues),min(couplingValues),max([abs(min(couplingValues)),max(couplingValues)])))
-    hists.append(ROOT.TH2F(p.process,p.process,len(cuB),min(cuB),max(cuB),len(cuB),min(cuB),max(cuB)))
-    #hists[-1].SetMarkerColor(styles[p.process]["color"])
-    #hists[-1].SetLineColor(styles[p.process]["color"])
-    #hists[-1].SetLineWidth(1)
+    x = []
+    y = []
+    z = []
 
-    #hists[-1].SetMarkerStyle(styles[p.process]["marker"])
-    hists[-1].GetXaxis().SetTitle("c_{uW}")
-    hists[-1].GetYaxis().SetTitle("c_{uB}")
+    #hists.append(ROOT.TH2F(p.process,p.process,len(cuB)*3,min(cuB)-0.03,max(cuB)+0.03,len(cuB)*3,min(cuB)-0.03,max(cuB)+0.03))
     for i,cv0 in enumerate(cuB):
         for j,cv1 in enumerate(cuB):
-            print cv0, cv1
             p.couplings.setCoupling(nonZeroCouplings[0], round(cv0,2))
             p.couplings.setCoupling(nonZeroCouplings[1], round(cv1,2))
             ratio = p.getXSec()/p.SMxsec
-            hists[-1].SetBinContent(i+1,j+1,ratio.val)
-        #hists[-1].SetBinError(i+1,ratio.sigma)
+            #bin_x = hists[-1].GetXaxis().FindBin(cv0)
+            #bin_y = hists[-1].GetYaxis().FindBin(cv1)
+            #hists[-1].SetBinContent(bin_x,bin_y,ratio.val)
+            #hists[-1].SetBinContent(i+1,j+1,ratio.val)
+
+            x.append(cv0)
+            y.append(cv1)
+            z.append(ratio.val)
+            
+    a = toGraph2D(p.process,p.process,len(x),x,y,z)
+    xmin = min(x)
+    xmax = max(x)
+    ymin = min(y)
+    ymax = max(y)
+    bin_size = 0.01
+    nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
+    nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
+    print nxbins,nybins
+    a.SetNpx(nxbins)
+    a.SetNpy(nybins)
+    hists.append(a.GetHistogram().Clone())
+    hists[-1].GetXaxis().SetTitle("c_{uW}")
+    hists[-1].GetYaxis().SetTitle("c_{uB}")
+    hists[-1].GetZaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")   
     hists[-1].SetStats(0)
-#    hists[-1].Draw(printCmd)
-#    printCmd = "e1p same"
     
 
     cans.append(ROOT.TCanvas("can_%s"%p.process,"",700,700))
     pads.append(ROOT.TPad("pad_%s"%p.process,"",0.,0.,1.,1.))
-    pads[-1].SetRightMargin(0.15)
+    pads[-1].SetRightMargin(0.20)
+    pads[-1].SetLeftMargin(0.15)
     pads[-1].SetTopMargin(0.06)
     pads[-1].Draw()
     pads[-1].cd()
     
     hists[-1].Draw("colz")
 
-    latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Simulation} %s}'%p.process)
-    latex1.DrawLatex(0.65,0.96,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
+    latex1.DrawLatex(0.15,0.95,'CMS #bf{#it{Simulation} %s}'%p.process)
+    latex1.DrawLatex(0.55,0.95,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
 
-    plotDir = '/'.join([plot_directory,model,"xsec_2D/"])
+    plotDir = '/'.join([plot_directory,model,"xsec_2D_int/"])
     if not os.path.isdir(plotDir):
         os.makedirs(plotDir)
     
     for e in [".png",".pdf",".root"]:
         cans[-1].Print(plotDir+p.process+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+e)
 
-
+    hists[-1].SetMaximum(110)
+    hists[-1].SetMinimum(0.09)
+    pads[-1].SetLogz()
+    for e in [".png",".pdf",".root"]:
+        cans[-1].Print(plotDir+p.process+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+'_log'+e)
