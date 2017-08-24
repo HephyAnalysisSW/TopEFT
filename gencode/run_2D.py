@@ -2,13 +2,13 @@ from TopEFT.gencode.EFT import *
 import itertools
 import os,time
 
-nonZeroCouplings = ("cuW", "cuB")
+nonZeroCouplings = ("RC3phiq", "RCtW")
 
 n = 5
 
 # cuW
 cuW = [ i*0.1/n for i in range(-n,n+1) ]
-cuB = [ i*0.3/n for i in range(-n,n+1) ]
+cuB = [ i*10.0/n for i in range(-n,n+1) ]
 
 ## this is how it should be done. However, becomes too expensive quite fast
 #couplingPairs = []
@@ -23,14 +23,14 @@ couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
 
 print len(couplingPairs)
 
-#processes = ['ttZ','ttW','ttH']
-processes = ['ttH']
+processes = ['ttZ','ttW','ttH']
+#processes = ['ttZ']
 submitCMD = "submitBatch.py --title='2D' "
 #submitCMD = "echo "
 
 for p in processes:
-    for c in couplingPairs[:10]:
+    for c in couplingPairs:
         couplingStr = "%s_%s_%s_%s"%(nonZeroCouplings[0], c[0], nonZeroCouplings[1], c[1])
-        os.system(submitCMD+"'python makeTarball.py --model HEL_UFO --process "+p+" --noGridpack --couplings="+couplingStr+"'")
+        os.system(submitCMD+"'python makeTarball.py --model TopEffTh --process "+p+" --noGridpack --couplings="+couplingStr+"_Lambda_1000.'")
         time.sleep(60) # need to distribute load, shouldn't start with 40 jobs at a time
 

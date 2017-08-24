@@ -1,6 +1,6 @@
 import ROOT,os
 from TopEFT.gencode.EFT import *
-from TopEFT.gencode.user import plot_directory
+from TopEFT.gencode.user import plot_directory, results_directory
 from TopEFT.gencode.helpers import toGraph2D
 from TopEFT.gencode.niceColorPalette import niceColorPalette
 import itertools
@@ -11,13 +11,16 @@ ROOT.gStyle.SetNumberContours(255)
 
 #niceColorPalette(255)
 
-model = 'HEL_UFO'
+#model = 'HEL_UFO'
+model = 'TopEffTh'
 
-nonZeroCouplings = ("cuW", "cuB")
+#nonZeroCouplings = ("cuW", "cuB")
+nonZeroCouplings = ("RC3phiq", "RCtW")
 
 n = 5
 
-cuB = [ i*0.3/n for i in range(-n,n+1) ]
+#cuB = [ i*0.3/n for i in range(-n,n+1) ]
+cuB = [ i*10.0/n for i in range(-n,n+1) ]
 
 # this is the workaround
 couplingPairs = [a for a in itertools.permutations(cuB,2)] + zip(cuB,cuB)
@@ -27,7 +30,10 @@ couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
 config = configuration(model)
 
 HEL_couplings = couplings()
-HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
+#HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
+HEL_couplings.addBlock("dim6", TOP_EFT_couplings_dim6)
+HEL_couplings.addBlock("fourfermion", TOP_EFT_couplings_fourfermion)
+
 #HEL_couplings.setCoupling(coup,0)
 
 styles = {"ttZ": {"marker": 20, "color": ROOT.kCyan+2}, "ttW": {"marker": 21, "color":ROOT.kRed+1}, "ttH": {"marker":22, "color":ROOT.kGreen+2}}
@@ -41,8 +47,9 @@ processes = [ttH,ttZ,ttW]
 
 for p in processes:
     p.addCoupling(HEL_couplings)
-    p.couplings.setCoupling(nonZeroCouplings[0], 0.0)
-    p.couplings.setCoupling(nonZeroCouplings[1], 0)
+    p.couplings.setCoupling("Lambda",1000.)
+    p.couplings.setCoupling(nonZeroCouplings[0], 0.)
+    p.couplings.setCoupling(nonZeroCouplings[1], 0.)
     print "Checking SM x-sec:"
     p.SMxsec = p.getXSec()
     if p.SMxsec.val == 0: p.SMxsec = u_float(1)
@@ -85,15 +92,17 @@ for p in processes:
     xmax = max(x)
     ymin = min(y)
     ymax = max(y)
-    bin_size = 0.01
+    bin_size = 0.05 # 0.01
     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
     print nxbins,nybins
     a.SetNpx(nxbins)
     a.SetNpy(nybins)
     hists.append(a.GetHistogram().Clone())
-    hists[-1].GetXaxis().SetTitle("c_{uW}")
-    hists[-1].GetYaxis().SetTitle("c_{uB}")
+    #hists[-1].GetXaxis().SetTitle("c_{uW}")
+    #hists[-1].GetYaxis().SetTitle("c_{uB}")
+    hists[-1].GetXaxis().SetTitle("c_{#phiq}")
+    hists[-1].GetYaxis().SetTitle("c_{tW}")
     hists[-1].GetZaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")   
     hists[-1].SetStats(0)
     
@@ -118,7 +127,9 @@ for p in processes:
     for e in [".png",".pdf",".root"]:
         cans[-1].Print(plotDir+p.process+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+e)
 
-    hists[-1].SetMaximum(110)
+    #hists[-1].SetMaximum(110)
+    #hists[-1].SetMinimum(0.09)
+    hists[-1].SetMaximum(5)
     hists[-1].SetMinimum(0.09)
     pads[-1].SetLogz()
     for e in [".png",".pdf",".root"]:

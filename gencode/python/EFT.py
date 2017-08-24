@@ -3,7 +3,7 @@ import shutil
 import re
 from TopEFT.gencode.Cache import Cache
 from TopEFT.gencode.u_float import u_float
-
+from TopEFT.gencode.user import results_directory
 
 HEL_couplings_newcoup =\
     ['cH','cT','c6','cu','cd','cl','cWW','cB','cHW','cHB',
@@ -32,7 +32,7 @@ class configuration:
         self.gridpacksDir = '/'.join([self.abspath, 'data', 'gridpacks'])
         self.restrictCardTemplate = '/'.join([self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat'])
         self.restrictCard = '/'.join([self.uniquePath, 'restrict_no_b_mass.dat'])
-        self.DBFile = '/'.join([self.abspath, 'data',cache])
+        self.DBFile = '/'.join([results_directory,cache])
         self.connectDB(self.DBFile)
 
 
