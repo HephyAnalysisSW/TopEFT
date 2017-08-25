@@ -1,6 +1,15 @@
-import ROOT,os
-from TopEFT.gencode.EFT import *
-from TopEFT.gencode.user import plot_directory
+
+# Standard imports
+import ROOT
+import os
+
+# TopEFT
+from TopEFT.tools.EFT  import *
+from TopEFT.tools.user import plot_directory
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
@@ -34,7 +43,7 @@ processes = [ttH,ttZ,ttW]
 for p in processes:
     p.addCoupling(HEL_couplings)
     p.couplings.setCoupling(coup, 0.0)
-    print "Checking SM x-sec:"
+    logger.info( "Checking SM x-sec:" )
     p.SMxsec = p.getXSec()
     if p.SMxsec.val == 0: p.SMxsec = u_float(1)
 
@@ -99,7 +108,7 @@ latex1.SetTextAlign(11)
 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Simulation}}')
 latex1.DrawLatex(0.65,0.96,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
 
-plotDir = '/'.join([plot_directory,model,"xsec/"])
+plotDir = os.path.join( plot_directory,model,"xsec")
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

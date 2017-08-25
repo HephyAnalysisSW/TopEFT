@@ -1,9 +1,17 @@
-import os, time, hashlib, subprocess, uuid
+# Standard imports
+import os
+import time, hashlib, subprocess, uuid
 import shutil
 import re
-from TopEFT.gencode.Cache import Cache
-from TopEFT.gencode.u_float import u_float
-from TopEFT.gencode.user import results_directory, tmp_directory
+
+# TopEFT
+from TopEFT.tools.Cache import Cache
+from TopEFT.tools.u_float import u_float
+from TopEFT.tools.user import results_directory
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 HEL_couplings_newcoup =\
     ['cH','cT','c6','cu','cd','cl','cWW','cB','cHW','cHB',
@@ -18,57 +26,78 @@ TOP_EFT_couplings_dim6 =\
 TOP_EFT_couplings_fourfermion =\
     ['C13qq', 'C81qq', 'C83qq', 'C8ut', 'C8dt', 'C1qu', 'C1qd', 'C1qt']
 
+def makeUniquePath():
+    ''' Create unique path in tmp directory
+    '''
+
+    from TopEFT.tools.user import tmp_directory
+
+    while True:
+        uniqueDir = uuid.uuid4().hex
+        uniquePath = os.path.join(tmp_directory, uniqueDir)
+        if not os.path.isdir(uniquePath): break
+        logger.warning( "Path exists, waiting 0.1 sec." )
+        time.sleep(0.1)
+    return uniquePath
+
 class configuration:
     def __init__(self, model, cache="xsec_DB.pkl"):
         if model not in ["HEL_UFO", "TopEffTh"]:
             raise NotImplementedError( "The model %s is not yet implemented." %model )
         else:
             self.model = model
+
         self.abspath = os.path.abspath('./')
-        self.makeUniquePath()
-        self.MG5tarball = '/'.join([self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz'])
-        self.GPtarball = '/'.join([self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz'])
-        self.processCards = '/'.join([self.abspath, 'data', 'processCards'])
-        self.gridpacksDir = '/'.join([self.abspath, 'data', 'gridpacks'])
-        self.restrictCardTemplate = '/'.join([self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat'])
-        self.restrictCard = '/'.join([self.uniquePath, 'restrict_no_b_mass.dat'])
-        self.DBFile = '/'.join([results_directory,cache])
+
+        # make work directory
+        self.uniquePath = makeUniquePath()
+        logger.info( "Using temporary directory %s", self.uniquePath )
+
+        # MG file locations
+        self.MG5tarball     = os.path.join(self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz')
+        self.GPtarball      = os.path.join(self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz') #FIXME ttZ?
+        self.processCards   = os.path.join(self.abspath, 'data', 'processCards')
+        self.gridpacksDir   = os.path.join(self.abspath, 'data', 'gridpacks')
+
+        # restriction file
+        self.restrictCardTemplate = os.path.join(self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat')
+        self.restrictCard         = os.path.join(self.uniquePath, 'restrict_no_b_mass.dat')
+
+        # Cache location
+        self.DBFile         = os.path.join(results_directory,cache)
         self.connectDB(self.DBFile)
 
-
     def setup(self):
-        print "### SETUP ###"
+        logger.info( "### SETUP ###" )
         os.makedirs(self.uniquePath)
-        self.centralGridpack = '/'.join([self.uniquePath, 'centralGridpack'])
-        self.newGridpack = '/'.join([self.uniquePath, 'newGridpack'])
-        self.MG5 = '/'.join([self.uniquePath, 'MG5'])
+        self.centralGridpack = os.path.join(self.uniquePath, 'centralGridpack')
+        self.newGridpack     = os.path.join(self.uniquePath, 'newGridpack')
+
+        self.MG5 = os.path.join(self.uniquePath, 'MG5')
+
+        # create directories
         os.makedirs(self.centralGridpack)
         os.makedirs(self.newGridpack)
         os.makedirs(self.MG5)
-        print "Preparing central gridpack"
-        subprocess.call(['tar', 'xaf', self.GPtarball, '--directory', self.centralGridpack])
-        print "Preparing madgraph"
-        subprocess.call(['tar', 'xaf', self.MG5tarball, '--directory', self.MG5])
-        print "### FINISHED ###"
 
-    def makeUniquePath(self):
-        while True:
-            self.uniqueDir = uuid.uuid4().hex
-            self.uniquePath = '/'.join([tmp_directory, self.uniqueDir])
-            if not os.path.isdir(self.uniquePath): break
-            print "Path exists, waiting"
-            time.sleep(0.1)
+        logger.info( "Preparing central gridpack" )
+        subprocess.call(['tar', 'xaf', self.GPtarball, '--directory', self.centralGridpack])
+        logger.info( "Preparing madgraph" )
+        subprocess.call(['tar', 'xaf', self.MG5tarball, '--directory', self.MG5])
+        logger.info( "### FINISHED ###" )
 
     def connectDB(self,DBFile):
-        self.xsecDB = Cache(DBFile, verbosity=2)
-        print "Loaded DB from %s"%self.DBFile
+        self.xsecDB = Cache(DBFile)
+        logger.info( "Loaded DB from %s"%self.DBFile )
 
     def clean(self):
         if os.path.isdir(self.uniquePath):
-            print "Cleaning up, deleting %s"%self.uniquePath
+            logger.info( "Cleaning up, deleting %s"%self.uniquePath )
             shutil.rmtree(self.uniquePath)
 
 class coupling:
+    '''Class that holds a coupling. 
+    '''
     def __init__(self, blockname, couplingName, couplingValue):
         self.blockname  = blockname
         self.name       = couplingName
@@ -81,6 +110,8 @@ class coupling:
         return (self.name, "{:.3}".format(self.value))
 
 class couplings:
+    '''Class that holds a list of couplings
+    '''
     def __init__(self):
         self.l = []
         self.blocks = []
@@ -140,8 +171,8 @@ class process(configuration):
                     writeNewBlock = False
 
     def writeProcessCard(self):
-        templateProcessCard = '/'.join([self.config.processCards,self.processCard])
-        self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
+        templateProcessCard = os.path.join(self.config.processCards,self.processCard)
+        self.tmpProcessCard = os.path.join(self.config.uniquePath,self.processCard)
         out = open(self.tmpProcessCard, 'w')
         with open(templateProcessCard, 'r') as f:
             for line in f:
@@ -160,15 +191,13 @@ class process(configuration):
             self.updateRestrictCard()
 
             shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
-            #self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
-            #shutil.copyfile('/'.join([self.config.processCards,self.processCard]), self.tmpProcessCard)
             
             self.writeProcessCard()
             
-            print "Calculating diagrams"
+            logger.info( "Calculating diagrams" )
             output = subprocess.check_output(["python",self.config.MG5+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
             
-            print "Preparing files"
+            logger.info( "Preparing files" )
             shutil.copyfile(self.config.centralGridpack+'/process/madevent/Cards/run_card.dat', self.config.uniquePath+'/processtmp/Cards/run_card.dat')
             shutil.copyfile(self.config.centralGridpack+'/process/madevent/Cards/grid_card.dat', self.config.uniquePath+'/processtmp/Cards/grid_card.dat')
             shutil.copyfile(self.config.centralGridpack+'/process/madevent/Cards/me5_configuration.txt', self.config.uniquePath+'/processtmp/Cards/me5_configuration.txt')
@@ -183,17 +212,17 @@ class process(configuration):
                 f.write("{}  =  nevents\n".format(self.nEvents))
             
             if keepGridpack:
-                print "Preparing first part of gridpack"
+                logger.info( "Preparing first part of gridpack" )
                 output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
 
-            print "Calculating x-sec"
+            logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
                 f.write(".false. =  gridpack\n")
             #subprocess.call(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
             output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
             m = re.search("Cross-section :\s*(.*) \pb", output)
-            print "x-sec: {} pb".format(m.group(1))
+            logger.info( "x-sec: {} pb".format(m.group(1)) )
             self.xsec = u_float.fromString(m.group(1))
             
             if not self.config.xsecDB.contains(self.getKey()) or overwrite:
@@ -201,7 +230,7 @@ class process(configuration):
             ###
             # tar the new gridpack
             if keepGridpack:
-                print "Stitching together all the parts of the gridpack"
+                logger.info( "Stitching together all the parts of the gridpack" )
                 subprocess.call(['tar', 'xaf', '%s/processtmp/run_01_gridpack.tar.gz'%self.config.uniquePath, '--directory', self.config.uniquePath])
                 os.mkdir('%s/process'%self.config.uniquePath)
                 shutil.move('%s/madevent'%self.config.uniquePath, '%s/process'%self.config.uniquePath)
@@ -210,17 +239,15 @@ class process(configuration):
                 shutil.move('%s/runcmsgrid.sh'%self.config.centralGridpack, self.config.uniquePath)
                 self.makeNameString()
                 self.gridpack = '%s/%s.tar.xz'%(self.config.gridpacksDir, self.nameString)
-                print "Compressing the gridpack"
+                logger.info( "Compressing the gridpack" )
                 os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,self.gridpack))
                 #subprocess.call(['cd','%s;'%self.config.uniquePath, 'tar', 'cJpsf', self.gridpack, 'mgbasedir', 'process', 'runcmsgrid.sh'])
-                print "Done!"
-                print "The gridpack is now ready to use:"
-                print self.gridpack    
+                logger.info( "Done!" )
+                logger.info( "The gridpack is now ready to use: %r", self.gridpack )
             else:
-                print "Done!"
+                logger.info( "Done!" )
         else:
-            print "Found x-sec in DB. Use option overwrite to force recalculation."
-            print "Skipping."
+            logger.info( "Found x-sec in DB. Use option overwrite to force recalculation. Skipping." )
 
     def getNonZeroCoupling(self):
         nonZeroCouplings = []
@@ -270,26 +297,16 @@ class process(configuration):
     
     def getXSec(self):
         print
-        print "{:10}{:10}{:100}".format(self.config.model, self.process, self.getNonZeroCoupling())
+        logger.info( "{:10}{:10}{:100}".format(self.config.model, self.process, self.getNonZeroCoupling()) )
         if self.config.xsecDB.contains(self.getKey()):
             xsec = self.config.xsecDB.get(self.getKey())
-            print "{:10}{:10} pb".format("x-sec",xsec)
+            logger.info( "{:10}{:10} pb".format("x-sec",xsec) )
             return xsec
         else:
-            print "Couldn't find x-sec"
+            logger.info( "Couldn't find x-sec" )
             return u_float(0)
-    #def connectDB():
-    #def writeToDB():
-    #def readFromDB():
-    
+
     def output(self):
-        print "### Status and Results ###"
-        print "{:15}{:15}".format("Model","Process")
-        print "{:15}{:15}".format(self.config.model,self.process)
-    #    for couplings in self.couplings:
-        
-
-
-def chunks(l, n):
-    n = max(1, n)
-    return [l[i:i+n] for i in xrange(0, len(l), n)]
+        logger.info( "### Status and Results ###" )
+        logger.info( "{:15}{:15}".format("Model","Process") )
+        logger.info( "{:15}{:15}".format(self.config.model,self.process) )

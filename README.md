@@ -6,7 +6,7 @@ All masses, couplings and widths are synchronized with the values used in centra
 
 Prepare a gridpack using `makeTarball.py` in the directory `gencode`, e.g. for a ttZ process using the Higgs Effective Lagrangian (`TopEffTh` is the other model that's implemented at the moment) and setting two Wilson coefficients to non-zero values:
 ```
-python makeTarball.py --model HEL_UFO --process ttZ --couplings "cuW_0.01 _uG_-0.001" 
+python makeTarball.py --model HEL_UFO --process ttZ --couplings cuW 0.01 cuG -0.001 
 ```
 Cross sections are reported, gridpacks stored in gencode/data/gridpacks
 If the gridpack should not be saved, add the option `--noGridpack`.

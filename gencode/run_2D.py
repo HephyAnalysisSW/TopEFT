@@ -1,6 +1,14 @@
-from TopEFT.gencode.EFT import *
+# Standard imports
+import os
+import time
 import itertools
-import os,time
+
+# TopEFT
+from TopEFT.gencode.EFT import *
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 nonZeroCouplings = ("RC3phiq", "RCtW")
 nonZeroCouplings = ("IC3phiq", "ICtW")
@@ -22,7 +30,7 @@ cuB = [ i*10.0/n for i in range(-n,n+1) ]
 couplingPairs = [a for a in itertools.permutations(cuB,2)] + zip(cuB,cuB)
 couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
 
-print len(couplingPairs)
+#logger.info( len(couplingPairs) )
 
 processes = ['ttZ','ttW','ttH']
 #processes = ['ttZ']

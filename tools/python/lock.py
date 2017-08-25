@@ -1,4 +1,12 @@
+''' File lock mechanism for Cache
+'''
+
+# Standard imports
 import os, errno, time
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 # Wait until multithread process could acquire lock
 def waitForLock(filename):
@@ -12,7 +20,7 @@ def waitForLock(filename):
            if e.errno == errno.EEXIST:  # Failed as the file already exists.
              time.sleep(1)
            else:  # Something unexpected went wrong
-             print "Problem acquiring the lock"
+             logger.error( "Problem acquiring the lock" )
              exit(1)
 
 def removeLock(filename):

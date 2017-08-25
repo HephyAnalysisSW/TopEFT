@@ -1,4 +1,9 @@
+# Standard imports
 import os
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 class crab:
     def __init__(self, release, releasePath):
@@ -10,7 +15,7 @@ class crab:
         return
 
     def launch(self):
-        print 'Launching jobs with config:'
+        logger.info( 'Launching jobs with config:' )
 
         #get the crabDir
         self.crabDir = "" #should be the absolute path

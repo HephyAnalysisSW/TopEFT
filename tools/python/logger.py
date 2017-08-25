@@ -1,8 +1,7 @@
 import logging
 import sys
 def get_logger(logLevel, logFile = None):
-    ''' Logger for post-processing module.
-    
+    ''' Logger for EFT  module.
     '''
 
     # add TRACE (numerical level 5, less than DEBUG) to logging (similar to apache) 
@@ -13,8 +12,7 @@ def get_logger(logLevel, logFile = None):
     logging.Logger.trace = lambda inst, msg, *args, **kwargs: inst.log(logging.TRACE, msg, *args, **kwargs)
     logging.trace = lambda msg, *args, **kwargs: logging.log(logging.TRACE, msg, *args, **kwargs)
 
-    logger = logging.getLogger('StopsDilepton')
-#    logger = logging.getLogger('RootTools')
+    logger = logging.getLogger('TopEFT')
 
     numeric_level = getattr(logging, logLevel.upper(), None)
     if not isinstance(numeric_level, int):

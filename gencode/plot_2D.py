@@ -1,10 +1,21 @@
-import ROOT,os
+''' Make 2D plot of xsec with variied couplings
+'''
+
+# Standard imports
+import ROOT
+import os
+
+# TopEFT imports
 from TopEFT.gencode.EFT import *
-from TopEFT.gencode.user import plot_directory, results_directory
-from TopEFT.gencode.helpers import toGraph2D
-from TopEFT.gencode.niceColorPalette import niceColorPalette
+from TopEFT.tools.user import plot_directory, results_directory
+from TopEFT.tools.niceColorPalette import niceColorPalette
 import itertools
 
+# Logger
+import logging
+logger = logging.getLogger(__name__)
+
+# Plot style
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
@@ -25,7 +36,6 @@ cuB = [ i*10.0/n for i in range(-n,n+1) ]
 # this is the workaround
 couplingPairs = [a for a in itertools.permutations(cuB,2)] + zip(cuB,cuB)
 couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
-
 
 config = configuration(model)
 
@@ -50,7 +60,7 @@ for p in processes:
     p.couplings.setCoupling("Lambda",1000.)
     p.couplings.setCoupling(nonZeroCouplings[0], 0.)
     p.couplings.setCoupling(nonZeroCouplings[1], 0.)
-    print "Checking SM x-sec:"
+    logger.info( "Checking SM x-sec:" )
     p.SMxsec = p.getXSec()
     if p.SMxsec.val == 0: p.SMxsec = u_float(1)
 
@@ -60,11 +70,25 @@ cans = []
 pads = []
 m = 0
 
-
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
+
+def toGraph2D(name,title,length,x,y,z):
+    result = ROOT.TGraph2D(length)
+    result.SetName(name)
+    result.SetTitle(title)
+    for i in range(length):
+        result.SetPoint(i,x[i],y[i],z[i])
+    h = result.GetHistogram()
+    h.SetMinimum(min(z))
+    h.SetMaximum(max(z))
+    c = ROOT.TCanvas()
+    result.Draw()
+    del c
+    #res = ROOT.TGraphDelaunay(result)
+    return result
 
 
 for p in processes:
@@ -95,7 +119,7 @@ for p in processes:
     bin_size = 0.05 # 0.01
     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
-    print nxbins,nybins
+    #print nxbins,nybins
     a.SetNpx(nxbins)
     a.SetNpy(nybins)
     hists.append(a.GetHistogram().Clone())
@@ -120,7 +144,7 @@ for p in processes:
     latex1.DrawLatex(0.15,0.95,'CMS #bf{#it{Simulation} %s}'%p.process)
     latex1.DrawLatex(0.55,0.95,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
 
-    plotDir = '/'.join([plot_directory,model,"xsec_2D_int/"])
+    plotDir = os.path.join( plot_directory,model,"xsec_2D_int" )
     if not os.path.isdir(plotDir):
         os.makedirs(plotDir)
     
