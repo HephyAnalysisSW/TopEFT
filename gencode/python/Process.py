@@ -119,6 +119,10 @@ class Process:
 
         if not os.path.exists( self.gridpack ) or overwrite: 
 
+            # Make gridpack directory
+            if not os.path.exists( self.GP_outputDir ):
+                os.makedirs( self.GP_outputDir )
+
             # call process setup 
             self.setup()           
  
