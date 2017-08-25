@@ -96,6 +96,8 @@ class configuration:
             shutil.rmtree(self.uniquePath)
 
 class coupling:
+    '''Class that holds a coupling. 
+    '''
     def __init__(self, blockname, couplingName, couplingValue):
         self.blockname  = blockname
         self.name       = couplingName
@@ -108,6 +110,8 @@ class coupling:
         return (self.name, "{:.3}".format(self.value))
 
 class couplings:
+    '''Class that holds a list of couplings
+    '''
     def __init__(self):
         self.l = []
         self.blocks = []
@@ -187,8 +191,6 @@ class process(configuration):
             self.updateRestrictCard()
 
             shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
-            #self.tmpProcessCard = os.path.join(self.config.uniquePath,self.processCard)
-            #shutil.copyfile(os.path.join(self.config.processCards,self.processCard), self.tmpProcessCard)
             
             self.writeProcessCard()
             
@@ -303,10 +305,7 @@ class process(configuration):
         else:
             logger.info( "Couldn't find x-sec" )
             return u_float(0)
-    #def connectDB():
-    #def writeToDB():
-    #def readFromDB():
-    
+
     def output(self):
         logger.info( "### Status and Results ###" )
         logger.info( "{:15}{:15}".format("Model","Process") )
