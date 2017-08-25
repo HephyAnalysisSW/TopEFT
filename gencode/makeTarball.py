@@ -49,14 +49,12 @@ if args.model == "HEL_UFO":
     for c in coupling_list:
         if not coup.setCoupling(c[0],c[1]):
             raise NotImplementedError("Coupling %s is not known"%c[0])
-
 elif args.model == "TopEffTh":
     coup.addBlock("dim6", TOP_EFT_couplings_dim6)
     coup.addBlock("fourfermion", TOP_EFT_couplings_fourfermion)
     for c in coupling_list:
         if not coup.setCoupling(c[0],c[1]):
             raise NotImplementedError("Coupling %s is not known"%c[0])
-
 else:
     raise NotImplementedError("Model %s is not implemented"%args.model)
 

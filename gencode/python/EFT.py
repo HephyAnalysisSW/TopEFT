@@ -7,7 +7,7 @@ import re
 # TopEFT
 from TopEFT.tools.Cache import Cache
 from TopEFT.tools.u_float import u_float
-from TopEFT.tools.user import results_directory, tmp_directory
+from TopEFT.tools.user import results_directory
 
 # Logger
 import logging
@@ -26,46 +26,65 @@ TOP_EFT_couplings_dim6 =\
 TOP_EFT_couplings_fourfermion =\
     ['C13qq', 'C81qq', 'C83qq', 'C8ut', 'C8dt', 'C1qu', 'C1qd', 'C1qt']
 
+def makeUniquePath():
+    ''' Create unique path in tmp directory
+    '''
+
+    from TopEFT.tools.user import tmp_directory
+
+    while True:
+        uniqueDir = uuid.uuid4().hex
+        uniquePath = os.path.join(tmp_directory, uniqueDir)
+        if not os.path.isdir(uniquePath): break
+        logger.warning( "Path exists, waiting 0.1 sec." )
+        time.sleep(0.1)
+    return uniquePath
+
 class configuration:
     def __init__(self, model, cache="xsec_DB.pkl"):
         if model not in ["HEL_UFO", "TopEffTh"]:
             raise NotImplementedError( "The model %s is not yet implemented." %model )
         else:
             self.model = model
-        self.abspath = os.path.abspath('./')
-        self.makeUniquePath()
-        self.MG5tarball = os.path.join(self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz')
-        self.GPtarball = os.path.join(self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz')
-        self.processCards = os.path.join(self.abspath, 'data', 'processCards')
-        self.gridpacksDir = os.path.join(self.abspath, 'data', 'gridpacks')
-        self.restrictCardTemplate = os.path.join(self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat')
-        self.restrictCard = os.path.join(self.uniquePath, 'restrict_no_b_mass.dat')
-        self.DBFile = os.path.join(results_directory,cache)
-        self.connectDB(self.DBFile)
 
+        self.abspath = os.path.abspath('./')
+
+        # make work directory
+        self.uniquePath = makeUniquePath()
+        logger.info( "Using temporary directory %s", self.uniquePath )
+
+        # MG file locations
+        self.MG5tarball     = os.path.join(self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz')
+        self.GPtarball      = os.path.join(self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz') #FIXME ttZ?
+        self.processCards   = os.path.join(self.abspath, 'data', 'processCards')
+        self.gridpacksDir   = os.path.join(self.abspath, 'data', 'gridpacks')
+
+        # restriction file
+        self.restrictCardTemplate = os.path.join(self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat')
+        self.restrictCard         = os.path.join(self.uniquePath, 'restrict_no_b_mass.dat')
+
+        # Cache location
+        self.DBFile         = os.path.join(results_directory,cache)
+        self.connectDB(self.DBFile)
 
     def setup(self):
         logger.info( "### SETUP ###" )
         os.makedirs(self.uniquePath)
         self.centralGridpack = os.path.join(self.uniquePath, 'centralGridpack')
-        self.newGridpack = os.path.join(self.uniquePath, 'newGridpack')
+        self.newGridpack     = os.path.join(self.uniquePath, 'newGridpack')
+
         self.MG5 = os.path.join(self.uniquePath, 'MG5')
+
+        # create directories
         os.makedirs(self.centralGridpack)
         os.makedirs(self.newGridpack)
         os.makedirs(self.MG5)
+
         logger.info( "Preparing central gridpack" )
         subprocess.call(['tar', 'xaf', self.GPtarball, '--directory', self.centralGridpack])
         logger.info( "Preparing madgraph" )
         subprocess.call(['tar', 'xaf', self.MG5tarball, '--directory', self.MG5])
         logger.info( "### FINISHED ###" )
-
-    def makeUniquePath(self):
-        while True:
-            self.uniqueDir = uuid.uuid4().hex
-            self.uniquePath = os.path.join(tmp_directory, self.uniqueDir)
-            if not os.path.isdir(self.uniquePath): break
-            logger.info( "Path exists, waiting" )
-            time.sleep(0.1)
 
     def connectDB(self,DBFile):
         self.xsecDB = Cache(DBFile)
