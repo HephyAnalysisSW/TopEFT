@@ -6,9 +6,9 @@ argParser.add_argument('--force',       action='store_true', help="Force mode")
 args = argParser.parse_args()
 
 
-ls_list = os.listdir(".")
+ls_list = os.listdir("/tmp/")
 
-old_dirs = [ a for a in ls_list if len(a) == 32 ]
+old_dirs = [ "/tmp/"+a for a in ls_list if len(a) == 32 ]
 
 print "Will delete the following dirs."
 for d in old_dirs:

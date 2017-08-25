@@ -15,7 +15,7 @@ ROOT.gStyle.SetNumberContours(255)
 model = 'TopEffTh'
 
 #nonZeroCouplings = ("cuW", "cuB")
-nonZeroCouplings = ("RC3phiq", "RCtW")
+nonZeroCouplings = ("IC3phiq", "ICtW")
 
 n = 5
 

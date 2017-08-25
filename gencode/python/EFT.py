@@ -3,7 +3,7 @@ import shutil
 import re
 from TopEFT.gencode.Cache import Cache
 from TopEFT.gencode.u_float import u_float
-from TopEFT.gencode.user import results_directory
+from TopEFT.gencode.user import results_directory, tmp_directory
 
 HEL_couplings_newcoup =\
     ['cH','cT','c6','cu','cd','cl','cWW','cB','cHW','cHB',
@@ -54,7 +54,7 @@ class configuration:
     def makeUniquePath(self):
         while True:
             self.uniqueDir = uuid.uuid4().hex
-            self.uniquePath = '/'.join([self.abspath, self.uniqueDir])
+            self.uniquePath = '/'.join([tmp_directory, self.uniqueDir])
             if not os.path.isdir(self.uniquePath): break
             print "Path exists, waiting"
             time.sleep(0.1)
@@ -151,7 +151,7 @@ class process(configuration):
                     out.write(line.replace("NP=1","NP=2"))
                 else:
                     out.write(line)
-            out.write("output {} -nojpeg".format(self.config.uniqueDir+'/processtmp'))
+            out.write("output {} -nojpeg".format(self.config.uniquePath+'/processtmp'))
         out.close()
 
     def run(self, keepGridpack=True, overwrite=False):

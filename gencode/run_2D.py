@@ -3,6 +3,7 @@ import itertools
 import os,time
 
 nonZeroCouplings = ("RC3phiq", "RCtW")
+nonZeroCouplings = ("IC3phiq", "ICtW")
 
 n = 5
 
