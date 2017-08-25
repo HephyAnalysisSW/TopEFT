@@ -1,9 +1,9 @@
 import os, time, hashlib, subprocess, uuid
 import shutil
 import re
-from TopEFT.gencode.Cache import Cache
-from TopEFT.gencode.u_float import u_float
-from TopEFT.gencode.user import results_directory, tmp_directory
+from TopEFT.tools.Cache import Cache
+from TopEFT.tools.u_float import u_float
+from TopEFT.tools.user import results_directory, tmp_directory
 
 HEL_couplings_newcoup =\
     ['cH','cT','c6','cu','cd','cl','cWW','cB','cHW','cHB',

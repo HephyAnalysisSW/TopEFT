@@ -2,6 +2,7 @@
 Create directories containing all the cards necessary for gridpack creation from a template.
 '''
 
+# Standard imports
 import os, shutil
 
 class coupling_card:

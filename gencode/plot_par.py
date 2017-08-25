@@ -1,6 +1,11 @@
-import ROOT,os
-from TopEFT.gencode.EFT import *
-from TopEFT.gencode.user import plot_directory
+
+# Standard imports
+import ROOT
+import os
+
+# TopEFT
+from TopEFT.tools.EFT  import *
+from TopEFT.tools.user import plot_directory
 
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()

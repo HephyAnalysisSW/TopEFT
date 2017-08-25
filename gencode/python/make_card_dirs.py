@@ -3,7 +3,6 @@ from coupling_card import coupling_card
 
 process = "ttZ0j_5f_TopEFT"
 
-
 for i in range(2,3):
     for j in range(-10,11):
             if j == 0: continue

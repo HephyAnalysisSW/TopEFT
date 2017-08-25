@@ -1,6 +1,8 @@
-import os,shutil
 
+# Standard imports
+import os,shutil
 import argparse
+
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--force',       action='store_true', help="Force mode")
 args = argParser.parse_args()

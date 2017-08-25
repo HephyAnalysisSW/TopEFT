@@ -1,6 +1,5 @@
 from TopEFT.gencode.EFT import *
 
-
 ## cuW
 #coup = "cuW"
 #couplingValues = [ i*0.077/15 for i in range(-15,15) ]

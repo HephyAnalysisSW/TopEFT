@@ -1,6 +1,6 @@
 import pickle, os, time
 import errno
-from TopEFT.gencode.lock import waitForLock, removeLock
+from TopEFT.tools.lock import waitForLock, removeLock
 
 class Cache:
     def __init__(self, filename=None, verbosity=0, overwrite=False):

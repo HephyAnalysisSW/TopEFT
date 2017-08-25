@@ -1,10 +1,17 @@
-import ROOT,os
+''' Make 2D plot of xsec with variied couplings
+'''
+
+# Standard imports
+import ROOT
+import os
+
+# TopEFT imports
 from TopEFT.gencode.EFT import *
-from TopEFT.gencode.user import plot_directory, results_directory
-from TopEFT.gencode.helpers import toGraph2D
-from TopEFT.gencode.niceColorPalette import niceColorPalette
+from TopEFT.tools.user import plot_directory, results_directory
+from TopEFT.tools.niceColorPalette import niceColorPalette
 import itertools
 
+# Plot style
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
@@ -25,7 +32,6 @@ cuB = [ i*10.0/n for i in range(-n,n+1) ]
 # this is the workaround
 couplingPairs = [a for a in itertools.permutations(cuB,2)] + zip(cuB,cuB)
 couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
-
 
 config = configuration(model)
 
@@ -60,11 +66,25 @@ cans = []
 pads = []
 m = 0
 
-
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
+
+def toGraph2D(name,title,length,x,y,z):
+    result = ROOT.TGraph2D(length)
+    result.SetName(name)
+    result.SetTitle(title)
+    for i in range(length):
+        result.SetPoint(i,x[i],y[i],z[i])
+    h = result.GetHistogram()
+    h.SetMinimum(min(z))
+    h.SetMaximum(max(z))
+    c = ROOT.TCanvas()
+    result.Draw()
+    del c
+    #res = ROOT.TGraphDelaunay(result)
+    return result
 
 
 for p in processes:

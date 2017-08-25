@@ -1,7 +1,10 @@
-from TopEFT.gencode.EFT import *
-import TopEFT.gencode.logger as logger
-
+# Standard imports
 import argparse
+
+# TopEFT imports
+from TopEFT.gencode.EFT import *
+import TopEFT.tools.logger as logger
+
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--model',       action='store', default='HEL_UFO',          nargs='?',   choices=['HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
 argParser.add_argument('--process',     action='store', default='ttZ',                  choices=['ttZ','ttH','ttW'], help="Which process?")
