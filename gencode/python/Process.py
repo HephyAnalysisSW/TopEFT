@@ -1,6 +1,6 @@
 # Standard imports
 import os
-import time, hashlib, subprocess, uuid
+import subprocess
 import shutil
 import re
 import copy
@@ -15,7 +15,7 @@ from TopEFT.tools.user import results_directory
 import logging
 logger = logging.getLogger(__name__)
 
-class process:
+class Process:
     def __init__(self, process, nEvents, config):
         self.process = process
         self.processCard = process+'.dat'
@@ -49,7 +49,7 @@ class process:
         out.close()
 
     def writeProcessCard(self):
-        templateProcessCard = os.path.join(self.config.processCards,self.processCard)
+        templateProcessCard = os.path.join(self.config.processCardDir,self.processCard)
         self.tmpProcessCard = os.path.join(self.config.uniquePath,self.processCard)
         out = open(self.tmpProcessCard, 'w')
         with open(templateProcessCard, 'r') as f:

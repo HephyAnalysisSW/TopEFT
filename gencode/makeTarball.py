@@ -2,7 +2,10 @@
 import argparse
 
 # TopEFT imports
-from TopEFT.gencode.EFT import *
+from TopEFT.gencode.Configuration import Configuration
+from TopEFT.gencode.Process       import Process
+
+# Logging
 import TopEFT.tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -33,10 +36,10 @@ logger.info("Process:      %s", args.process)
 logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
 
 # Create configuration class
-config = configuration(args.model, modified_couplings = modified_couplings)
+config = Configuration(args.model, modified_couplings = modified_couplings)
 config.setup()
 
-p = process(process = args.process, nEvents = 50000, config = config)
+p = Process(process = args.process, nEvents = 50000, config = config)
 #p.addCoupling(coup)
 p.run(keepGridpack = not args.noGridpack, overwrite = args.overwrite)
 

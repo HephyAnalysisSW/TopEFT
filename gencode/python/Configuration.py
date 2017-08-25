@@ -1,9 +1,8 @@
 # Standard imports
 import os
-import time, hashlib, subprocess, uuid
+import time, subprocess
 import shutil
 import re
-import copy
 import imp 
 
 # TopEFT
@@ -20,6 +19,7 @@ def makeUniquePath():
     '''
 
     from TopEFT.tools.user import tmp_directory
+    import uuid
 
     while True:
         uniqueDir = uuid.uuid4().hex
@@ -30,7 +30,7 @@ def makeUniquePath():
 
     return uniquePath
 
-class configuration:
+class Configuration:
     def __init__(self, model, modified_couplings, cache="xsec_DB.pkl"):
 
         self.model_name = model
