@@ -9,6 +9,7 @@ import imp
 # TopEFT
 from TopEFT.tools.Cache import Cache
 from TopEFT.tools.user import results_directory, tmp_directory
+from TopEFT.tools.u_float import u_float
 
 # Logger
 import logging
@@ -31,7 +32,7 @@ class Process:
         self.processTmpDir = os.path.join( self.config.uniquePath, 'processtmp' )
         self.nEvents = nEvents
 
-        self.GP_outputDir    = os.path.join(tmp_directory, 'gridpacks')
+        self.GP_outputDir    = os.path.join(results_directory, 'gridpacks')
 
         # xsec cache location
         self.xsecDB = Cache( os.path.join(results_directory, xsec_cache) )
@@ -104,7 +105,7 @@ class Process:
             m = re.search("Cross-section :\s*(.*) \pb", output)
             logger.info( "x-sec: {} pb".format(m.group(1)) )
 
-            xsec_ = m.group(1)
+            xsec_ = u_float.fromString(m.group(1)) 
             
             self.xsecDB.add(self.getKey(), xsec_, save=True)
 
@@ -115,9 +116,9 @@ class Process:
     def gridpack(self, overwrite=False):
 
         # gridpack file name
-        self.gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( self.getKey() ) )
+        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( self.getKey() ) )
 
-        if not os.path.exists( self.gridpack ) or overwrite: 
+        if not os.path.exists( gridpack ) or overwrite: 
 
             # Make gridpack directory
             if not os.path.exists( self.GP_outputDir ):
@@ -137,10 +138,12 @@ class Process:
             shutil.move('%s/mgbasedir'%self.config.GP_tmpdir, self.config.uniquePath)
             shutil.move('%s/runcmsgrid.sh'%self.config.GP_tmpdir, self.config.uniquePath)
             logger.info( "Compressing the gridpack" )
-            os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,self.gridpack))
-            #subprocess.call(['cd','%s;'%self.config.uniquePath, 'tar', 'cJpsf', self.gridpack, 'mgbasedir', 'process', 'runcmsgrid.sh'])
+            os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,gridpack))
+            #subprocess.call(['cd','%s;'%self.config.uniquePath, 'tar', 'cJpsf', gridpack, 'mgbasedir', 'process', 'runcmsgrid.sh'])
             logger.info( "Done!" )
-            logger.info( "The gridpack is now ready to use: %r", self.gridpack )
+            logger.info( "The gridpack is now ready to use: %r", gridpack )
+
+            return gridpack
 
     def getKey(self):
 

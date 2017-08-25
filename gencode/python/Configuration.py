@@ -126,4 +126,4 @@ class Configuration:
     def cleanup(self):
         if os.path.isdir(self.uniquePath):
             logger.info( "Cleaning up, deleting %s"%self.uniquePath )
-            #shutil.rmtree(self.uniquePath) #FIXME
+            shutil.rmtree(self.uniquePath)

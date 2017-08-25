@@ -4,7 +4,7 @@ import argparse
 # TopEFT imports
 from TopEFT.gencode.Configuration import Configuration
 from TopEFT.gencode.Process       import Process
-
+from TopEFT.tools.u_float         import u_float
 # Logging
 import TopEFT.tools.logger as logger
 
@@ -42,6 +42,4 @@ xsec_val = p.xsec(overwrite = args.overwrite)
 
 config.cleanup()
 
-print xsec_val
-
-logger.info("Done! Calculated xsec: %5.3f ", xsec_val)
+logger.info("Done! Calculated xsec: %s ", repr(xsec_val) )
