@@ -7,7 +7,6 @@ import imp
 import copy 
 
 # TopEFT
-from TopEFT.tools.Cache import Cache
 from TopEFT.tools.user import results_directory
 
 # Logger
@@ -31,7 +30,7 @@ def makeUniquePath():
     return uniquePath
 
 class Configuration:
-    def __init__(self, model_name, modified_couplings, cache="xsec_DB.pkl"):
+    def __init__(self, model_name, modified_couplings):
 
         self.model_name = model_name
 
@@ -63,10 +62,6 @@ class Configuration:
         # restriction file
         self.restrictCardTemplate = os.path.join( self.data_path,  'template', 'template_restrict_no_b_mass_'+model_name+'.dat')
         self.restrictCard         = os.path.join( self.MG5_tmpdir, 'models', self.model_name, 'restrict_no_b_mass.dat' ) 
-
-        # Cache location
-        self.DBFile         = os.path.join(results_directory, cache)
-        self.connectDB(self.DBFile)
 
         # Consistency check of the model: Check that couplings are unique
         all_couplings = [ c[0] for c in sum(self.model.values(),[]) ]
@@ -127,9 +122,6 @@ class Configuration:
 
         logger.debug( 'Written restriction file %s', self.restrictCard )
         logger.info( "########### Configuration finished ###########" )
-
-    def connectDB(self,DBFile):
-        self.xsecDB = Cache(DBFile)
 
     def cleanup(self):
         if os.path.isdir(self.uniquePath):

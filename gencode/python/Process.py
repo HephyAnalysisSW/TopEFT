@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.pkl'):
 
         self.process            = process
         self.config             = config
@@ -32,6 +32,9 @@ class Process:
         self.nEvents = nEvents
 
         self.GP_outputDir    = os.path.join(tmp_directory, 'gridpacks')
+
+        # xsec cache location
+        self.xsecDB = Cache( os.path.join(results_directory, xsec_cache) )
  
     def writeProcessCard(self):
 
@@ -84,8 +87,9 @@ class Process:
                 f.write("{}  =  nevents\n".format(self.nEvents))
 
     def xsec(self, overwrite=False):
-        if self.config.xsecDB.contains(self.getKey()) and not  overwrite:
-            return self.config.xsecDB.get(self.getKey())
+
+        if self.xsecDB.contains(self.getKey()) and not  overwrite:
+            return self.xsecDB.get(self.getKey())
         else:
            
             # call process setup 
@@ -102,7 +106,7 @@ class Process:
 
             xsec_ = m.group(1)
             
-            self.config.xsecDB.add(self.getKey(), xsec_, save=True)
+            self.xsecDB.add(self.getKey(), xsec_, save=True)
 
             logger.info( "Done!" )
 
@@ -128,22 +132,12 @@ class Process:
             shutil.move('%s/run.sh'%self.config.uniquePath, '%s/process'%self.config.uniquePath)
             shutil.move('%s/mgbasedir'%self.config.GP_tmpdir, self.config.uniquePath)
             shutil.move('%s/runcmsgrid.sh'%self.config.GP_tmpdir, self.config.uniquePath)
-            self.makeNameString()
-            self.gridpack = '%s/%s.tar.xz'%(self.config.gridpacksDir, self.nameString)
             logger.info( "Compressing the gridpack" )
             os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,self.gridpack))
             #subprocess.call(['cd','%s;'%self.config.uniquePath, 'tar', 'cJpsf', self.gridpack, 'mgbasedir', 'process', 'runcmsgrid.sh'])
             logger.info( "Done!" )
             logger.info( "The gridpack is now ready to use: %r", self.gridpack )
 
-    def makeNameString(self):
-        nonZeroCouplingStr = ''
-        nonZeroCouplings = self.getNonZeroCoupling()
-        for nZ in nonZeroCouplings:
-            nonZeroCouplingStr += '_'.join([nZ[0], str("{:.3}".format(nZ[1])).replace('-','m').replace('.','p')])
-                
-        self.nameString = '_'.join([self.config.model, self.process, nonZeroCouplingStr])
-    
     def getKey(self):
 
         mod_c = self.config.modified_couplings.keys()
