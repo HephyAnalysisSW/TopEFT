@@ -34,22 +34,22 @@ class configuration:
             self.model = model
         self.abspath = os.path.abspath('./')
         self.makeUniquePath()
-        self.MG5tarball = '/'.join([self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz'])
-        self.GPtarball = '/'.join([self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz'])
-        self.processCards = '/'.join([self.abspath, 'data', 'processCards'])
-        self.gridpacksDir = '/'.join([self.abspath, 'data', 'gridpacks'])
-        self.restrictCardTemplate = '/'.join([self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat'])
-        self.restrictCard = '/'.join([self.uniquePath, 'restrict_no_b_mass.dat'])
-        self.DBFile = '/'.join([results_directory,cache])
+        self.MG5tarball = os.path.join(self.abspath, 'data','template', 'MG5_aMC_v2_3_3.tar.gz')
+        self.GPtarball = os.path.join(self.abspath, 'data','template', 'ttZ01j_5f_MLM_tarball.tar.xz')
+        self.processCards = os.path.join(self.abspath, 'data', 'processCards')
+        self.gridpacksDir = os.path.join(self.abspath, 'data', 'gridpacks')
+        self.restrictCardTemplate = os.path.join(self.abspath, 'data','template', 'restrict_no_b_mass_'+model+'.dat')
+        self.restrictCard = os.path.join(self.uniquePath, 'restrict_no_b_mass.dat')
+        self.DBFile = os.path.join(results_directory,cache)
         self.connectDB(self.DBFile)
 
 
     def setup(self):
         logger.info( "### SETUP ###" )
         os.makedirs(self.uniquePath)
-        self.centralGridpack = '/'.join([self.uniquePath, 'centralGridpack'])
-        self.newGridpack = '/'.join([self.uniquePath, 'newGridpack'])
-        self.MG5 = '/'.join([self.uniquePath, 'MG5'])
+        self.centralGridpack = os.path.join(self.uniquePath, 'centralGridpack')
+        self.newGridpack = os.path.join(self.uniquePath, 'newGridpack')
+        self.MG5 = os.path.join(self.uniquePath, 'MG5')
         os.makedirs(self.centralGridpack)
         os.makedirs(self.newGridpack)
         os.makedirs(self.MG5)
@@ -62,7 +62,7 @@ class configuration:
     def makeUniquePath(self):
         while True:
             self.uniqueDir = uuid.uuid4().hex
-            self.uniquePath = '/'.join([tmp_directory, self.uniqueDir])
+            self.uniquePath = os.path.join(tmp_directory, self.uniqueDir)
             if not os.path.isdir(self.uniquePath): break
             logger.info( "Path exists, waiting" )
             time.sleep(0.1)
@@ -148,8 +148,8 @@ class process(configuration):
                     writeNewBlock = False
 
     def writeProcessCard(self):
-        templateProcessCard = '/'.join([self.config.processCards,self.processCard])
-        self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
+        templateProcessCard = os.path.join(self.config.processCards,self.processCard)
+        self.tmpProcessCard = os.path.join(self.config.uniquePath,self.processCard)
         out = open(self.tmpProcessCard, 'w')
         with open(templateProcessCard, 'r') as f:
             for line in f:
@@ -168,8 +168,8 @@ class process(configuration):
             self.updateRestrictCard()
 
             shutil.copyfile(self.config.restrictCard, self.config.MG5+'/models/'+self.config.model+'/restrict_no_b_mass.dat')
-            #self.tmpProcessCard = '/'.join([self.config.uniquePath,self.processCard])
-            #shutil.copyfile('/'.join([self.config.processCards,self.processCard]), self.tmpProcessCard)
+            #self.tmpProcessCard = os.path.join(self.config.uniquePath,self.processCard)
+            #shutil.copyfile(os.path.join(self.config.processCards,self.processCard), self.tmpProcessCard)
             
             self.writeProcessCard()
             

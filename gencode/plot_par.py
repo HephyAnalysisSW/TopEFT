@@ -108,7 +108,7 @@ latex1.SetTextAlign(11)
 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Simulation}}')
 latex1.DrawLatex(0.65,0.96,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
 
-plotDir = '/'.join([plot_directory,model,"xsec/"])
+plotDir = os.path.join( plot_directory,model,"xsec")
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

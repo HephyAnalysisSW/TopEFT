@@ -20,17 +20,17 @@ class coupling_card:
         self.blockName      = "dim6"
 
         ## Get the templates
-        self.dataDir         = "/".join([os.path.abspath("").split("TopEFT")[0],"TopEFT","gencode","data"])
-        self.runTemplate     = "/".join([self.dataDir,"template", "template_run_card.dat"])
-        self.paramTemplate   = "/".join([self.dataDir,"template", "template_customizecards.dat"])
-        self.procTemplate    = "/".join([self.dataDir,"template", "template_proc_card.dat"])
+        self.dataDir         = os.path.join(os.path.abspath("").split("TopEFT")[0],"TopEFT","gencode","data")
+        self.runTemplate     = os.path.join(self.dataDir,"template", "template_run_card.dat")
+        self.paramTemplate   = os.path.join(self.dataDir,"template", "template_customizecards.dat")
+        self.procTemplate    = os.path.join(self.dataDir,"template", "template_proc_card.dat")
 
         ## Output files
         self.identifier      = "_".join([self.process,"C",str(self.coupling),str(self.value)]).replace('.','p')
-        self.outDir          = "/".join([self.dataDir, self.identifier])
-        self.paramCardFile   = "/".join([self.outDir,"%s_customizecards.dat"%(self.identifier)])
-        self.procCardFile    = "/".join([self.outDir,"%s_proc_card.dat"%(self.identifier)])
-        self.runCardFile     = "/".join([self.outDir,"%s_run_card.dat"%(self.identifier)])
+        self.outDir          = os.path.join(self.dataDir, self.identifier)
+        self.paramCardFile   = os.path.join(self.outDir,"%s_customizecards.dat"%(self.identifier))
+        self.procCardFile    = os.path.join(self.outDir,"%s_proc_card.dat"%(self.identifier))
+        self.runCardFile     = os.path.join(self.outDir,"%s_run_card.dat"%(self.identifier))
 
     def setNCouplings(self, nCouplings):
         self.nCouplings = nCouplings

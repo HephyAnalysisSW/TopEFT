@@ -25,7 +25,7 @@ if not len(args.couplings)%2==0:
 coupling_names  = args.couplings[::2]
 coupling_values = map(float,args.couplings[1::2])
 
-# Check that we got Lambda in the TopEffTh model
+# Check that we got Lambda in the TopEffTh model. If not, add default.
 if args.model == 'TopEffTh' and "Lambda" not in coupling_names:
     logger.warning( "Scale 'Lambda' not defined. Using Lambda = 1 TeV.")
     coupling_names. append("Lambda")

@@ -144,7 +144,7 @@ for p in processes:
     latex1.DrawLatex(0.15,0.95,'CMS #bf{#it{Simulation} %s}'%p.process)
     latex1.DrawLatex(0.55,0.95,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
 
-    plotDir = '/'.join([plot_directory,model,"xsec_2D_int/"])
+    plotDir = os.path.join( plot_directory,model,"xsec_2D_int" )
     if not os.path.isdir(plotDir):
         os.makedirs(plotDir)
     
