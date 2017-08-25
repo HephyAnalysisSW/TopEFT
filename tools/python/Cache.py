@@ -1,16 +1,22 @@
+# Standard imports
 import pickle, os, time
 import errno
+
+# TopEFT 
 from TopEFT.tools.lock import waitForLock, removeLock
 
+# Logger
+import logging
+logger = logging.getLogger(__name__)
+
 class Cache:
-    def __init__(self, filename=None, verbosity=0, overwrite=False):
-        self.verbosity=verbosity
+    def __init__(self, filename=None, overwrite=False):
         self.initCache(filename)
 
     def initCache(self, filename):
         self.filename=filename
         if not os.path.isfile(filename) or os.stat(self.filename).st_size == 0:  # Check if there's already something in there
-          if self.verbosity>=1: print "File %s not found. Starting new cache."%filename
+          logger.info( "File %s not found. Starting new cache.", filename )
           self._cache = {}
         else:
           try:
@@ -18,9 +24,9 @@ class Cache:
             with open(filename, 'r') as f:
               self._cache = pickle.load(f)
             removeLock(filename)
-            if self.verbosity>=1: print "Loaded cache file %s"%filename
+            logger.info( "Loaded cache file %s", filename )
           except:# (IOError, ValueError, EOFError):
-              print "File %s looks corrupted, please check before proceeding" % filename
+              logger.error( "File %s looks corrupted, please check before proceeding",  filename )
               exit(1)
 
     # Try to reload to cache file in order to get updates from other jobs/threads
@@ -38,7 +44,7 @@ class Cache:
               self._cache.update(temp)
             removeLock(self.filename)
           except Exception as e:# (IOError, ValueError, EOFError):
-              if self.verbosity>=1: print "Cache file %s could not be reloaded"%self.filename
+              logger.warning( "Cache file %s could not be reloaded", self.filename )
               removeLock(self.filename)
 
     def contains (self, key):
@@ -50,7 +56,7 @@ class Cache:
     def add(self, key, val, save):
         self._cache[key] = val
         if save==True:
-            if self.verbosity>=2: print "Storing new result %r to key %r"%(val, key)
+            logger.debug( "Storing new result %r to key %r", val, key )
             self.save(key)
         return self._cache[key]
 
@@ -60,4 +66,4 @@ class Cache:
         with open(self.filename, 'w') as f:
           pickle.dump(self._cache, f)
         removeLock(self.filename)
-        if self.verbosity>=2: print "Written cache file %s"%self.filename
+        logger.debug( "Written cache file %s", self.filename )

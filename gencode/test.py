@@ -28,7 +28,7 @@ def getXsec(cv,config):
     HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
     HEL_couplings.setCoupling('cuW',cv)
 
-    print "cuW", cv
+    #print "cuW", cv
     ttz_test = process("ttZ", 50000, config)
     ttz_test.addCoupling(HEL_couplings)
 

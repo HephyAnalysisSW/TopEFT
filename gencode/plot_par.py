@@ -7,6 +7,10 @@ import os
 from TopEFT.tools.EFT  import *
 from TopEFT.tools.user import plot_directory
 
+# Logger
+import logging
+logger = logging.getLogger(__name__)
+
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
@@ -39,7 +43,7 @@ processes = [ttH,ttZ,ttW]
 for p in processes:
     p.addCoupling(HEL_couplings)
     p.couplings.setCoupling(coup, 0.0)
-    print "Checking SM x-sec:"
+    logger.info( "Checking SM x-sec:" )
     p.SMxsec = p.getXSec()
     if p.SMxsec.val == 0: p.SMxsec = u_float(1)
 

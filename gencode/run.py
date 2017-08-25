@@ -1,3 +1,4 @@
+# Standard imports
 from TopEFT.gencode.EFT import *
 
 ## cuW
@@ -25,7 +26,7 @@ def wrapper(p):
         HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
         HEL_couplings.setCoupling(coup,cv)
 
-        print coup, cv
+        # print coup, cv
         ttz_test = process(p, 50000, config)
         ttz_test.addCoupling(HEL_couplings)
 

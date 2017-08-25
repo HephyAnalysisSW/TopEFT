@@ -1,7 +1,13 @@
+''' Cleaning script for local MG directories
+'''
 
 # Standard imports
 import os,shutil
 import argparse
+
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--force',       action='store_true', help="Force mode")
@@ -12,10 +18,9 @@ ls_list = os.listdir("/tmp/")
 
 old_dirs = [ "/tmp/"+a for a in ls_list if len(a) == 32 ]
 
-print "Will delete the following dirs."
+logger.info( "Will delete the following dirs." )
 for d in old_dirs:
-    print d
-print
+    logger.info( "  " + d )
 
 for d in old_dirs:
     if not args.force:

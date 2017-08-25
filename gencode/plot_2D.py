@@ -11,6 +11,10 @@ from TopEFT.tools.user import plot_directory, results_directory
 from TopEFT.tools.niceColorPalette import niceColorPalette
 import itertools
 
+# Logger
+import logging
+logger = logging.getLogger(__name__)
+
 # Plot style
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
@@ -56,7 +60,7 @@ for p in processes:
     p.couplings.setCoupling("Lambda",1000.)
     p.couplings.setCoupling(nonZeroCouplings[0], 0.)
     p.couplings.setCoupling(nonZeroCouplings[1], 0.)
-    print "Checking SM x-sec:"
+    logger.info( "Checking SM x-sec:" )
     p.SMxsec = p.getXSec()
     if p.SMxsec.val == 0: p.SMxsec = u_float(1)
 
@@ -115,7 +119,7 @@ for p in processes:
     bin_size = 0.05 # 0.01
     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
-    print nxbins,nybins
+    #print nxbins,nybins
     a.SetNpx(nxbins)
     a.SetNpy(nybins)
     hists.append(a.GetHistogram().Clone())

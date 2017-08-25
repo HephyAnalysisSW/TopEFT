@@ -5,6 +5,10 @@ Create directories containing all the cards necessary for gridpack creation from
 # Standard imports
 import os, shutil
 
+# Logger
+import logging
+logger = logging.getLogger(__name__)
+
 class coupling_card:
     def __init__(self, process, coupling, value, templateSubDir="template"):
         self.process        = process
@@ -63,4 +67,4 @@ class coupling_card:
         ## copy the run card
         shutil.copyfile(self.runTemplate,self.runCardFile)
         if os.path.isdir(self.outDir) and v>0:
-            print "Written cards to %s"%self.outDir
+            logger.info( "Written cards to %s", self.outDir )
