@@ -1,8 +1,7 @@
 import logging
 import sys
 def get_logger(logLevel, logFile = None):
-    ''' Logger for post-processing module.
-    
+    ''' Logger for EFT  module.
     '''
 
     # add TRACE (numerical level 5, less than DEBUG) to logging (similar to apache) 

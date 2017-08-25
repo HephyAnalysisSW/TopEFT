@@ -1,6 +1,5 @@
 from TopEFT.gencode.EFT import *
 
-
 couplingValues = [0.0525]#,0.056,0.061,0.066,0.072]
 
 def main():
