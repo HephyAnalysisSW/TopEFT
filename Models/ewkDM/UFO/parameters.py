@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.29
 # Mathematica version: 11.0.0 for Mac OS X x86 (64-bit) (July 28, 2016)
-# Date: Sun 27 Aug 2017 21:12:16
+# Date: Sun 27 Aug 2017 21:48:28
 
 
 
@@ -17,6 +17,38 @@ ZERO = Parameter(name = 'ZERO',
                  texname = '0')
 
 # User-defined parameters.
+DC1V = Parameter(name = 'DC1V',
+                 nature = 'external',
+                 type = 'real',
+                 value = 0.,
+                 texname = '\\text{DC1V}',
+                 lhablock = 'ewkDM',
+                 lhacode = [ 1 ])
+
+DC1A = Parameter(name = 'DC1A',
+                 nature = 'external',
+                 type = 'real',
+                 value = 0.,
+                 texname = '\\text{DC1A}',
+                 lhablock = 'ewkDM',
+                 lhacode = [ 2 ])
+
+DC2V = Parameter(name = 'DC2V',
+                 nature = 'external',
+                 type = 'real',
+                 value = 0.,
+                 texname = '\\text{DC2V}',
+                 lhablock = 'ewkDM',
+                 lhacode = [ 3 ])
+
+DC2A = Parameter(name = 'DC2A',
+                 nature = 'external',
+                 type = 'real',
+                 value = 0.,
+                 texname = '\\text{DC2A}',
+                 lhablock = 'ewkDM',
+                 lhacode = [ 4 ])
+
 aEWM1 = Parameter(name = 'aEWM1',
                   nature = 'external',
                   type = 'real',
@@ -64,38 +96,6 @@ ymtau = Parameter(name = 'ymtau',
                   texname = '\\text{ymtau}',
                   lhablock = 'YUKAWA',
                   lhacode = [ 15 ])
-
-DC1V = Parameter(name = 'DC1V',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.,
-                 texname = '\\text{DC1V}',
-                 lhablock = 'FRBlock',
-                 lhacode = [ 1 ])
-
-DC1A = Parameter(name = 'DC1A',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.,
-                 texname = '\\text{DC1A}',
-                 lhablock = 'FRBlock',
-                 lhacode = [ 2 ])
-
-DC2V = Parameter(name = 'DC2V',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.,
-                 texname = '\\text{DC2V}',
-                 lhablock = 'FRBlock',
-                 lhacode = [ 3 ])
-
-DC2A = Parameter(name = 'DC2A',
-                 nature = 'external',
-                 type = 'real',
-                 value = 0.,
-                 texname = '\\text{DC2A}',
-                 lhablock = 'FRBlock',
-                 lhacode = [ 4 ])
 
 MZ = Parameter(name = 'MZ',
                nature = 'external',

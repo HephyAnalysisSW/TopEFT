@@ -3,6 +3,14 @@ model = {'block1':[ (coupling1, default1), (coupling2, default2), ...], 'block2'
 Sequence matters!!!!
 '''
 
+ewkDM = { 'ewkDM': [
+
+    ['DC1V', 0.],
+    ['DC1A', 0.],
+    ['DC2V', 0.],
+    ['DC2A', 0.],
+]}
+
 HEL_UFO = { 'newcoup': [\
     ['cH', 0.],
     ['cT', 0.],

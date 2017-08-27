@@ -1,6 +1,6 @@
 # This file was automatically created by FeynRules 2.3.29
 # Mathematica version: 11.0.0 for Mac OS X x86 (64-bit) (July 28, 2016)
-# Date: Sun 27 Aug 2017 21:12:16
+# Date: Sun 27 Aug 2017 21:48:28
 
 
 from object_library import all_couplings, Coupling
@@ -47,19 +47,19 @@ GC_9 = Coupling(name = 'GC_9',
 
 GC_10 = Coupling(name = 'GC_10',
                  value = 'DC1A*ee*complex(0,1)*projThirdGen3x3',
-                 order = {'QED':1})
+                 order = {'NP':1,'QED':1})
 
 GC_11 = Coupling(name = 'GC_11',
                  value = 'DC1V*ee*complex(0,1)*projThirdGen3x3',
-                 order = {'QED':1})
+                 order = {'NP':1,'QED':1})
 
 GC_12 = Coupling(name = 'GC_12',
-                 value = '(DC2A*ee*projThirdGen3x3)/(2.*MZ)',
-                 order = {'QED':1})
+                 value = '-(DC2A*ee*projThirdGen3x3)/(2.*MZ)',
+                 order = {'NP':1,'QED':1})
 
 GC_13 = Coupling(name = 'GC_13',
-                 value = '(DC2V*ee*projThirdGen3x3)/(2.*MZ)',
-                 order = {'QED':1})
+                 value = '(DC2V*ee*complex(0,1)*projThirdGen3x3)/(2.*MZ)',
+                 order = {'NP':1,'QED':1})
 
 GC_14 = Coupling(name = 'GC_14',
                  value = '(ee**2*complex(0,1))/(2.*sw**2)',
