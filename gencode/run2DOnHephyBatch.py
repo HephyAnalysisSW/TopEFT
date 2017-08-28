@@ -30,10 +30,10 @@ diag = [couplingValues]*nDim
 # this is the workaround
 couplingGrid = [a for a in itertools.permutations(couplingValues,nDim)] + zip(*diag)
 
-allCombinations =  [ zip(a, nonZeroCouplings) for a in couplingGrid ]
+allCombinations =  [ zip(nonZeroCouplings, a) for a in couplingGrid ]
 allCombinationsFlat = []
 for comb in allCombinations:
-    allCombinationsFlat.append([item for sublist in comb for item in list(sublist)])
+    allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 #processes = ['ttZ','ttW','ttH']
 processes = ['ttZ']
