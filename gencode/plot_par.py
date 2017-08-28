@@ -2,35 +2,44 @@
 # Standard imports
 import ROOT
 import os
+import math
+import argparse
 
 # TopEFT
-from TopEFT.tools.EFT  import *
+from TopEFT.gencode.EFT  import *
 from TopEFT.tools.user import plot_directory
+from TopEFT.gencode.wilsonScale import lambdaSqInv
+
+argParser = argparse.ArgumentParser(description = "Argument parser")
+argParser.add_argument('--model',       action='store', default='HEL_UFO',  choices=['HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--coupling',    action='store', default='cuB',      help="Which coupling?")
+argParser.add_argument('--xmin',        action='store', default=0.3,        help="Which coupling?")
+argParser.add_argument('--points',      action='store', default=30,         help="How many points?")
+argParser.add_argument('--scale',       action='store_true',                help="Scale the coupling value")
+argParser.add_argument('--logLevel',    action='store', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
+
+args = argParser.parse_args()
+
+if not args.points%2==0:
+    logger.error("Need an even number of points. Got %r", args.points )
 
 # Logger
-import logging
-logger = logging.getLogger(__name__)
+import TopEFT.tools.logger as logger
+
+logger = logger.get_logger(args.logLevel,logFile=None)
 
 ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
-model = 'HEL_UFO'
+n = args.points/2
+coup = args.coupling
+couplingValues = [ i*args.xmin/n for i in range(-n,n) ]
 
-#coup = 'cuW'
-#couplingValues = [ i*0.077/15 for i in range(-15,15) ]
-
-#coup = 'cuG'
-#couplingValues = [ i*0.007/15 for i in range(-15,15) ]
-
-coup = 'cuB'
-couplingValues = [ i*0.3/15 for i in range(-15,15) ]
-
-
-config = configuration(model)
+config = configuration(args.model)
 
 HEL_couplings = couplings()
 HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
-HEL_couplings.setCoupling(coup,0)
+HEL_couplings.setCoupling(args.coupling,0)
 
 styles = {"ttZ": {"marker": 20, "color": ROOT.kCyan+2}, "ttW": {"marker": 21, "color":ROOT.kRed+1}, "ttH": {"marker":22, "color":ROOT.kGreen+2}}
 
@@ -51,19 +60,26 @@ hists = []
 fits = []
 m = 0
 
+if args.scale:
+    scale = lambdaSqInv[args.coupling]
+else:
+    scale = 1
+
+
 for p in processes:
     #hists.append(ROOT.TGraph(len(couplingValues)))
     #hists.append(ROOT.TH1F(p.process,"",len(couplingValues),min(couplingValues),max([abs(min(couplingValues)),max(couplingValues)])))
-    hists.append(ROOT.TH1F(p.process,p.process,len(couplingValues),min(couplingValues),max(couplingValues)))
+    hists.append(ROOT.TH1F(p.process,p.process,len(couplingValues),min(couplingValues)*scale,max(couplingValues)*scale))
     hists[-1].SetMarkerColor(styles[p.process]["color"])
     hists[-1].SetLineColor(styles[p.process]["color"])
     hists[-1].SetLineWidth(1)
 
     hists[-1].SetMarkerStyle(styles[p.process]["marker"])
-    hists[-1].GetXaxis().SetTitle(coup)
+    hists[-1].GetXaxis().SetTitle(args.coupling)
     hists[-1].GetYaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")
     for i,cv in enumerate(couplingValues):
-        p.couplings.setCoupling(coup, cv)
+        logger.info("Working on process %s",p.process)
+        p.couplings.setCoupling(args.coupling, cv)
         ratio = p.getXSec()/p.SMxsec
         hists[-1].SetBinContent(i+1,ratio.val)
         hists[-1].SetBinError(i+1,ratio.sigma)
@@ -106,11 +122,15 @@ latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Simulation}}')
-latex1.DrawLatex(0.65,0.96,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
+latex1.DrawLatex(0.65,0.96,'#bf{%sLO (13TeV)}'%args.model.replace('_',' ').replace('UFO',''))
 
-plotDir = os.path.join( plot_directory,model,"xsec")
+if args.scale:
+    subDir = "xsec_WilsonScaled/"
+else:
+    subDir = "xsec/"
+plotDir = os.path.join( plot_directory,args.model,subDir)
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    can.Print(plotDir+coup+e)
+    can.Print(plotDir + args.coupling + e)

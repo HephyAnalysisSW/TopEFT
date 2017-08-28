@@ -6,7 +6,7 @@ from TopEFT.gencode.EFT import *
 import TopEFT.tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW'],     help="Which process?")
+argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW','DY','H','WWW','WWZ','WZ','WZZ','ZZ','ZZZ','tZq','tt'],     help="Which process?")
 argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--noGridpack',  action='store_true',    help="Don't keep the gridpack")
