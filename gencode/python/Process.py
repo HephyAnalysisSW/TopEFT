@@ -153,3 +153,6 @@ class Process:
         mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
         key = self.config.model_name, self.process, mod_c_str
         return key
+    
+    def hasXSec(self):
+        return self.xsecDB.contains(self.getKey())

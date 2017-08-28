@@ -23,7 +23,7 @@ argParser.add_argument('--logLevel',    action='store', nargs='?', choices=['CRI
 
 args = argParser.parse_args()
 
-if not args.points%2==0:
+if not int(args.points)%2==0:
     logger.error("Need an even number of points. Got %r", args.points )
 
 # Logger
@@ -35,7 +35,7 @@ logger = logger.get_logger(args.logLevel,logFile=None)
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
-n = args.points/2
+n = int(args.points)/2
 coup = args.coupling
 couplingValues = [ i*args.xmin/n for i in range(-n,n) ]
 
@@ -43,7 +43,7 @@ model_name = "HEL_UFO"
 
 styles = {"ttZ": {"marker": 20, "color": ROOT.kCyan+2}, "ttW": {"marker": 21, "color":ROOT.kRed+1}, "ttH": {"marker":22, "color":ROOT.kGreen+2}}
 
-processes = ["ttH","ttZ","ttW"]
+processes = ["ttZ","ttH","ttW"]
 
 SM_xsec = {}
 
@@ -54,7 +54,8 @@ for proc in processes:
     config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
     p = Process(process = proc, nEvents = 50000, config = config)
     SM_xsec[proc] = p.xsec()
-    if SM_xsec[proc] == 0: SM_xsec[proc] = u_float(1)
+    logger.info( "SM x-sec for %s is %s",proc,SM_xsec[proc])
+    if SM_xsec[proc].val == 0.: SM_xsec[proc] = u_float(1)
 
 del config
 
@@ -84,9 +85,11 @@ for proc in processes:
         config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
         logger.info("Working on process %s",p.process)
         p = Process(process = proc, nEvents = 1, config = config)
-        ratio = p.xsec()/SMxsec[proc]
-        hists[-1].SetBinContent(i+1,ratio.val)
-        hists[-1].SetBinError(i+1,ratio.sigma)
+        if p.hasXSec(): ratio = p.xsec()/SM_xsec[proc]
+        else: ratio = u_float(0.)
+        i_bin = hists[-1].FindBin(cv*scale)
+        hists[-1].SetBinContent(i_bin, ratio.val)
+        hists[-1].SetBinError(i_bin, ratio.sigma)
     hists[-1].SetStats(0)
 #    hists[-1].Draw(printCmd)
 #    printCmd = "e1p same"
