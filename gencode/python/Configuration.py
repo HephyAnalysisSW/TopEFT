@@ -13,6 +13,7 @@ from TopEFT.tools.user import results_directory
 import logging
 logger = logging.getLogger(__name__)
 
+
 def makeUniquePath():
     ''' Create unique path in tmp directory
     '''
@@ -52,11 +53,11 @@ class Configuration:
         self.data_path = os.path.expandvars( '$CMSSW_BASE/src/TopEFT/gencode/data' )
 
         # MG5 directories
-        self.MG5_tarball     = os.path.join(self.data_path, 'template', 'MG5_aMC_v2_3_3.tar.gz')
-        self.MG5_tmpdir      = os.path.join(self.uniquePath, 'tmpdirMG5')
+        self.MG5_tarball     = '/afs/hephy.at/data/dspitzbart01/MG5_aMC_v2.3.3.tar.gz'
+        self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_3_3')
 
         # GridPack directories
-        self.GP_tarball      = os.path.join(self.data_path, 'template', 'ttZ01j_5f_MLM_tarball.tar.xz') 
+        self.GP_tarball      = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/ttZ01j_5f_MLM/v1/ttZ01j_5f_tarball.tar.xz"
         self.GP_tmpdir       = os.path.join(self.uniquePath, 'centralGridpack')
 
         # restriction file
@@ -91,11 +92,21 @@ class Configuration:
         # create new directories
         os.makedirs(self.GP_tmpdir)
         os.makedirs(self.MG5_tmpdir)
-
+        
+        # unzip MG tarball
         logger.info( "Preparing madgraph" )
-        subprocess.call(['tar', 'xaf', self.MG5_tarball, '--directory', self.MG5_tmpdir])
+        subprocess.call(['tar', 'xaf', self.MG5_tarball, '--directory', self.uniquePath])
+        
+        # unzip gridpack for central config files
         logger.info( "Preparing central gridpack" )
         subprocess.call(['tar', 'xaf', self.GP_tarball,  '--directory', self.GP_tmpdir])
+
+        # copy private UFO files from Models in repository
+        if not os.path.isdir( self.MG5_tmpdir+"/models/"+self.model_name ):
+            logger.info( "Copying UFO from private Model database for model %s",self.model_name )
+            shutil.copytree(os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Models/%s/UFO'%self.model_name ), self.MG5_tmpdir+"/models/"+self.model_name )
+        else:
+            logger.info( "Using UFO from MG5 for model %s", self.model_name )
 
         logger.debug( 'Creating restriction file based on template %s', self.restrictCardTemplate )
         # make block strings to be inserted into template file
@@ -126,4 +137,7 @@ class Configuration:
     def cleanup(self):
         if os.path.isdir(self.uniquePath):
             logger.info( "Cleaning up, deleting %s"%self.uniquePath )
-            shutil.rmtree(self.uniquePath)
+            try:
+                shutil.rmtree(self.uniquePath)
+            except OSError:
+                logger.info( "Couldn't completely remove %s, please clean up afterwards"%self.uniquePath )

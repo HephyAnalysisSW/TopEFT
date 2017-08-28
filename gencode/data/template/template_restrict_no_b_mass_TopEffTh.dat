@@ -60,7 +60,7 @@ Block dim6
 ## INFORMATION FOR FOURFERMION
 ###################################
 Block fourfermion 
-{four_fermion_template_string}
+{fourfermion_template_string}
 
 ###################################
 ## INFORMATION FOR SMINPUTS
