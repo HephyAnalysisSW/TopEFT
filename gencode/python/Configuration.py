@@ -56,9 +56,10 @@ class Configuration:
         self.MG5_tarball     = '/afs/hephy.at/data/dspitzbart01/MG5_aMC_v2.3.3.tar.gz'
         self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_3_3')
 
-        # GridPack directories
+        # GridPack directories       
         self.GP_tarball      = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.3.3/ttZ01j_5f_MLM/v1/ttZ01j_5f_tarball.tar.xz"
         self.GP_tmpdir       = os.path.join(self.uniquePath, 'centralGridpack')
+        logger.info( "Will use gridpack from %s",self.GP_tarball )
 
         # restriction file
         self.restrictCardTemplate = os.path.join( self.data_path,  'template', 'template_restrict_no_b_mass_'+model_name+'.dat')
