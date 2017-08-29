@@ -20,14 +20,6 @@ args = argParser.parse_args()
 
 logger = logger.get_logger(args.logLevel, logFile = None)
 
-
-#
-#
-## Check that we have an even number of arguments
-#if not len(args.couplings)%2==0:
-#    logger.error("Need an even number of coupling arguments of the format coupling1, value1, coupling2, value2, ... . Got %r", args.couplings )
-#
-
 # Create configuration class
 config = Configuration( model_name = args.model, modified_couplings = {} )
 
@@ -37,7 +29,6 @@ with open(args.couplings, 'r') as f:
 for line in lines:
     couplings = line.replace('\n','').split(' ')
     
-    #print couplings
     # Interpret coupling argument list
     coupling_names  = couplings[::2]
     coupling_values = map(float,couplings[1::2])
