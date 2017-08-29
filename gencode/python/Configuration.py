@@ -37,7 +37,7 @@ class Configuration:
 
         # Load model
         model_file = os.path.expandvars( "$CMSSW_BASE/python/TopEFT/gencode/models.py" )
-        logger.debug( "Loading model %s from file %s", model_name, model_file )
+        logger.info( "Loading model %s from file %s", model_name, model_file )
         try:
             tmp_module = imp.load_source( model_name, os.path.expandvars( model_file ) ) 
             self.model = getattr(tmp_module, model_name)

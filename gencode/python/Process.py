@@ -145,6 +145,26 @@ class Process:
 
             return gridpack
 
+    def diagrams(self, plot_dir):
+        self.setup()
+        subprocessDir = os.path.join(self.processTmpDir,"SubProcesses")
+        subProcessDirs = [ os.path.join(subprocessDir,d) for d in os.listdir(subprocessDir) if os.path.isdir(os.path.join(subprocessDir,d)) ]
+        for i,sb in enumerate(subProcessDirs):
+            postScriptFiles = [ os.path.join(sb,d) for d in os.listdir(sb) if ".ps" in d ]
+            for j,ps in enumerate(postScriptFiles):
+                mod_c = self.config.modified_couplings.keys()
+                mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
+                plot_path = os.path.join(plot_dir, self.config.model_name, "diagrams", self.process, mod_c_str)
+                if not os.path.isdir(plot_path):
+                    os.makedirs(plot_path)
+                subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
+                #mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
+                #plot_path = os.path.join(plot_dir, self.model_name, "diagrams", self.process, mod_c_str)
+                #if not os.path.isdir(plot_path):
+                #    os.makedirs(plot_path)
+                #shutil.copyfile(ps.replace(".ps","_%i.pdf"%i,plot_path))
+        
+
     def getKey(self):
 
         mod_c = self.config.modified_couplings.keys()

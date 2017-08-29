@@ -49,21 +49,21 @@ for comb in allCombinations:
 
 #processes = ['ttZ','ttW','ttH']
 processes = ['ttZ']
-#submitCMD = "submitBatch.py --title='DMmultDim'"
-submitCMD = "echo"
+submitCMD = "submitBatch.py --title='DMmultDim'"
+#submitCMD = "echo"
 
 nJobs = len(processes)*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
 for p in processes:
-    for comb in allCombinationsFlat:
+    for comb in allCombinationsFlat[150:300]:
         strBase = "{} {} "*nDim
         couplingStr = strBase.format(*comb)
         #couplingStr = "%s %s %s %s"%(nonZeroCouplings[0], c[0], nonZeroCouplings[1], c[1])
         logger.info("Going to calculate x-sec for process %s in model %s with the following couplings:",p,model_name)
         logger.info(couplingStr)
-        os.system(submitCMD+" 'python calcXSec.py --model "+model_name+" --overwrite --process "+p+" --couplings "+couplingStr+"'")
+        os.system(submitCMD+" 'python calcXSec.py --model "+model_name+" --process "+p+" --couplings "+couplingStr+"'")
         if not "echo" in submitCMD:
-            time.sleep(60) # need to distribute load, shouldn't start with 40 jobs at a time
+            time.sleep(30) # need to distribute load, shouldn't start with 40 jobs at a time
 
