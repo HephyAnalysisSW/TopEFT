@@ -37,7 +37,7 @@ def toGraph2D(name,title,length,x,y,z):
     #res = ROOT.TGraphDelaunay(result)
     return result
 
-interpolate         = False
+interpolate         = True
 model_name          = 'ewkDM'
 nonZeroCouplings    = ("DC1V","DC1A","DC2V","DC2A")
 nZC_latex           = ("#DeltaC_{1,V}", "#DeltaC_{1,A}", "#DeltaC_{2,V}", "#DeltaC_{2,A}")
@@ -59,7 +59,7 @@ latex1.SetTextAlign(11)
 
 logger.info("Model:        %s", model_name)
 
-for proc in processes:
+for proc in processes[:1]:
     
     logger.info("Starting with process %s", proc)
     config = Configuration( model_name = model_name, modified_couplings = {} )
@@ -73,6 +73,8 @@ for proc in processes:
         logger.info("Making 2D plots for %s",comb)
         fixedPoints = list(nonZeroCouplings)
         subDir = "{}_vs_{}".format(comb[0],comb[1])
+        if interpolate:
+            subDir += "_interpolated"
         for c in comb: fixedPoints.remove(c)
 
         for v in points:
@@ -100,7 +102,7 @@ for proc in processes:
                             xsec_val = p.xsec()
                             ratio = xsec_val/SM_xsec[proc]
                         else:
-                            ratio = u_float(1.)
+                            ratio = u_float(-1.)
                         x_list.append(x)
                         y_list.append(y)
                         z_list.append(ratio.val)

@@ -55,8 +55,8 @@ class Process:
     def setup( self ):
 
             # Initialize setup
-            self.config.setup()
-
+            if not self.config.isInitialized: self.config.initialize()
+            self.config.modelSetup()
             # Write process card
             self.writeProcessCard()
             
@@ -87,8 +87,11 @@ class Process:
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
                 f.write("{}  =  nevents\n".format(self.nEvents))
 
-    def xsec(self, overwrite=False):
+    def xsec(self, modified_couplings=None, overwrite=False):
 
+        if modified_couplings:
+            self.config.modified_couplings = modified_couplings
+        
         if self.xsecDB.contains(self.getKey()) and not  overwrite:
             return self.xsecDB.get(self.getKey())
         else:
