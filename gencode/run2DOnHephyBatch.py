@@ -13,36 +13,28 @@ args = argParser.parse_args()
 
 logger = logger.get_logger(args.logLevel, logFile = None)
 
-#nonZeroCouplings = ("RC3phiq", "RCtW")
-#nonZeroCouplings = ("IC3phiq", "ICtW")
-
-nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
-model_name = "ewkDM"
-nDim = len(nonZeroCouplings)
-
-n = 2
-
 def chunks(l, n):
     n = max(1, n)
     return [l[i:i+n] for i in xrange(0, len(l), n)]
 
-## this is how it should be done for 2D. However, becomes too expensive quite fast
-#couplingPairs = []
-#for a in itertools.permutations(cuW, len(cuB)):
-#    tmp = zip(a,cuB)
-#    for t in tmp:
-#        if t not in couplingPairs: couplingPairs.append(t)#(round(t[0],2),round(t[1],2)))
+model_name = "ewkDM"
 
+# for 4D scans
+nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
+dc1v = [ i*1.3/4 for i in range(-4,3) ]
+dc1a = [ i*1.3/4 for i in range(-2,5) ]
+dc2v = [ i*0.15/3 for i in range(-3,4) ]
+dc2a = [ i*0.15/3 for i in range(-3,4) ]
+couplingValues = [dc1v,dc1a,dc2v,dc2a]
 
-# define lists of coupling values
-couplingValues = [ [round(i*1.0/n,2)]*nDim for i in range(-n,n+1) ]
-couplingValues = [ item for sublist in couplingValues for item in sublist ]
+# for 2D scans
+nonZeroCouplings = ("DC2V","DC2A")
+dc2v = [ i*0.25/5 for i in range(-5,6) ]
+dc2a = [ i*0.25/5 for i in range(-5,6) ]
+couplingValues = [dc2v,dc2a]
 
-# walk through all permutations, check for uniqueness 
-couplingGrid = []
-for cV in itertools.permutations(couplingValues,nDim):
-    if cV not in couplingGrid:
-        couplingGrid.append(cV)
+# prepare the grid with all points
+couplingGrid = [ a for a in itertools.product(*couplingValues) ]
 
 # zip with coupling names
 allCombinations =  [ zip(nonZeroCouplings, a) for a in couplingGrid ]
@@ -59,9 +51,9 @@ nJobs = len(processes)*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 650)
+combinationChunks = chunks(allCombinationsFlat, 40)
 
-for p in processes:
+for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
         with open("%s_%i.txt"%(p,i), 'w') as f:
             for c in comb:

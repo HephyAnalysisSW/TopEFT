@@ -5,6 +5,7 @@
 import ROOT
 import os
 import itertools
+import ctypes
 
 # TopEFT imports
 from TopEFT.gencode.Configuration import Configuration
@@ -14,7 +15,7 @@ from TopEFT.tools.user            import plot_directory
 
 # Logging
 import TopEFT.tools.logger as logger
-logger = logger.get_logger("INFO", logFile = None)
+logger = logger.get_logger("CRITICAL", logFile = None)
 
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
@@ -38,10 +39,13 @@ def toGraph2D(name,title,length,x,y,z):
     return result
 
 interpolate         = True
+drawContours        = True
 model_name          = 'ewkDM'
 nonZeroCouplings    = ("DC1V","DC1A","DC2V","DC2A")
 nZC_latex           = ("#DeltaC_{1,V}", "#DeltaC_{1,A}", "#DeltaC_{2,V}", "#DeltaC_{2,A}")
 processes           = ["ttZ","ttH","ttW"]
+
+contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67]}
 
 n = 2
 points          = [ round(i*1.0/n,2) for i in range(-n,n+1) ]
@@ -132,6 +136,8 @@ for proc in processes:
                             k += 1
                     hists.append(a.Clone())
 
+                cans.append(ROOT.TCanvas(nameStr,"",500,500))
+                
                 hists[-1].GetXaxis().SetTitle(comb[0].replace("DC","#DeltaC_{").replace("V",",V}").replace("A",",A}"))
                 hists[-1].GetXaxis().SetNdivisions(505)
                 hists[-1].GetYaxis().SetTitle(comb[1].replace("DC","#DeltaC_{").replace("V",",V}").replace("A",",A}"))
@@ -140,8 +146,19 @@ for proc in processes:
                 hists[-1].GetZaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")
                 hists[-1].GetZaxis().SetTitleOffset(1.2)
                 hists[-1].SetStats(0)
-
-                cans.append(ROOT.TCanvas(nameStr,"",500,500))
+                
+                if drawContours:    
+                    histsForCont = hists[-1].Clone()
+                    c_contlist = ((ctypes.c_double)*(len(contours[proc])))(*contours[proc])
+                    histsForCont.SetContour(len(c_contlist),c_contlist)
+                    histsForCont.Draw("contzlist")
+                    cans[-1].Update()
+                    conts = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
+                    cont_m2 = conts.At(0).Clone()
+                    cont_m1 = conts.At(1).Clone()
+                    cont_p1 = conts.At(2).Clone()
+                    cont_p2 = conts.At(3).Clone()
+                
                 pads.append(ROOT.TPad(nameStr,"",0.,0.,1.,1.))
                 pads[-1].SetRightMargin(0.20)
                 pads[-1].SetLeftMargin(0.14)
@@ -150,6 +167,21 @@ for proc in processes:
                 pads[-1].cd()
 
                 hists[-1].Draw("colz")
+
+                if drawContours:
+                    for conts in [cont_m1, cont_p1]:
+                        for cont in conts:
+                            cont.SetLineColor(ROOT.kRed)
+                            cont.SetLineWidth(2)
+                            cont.SetLineStyle(7)
+                            cont.Draw("same")
+                    for conts in [cont_m2, cont_p2]:
+                        for cont in conts:
+                            cont.SetLineColor(ROOT.kOrange)
+                            cont.SetLineWidth(2)
+                            cont.SetLineStyle(7)
+                            cont.Draw("same")
+
 
                 latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
                 latex1.DrawLatex(0.14,0.92,'#bf{%s, couplings: %s}'%(p.process, fileName.replace('_',', ').replace("DC","#DeltaC_{").replace("V",",V}").replace("A",",A}")))

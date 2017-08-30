@@ -14,7 +14,7 @@ class resultsDB:
         try:
             self.cursor.execute('''CREATE TABLE cache (id text, value text, time_stamp real )''')
         except sqlite3.OperationalError:
-            print "Initializing existing database"
+            pass
 
     def getKey(self, key):
         if ( type(key) == type(()) ) or ( type(key) == type([]) ):
@@ -53,7 +53,6 @@ class resultsDB:
         '''
         key = self.getKey(key)
         selectionString = "INSERT INTO cache VALUES ('%s', '%s', '%f')"%(key,str(value),time.time())
-        print selectionString
         try:
             self.cursor.execute(selectionString)
             self.database.commit()
