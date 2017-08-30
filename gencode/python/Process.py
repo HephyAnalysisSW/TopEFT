@@ -81,7 +81,7 @@ class Process:
             with open(self.config.uniquePath+'/processtmp/Cards/me5_configuration.txt', 'a') as f:
                 f.write("run_mode = 2\n")
                 f.write("nb_core = 4\n")
-                f.write("lhapdf = /cvmfs/cms.cern.ch/slc6_amd64_gcc530/external/lhapdf/6.1.6/share/LHAPDF/../../bin/lhapdf-config\n")
+                f.write("lhapdf = /cvmfs/cms.cern.ch/%s/external/lhapdf/6.1.6/share/LHAPDF/../../bin/lhapdf-config\n" % os.environ["SCRAM_ARCH"] )
                 f.write("automatic_html_opening = False\n")
 
             # Append to run_card.dat
