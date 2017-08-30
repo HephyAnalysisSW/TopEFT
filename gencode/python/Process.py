@@ -8,6 +8,7 @@ import imp
 
 # TopEFT
 from TopEFT.tools.Cache import Cache
+from TopEFT.tools.resultsDB import resultsDB
 from TopEFT.tools.user import results_directory, tmp_directory
 from TopEFT.tools.u_float import u_float
 
@@ -16,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.pkl'):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db'):
 
         self.process            = process
         self.config             = config
@@ -35,7 +36,7 @@ class Process:
         self.GP_outputDir    = os.path.join(results_directory, 'gridpacks')
 
         # xsec cache location
-        self.xsecDB = Cache( os.path.join(results_directory, xsec_cache) )
+        self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache) )
  
     def writeProcessCard(self):
 
@@ -55,8 +56,8 @@ class Process:
     def setup( self ):
 
             # Initialize setup
-            self.config.setup()
-
+            if not self.config.isInitialized: self.config.initialize()
+            self.config.modelSetup()
             # Write process card
             self.writeProcessCard()
             
@@ -87,8 +88,11 @@ class Process:
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
                 f.write("{}  =  nevents\n".format(self.nEvents))
 
-    def xsec(self, overwrite=False):
+    def xsec(self, modified_couplings=None, overwrite=False):
 
+        if modified_couplings:
+            self.config.modified_couplings = modified_couplings
+        
         if self.xsecDB.contains(self.getKey()) and not  overwrite:
             return self.xsecDB.get(self.getKey())
         else:

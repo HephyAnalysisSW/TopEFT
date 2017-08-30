@@ -22,6 +22,10 @@ nDim = len(nonZeroCouplings)
 
 n = 2
 
+def chunks(l, n):
+    n = max(1, n)
+    return [l[i:i+n] for i in xrange(0, len(l), n)]
+
 ## this is how it should be done for 2D. However, becomes too expensive quite fast
 #couplingPairs = []
 #for a in itertools.permutations(cuW, len(cuB)):
@@ -47,23 +51,22 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 
-#processes = ['ttZ','ttW','ttH']
-processes = ['ttZ']
-submitCMD = "submitBatch.py --title='DMmultDim'"
-#submitCMD = "echo"
+processes = ['ttZ','ttW','ttH']
+#submitCMD = "submitBatch.py"
+submitCMD = "echo"
 
 nJobs = len(processes)*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-for p in processes:
-    for comb in allCombinationsFlat[450:]:
-        strBase = "{} {} "*nDim
-        couplingStr = strBase.format(*comb)
-        #couplingStr = "%s %s %s %s"%(nonZeroCouplings[0], c[0], nonZeroCouplings[1], c[1])
-        logger.info("Going to calculate x-sec for process %s in model %s with the following couplings:",p,model_name)
-        logger.info(couplingStr)
-        os.system(submitCMD+" 'python calcXSec.py --model "+model_name+" --process "+p+" --couplings "+couplingStr+"'")
-        if not "echo" in submitCMD:
-            time.sleep(0) # need to distribute load, shouldn't start with 40 jobs at a time
+combinationChunks = chunks(allCombinationsFlat, 650)
 
+for p in processes:
+    for i,comb in enumerate(combinationChunks):
+        with open("%s_%i.txt"%(p,i), 'w') as f:
+            for c in comb:
+                strBase = "{} {} "*nDim
+                couplingStr = (strBase+'\n').format(*c)
+                f.write(couplingStr)
+                
+        os.system(submitCMD+" --title DM_%s_%i 'python calcXSecModified.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))

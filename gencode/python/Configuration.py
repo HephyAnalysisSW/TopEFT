@@ -34,6 +34,7 @@ class Configuration:
     def __init__(self, model_name, modified_couplings):
 
         self.model_name = model_name
+        self.isInitialized = False
 
         # Load model
         model_file = os.path.expandvars( "$CMSSW_BASE/python/TopEFT/gencode/models.py" )
@@ -82,7 +83,7 @@ class Configuration:
                 logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(all_couplings) )
                 raise RuntimeError
 
-    def setup( self ):
+    def initialize( self ):
         ''' Create temporary directories and unzip GP. 
         Time consuming. '''
 
@@ -109,21 +110,29 @@ class Configuration:
         else:
             logger.info( "Using UFO from MG5 for model %s", self.model_name )
 
+        self.isInitialized = True
+        
+    def modelSetup(self):
+        ''' Update the restriction card
+        '''
+
+        if not self.isInitialized: self.initialize()
+
         logger.debug( 'Creating restriction file based on template %s', self.restrictCardTemplate )
         # make block strings to be inserted into template file
         block_strings = {}
         for block in self.model.keys():
-            
+
             # copy defaults
             couplings = copy.deepcopy(self.model[block])
-            
+
             # make modifications & build string for the template file
             block_strings[block+'_template_string'] = ""
             for i_coupling, coupling in enumerate(couplings):       # coupling is a pair (name, value) 
                 if self.modified_couplings.has_key( coupling[0] ):
                     coupling[1] = self.modified_couplings[coupling[0]]
                 block_strings[block+'_template_string'] += "%6i %8.6f # %s\n"%( i_coupling + 1, coupling[1], coupling[0] )
-        
+
         # read template file
         with open(self.restrictCardTemplate, 'r') as f:
             template_string = f.read()
@@ -134,6 +143,7 @@ class Configuration:
 
         logger.debug( 'Written restriction file %s', self.restrictCard )
         logger.info( "########### Configuration finished ###########" )
+
 
     def cleanup(self):
         if os.path.isdir(self.uniquePath):

@@ -37,7 +37,7 @@ def toGraph2D(name,title,length,x,y,z):
     #res = ROOT.TGraphDelaunay(result)
     return result
 
-interpolate         = False
+interpolate         = True
 model_name          = 'ewkDM'
 nonZeroCouplings    = ("DC1V","DC1A","DC2V","DC2A")
 nZC_latex           = ("#DeltaC_{1,V}", "#DeltaC_{1,A}", "#DeltaC_{2,V}", "#DeltaC_{2,A}")
@@ -63,7 +63,7 @@ for proc in processes:
     
     logger.info("Starting with process %s", proc)
     config = Configuration( model_name = model_name, modified_couplings = {} )
-    p = Process(process = proc, nEvents = 50000, config = config, xsec_cache = 'xsec_DB_BU.pkl')
+    p = Process(process = proc, nEvents = 50000, config = config)
     SM_xsec[proc] = p.xsec()
     
     logger.info("SM x-sec: %s", SM_xsec[proc])
@@ -73,6 +73,8 @@ for proc in processes:
         logger.info("Making 2D plots for %s",comb)
         fixedPoints = list(nonZeroCouplings)
         subDir = "{}_vs_{}".format(comb[0],comb[1])
+        if interpolate:
+            subDir += "_interpolated"
         for c in comb: fixedPoints.remove(c)
 
         for v in points:
@@ -94,13 +96,13 @@ for proc in processes:
                         # Create configuration class
                         config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
                         
-                        p = Process(process = proc, nEvents = 50000, config = config, xsec_cache = 'xsec_DB_BU.pkl')
+                        p = Process(process = proc, nEvents = 50000, config = config)
                         if p.hasXSec():
                             logger.debug("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
                             xsec_val = p.xsec()
                             ratio = xsec_val/SM_xsec[proc]
                         else:
-                            ratio = u_float(1.)
+                            ratio = u_float(-1.)
                         x_list.append(x)
                         y_list.append(y)
                         z_list.append(ratio.val)
@@ -114,7 +116,7 @@ for proc in processes:
                     xmax = max(x_list)
                     ymin = min(y_list)
                     ymax = max(y_list)
-                    bin_size = 0.25
+                    bin_size = 0.125
                     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
                     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
                     #print nxbins,nybins
