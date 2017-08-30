@@ -59,11 +59,11 @@ latex1.SetTextAlign(11)
 
 logger.info("Model:        %s", model_name)
 
-for proc in processes[:1]:
+for proc in processes:
     
     logger.info("Starting with process %s", proc)
     config = Configuration( model_name = model_name, modified_couplings = {} )
-    p = Process(process = proc, nEvents = 50000, config = config, xsec_cache = 'xsec_DB_BU.pkl')
+    p = Process(process = proc, nEvents = 50000, config = config)
     SM_xsec[proc] = p.xsec()
     
     logger.info("SM x-sec: %s", SM_xsec[proc])
@@ -96,7 +96,7 @@ for proc in processes[:1]:
                         # Create configuration class
                         config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
                         
-                        p = Process(process = proc, nEvents = 50000, config = config, xsec_cache = 'xsec_DB_BU.pkl')
+                        p = Process(process = proc, nEvents = 50000, config = config)
                         if p.hasXSec():
                             logger.debug("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
                             xsec_val = p.xsec()
@@ -116,7 +116,7 @@ for proc in processes[:1]:
                     xmax = max(x_list)
                     ymin = min(y_list)
                     ymax = max(y_list)
-                    bin_size = 0.25
+                    bin_size = 0.125
                     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
                     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
                     #print nxbins,nybins
