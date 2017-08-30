@@ -42,7 +42,7 @@ config = Configuration( model_name = args.model, modified_couplings = modified_c
 # make process
 p = Process(process = args.process, nEvents = args.nEvents, config = config)
 
-if args.makeGridpack: p.makeGridpack()
+if args.makeGridpack: p.makeGridpack(overwrite = args.overwrite)
 
 xsec_val = p.xsec(overwrite = args.overwrite)
 
