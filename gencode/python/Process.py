@@ -117,7 +117,7 @@ class Process:
 
             return xsec_
 
-    def gridpack(self, overwrite=False):
+    def makeGridpack(self, overwrite=False):
 
         # gridpack file name
         gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( self.getKey() ) )
@@ -131,7 +131,7 @@ class Process:
             # call process setup 
             self.setup()           
  
-            logger.info( "Preparing first part of gridpack" )
+            logger.info( "Preparing gridpack" )
             output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
 
             logger.info( "Stitching together all the parts of the gridpack" )
