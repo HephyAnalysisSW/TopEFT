@@ -57,7 +57,7 @@ nJobs = len(processes)*len(allCombinationsFlat)
 logger.info("Will need to run over %i combinations.",nJobs)
 
 for p in processes:
-    for comb in allCombinationsFlat[150:300]:
+    for comb in allCombinationsFlat[450:]:
         strBase = "{} {} "*nDim
         couplingStr = strBase.format(*comb)
         #couplingStr = "%s %s %s %s"%(nonZeroCouplings[0], c[0], nonZeroCouplings[1], c[1])
@@ -65,5 +65,5 @@ for p in processes:
         logger.info(couplingStr)
         os.system(submitCMD+" 'python calcXSec.py --model "+model_name+" --process "+p+" --couplings "+couplingStr+"'")
         if not "echo" in submitCMD:
-            time.sleep(30) # need to distribute load, shouldn't start with 40 jobs at a time
+            time.sleep(0) # need to distribute load, shouldn't start with 40 jobs at a time
 
