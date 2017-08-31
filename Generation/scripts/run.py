@@ -61,8 +61,6 @@ for i_param_point, param_point in enumerate(param_points):
 
     xsec_val = p.xsec(overwrite = args.overwrite)
 
-    if not args.keepWorkspace: config.cleanup()
-
     logger.info("Calculated xsec: %s ", repr(xsec_val) )
 
     
