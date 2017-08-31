@@ -1,47 +1,70 @@
 #!/usr/bin/env python
 
 # Standard imports
-from TopEFT.Generation.EFT import *
+import argparse
 
-## cuW
-#coup = "cuW"
-#couplingValues = [ i*0.077/15 for i in range(-15,15) ]
+# TopEFT imports
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
+from TopEFT.tools.u_float         import u_float
+# Logging
+import TopEFT.tools.logger as logger
 
-## cuG
-#coup = "cuG"
-#couplingValues = [ i*0.007/15 for i in range(-15,15) ]
+argParser = argparse.ArgumentParser(description = "Argument parser")
+argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW'],     help="Which process?")
+argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
+argParser.add_argument('--overwrite',   action='store_true',    help="Overwrite exisiting x-sec calculation and gridpack")
+argParser.add_argument('--keepWorkspace',   action='store_true',    help="keep the temporary workspace?")
+argParser.add_argument('--nEvents',     action='store',         default = 50000,    type=int, help="Number of Events" )
+argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
+argParser.add_argument('--makeGridpack',action='store_true',    help="make gridPack?" )
 
-# cuB
-coup = "cuB"
-couplingValues = [ i*0.3/15 for i in range(-15,15) ]
+args = argParser.parse_args()
 
-processes = ['ttZ','ttW','ttH']
-#processes = ['ttZ','ttH']
-#processes = ['ttW']
+logger = logger.get_logger(args.logLevel, logFile = None)
 
-def wrapper(p):
-    config = configuration('HEL_UFO')
-    config.setup()
+# Single argument -> interpret as file
+if len(args.couplings) == 1:
+    with open(args.couplings, 'r') as f:
+        param_points = [ line.rstrip().split() for line in f.readlines() ]
+elif len(args.couplings)%2==0:
+# Even number of arguments -> one line
+    param_points = [args.couplings]
+else:
+    logger.error("Need an even number of coupling arguments of the format coupling1, value1, coupling2, value2, ... . Got %r", args.couplings )
+    raise ValueError
 
-    for cv in couplingValues[:17]:
-        HEL_couplings = couplings()
-        HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
-        HEL_couplings.setCoupling(coup,cv)
+# Create configuration class
+config = Configuration( model_name = args.model )
 
-        # print coup, cv
-        ttz_test = process(p, 50000, config)
-        ttz_test.addCoupling(HEL_couplings)
+# Process all the coupling points
+for i_param_point, param_point in enumerate(param_points):
 
-        ttz_test.run(keepGridpack=False, overwrite=True)
-        del ttz_test
+    logger.info( "Processing parameter point %i/%i", i_param_point, len(param_points) )
 
-    config.clean()
-    del config
+    # Interpret coupling argument list
+    names  = param_point[::2]
+    values = map(float,param_point[1::2])
 
-from multiprocessing import Pool
-pool = Pool(processes=8)
-results = pool.map(wrapper, processes)
+    modification_dict = {c:v for c,v in zip( names, values ) }
 
-pool.close()
-pool.join()
+    # Let's not leave the user in the dark
+    logger.info("Model:        %s", args.model)
+    logger.info("Process:      %s", args.process)
+    logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modification_dict.items()] ))
 
+    # make process
+    p = Process(process = args.process, nEvents = args.nEvents, config = config, modified_couplings = modification_dict) 
+
+    if args.makeGridpack: p.makeGridpack(overwrite = args.overwrite)
+
+    xsec_val = p.xsec(overwrite = args.overwrite)
+
+    if not args.keepWorkspace: config.cleanup()
+
+    logger.info("Calculated xsec: %s ", repr(xsec_val) )
+
+    
+config.cleanup()
+    
