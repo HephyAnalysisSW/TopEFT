@@ -79,7 +79,7 @@ class Configuration:
         Time consuming. '''
 
         # Now begin with the work
-        logger.info( "########### Configuration ###########" )
+        logger.info( "############## Initialize Configuration ##############" )
         os.makedirs(self.uniquePath)
 
         # create new directories
@@ -102,10 +102,13 @@ class Configuration:
             logger.info( "Using UFO from MG5 for model %s", self.model_name )
 
         self.isInitialized = True
+
+        logger.info( "########### Done: Initialize Configuration ###########" )
         
     def modelSetup(self, modified_couplings = None):
         ''' Update the restriction card
         '''
+        logger.info( "#################### Model Setup #####################" )
 
         if not self.isInitialized: self.initialize()
 
@@ -142,7 +145,7 @@ class Configuration:
         out.close()
 
         logger.debug( 'Written restriction file %s', self.restrictCard )
-        logger.info( "########### Configuration finished ###########" )
+        logger.info( "################ Done: Model Setup #################" )
 
 
     def cleanup(self):
