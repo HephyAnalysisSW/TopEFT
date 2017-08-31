@@ -8,8 +8,8 @@ import itertools
 import ctypes
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import Configuration
-from TopEFT.gencode.Process       import Process
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
 from TopEFT.tools.u_float         import u_float
 from TopEFT.tools.user            import plot_directory
 
@@ -18,7 +18,7 @@ import TopEFT.tools.logger as logger
 logger = logger.get_logger("CRITICAL", logFile = None)
 
 # Plot style
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 
