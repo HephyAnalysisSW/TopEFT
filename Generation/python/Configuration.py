@@ -67,11 +67,11 @@ class Configuration:
         self.restrictCard         = os.path.join( self.MG5_tmpdir, 'models', self.model_name, 'restrict_no_b_mass.dat' ) 
 
         # Consistency check of the model: Check that couplings are unique
-        all_couplings = [ c[0] for c in sum(self.model.values(),[]) ]
+        self.all_model_couplings = [ c[0] for c in sum(self.model.values(),[]) ]
         seen = set()
-        uniq = [x for x in all_couplings if x not in seen and not seen.add(x)] 
-        if len(seen)!=len(all_couplings): 
-            logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(all_couplings), model_file )
+        uniq = [x for x in self.all_model_couplings if x not in seen and not seen.add(x)] 
+        if len(seen)!=len(self.all_model_couplings): 
+            logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(self.all_model_couplings), model_file )
             raise RuntimeError
 
     def initialize( self ):
@@ -114,8 +114,8 @@ class Configuration:
 
         # Check whether couplings are in the model
         for coup in self.modified_couplings.keys():
-            if coup not in all_couplings:
-                logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(all_couplings) )
+            if coup not in self.all_model_couplings:
+                logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(self.all_model_couplings) )
                 raise RuntimeError
 
         logger.debug( 'Creating restriction file based on template %s', self.restrictCardTemplate )
