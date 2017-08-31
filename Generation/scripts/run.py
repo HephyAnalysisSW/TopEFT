@@ -26,7 +26,7 @@ logger = logger.get_logger(args.logLevel, logFile = None)
 
 # Single argument -> interpret as file
 if len(args.couplings) == 1:
-    with open(args.couplings, 'r') as f:
+    with open(args.couplings[0], 'r') as f:
         param_points = [ line.rstrip().split() for line in f.readlines() ]
 elif len(args.couplings)%2==0:
 # Even number of arguments -> one line
@@ -41,7 +41,7 @@ config = Configuration( model_name = args.model )
 # Process all the coupling points
 for i_param_point, param_point in enumerate(param_points):
 
-    logger.info( "Processing parameter point %i/%i", i_param_point, len(param_points) )
+    logger.info( "Processing parameter point %i/%i", i_param_point+1, len(param_points) )
 
     # Interpret coupling argument list
     names  = param_point[::2]
