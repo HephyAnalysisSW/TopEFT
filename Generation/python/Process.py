@@ -121,9 +121,6 @@ class Process:
             if not os.path.exists( self.GP_outputDir ):
                 os.makedirs( self.GP_outputDir )
 
-            # call process setup 
-            self.setup()           
- 
             logger.info( "Preparing gridpack" )
             output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
 
