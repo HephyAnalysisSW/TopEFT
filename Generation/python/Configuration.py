@@ -144,8 +144,8 @@ class Configuration:
         out.write(template_string.format( **block_strings ) )
         out.close()
 
-        logger.debug( 'Written restriction file %s', self.restrictCard )
-        logger.info( "################ Done: Model Setup #################" )
+        logger.info( 'Written restriction file %s', self.restrictCard )
+        logger.info( "################# Done: Model Setup ##################" )
 
 
     def cleanup(self):
