@@ -101,6 +101,7 @@ class Process:
             # rerun MG to obtain the correct x-sec (with more events)
             with open( os.path.join( self.processTmpDir, 'Cards/run_card.dat'), 'a') as f:
                 f.write(".false. =  gridpack\n")
+            logger.info( "Calculate x-sec: Calling bin/generate_events" )
             output = subprocess.check_output([ os.path.join( self.processTmpDir, 'bin/generate_events') , '-f'])
             m = re.search("Cross-section :\s*(.*) \pb", output)
             logger.info( "x-sec: {} pb".format(m.group(1)) )
@@ -129,38 +130,75 @@ class Process:
             if not os.path.exists( self.GP_outputDir ):
                 os.makedirs( self.GP_outputDir )
 
-            logger.info( "Preparing gridpack: Calling bin/generate_events" )
-            output = subprocess.check_output([os.path.join( self.processTmpDir, 'bin/generate_events'), '-f'])
+            logger.info( "Preparing gridpack" )
+            output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), '-f'])
 
-            logger.info( "Extracting run_01_gridpack.tar.gz" )
-            subprocess.call(['tar', 'xaf', os.path.join( self.processTmpDir, 'run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])
+            logger.info( "Stitching together all the parts of the gridpack" )
+            subprocess.call(['tar', 'xaf', os.path.join( self.config.uniquePath, 'processtmp/run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])
 
-            # move madevent, run.sh to process_forgridpack_tmp
-            process_forgridpack_tmp = os.path.join(self.config.uniquePath, 'process')
-            if os.path.exists( process_forgridpack_tmp ): shutil.rmtree( process_forgridpack_tmp )
-            shutil.move(os.path.join(self.config.uniquePath, 'madevent'),       process_forgridpack_tmp)
-            shutil.move(os.path.join(self.config.uniquePath, 'run.sh'),         process_forgridpack_tmp)
+            # create fresh processpath
+            process_path = os.path.join( self.config.uniquePath, 'process')
+            if os.path.exists( process_path ): shutil.rmtree( process_path ) 
+            os.mkdir( process_path )
 
-            ##  copy mgbasedir from original to uniquePath for usage in gridpack
-            #mgbasedir_for_gridpack = os.path.join( self.config.uniquePath, 'mgbasedir')
-            #if os.path.exists( mgbasedir_for_gridpack ): shutil.rmtree(mgbasedir_for_gridpack )
-            #shutil.copytree(os.path.join(self.config.GP_tmpdir, 'mgbasedir'),       self.config.uniquePath)
+            # madevent directory
+            shutil.copytree(os.path.join( self.config.uniquePath,  'madevent'),   os.path.join( process_path , 'madevent') )
 
-            # copy runcmsgrid.sh from original
-            #shutil.copy(os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),   self.config.uniquePath)
+            # run.sh
+            shutil.copy(os.path.join( self.config.uniquePath,  'run.sh'),         process_path )
+
+            # mgbasedir 
+            mgbasedir_gridpack = os.path.join(self.config.uniquePath, 'mgbasedir')
+            if os.path.exists( mgbasedir_gridpack ): shutil.rmtree( mgbasedir_gridpack )
+            shutil.copytree(os.path.join( self.config.GP_tmpdir,   'mgbasedir'),  mgbasedir_gridpack )
+
+            # runcmsgrid.sh
+            shutil.copy(os.path.join( self.config.GP_tmpdir,   'runcmsgrid.sh'),  self.config.uniquePath )
 
             logger.info( "Compressing the gridpack" )
-            os.system('cd {uniquepath}; tar cJpsf {gridpack} process -C {centralgridpackdir} runcmsgrid.sh -C {centralgridpackdir} mgbasedir'.format(
-                uniquepath   = self.config.uniquePath,
-                gridpack     = gridpack,
-                #runcmsgridsh = os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),
-                centralgridpackdir = self.config.GP_tmpdir,
-            ))
+            os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,gridpack))
 
             logger.info( "Done!" )
             logger.info( "The gridpack is now ready to use: %r", gridpack )
 
             return gridpack
+
+#            # Make gridpack directory
+#            if not os.path.exists( self.GP_outputDir ):
+#                os.makedirs( self.GP_outputDir )
+#
+#            logger.info( "Preparing gridpack: Calling bin/generate_events" )
+#            output = subprocess.check_output([os.path.join( self.processTmpDir, 'bin/generate_events'), '-f'])
+#
+#            logger.info( "Extracting run_01_gridpack.tar.gz" )
+#            subprocess.call(['tar', 'xaf', os.path.join( self.processTmpDir, 'run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])
+#
+#            # move madevent, run.sh to process_forgridpack_tmp
+#            #process_forgridpack_tmp = os.path.join(self.config.uniquePath, 'process')
+#            #if os.path.exists( process_forgridpack_tmp ): shutil.rmtree( process_forgridpack_tmp )
+#            shutil.move(os.path.join(self.config.uniquePath, 'madevent'),       self.processTmpDir)
+#            shutil.move(os.path.join(self.config.uniquePath, 'run.sh'),         self.processTmpDir)
+#
+#            ##  copy mgbasedir from original to uniquePath for usage in gridpack
+#            #mgbasedir_for_gridpack = os.path.join( self.config.uniquePath, 'mgbasedir')
+#            #if os.path.exists( mgbasedir_for_gridpack ): shutil.rmtree(mgbasedir_for_gridpack )
+#            #shutil.copytree(os.path.join(self.config.GP_tmpdir, 'mgbasedir'),       self.config.uniquePath)
+#
+#            # copy runcmsgrid.sh from original
+#            #shutil.copy(os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),   self.config.uniquePath)
+#
+#            logger.info( "Compressing the gridpack" )
+#            os.system('tar cJpsf {gridpack} -C {centralgridpackdir} runcmsgrid.sh -C {centralgridpackdir} mgbasedir -C {uniquepath} processtmp --transform s/processtmp/process/'.format(
+#                uniquepath   = self.config.uniquePath,
+#                gridpack     = gridpack,
+#                #runcmsgridsh = os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),
+#                centralgridpackdir = self.config.GP_tmpdir,
+#            ))
+#
+#            logger.info( "Done!" )
+#            logger.info( "The gridpack is now ready to use: %r", gridpack )
+#
+#            return gridpack
 
     def diagrams(self, plot_dir):
         self.setup()

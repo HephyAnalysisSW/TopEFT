@@ -91,11 +91,11 @@ class Configuration:
         os.makedirs(self.MG5_tmpdir)
         
         # unzip MG tarball
-        logger.info( "Preparing madgraph" )
+        logger.info( "Extracting madgraph" )
         subprocess.call(['tar', 'xaf', self.MG5_tarball, '--directory', self.uniquePath])
         
         # unzip gridpack for central config files
-        logger.info( "Preparing central gridpack" )
+        logger.info( "Extracting central gridpack" )
         subprocess.call(['tar', 'xaf', self.GP_tarball,  '--directory', self.GP_tmpdir])
 
         # copy private UFO files from models in repository
