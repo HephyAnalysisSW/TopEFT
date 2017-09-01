@@ -13,4 +13,4 @@ define vl~ = ve~ vm~ vt~
 define w = w+ w-
 
 generate p p > t t~ l+ l- NP=1
-add process p p > t t~ vl vl~
+add process p p > t t~ vl vl~ NP=1
