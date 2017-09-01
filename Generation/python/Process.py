@@ -63,14 +63,14 @@ class Process:
             logger.debug( "Done with %s -> %s", source, target )
 
         # Append to me5_configuration.txt 
-        with open(self.config.uniquePath+'/processtmp/Cards/me5_configuration.txt', 'a') as f:
+        with open( os.path.join( self.processTmpDir, 'Cards/me5_configuration.txt'), 'a') as f:
             f.write("run_mode = 2\n")
             f.write("nb_core = 4\n")
             f.write("lhapdf = /cvmfs/cms.cern.ch/%s/external/lhapdf/6.1.6/share/LHAPDF/../../bin/lhapdf-config\n" % os.environ["SCRAM_ARCH"] )
             f.write("automatic_html_opening = False\n")
 
         # Append to run_card.dat
-        with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
+        with open( os.path.join( self.processTmpDir, 'Cards/run_card.dat'), 'a') as f:
             f.write("{}  =  nevents\n".format(self.nEvents))
  
     def __writeProcessCard(self):
@@ -99,10 +99,9 @@ class Process:
             self.__initialize( modified_couplings ) 
             logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)
-            with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
+            with open( os.path.join( self.processTmpDir, 'Cards/run_card.dat'), 'a') as f:
                 f.write(".false. =  gridpack\n")
-            #subprocess.call(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
-            output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
+            output = subprocess.check_output([ os.path.join( self.processTmpDir, 'bin/generate_events') , '-f'])
             m = re.search("Cross-section :\s*(.*) \pb", output)
             logger.info( "x-sec: {} pb".format(m.group(1)) )
 
@@ -130,19 +129,21 @@ class Process:
             if not os.path.exists( self.GP_outputDir ):
                 os.makedirs( self.GP_outputDir )
 
-            logger.info( "Preparing gridpack" )
-            output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
+            logger.info( "Preparing gridpack: Calling bin/generate_events" )
+            output = subprocess.check_output([os.path.join( self.processTmpDir, 'bin/generate_events'), '-f'])
 
-            logger.info( "Stitching together all the parts of the gridpack" )
-            subprocess.call(['tar', 'xaf', '%s/processtmp/run_01_gridpack.tar.gz'%self.config.uniquePath, '--directory', self.config.uniquePath])
-            os.mkdir('%s/process'%self.config.uniquePath)
-            shutil.move('%s/madevent'%self.config.uniquePath, '%s/process'%self.config.uniquePath)
-            shutil.move('%s/run.sh'%self.config.uniquePath, '%s/process'%self.config.uniquePath)
-            shutil.move('%s/mgbasedir'%self.config.GP_tmpdir, self.config.uniquePath)
-            shutil.move('%s/runcmsgrid.sh'%self.config.GP_tmpdir, self.config.uniquePath)
+            logger.info( "Extracting run_01_gridpack.tar.gz" )
+            subprocess.call(['tar', 'xaf', os.path.join( self.processTmpDir, 'run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])
+
+            process_forgridpack_tmp = os.path.join(self.config.uniquePath, 'process_forgridpack_tmp')
+            if os.path.exists( process_forgridpack_tmp ): shutil.rmtree( process_forgridpack_tmp )
+
+            shutil.move(os.path.join(self.config.uniquePath, 'madevent'),       process_forgridpack_tmp)
+            shutil.move(os.path.join(self.config.uniquePath, 'run.sh'),         process_forgridpack_tmp)
+            shutil.move(os.path.join(self.config.GP_tmpdir, 'mgbasedir'),       self.config.uniquePath)
+            shutil.move(os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),   self.config.uniquePath)
             logger.info( "Compressing the gridpack" )
-            os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,gridpack))
-            #subprocess.call(['cd','%s;'%self.config.uniquePath, 'tar', 'cJpsf', gridpack, 'mgbasedir', 'process', 'runcmsgrid.sh'])
+            os.system('cd %s; tar cJpsf %s mgbasedir process_forgridpack_tmp runcmsgrid.sh'%(self.config.uniquePath,gridpack))
             logger.info( "Done!" )
             logger.info( "The gridpack is now ready to use: %r", gridpack )
 
