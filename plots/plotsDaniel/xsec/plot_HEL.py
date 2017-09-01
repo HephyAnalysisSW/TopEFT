@@ -6,8 +6,8 @@ import math
 import argparse
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import Configuration
-from TopEFT.gencode.Process       import Process
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
 from TopEFT.tools.u_float         import u_float
 
 # plotting imports
@@ -32,7 +32,7 @@ import TopEFT.tools.logger as logger
 logger = logger.get_logger(args.logLevel,logFile=None)
 
 
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
 n = int(args.points)/2

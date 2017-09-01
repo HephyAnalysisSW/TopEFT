@@ -31,13 +31,13 @@ def makeUniquePath():
     return uniquePath
 
 class Configuration:
-    def __init__(self, model_name, modified_couplings):
+    def __init__(self, model_name):
 
         self.model_name = model_name
         self.isInitialized = False
 
         # Load model
-        model_file = os.path.expandvars( "$CMSSW_BASE/python/TopEFT/gencode/models.py" )
+        model_file = os.path.expandvars( "$CMSSW_BASE/python/TopEFT/Models/parameters.py" )
         logger.info( "Loading model %s from file %s", model_name, model_file )
         try:
             tmp_module = imp.load_source( model_name, os.path.expandvars( model_file ) ) 
@@ -51,7 +51,7 @@ class Configuration:
         logger.info( "Using temporary directory %s", self.uniquePath )
 
         # MG file locations
-        self.data_path = os.path.expandvars( '$CMSSW_BASE/src/TopEFT/gencode/data' )
+        self.data_path = os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Generation/data' )
 
         # MG5 directories
         self.MG5_tarball     = '/afs/hephy.at/data/dspitzbart01/MG5_aMC_v2.3.3.tar.gz'
@@ -67,28 +67,19 @@ class Configuration:
         self.restrictCard         = os.path.join( self.MG5_tmpdir, 'models', self.model_name, 'restrict_no_b_mass.dat' ) 
 
         # Consistency check of the model: Check that couplings are unique
-        all_couplings = [ c[0] for c in sum(self.model.values(),[]) ]
+        self.all_model_couplings = [ c[0] for c in sum(self.model.values(),[]) ]
         seen = set()
-        uniq = [x for x in all_couplings if x not in seen and not seen.add(x)] 
-        if len(seen)!=len(all_couplings): 
-            logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(all_couplings), model_file )
+        uniq = [x for x in self.all_model_couplings if x not in seen and not seen.add(x)] 
+        if len(seen)!=len(self.all_model_couplings): 
+            logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(self.all_model_couplings), model_file )
             raise RuntimeError
-
-        # store couplings
-        self.modified_couplings = modified_couplings
-
-        # Check whether couplings are in the model
-        for coup in self.modified_couplings.keys():
-            if coup not in all_couplings:
-                logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(all_couplings) )
-                raise RuntimeError
 
     def initialize( self ):
         ''' Create temporary directories and unzip GP. 
         Time consuming. '''
 
         # Now begin with the work
-        logger.info( "########### Configuration ###########" )
+        logger.info( "############## Initialize Configuration ##############" )
         os.makedirs(self.uniquePath)
 
         # create new directories
@@ -103,20 +94,32 @@ class Configuration:
         logger.info( "Preparing central gridpack" )
         subprocess.call(['tar', 'xaf', self.GP_tarball,  '--directory', self.GP_tmpdir])
 
-        # copy private UFO files from Models in repository
-        if not os.path.isdir( self.MG5_tmpdir+"/models/"+self.model_name ):
+        # copy private UFO files from models in repository
+        if not os.path.isdir( self.MG5_tmpdir+"/Models/"+self.model_name ):
             logger.info( "Copying UFO from private Model database for model %s",self.model_name )
             shutil.copytree(os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Models/%s/UFO'%self.model_name ), self.MG5_tmpdir+"/models/"+self.model_name )
         else:
             logger.info( "Using UFO from MG5 for model %s", self.model_name )
 
         self.isInitialized = True
+
+        logger.info( "########### Done: Initialize Configuration ###########" )
         
-    def modelSetup(self):
+    def modelSetup(self, modified_couplings = None):
         ''' Update the restriction card
         '''
+        logger.info( "#################### Model Setup #####################" )
 
         if not self.isInitialized: self.initialize()
+
+        # store couplings
+        self.modified_couplings = modified_couplings if modified_couplings is not None else []
+
+        # Check whether couplings are in the model
+        for coup in self.modified_couplings.keys():
+            if coup not in self.all_model_couplings:
+                logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(self.all_model_couplings) )
+                raise RuntimeError
 
         logger.debug( 'Creating restriction file based on template %s', self.restrictCardTemplate )
         # make block strings to be inserted into template file
@@ -141,8 +144,8 @@ class Configuration:
         out.write(template_string.format( **block_strings ) )
         out.close()
 
-        logger.debug( 'Written restriction file %s', self.restrictCard )
-        logger.info( "########### Configuration finished ###########" )
+        logger.info( 'Written restriction file %s', self.restrictCard )
+        logger.info( "################# Done: Model Setup ##################" )
 
 
     def cleanup(self):

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Standard imports
 import os
 import time

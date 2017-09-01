@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 # Standard imports
 import argparse
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import Configuration
-from TopEFT.gencode.Process       import Process
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
 from TopEFT.tools.u_float         import u_float
 # Logging
 import TopEFT.tools.logger as logger
@@ -22,30 +24,45 @@ args = argParser.parse_args()
 
 logger = logger.get_logger(args.logLevel, logFile = None)
 
-# Check that we have an even number of arguments
-if not len(args.couplings)%2==0:
+# Single argument -> interpret as file
+if len(args.couplings) == 1:
+    with open(args.couplings[0], 'r') as f:
+        param_points = [ line.rstrip().split() for line in f.readlines() ]
+elif len(args.couplings)%2==0:
+# Even number of arguments -> one line
+    param_points = [args.couplings]
+else:
     logger.error("Need an even number of coupling arguments of the format coupling1, value1, coupling2, value2, ... . Got %r", args.couplings )
-
-# Interpret coupling argument list
-coupling_names  = args.couplings[::2]
-coupling_values = map(float,args.couplings[1::2])
-
-modified_couplings = {c:v for c,v in zip( coupling_names, coupling_values ) }
-
-# Let's not leave the user in the dark
-logger.info("Model:        %s", args.model)
-logger.info("Process:      %s", args.process)
-logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
+    raise ValueError
 
 # Create configuration class
-config = Configuration( model_name = args.model, modified_couplings = modified_couplings )
-# make process
-p = Process(process = args.process, nEvents = args.nEvents, config = config)
+config = Configuration( model_name = args.model )
 
-if args.makeGridpack: p.makeGridpack(overwrite = args.overwrite)
+# Process all the coupling points
+for i_param_point, param_point in enumerate(param_points):
 
-xsec_val = p.xsec(overwrite = args.overwrite)
+    logger.info( "Processing parameter point %i/%i", i_param_point+1, len(param_points) )
 
-if not args.keepWorkspace: config.cleanup()
+    # Interpret coupling argument list
+    names  = param_point[::2]
+    values = map(float,param_point[1::2])
 
-logger.info("Done! Calculated xsec: %s ", repr(xsec_val) )
+    modification_dict = {c:v for c,v in zip( names, values ) }
+
+    # Let's not leave the user in the dark
+    logger.info("Model:        %s", args.model)
+    logger.info("Process:      %s", args.process)
+    logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modification_dict.items()] ))
+
+    # make process
+    p = Process(process = args.process, nEvents = args.nEvents, config = config, modified_couplings = modification_dict) 
+
+    if args.makeGridpack: p.makeGridpack(overwrite = args.overwrite)
+
+    xsec_val = p.xsec(overwrite = args.overwrite)
+
+    logger.info("Calculated xsec: %s ", repr(xsec_val) )
+
+    
+config.cleanup()
+    

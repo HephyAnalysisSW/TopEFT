@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db'):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db', modified_couplings = None):
 
         self.process            = process
         self.config             = config
@@ -37,6 +37,40 @@ class Process:
 
         # xsec cache location
         self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache) )
+
+        # Initialize setup
+        if not self.config.isInitialized: self.config.initialize()
+        self.config.modelSetup( modified_couplings )
+
+        # Write process card
+        self.writeProcessCard()
+        
+        logger.info( "Running MG executable on %s", self.tmpProcessCard )
+        subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
+        logger.info( "Done with MG executable" ) 
+
+        # copy files from central gridpack
+        for filename in [ 
+            'run_card.dat', 
+            'grid_card.dat',
+            'me5_configuration.txt',
+            ] :
+            logger.info(  "Copying files from GP directory to temporary process directory: %s", filename )
+            source = os.path.join( self.config.GP_tmpdir, 'process/madevent/Cards', filename )
+            target = os.path.join( self.processTmpDir, 'Cards', filename )
+            shutil.copyfile( source, target )
+            logger.debug( "Done with %s -> %s", source, target )
+
+        # Append to me5_configuration.txt 
+        with open(self.config.uniquePath+'/processtmp/Cards/me5_configuration.txt', 'a') as f:
+            f.write("run_mode = 2\n")
+            f.write("nb_core = 4\n")
+            f.write("lhapdf = /cvmfs/cms.cern.ch/%s/external/lhapdf/6.1.6/share/LHAPDF/../../bin/lhapdf-config\n" % os.environ["SCRAM_ARCH"] )
+            f.write("automatic_html_opening = False\n")
+
+        # Append to run_card.dat
+        with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
+            f.write("{}  =  nevents\n".format(self.nEvents))
  
     def writeProcessCard(self):
 
@@ -53,53 +87,12 @@ class Process:
         out.close()
         logger.info( "Written process card to %s", self.tmpProcessCard )
 
-    def setup( self ):
+    def xsec(self, overwrite=False):
 
-            # Initialize setup
-            if not self.config.isInitialized: self.config.initialize()
-            self.config.modelSetup()
-            # Write process card
-            self.writeProcessCard()
-            
-            logger.info( "Running MG executable on %s", self.tmpProcessCard )
-            subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
-            logger.info( "Done with MG executable" ) 
-
-            # copy files from central gridpack
-            for filename in [ 
-                'run_card.dat', 
-                'grid_card.dat',
-                'me5_configuration.txt',
-                ] :
-                logger.info(  "Copying files from GP directory to temporary process directory: %s", filename )
-                source = os.path.join( self.config.GP_tmpdir, 'process/madevent/Cards', filename )
-                target = os.path.join( self.processTmpDir, 'Cards', filename )
-                shutil.copyfile( source, target )
-                logger.debug( "Done with %s -> %s", source, target )
-
-            # Append to me5_configuration.txt 
-            with open(self.config.uniquePath+'/processtmp/Cards/me5_configuration.txt', 'a') as f:
-                f.write("run_mode = 2\n")
-                f.write("nb_core = 4\n")
-                f.write("lhapdf = /cvmfs/cms.cern.ch/%s/external/lhapdf/6.1.6/share/LHAPDF/../../bin/lhapdf-config\n" % os.environ["SCRAM_ARCH"] )
-                f.write("automatic_html_opening = False\n")
-
-            # Append to run_card.dat
-            with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
-                f.write("{}  =  nevents\n".format(self.nEvents))
-
-    def xsec(self, modified_couplings=None, overwrite=False):
-
-        if modified_couplings:
-            self.config.modified_couplings = modified_couplings
-        
         if self.xsecDB.contains(self.getKey()) and not  overwrite:
             return self.xsecDB.get(self.getKey())
         else:
            
-            # call process setup 
-            self.setup()           
- 
             logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
@@ -128,9 +121,6 @@ class Process:
             if not os.path.exists( self.GP_outputDir ):
                 os.makedirs( self.GP_outputDir )
 
-            # call process setup 
-            self.setup()           
- 
             logger.info( "Preparing gridpack" )
             output = subprocess.check_output(['%s/processtmp/bin/generate_events'%self.config.uniquePath, '-f'])
 
