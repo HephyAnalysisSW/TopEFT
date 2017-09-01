@@ -6,5 +6,6 @@ All masses, couplings and widths are synchronized with the values used in centra
 
 Usage
 ```
-run.py --model ewkDM --process ttZ --couplings DC1V 0.5 DC1A 0.5 --makeGridpack
+run.py --model ewkDM --process ttZ --couplings DC1V 0.5 DC1A 0.5 --makeGridpack --calcXSec
 ```
+The argument to `--couplings` can be a file name with a list of model points.
