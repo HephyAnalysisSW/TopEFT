@@ -19,6 +19,7 @@ argParser.add_argument('--keepWorkspace',   action='store_true',    help="keep t
 argParser.add_argument('--nEvents',     action='store',         default = 50000,    type=int, help="Number of Events" )
 argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
 argParser.add_argument('--makeGridpack',action='store_true',    help="make gridPack?" )
+argParser.add_argument('--calcXSec',    action='store_true',    help="calculate x-sec?" )
 
 args = argParser.parse_args()
 
@@ -55,13 +56,16 @@ for i_param_point, param_point in enumerate(param_points):
     logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modification_dict.items()] ))
 
     # make process
-    p = Process(process = args.process, nEvents = args.nEvents, config = config, modified_couplings = modification_dict) 
+    p = Process(process = args.process, nEvents = args.nEvents, config = config) 
 
-    if args.makeGridpack: p.makeGridpack(overwrite = args.overwrite)
+    # Make grid pack
+    if args.makeGridpack: 
+        gridpack = p.makeGridpack(modified_couplings = modification_dict, overwrite = args.overwrite)
 
-    xsec_val = p.xsec(overwrite = args.overwrite)
-
-    logger.info("Calculated xsec: %s ", repr(xsec_val) )
+    # calculate x-sec
+    if args.calcXSec:
+        xsec     = p.xsec(modified_couplings = modification_dict, overwrite = args.overwrite)
+        logger.info("xsec: %s ", repr(xsec) )
 
     
 config.cleanup()

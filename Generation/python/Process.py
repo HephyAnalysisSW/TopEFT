@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db', modified_couplings = None):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db'):
 
         self.process            = process
         self.config             = config
@@ -38,8 +38,9 @@ class Process:
         # xsec cache location
         self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache) )
 
+    def initialize( self, modified_couplings = None):
         # Initialize setup
-        if not self.config.isInitialized: self.config.initialize()
+        self.config.initialize()
         self.config.modelSetup( modified_couplings )
 
         # Write process card
@@ -87,12 +88,15 @@ class Process:
         out.close()
         logger.info( "Written process card to %s", self.tmpProcessCard )
 
-    def xsec(self, overwrite=False):
+    def xsec(self, modified_couplings = None, overwrite=False):
 
-        if self.xsecDB.contains(self.getKey()) and not  overwrite:
-            return self.xsecDB.get(self.getKey())
+        key = self.getKey( modified_couplings )
+        # Do we have the x-sec?
+        if self.xsecDB.contains(key) and not overwrite:
+            logger.debug( "Found x-sec %s for key %r. Do nothing.", self.xsecDB.get(key), key )
+            return self.xsecDB.get(key)
         else:
-           
+            self.initialize( modified_couplings ) 
             logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
@@ -110,12 +114,17 @@ class Process:
 
             return xsec_
 
-    def makeGridpack(self, overwrite=False):
+    def makeGridpack(self, modified_couplings = None, overwrite=False):
 
         # gridpack file name
-        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( self.getKey() ) )
-
-        if not os.path.exists( gridpack ) or overwrite: 
+        key = self.getKey(modified_couplings)
+        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( key ) )
+        # Do we have the gridpack?
+        if os.path.exists( gridpack ) and not  overwrite: 
+            logger.debug( "Found gridpack %s. Do nothing", gridpack )
+            return
+        else:
+            self.initialize( modified_couplings ) 
 
             # Make gridpack directory
             if not os.path.exists( self.GP_outputDir ):
@@ -159,14 +168,11 @@ class Process:
                 #shutil.copyfile(ps.replace(".ps","_%i.pdf"%i,plot_path))
         
 
-    def getKey(self):
+    def getKey(self, modified_couplings):
 
-        mod_c = self.config.modified_couplings.keys()
+        mod_c = modified_couplings.keys()
         mod_c.sort()
         
-        mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
+        mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
         key = self.config.model_name, self.process, mod_c_str
         return key
-    
-    def hasXSec(self):
-        return self.xsecDB.contains(self.getKey())

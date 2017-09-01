@@ -78,6 +78,10 @@ class Configuration:
         ''' Create temporary directories and unzip GP. 
         Time consuming. '''
 
+        if self.isInitialized:
+            logger.debug( "Setup already initialized in %s. Do nothing.", self.uniquePath )
+            return
+
         # Now begin with the work
         logger.info( "############## Initialize Configuration ##############" )
         os.makedirs(self.uniquePath)
@@ -110,13 +114,13 @@ class Configuration:
         '''
         logger.info( "#################### Model Setup #####################" )
 
-        if not self.isInitialized: self.initialize()
+        self.initialize()
 
-        # store couplings
-        self.modified_couplings = modified_couplings if modified_couplings is not None else []
+        # couplings
+        modified_couplings = modified_couplings if modified_couplings is not None else []
 
         # Check whether couplings are in the model
-        for coup in self.modified_couplings.keys():
+        for coup in modified_couplings.keys():
             if coup not in self.all_model_couplings:
                 logger.error( "Coupling %s not found in model %s. All available couplings: %s", coup, self.model_name, ",".join(self.all_model_couplings) )
                 raise RuntimeError
@@ -132,8 +136,8 @@ class Configuration:
             # make modifications & build string for the template file
             block_strings[block+'_template_string'] = ""
             for i_coupling, coupling in enumerate(couplings):       # coupling is a pair (name, value) 
-                if self.modified_couplings.has_key( coupling[0] ):
-                    coupling[1] = self.modified_couplings[coupling[0]]
+                if modified_couplings.has_key( coupling[0] ):
+                    coupling[1] = modified_couplings[coupling[0]]
                 block_strings[block+'_template_string'] += "%6i %8.6f # %s\n"%( i_coupling + 1, coupling[1], coupling[0] )
 
         # read template file
@@ -146,7 +150,6 @@ class Configuration:
 
         logger.info( 'Written restriction file %s', self.restrictCard )
         logger.info( "################# Done: Model Setup ##################" )
-
 
     def cleanup(self):
         if os.path.isdir(self.uniquePath):
