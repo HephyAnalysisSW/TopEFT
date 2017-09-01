@@ -108,7 +108,7 @@ class Process:
 
             xsec_ = u_float.fromString(m.group(1)) 
             
-            self.xsecDB.add(self.getKey(), xsec_, save=True)
+            self.xsecDB.add(key, xsec_, save=True)
 
             logger.info( "Done!" )
 
@@ -117,7 +117,7 @@ class Process:
     def makeGridpack(self, modified_couplings = None, overwrite=False):
 
         # gridpack file name
-        key = self.getKey(modified_couplings)
+        key = self.getKey( modified_couplings )
         gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( key ) )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
