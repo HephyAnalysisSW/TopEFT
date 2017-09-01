@@ -34,7 +34,7 @@ class Configuration:
     def __init__(self, model_name):
 
         self.model_name = model_name
-        self.isInitialized = False
+        self.__isPreInitialized = False
 
         # Load model
         model_file = os.path.expandvars( "$CMSSW_BASE/python/TopEFT/Models/parameters.py" )
@@ -74,16 +74,16 @@ class Configuration:
             logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(self.all_model_couplings), model_file )
             raise RuntimeError
 
-    def initialize( self ):
+    def __pre_initialize( self ):
         ''' Create temporary directories and unzip GP. 
         Time consuming. '''
 
-        if self.isInitialized:
-            logger.debug( "Setup already initialized in %s. Do nothing.", self.uniquePath )
+        if self.__isPreInitialized:
+            logger.debug( "Already pre-initialized in %s. Do nothing.", self.uniquePath )
             return
 
         # Now begin with the work
-        logger.info( "############## Initialize Configuration ##############" )
+        logger.info( "############# pre-initialize Configuration ############" )
         os.makedirs(self.uniquePath)
 
         # create new directories
@@ -105,16 +105,16 @@ class Configuration:
         else:
             logger.info( "Using UFO from MG5 for model %s", self.model_name )
 
-        self.isInitialized = True
+        self.__isPreInitialized = True
 
-        logger.info( "########### Done: Initialize Configuration ###########" )
+        logger.info( "########## Done: pre-initialize Configuration #########" )
         
-    def modelSetup(self, modified_couplings = None):
+    def initialize(self, modified_couplings = None ):
         ''' Update the restriction card
         '''
-        logger.info( "#################### Model Setup #####################" )
+        logger.info( "#################### Model Setup ######################" )
 
-        self.initialize()
+        self.__pre_initialize()
 
         # couplings
         modified_couplings = modified_couplings if modified_couplings is not None else []
@@ -149,7 +149,7 @@ class Configuration:
         out.close()
 
         logger.info( 'Written restriction file %s', self.restrictCard )
-        logger.info( "################# Done: Model Setup ##################" )
+        logger.info( "################# Done: Model Setup ###################" )
 
     def cleanup(self):
         if os.path.isdir(self.uniquePath):

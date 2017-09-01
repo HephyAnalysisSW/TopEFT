@@ -38,13 +38,13 @@ class Process:
         # xsec cache location
         self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache) )
 
-    def initialize( self, modified_couplings = None):
+    def __initialize( self, modified_couplings = None):
+
         # Initialize setup
-        self.config.initialize()
-        self.config.modelSetup( modified_couplings )
+        self.config.initialize( modified_couplings )
 
         # Write process card
-        self.writeProcessCard()
+        self.__writeProcessCard()
         
         logger.info( "Running MG executable on %s", self.tmpProcessCard )
         subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
@@ -73,7 +73,7 @@ class Process:
         with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
             f.write("{}  =  nevents\n".format(self.nEvents))
  
-    def writeProcessCard(self):
+    def __writeProcessCard(self):
 
         out = open(self.tmpProcessCard, 'w')
         with open(self.templateProcessCard, 'r') as f:  #FIXME (somewhat dirty)
@@ -96,7 +96,7 @@ class Process:
             logger.debug( "Found x-sec %s for key %r. Do nothing.", self.xsecDB.get(key), key )
             return self.xsecDB.get(key)
         else:
-            self.initialize( modified_couplings ) 
+            self.__initialize( modified_couplings ) 
             logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)
             with open(self.config.uniquePath+'/processtmp/Cards/run_card.dat', 'a') as f:
@@ -124,7 +124,7 @@ class Process:
             logger.debug( "Found gridpack %s. Do nothing", gridpack )
             return
         else:
-            self.initialize( modified_couplings ) 
+            self.__initialize( modified_couplings ) 
 
             # Make gridpack directory
             if not os.path.exists( self.GP_outputDir ):
@@ -161,13 +161,7 @@ class Process:
                 if not os.path.isdir(plot_path):
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
-                #mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
-                #plot_path = os.path.join(plot_dir, self.model_name, "diagrams", self.process, mod_c_str)
-                #if not os.path.isdir(plot_path):
-                #    os.makedirs(plot_path)
-                #shutil.copyfile(ps.replace(".ps","_%i.pdf"%i,plot_path))
         
-
     def getKey(self, modified_couplings):
 
         mod_c = modified_couplings.keys()
