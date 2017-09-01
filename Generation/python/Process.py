@@ -117,7 +117,7 @@ class Process:
 
         # gridpack file name
         key = self.getKey( modified_couplings )
-        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, '_'.join( key ) )
+        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, ( '_'.join( key ) ).rstrip('_') )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
             logger.debug( "Found gridpack %s. Do nothing", gridpack )
@@ -150,11 +150,11 @@ class Process:
             #shutil.copy(os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),   self.config.uniquePath)
 
             logger.info( "Compressing the gridpack" )
-            os.system('cd {uniquepath}; tar cJpsf {gridpack} {mgbasedir} process {runcmsgridsh}'.format(
+            os.system('cd {uniquepath}; tar cJpsf {gridpack} process -C {centralgridpackdir} runcmsgrid.sh -C {centralgridpackdir} mgbasedir'.format(
                 uniquepath   = self.config.uniquePath,
                 gridpack     = gridpack,
-                mgbasedir    = os.path.join(self.config.GP_tmpdir, 'mgbasedir'),
-                runcmsgridsh = os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),
+                #runcmsgridsh = os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),
+                centralgridpackdir = self.config.GP_tmpdir,
             ))
 
             logger.info( "Done!" )

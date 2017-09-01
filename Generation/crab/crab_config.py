@@ -8,9 +8,10 @@ config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'PrivateMC'
-config.JobType.psetName = 'TOP-RunIISummer15wmLHEGS-00013_1_cfg.py'
-config.JobType.inputFiles = ['GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh', 'gridpack.tgz']
+config.JobType.psetName = 'GEN-SIM-LHE_LO.py'
+#config.JobType.inputFiles = ['GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh', 'gridpack.tgz']
 config.JobType.disableAutomaticOutputCollection = False
+config.jobType.pyCfgParams = ['gridpack=/afs/hephy.at/data/rschoefbeck01/TopEFT/results/gridpacks/ewkDM_ttZ_ll_DC1A_0.600000_DC1V_-0.240000_DC2A_0.250000.tar.xz']
 
 config.section_("Data")
 config.Data.outputPrimaryDataset = 'privateMCProductionLHEGEN'
