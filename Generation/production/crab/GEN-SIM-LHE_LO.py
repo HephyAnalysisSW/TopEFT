@@ -1,4 +1,4 @@
-
+import os
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
@@ -133,6 +133,18 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     )
 )
 
+import os
+
+print "Listing all content"
+for dirname, dirnames, filenames in os.walk('.'):
+    # print path to all subdirectories first.
+    for subdirname in dirnames:
+        print(os.path.join(dirname, subdirname))
+
+    # print path to all filenames.
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
 process.RandomNumberGeneratorService.externalLHEProducer.initialSeed = 1111111
 
 process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
@@ -140,6 +152,7 @@ process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
     outputFile = cms.string('cmsgrid_final.lhe'),
     scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
     numberOfParameters = cms.uint32(1),
+    #args = cms.vstring(os.path.expandvars(options.gridpack))
     args = cms.vstring(options.gridpack)
 )
 
