@@ -1,10 +1,14 @@
+#!/usr/bin/env python
+
 # Standard imports
 import argparse
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import Configuration
-from TopEFT.gencode.Process       import Process
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
 from TopEFT.tools.u_float         import u_float
+from TopEFT.tools.user            import plot_directory
+
 # Logging
 import TopEFT.tools.logger as logger
 
@@ -35,10 +39,10 @@ logger.info("Process:      %s", args.process)
 logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
 
 # Create configuration class
-config = Configuration( model_name = args.model, modified_couplings = modified_couplings )
+config = Configuration( model_name = args.model)
 
-p = Process(process = args.process, nEvents = 50000, config = config)
-xsec_val = p.xsec(overwrite = args.overwrite)
+p = Process(process = args.process, nEvents = 1, config = config, modified_couplings = modified_couplings )
+xsec_val = p.diagrams(plot_dir=plot_directory)
 
 config.cleanup()
 

@@ -4,7 +4,7 @@ import time
 import itertools
 
 # TopEFT
-from TopEFT.gencode.EFT import *
+from TopEFT.Generation.EFT import *
 
 # Logger
 import logging

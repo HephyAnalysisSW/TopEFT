@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 # Standard imports
-from TopEFT.gencode.EFT import *
+from TopEFT.Generation.EFT import *
 
 ## cuW
 #coup = "cuW"

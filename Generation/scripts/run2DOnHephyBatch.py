@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Standard imports
 import os
 import time
@@ -46,8 +48,8 @@ for comb in allCombinations:
 
 
 processes = ['ttZ','ttW','ttH']
-submitCMD = "submitBatch.py"
-#submitCMD = "echo"
+#submitCMD = "submitBatch.py"
+submitCMD = "echo"
 
 nJobs = len(processes[:1])*len(allCombinationsFlat)
 
@@ -63,6 +65,6 @@ for p in processes[:1]:
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
         #if i < 7: continue
-        os.system(submitCMD+" --title %s_%i 'python calcXSecModified.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))
+        os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))
         if "echo" not in submitCMD:
             time.sleep(60)

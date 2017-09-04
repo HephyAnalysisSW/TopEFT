@@ -8,8 +8,8 @@ import itertools
 import ctypes
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import Configuration
-from TopEFT.gencode.Process       import Process
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
 from TopEFT.tools.u_float         import u_float
 from TopEFT.tools.user            import plot_directory
 
@@ -18,7 +18,7 @@ import TopEFT.tools.logger as logger
 logger = logger.get_logger("CRITICAL", logFile = None)
 
 # Plot style
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 
@@ -88,9 +88,9 @@ logger.info("Model:        %s", model_name)
 
 for proc in processes:
     logger.info("Starting with process %s", proc)
-    config = Configuration( model_name = model_name, modified_couplings = {} )
+    config = Configuration( model_name = model_name )
     p = Process(process = proc, nEvents = 50000, config = config)
-    SM_xsec[proc] = p.xsec()
+    SM_xsec[proc] = p.xsec(modified_couplings = {})
     
     logger.info("SM x-sec: %s", SM_xsec[proc])
     
@@ -119,12 +119,12 @@ for proc in processes:
                         #logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
                         
                         # Create configuration class
-                        config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
+                        config = Configuration( model_name = model_name )
                         
                         p = Process(process = proc, nEvents = 50000, config = config)
-                        if p.hasXSec():
+                        if p.hasXSec(modified_couplings = modified_couplings):
                             logger.debug("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_couplings.items()] ))
-                            xsec_val = p.xsec()
+                            xsec_val = p.xsec(modified_couplings = modified_couplings)
                             ratio = xsec_val/SM_xsec[proc]
                             x_list.append(x)
                             y_list.append(y)
@@ -133,7 +133,6 @@ for proc in processes:
                             ratio = u_float(-1.)
 
                         config.cleanup()
-                
                 if interpolate:
                     a = toGraph2D(nameStr,nameStr,len(x_list),x_list,y_list,z_list)
                     xmin = min(x_list)
@@ -156,7 +155,7 @@ for proc in processes:
                     hists.append(a.Clone())
 
                 cans.append(ROOT.TCanvas(nameStr,"",500,500))
-                
+
                 hists[-1].GetXaxis().SetTitle(comb[0].replace("DC","#DeltaC_{").replace("V",",V}").replace("A",",A}"))
                 hists[-1].GetXaxis().SetNdivisions(505)
                 hists[-1].GetYaxis().SetTitle(comb[1].replace("DC","#DeltaC_{").replace("V",",V}").replace("A",",A}"))
