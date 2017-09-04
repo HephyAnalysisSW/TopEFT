@@ -74,7 +74,12 @@ class Process:
                 logger.info(  "Copying files from GP directory to temporary process directory: %s", filename )
                 source = os.path.join( self.config.GP_tmpdir, 'process/madevent/Cards', filename )
                 target = os.path.join( self.processTmpDir, 'Cards', filename )
-                shutil.copyfile( source, target )
+                try:
+                    shutil.copyfile( source, target )
+                except IOError:
+                    logger.info( "Couldn't find %s, apparently MG crashed. Restarting setup.", filename )
+                    self.setup()
+                    return
                 logger.debug( "Done with %s -> %s", source, target )
 
             # Append to me5_configuration.txt 

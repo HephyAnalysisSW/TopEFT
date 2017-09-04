@@ -23,16 +23,18 @@ model_name = "ewkDM"
 nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
 dc1v = [ i*1.3/4 for i in range(-4,3) ]
 dc1a = [ i*1.3/4 for i in range(-2,5) ]
-dc2v = [ i*0.15/3 for i in range(-3,4) ]
-dc2a = [ i*0.15/3 for i in range(-3,4) ]
+dc2v = [ i*0.30/6 for i in range(-5,7) ]
+dc2a = [ i*0.30/6 for i in range(-5,7) ]
 couplingValues = [dc1v,dc1a,dc2v,dc2a]
 
-# for 2D scans
-nonZeroCouplings = ("DC2V","DC2A")
-dc2v = [ i*0.25/5 for i in range(-5,6) ]
-dc2a = [ i*0.25/5 for i in range(-5,6) ]
-couplingValues = [dc2v,dc2a]
+## for 2D scans
+#nonZeroCouplings = ("DC2V","DC2A")
+#dc2v = [ i*0.25/5 for i in range(-5,6) ]
+#dc2a = [ i*0.25/5 for i in range(-5,6) ]
+#couplingValues = [dc2v,dc2a]
 
+
+nDim = len(nonZeroCouplings)
 # prepare the grid with all points
 couplingGrid = [ a for a in itertools.product(*couplingValues) ]
 
@@ -44,14 +46,14 @@ for comb in allCombinations:
 
 
 processes = ['ttZ','ttW','ttH']
-#submitCMD = "submitBatch.py"
-submitCMD = "echo"
+submitCMD = "submitBatch.py"
+#submitCMD = "echo"
 
-nJobs = len(processes)*len(allCombinationsFlat)
+nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 40)
+combinationChunks = chunks(allCombinationsFlat, 300)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
@@ -60,5 +62,7 @@ for p in processes[:1]:
                 strBase = "{} {} "*nDim
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
-                
-        os.system(submitCMD+" --title DM_%s_%i 'python calcXSecModified.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))
+        #if i < 7: continue
+        os.system(submitCMD+" --title %s_%i 'python calcXSecModified.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))
+        if "echo" not in submitCMD:
+            time.sleep(60)
