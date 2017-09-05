@@ -14,11 +14,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 class resultsDB:
-    def __init__(self, database):
+    def __init__(self, database, tableName, columns):
+        '''
+        Will create a table with name tableName, with the provided columns (as a list) and two additional columns: value and time_stamp
+        '''
         self.database_file = database
         self.connect()
+        self.tableName      = tableName
+        self.columns        = columns + ["value"]
+        self.columnString   = ", ".join([ s+" text" for s in self.columns ])
+        executeString = '''CREATE TABLE %s (%s, time_stamp real )'''%(self.tableName, self.columnString)
         try:
-            self.cursor.execute('''CREATE TABLE cache (id text, value text, time_stamp real )''')
+            self.cursor.execute(executeString)
         except sqlite3.OperationalError:
             pass
         # try to aviod database malform problems
@@ -36,35 +43,63 @@ class resultsDB:
         del self.cursor
         del self.database
         
-    def getKey(self, key):
-        if ( type(key) == type(()) ) or ( type(key) == type([]) ):
-            return '_'.join(list(key))
-        else:
-            return key
-
     def getObjects(self, key):
-        key = self.getKey(key)
-        selectionString = "SELECT * FROM cache WHERE id = '%s' ORDER BY time_stamp"%key
+        '''
+        Get all entries in the database matching the provided key.
+        '''
+        columns = key.keys()+["value", "time_stamp"]
+        selection = " AND ".join([ "%s = '%s'"%(k, key[k]) for k in key.keys() ])
+
+        selectionString = "SELECT * FROM {} ".format(self.tableName) + " WHERE {} ".format(selection) + " ORDER BY time_stamp"
         self.connect()
-        try:
-            obj = self.cursor.execute(selectionString)
-        except sqlite3.DatabaseError as e:
-            logger.info( "There seems to be an issue with the database, trying to read again." )
-            for i in range(5):
-                try:
-                    obj = self.cursor.execute(selectionString)
-                    objs = [o for o in obj]
-                    self.close()
-                    return objs
-                except:
-                    logger.info( "Attempt no %i", i )
-                    self.close()
-                    self.connect()
-                    time.sleep(1.0)
-            raise e
-        objs = [o for o in obj]
+        
+        for i in range(60):
+
+            try:
+                obj = self.cursor.execute(selectionString)
+                objs = [o for o in obj]
+                self.close()
+                return objs
+
+            except sqlite3.DatabaseError as e:
+                logger.info( "There seems to be an issue with the database, trying to read again." )
+                logger.info( "Attempt no %i", i )
+                self.close()
+                self.connect()
+                time.sleep(1.0)
+
         self.close()
-        return objs
+        raise e
+
+    def getDicts(self, key):
+        objs = self.getObjects(key)
+        o = []
+        for obj in objs:
+            o.append({c:str(v) for c,v in zip( self.columns, obj ) })
+        return o
+    
+    def getTable(self, key):
+        '''
+        Get a nice table printed on the screen of all entries in the database matching the provided key
+        '''
+        d = self.getDicts(key)
+        tableColumns = ["Row#"] + self.columns
+        header = "{:6}" + "| {:15} "*len(self.columns)
+        print "="*(6+18*len(self.columns))
+        print header.format(*tableColumns)
+        print "="*(6+18*len(self.columns))
+        row = "{:6}" + "  {:15} "*len(self.columns)
+        lineCount = 0
+        for entry in d:
+            r = [lineCount]
+            for col in self.columns:
+                r.append(entry[col])
+            print row.format(*r)
+            lineCount += 1
+            if lineCount%50==0 and lineCount>0:
+                a = raw_input("continue scanning? 'q' to quit: ")
+                if a == 'q': break
+            
 
     def contains(self, key):
         objs = self.getObjects(key)
@@ -78,51 +113,54 @@ class resultsDB:
             return 0
 
     def get(self, key):
-        objs = self.getObjects(key)
+        '''
+        Careful! This method only returns the newest entry in the database that's matching the key. This is not necessarily a unique match!
+        '''
+        logger.debug("Getting only the newest entry in the database matching the key. You should know what you're doing here.")
+        objs = self.getDicts(key)
         try:
-            return u_float.fromString(objs[-1][1])
+            return u_float.fromString(objs[-1]["value"])
         except IndexError:
             return False
 
     def add(self, key, value, save, overwriteOldest=False):
         '''
-        Add new object with timestamp
+        new DB structure. key needs to be a python dictionary
         '''
-        key = self.getKey(key)
-        selectionString = "INSERT INTO cache VALUES ('%s', '%s', '%f')"%(key,str(value),time.time())
+        columns = key.keys()+["value", "time_stamp"]
+        values  = key.values()+[str(value), time.time()]
+        
+        # check if number of columns matches. By default, there is no error if not, but better be save than sorry.
+        if len(key.keys())+1 < len(self.columns):
+            raise(ValueError("The length of the given key doesn't match the number of columns in the table. The following columns (excluding value and time_stamp) are part of the table: %s"%", ".join(self.columns)))
+
+        selectionString = "INSERT INTO {} ".format(self.tableName) + " ({}) ".format(", ".join( columns )) + " VALUES ({})".format(", ".join([ "'%s'"%i for i in values ]))
         self.connect()
-        try:
-            self.cursor.execute(selectionString)
-            self.database.commit()
 
-        except sqlite3.OperationalError:
-            logger.info( "Database locked, waiting." )
-            time.sleep(1.0)
-            self.add(key, value, save, overwriteOldest)
+        for i in range(60):
+            try:
+                self.cursor.execute(selectionString)
+                self.database.commit()
+                logger.info("Added value %s to database",value)
+                self.close()
+                return
 
-        except sqlite3.DatabaseError as e:
-            logger.info( "There seems to be an issue with the database, trying to write again." )
-            for i in range(60):  
-                try:
-                    self.cursor.execute(selectionString)
-                    self.database.commit()
-                    self.close()
-                    return
-                except:
-                    logger.info( "Attempt no %i", i )
-                    self.close()
-                    self.connect()
-                    time.sleep(1.0)
-            raise e
+            except sqlite3.OperationalError as e:
+                logger.info( "Database locked, waiting." )
+                time.sleep(1.0)
+
+            except sqlite3.DatabaseError as e:
+                logger.info( "There seems to be an issue with the database, trying to write again." )
+                logger.info( "Attempt no %i", i )
+                self.close()
+                self.connect()
+                time.sleep(1.0)
         
         self.close()
-        return
+        raise e
 
     def resetDatabase(self):
         if os.path.isfile(self.database_file):
             os.remove(self.database_file)
         self.__init__(self.database_file)
-
-#    def __del__(self):
-#        self.cursor.close()
 
