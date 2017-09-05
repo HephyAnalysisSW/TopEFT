@@ -26,7 +26,7 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v1')
-argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_LO_C2VA_0p2')
+argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm')
 args = argParser.parse_args()
 
 #
@@ -40,7 +40,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 maxN = -1
 if args.small: 
     args.targetDir += "_small"
-    maxN = 3000
+    maxN = 1000
 
 sample_file = "$CMSSW_BASE/python/TopEFT/samples/benchmarks.py"
 samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
@@ -48,14 +48,14 @@ sample = getattr( samples, args.sample )
 
 output_directory = os.path.join(skim_directory, args.targetDir, sample.name) 
 output_filename =  os.path.join(output_directory, sample.name + '.root') 
-
 if not os.path.exists( output_directory ): 
     os.makedirs( output_directory )
     logger.info( "Created output directory %s", output_directory )
 
-tmp_directory = ROOT.gDirectory
-outputfile = ROOT.TFile.Open(output_filename, 'recreate')
-tmp_directory.cd()
+tmp_dir     = ROOT.gDirectory
+output_file = ROOT.TFile( output_filename, 'recreate')
+tree        = ROOT.TTree( "Events", "Events")
+tmp_dir.cd()
 
 products = {
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
@@ -137,11 +137,14 @@ def filler( event ):
 
     fill_vector( event, "GenJet", jet_varnames, jets)
 
-maker = TreeMaker(
+
+maker_parent = TreeMaker(
     sequence  = [ filler ],
     variables = [ TreeVariable.fromString(x) for x in variables ],
     treeName = "Events"
     )
+
+maker = maker_parent.cloneWithoutCompile( externalTree = tree )
 
 counter = 0
 reader.start()
@@ -155,8 +158,8 @@ while reader.run( ):
 
 logger.info( "Done with running over %i events.", reader.nEvents )
 
-outputfile.cd()
+output_file.cd()
 maker.tree.Write()
-outputfile.Close()
+output_file.Close()
 
 logger.info( "Written output file %s", output_filename )
