@@ -37,9 +37,10 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
+maxN = -1
 if args.small: 
     args.targetDir += "_small"
-    maxN = 100
+    maxN = 3000
 
 sample_file = "$CMSSW_BASE/python/TopEFT/samples/benchmarks.py"
 samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )

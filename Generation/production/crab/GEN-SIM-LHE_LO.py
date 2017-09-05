@@ -1,3 +1,17 @@
+# run in CMSSW_7_1_25_patch2
+import os
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing ('standard')
+options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
+options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
+options.maxEvents=10 # maxEvents is a registered option. 
+
+if not 'ipython' in VarParsing.sys.argv[0]:
+  options.parseArguments()
+else:
+  print "No parsing of arguments!"
+
+# Below here, slightly modified to swallow command line arguments:
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -24,7 +38,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 # Input source
@@ -37,7 +51,7 @@ process.options = cms.untracked.PSet(
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $'),
-    annotation = cms.untracked.string('Configuration/GenProduction/python/TOP-RunIISummer15wmLHEGS-00013-fragment.py nevts:10'),
+    annotation = cms.untracked.string('Configuration/GenProduction/python/TOP-RunIISummer15wmLHEGS-00013-fragment.py nevts:%i'%options.maxEvents),
     name = cms.untracked.string('Applications')
 )
 
@@ -61,23 +75,23 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     )
 )
 
-process.LHEoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.LHEEventContent.outputCommands,
-    fileName = cms.untracked.string('file:TOP-RunIISummer15wmLHEGS-00013_inLHE.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('LHE')
-    )
-)
+#process.LHEoutput = cms.OutputModule("PoolOutputModule",
+#    splitLevel = cms.untracked.int32(0),
+#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+#    outputCommands = process.LHEEventContent.outputCommands,
+#    fileName = cms.untracked.string('file:TOP-RunIISummer15wmLHEGS-00013_inLHE.root'),
+#    dataset = cms.untracked.PSet(
+#        filterName = cms.untracked.string(''),
+#        dataTier = cms.untracked.string('LHE')
+#    )
+#)
 
 # Additional output definition
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_71_V1::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.GT, '')
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
@@ -120,16 +134,27 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     )
 )
 
+import os
+
+print "Listing all content"
+for dirname, dirnames, filenames in os.walk('.'):
+    # print path to all subdirectories first.
+    for subdirname in dirnames:
+        print(os.path.join(dirname, subdirname))
+
+    # print path to all filenames.
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
 process.RandomNumberGeneratorService.externalLHEProducer.initialSeed = 1111111
 
 process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
-    nEvents = cms.untracked.uint32(10),
+    nEvents = cms.untracked.uint32(options.maxEvents),
     outputFile = cms.string('cmsgrid_final.lhe'),
     scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
     numberOfParameters = cms.uint32(1),
-    args = cms.vstring('/afs/cern.ch/work/d/dspitzba/top/FW_anna/CMSSW_7_4_7/src/new_gridpack_v2.tar.xz')
-    #args = cms.vstring('/afs/cern.ch/work/d/dspitzba/top/genproductions/bin/MadGraph5_aMCatNLO/TTZJetsToLLNuNu_5f_NLO_slc6_amd64_gcc481_CMSSW_7_1_28_tarball.tar.xz')
-    #args = cms.vstring('/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.2.2/TTZJets/TTZJetsToLLNuNu_5f_NLO/v1/TTZJetsToLLNuNu_5f_NLO_tarball.tar.xz')
+    #args = cms.vstring(os.path.expandvars(options.gridpack))
+    args = cms.vstring(options.gridpack)
 )
 
 
@@ -140,10 +165,10 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
-process.LHEoutput_step = cms.EndPath(process.LHEoutput)
+#process.LHEoutput_step = cms.EndPath(process.LHEoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step,process.LHEoutput_step)
+process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step)#,process.LHEoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
 	if path in ['lhe_step']: continue
