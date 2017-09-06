@@ -4,9 +4,11 @@
 # Standard imports
 import ROOT
 import os
+import ctypes
 
 # TopEFT imports
-from TopEFT.gencode.EFT import *
+from TopEFT.gencode.Configuration import *
+from TopEFT.gencode.Process import *
 from TopEFT.tools.user import plot_directory, results_directory
 from TopEFT.tools.niceColorPalette import niceColorPalette
 import itertools
@@ -16,56 +18,37 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Plot style
-ROOT.gROOT.LoadMacro('scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 
-#niceColorPalette(255)
-
-#model = 'HEL_UFO'
-model = 'TopEffTh'
+#model_name = 'HEL_UFO'
+#model_name = 'TopEffTh'
+model_name = 'ewkDM'
 
 #nonZeroCouplings = ("cuW", "cuB")
-nonZeroCouplings = ("IC3phiq", "ICtW")
+#nonZeroCouplings = ("IC3phiq", "ICtW")
+nonZeroCouplings = ("DC2V","DC2A")
+dc2v = [ i*0.25/5 for i in range(-5,6) ]
+dc2a = [ i*0.25/5 for i in range(-5,6) ]
+couplingValues = [dc2v,dc2a]
 
-n = 5
+# prepare the grid with all points
+couplingGrid = [ a for a in itertools.product(*couplingValues) ]
 
-#cuB = [ i*0.3/n for i in range(-n,n+1) ]
-cuB = [ i*10.0/n for i in range(-n,n+1) ]
+# zip with coupling names
+allCombinations =  [ zip(nonZeroCouplings, a) for a in couplingGrid ]
+allCombinationsFlat = []
+for comb in allCombinations:
+    allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
-# this is the workaround
-couplingPairs = [a for a in itertools.permutations(cuB,2)] + zip(cuB,cuB)
-couplingPairs = [(round(a[0],2), round(a[1],2)) for a in couplingPairs]
+processes = [ "ttZ", "ttH", "ttW" ]
+contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67]}
 
-config = configuration(model)
 
-HEL_couplings = couplings()
-#HEL_couplings.addBlock("newcoup", HEL_couplings_newcoup)
-HEL_couplings.addBlock("dim6", TOP_EFT_couplings_dim6)
-HEL_couplings.addBlock("fourfermion", TOP_EFT_couplings_fourfermion)
-
-#HEL_couplings.setCoupling(coup,0)
-
-styles = {"ttZ": {"marker": 20, "color": ROOT.kCyan+2}, "ttW": {"marker": 21, "color":ROOT.kRed+1}, "ttH": {"marker":22, "color":ROOT.kGreen+2}}
-
-ttZ = process("ttZ", 1, config)
-ttW = process("ttW", 1, config)
-ttH = process("ttH", 1, config)
-
-processes = [ttH,ttZ,ttW]
-#processes = [ttH]
-
-for p in processes:
-    p.addCoupling(HEL_couplings)
-    p.couplings.setCoupling("Lambda",1000.)
-    p.couplings.setCoupling(nonZeroCouplings[0], 0.)
-    p.couplings.setCoupling(nonZeroCouplings[1], 0.)
-    logger.info( "Checking SM x-sec:" )
-    p.SMxsec = p.getXSec()
-    if p.SMxsec.val == 0: p.SMxsec = u_float(1)
-
+drawContours = True
+SM_xsec = {}
 hists = []
-fits = []
 cans = []
 pads = []
 m = 0
@@ -91,70 +74,107 @@ def toGraph2D(name,title,length,x,y,z):
     return result
 
 
-for p in processes:
+for proc in processes[:1]:
+    
+    logger.info("Starting with process %s", proc)
+    config = Configuration( model_name = model_name, modified_couplings = {} )
+    p = Process(process = proc, nEvents = 50000, config = config)
+    SM_xsec[proc] = p.xsec()
+
     x = []
     y = []
     z = []
+    
+    for coup in allCombinationsFlat:
+        coupling_names  = coup[::2]
+        coupling_values = map(float,coup[1::2])
 
-    #hists.append(ROOT.TH2F(p.process,p.process,len(cuB)*3,min(cuB)-0.03,max(cuB)+0.03,len(cuB)*3,min(cuB)-0.03,max(cuB)+0.03))
-    for i,cv0 in enumerate(cuB):
-        for j,cv1 in enumerate(cuB):
-            p.couplings.setCoupling(nonZeroCouplings[0], round(cv0,2))
-            p.couplings.setCoupling(nonZeroCouplings[1], round(cv1,2))
-            ratio = p.getXSec()/p.SMxsec
-            #bin_x = hists[-1].GetXaxis().FindBin(cv0)
-            #bin_y = hists[-1].GetYaxis().FindBin(cv1)
-            #hists[-1].SetBinContent(bin_x,bin_y,ratio.val)
-            #hists[-1].SetBinContent(i+1,j+1,ratio.val)
+        modified_couplings = {c:v for c,v in zip( coupling_names, coupling_values ) }
 
-            x.append(cv0)
-            y.append(cv1)
-            z.append(ratio.val)
+        config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
+        p = Process(process = proc, nEvents = 50000, config = config)
+
+        ratio = p.xsec()/SM_xsec[proc]
+        
+        x.append(coupling_values[0])
+        y.append(coupling_values[1])
+        z.append(ratio.val)
             
-    a = toGraph2D(p.process,p.process,len(x),x,y,z)
-    xmin = min(x)
-    xmax = max(x)
-    ymin = min(y)
-    ymax = max(y)
-    bin_size = 0.05 # 0.01
+    a = toGraph2D(proc, proc, len(x), x, y, z)
+    xmin = min( x )
+    xmax = max( x )
+    ymin = min( y )
+    ymax = max( y )
+    bin_size = 0.025 # 0.01
     nxbins = max(1, min(500, int((xmax-xmin+bin_size/100.)/bin_size)))
     nybins = max(1, min(500, int((ymax-ymin+bin_size/100.)/bin_size)))
     #print nxbins,nybins
     a.SetNpx(nxbins)
     a.SetNpy(nybins)
     hists.append(a.GetHistogram().Clone())
-    #hists[-1].GetXaxis().SetTitle("c_{uW}")
-    #hists[-1].GetYaxis().SetTitle("c_{uB}")
-    hists[-1].GetXaxis().SetTitle("c_{#phiq}")
-    hists[-1].GetYaxis().SetTitle("c_{tW}")
-    hists[-1].GetZaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")   
+    hists[-1].GetXaxis().SetTitle(coupling_names[0].replace("DC","C_{").replace("V",",V}").replace("A",",A}"))
+    hists[-1].GetXaxis().SetNdivisions(505)
+    hists[-1].GetYaxis().SetTitle(coupling_names[1].replace("DC","C_{").replace("V",",V}").replace("A",",A}"))
+    hists[-1].GetYaxis().SetNdivisions(505)
+    hists[-1].GetYaxis().SetTitleOffset(1.0)
+    hists[-1].GetZaxis().SetTitle("#sigma_{NP+SM}/#sigma_{SM}")
+    hists[-1].GetZaxis().SetTitleOffset(1.2)
     hists[-1].SetStats(0)
-    
 
-    cans.append(ROOT.TCanvas("can_%s"%p.process,"",700,700))
-    pads.append(ROOT.TPad("pad_%s"%p.process,"",0.,0.,1.,1.))
+    cans.append(ROOT.TCanvas("can_%s"%proc,"",700,700))
+
+    if drawContours:
+        histsForCont = hists[-1].Clone()
+        c_contlist = ((ctypes.c_double)*(len(contours[proc])))(*contours[proc])
+        histsForCont.SetContour(len(c_contlist),c_contlist)
+        histsForCont.Draw("contzlist")
+        cans[-1].Update()
+        conts = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
+        cont_m2 = conts.At(0).Clone()
+        cont_m1 = conts.At(1).Clone()
+        cont_p1 = conts.At(2).Clone()
+        cont_p2 = conts.At(3).Clone()
+    
+    pads.append(ROOT.TPad("pad_%s"%proc,"",0.,0.,1.,1.))
     pads[-1].SetRightMargin(0.20)
-    pads[-1].SetLeftMargin(0.15)
-    pads[-1].SetTopMargin(0.06)
+    pads[-1].SetLeftMargin(0.14)
+    pads[-1].SetTopMargin(0.11)
     pads[-1].Draw()
     pads[-1].cd()
     
+    hists[-1].SetMaximum(1.95)
+    hists[-1].SetMinimum(0.95)
+
     hists[-1].Draw("colz")
 
-    latex1.DrawLatex(0.15,0.95,'CMS #bf{#it{Simulation} %s}'%p.process)
-    latex1.DrawLatex(0.55,0.95,'#bf{%sLO (13TeV)}'%model.replace('_',' ').replace('UFO',''))
+    if drawContours:
+        for conts in [cont_m1, cont_p1]:
+            for cont in conts:
+                cont.SetLineColor(ROOT.kRed)
+                cont.SetLineWidth(2)
+                cont.SetLineStyle(7)
+                cont.Draw("same")
+        for conts in [cont_m2, cont_p2]:
+            for cont in conts:
+                cont.SetLineColor(ROOT.kOrange)
+                cont.SetLineWidth(2)
+                cont.SetLineStyle(7)
+                cont.Draw("same")
 
-    plotDir = os.path.join( plot_directory,model,"xsec_2D_int" )
+
+    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+    latex1.DrawLatex(0.14,0.92,'#bf{%s, couplings: #DeltaC_{1,V}=0.00, #DeltaC_{1,A}=0.00}'%proc)
+    latex1.DrawLatex(0.79,0.96,'#bf{MC (13TeV)}')
+
+    plotDir = os.path.join( plot_directory,model_name,"simple_2D_scans/" )
     if not os.path.isdir(plotDir):
         os.makedirs(plotDir)
     
     for e in [".png",".pdf",".root"]:
-        cans[-1].Print(plotDir+p.process+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+e)
+        cans[-1].Print(plotDir+proc+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+e)
 
-    #hists[-1].SetMaximum(110)
-    #hists[-1].SetMinimum(0.09)
-    hists[-1].SetMaximum(5)
-    hists[-1].SetMinimum(0.09)
+    hists[-1].SetMaximum(1.95)
+    hists[-1].SetMinimum(0.95)
     pads[-1].SetLogz()
     for e in [".png",".pdf",".root"]:
-        cans[-1].Print(plotDir+p.process+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+'_log'+e)
+        cans[-1].Print(plotDir+proc+'_'+nonZeroCouplings[0]+'_'+nonZeroCouplings[1]+'_log'+e)

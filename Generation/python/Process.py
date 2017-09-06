@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DB.db'):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db'):
 
         self.process            = process
         self.config             = config
@@ -36,7 +36,8 @@ class Process:
         self.GP_outputDir    = os.path.join(results_directory, 'gridpacks')
 
         # xsec cache location
-        self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache) )
+        columns = ["process", "nEvents"]+self.config.all_model_couplings
+        self.xsecDB = resultsDB( os.path.join(results_directory, xsec_cache), self.config.model_name, columns )
 
     def __initialize( self, modified_couplings = None):
 
@@ -214,7 +215,7 @@ class Process:
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
         
-    def getKey(self, modified_couplings):
+    def getKeyOld(self, modified_couplings):
 
         mod_c = modified_couplings.keys()
         mod_c.sort()
@@ -222,3 +223,15 @@ class Process:
         mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
         key = self.config.model_name, self.process, mod_c_str
         return key
+    
+    def getKey(self, modified_couplings):
+        key = {"process":self.process, "nEvents":self.nEvents}
+        for k in self.config.all_model_couplings:
+            if k in modified_couplings.keys():
+                key[k] = modified_couplings[k]
+            else:
+                key[k] = 0.
+        return key
+    
+    def hasXSec(self, modified_couplings):
+        return self.xsecDB.contains(self.getKey(modified_couplings=modified_couplings))

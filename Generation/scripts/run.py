@@ -74,6 +74,4 @@ for i_param_point, param_point in enumerate(param_points):
         xsec     = p.xsec(modified_couplings = modification_dict, overwrite = args.overwrite)
         logger.info("xsec: %s ", repr(xsec) )
 
-    
-config.cleanup()
-    
+if not args.keepWorkspace: config.cleanup()
