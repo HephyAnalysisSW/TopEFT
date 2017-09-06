@@ -215,15 +215,6 @@ class Process:
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
         
-    def getKeyOld(self, modified_couplings):
-
-        mod_c = modified_couplings.keys()
-        mod_c.sort()
-        
-        mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
-        key = self.config.model_name, self.process, mod_c_str
-        return key
-    
     def getKey(self, modified_couplings):
         key = {"process":self.process, "nEvents":self.nEvents}
         for k in self.config.all_model_couplings:

@@ -106,23 +106,36 @@ Plot.setDefaults(stack = stack, weight = weight_, selectionString = selectionStr
   
 plots = []
 
+plots.append(Plot( name = "leading_Z_eta",
+  texX = 'leading Z #eta', texY = 'Number of Events / 20 GeV',
+  attribute = lambda event, sample: event.Z_eta[0],
+  binning=[52,-5.2,5.2],
+))
+
 plots.append(Plot( name = "leading_Z_pT",
   texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 20 GeV',
   attribute = lambda event, sample: event.Z_pt[0],
   binning=[400/20,0,400],
 ))
 
+plots.append(Plot( name = "leading_top_eta",
+  texX = 'leading top #eta', texY = 'Number of Events / 20 GeV',
+  attribute = lambda event, sample: event.top_eta[0],
+  binning=[52,-5.2,5.2],
+))
+
+plots.append(Plot( name = "leading_top_pT",
+  texX = 'leading top p_{T} (GeV)', texY = 'Number of Events / 20 GeV',
+  attribute = lambda event, sample: event.top_pt[0],
+  binning=[400/20,0,400],
+))
+
+
 plots.append(Plot(
   texX = 'gen E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
   attribute = TreeVariable.fromString( "GenMet_pt/F" ),
   binning=[400/20,0,400],
 ))
-
-#plots.append(Plot(
-#  texX = 'gen #phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
-#  attribute = TreeVariable.fromString( "GenMet_phi/F" ),
-#  binning=[10,-pi,pi],
-#))
 
 plots.append(Plot(
 texX = 'number of gen jets', texY = 'Number of Events',
