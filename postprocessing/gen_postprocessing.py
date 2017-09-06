@@ -14,7 +14,7 @@ import imp
 from RootTools.core.standard             import *
 
 #TopEFT
-from TopEFT.tools.user                   import skim_directory
+from TopEFT.tools.user                   import skim_output_directory
 from TopEFT.tools.GenSearch              import GenSearch
 from TopEFT.tools.helpers                import deltaR2
 
@@ -37,25 +37,21 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
-maxN = -1
-if args.small: 
-    args.targetDir += "_small"
-    maxN = 1000
-
-sample_file = "$CMSSW_BASE/python/TopEFT/samples/benchmarks.py"
+sample_file = "$CMSSW_BASE/python/TopEFT/samples/fwlite_benchmarks.py"
 samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
 sample = getattr( samples, args.sample )
 
-output_directory = os.path.join(skim_directory, args.targetDir, sample.name) 
+maxN = -1
+if args.small: 
+    args.targetDir += "_small"
+    maxN = 500
+    sample.files=sample.files[:2]
+
+output_directory = os.path.join(skim_output_directory, args.targetDir, sample.name) 
 output_filename =  os.path.join(output_directory, sample.name + '.root') 
 if not os.path.exists( output_directory ): 
     os.makedirs( output_directory )
     logger.info( "Created output directory %s", output_directory )
-
-tmp_dir     = ROOT.gDirectory
-output_file = ROOT.TFile( output_filename, 'recreate')
-tree        = ROOT.TTree( "Events", "Events")
-tmp_dir.cd()
 
 products = {
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
@@ -137,14 +133,18 @@ def filler( event ):
 
     fill_vector( event, "GenJet", jet_varnames, jets)
 
-
-maker_parent = TreeMaker(
+tmp_dir     = ROOT.gDirectory
+output_file = ROOT.TFile( output_filename, 'recreate')
+output_file.cd()
+#tree        = ROOT.TTree( "Events", "Events")
+maker = TreeMaker(
     sequence  = [ filler ],
     variables = [ TreeVariable.fromString(x) for x in variables ],
     treeName = "Events"
     )
 
-maker = maker_parent.cloneWithoutCompile( externalTree = tree )
+tmp_dir.cd()
+#maker = maker_parent.cloneWithoutCompile( externalTree = tree )
 
 counter = 0
 reader.start()
