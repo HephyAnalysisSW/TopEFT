@@ -152,6 +152,7 @@ class Configuration:
         logger.info( "################# Done: Model Setup ###################" )
 
     def cleanup(self):
+
         if os.path.isdir(self.uniquePath):
             logger.info( "Cleaning up, deleting %s"%self.uniquePath )
             try:
