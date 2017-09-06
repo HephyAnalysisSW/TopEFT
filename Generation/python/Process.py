@@ -201,15 +201,15 @@ class Process:
 #
 #            return gridpack
 
-    def diagrams(self, plot_dir):
-        self.setup()
+    def diagrams(self, plot_dir, modified_couplings):
+        self.__initialize( modified_couplings )
         subprocessDir = os.path.join(self.processTmpDir,"SubProcesses")
         subProcessDirs = [ os.path.join(subprocessDir,d) for d in os.listdir(subprocessDir) if os.path.isdir(os.path.join(subprocessDir,d)) ]
         for i,sb in enumerate(subProcessDirs):
             postScriptFiles = [ os.path.join(sb,d) for d in os.listdir(sb) if ".ps" in d ]
             for j,ps in enumerate(postScriptFiles):
-                mod_c = self.config.modified_couplings.keys()
-                mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
+                mod_c = modified_couplings.keys()
+                mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
                 plot_path = os.path.join(plot_dir, self.config.model_name, "diagrams", self.process, mod_c_str)
                 if not os.path.isdir(plot_path):
                     os.makedirs(plot_path)
