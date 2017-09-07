@@ -84,11 +84,11 @@ class resultsDB:
         '''
         d = self.getDicts(key)
         tableColumns = ["Row#"] + self.columns
-        header = "{:6}" + "| {:15} "*len(self.columns)
-        print "="*(6+18*len(self.columns))
+        header = "{:6}" + "| {:7} "*(len(self.columns)-1) + "| {:15} "
+        print "="*(6+18+10*(len(self.columns)-1))
         print header.format(*tableColumns)
-        print "="*(6+18*len(self.columns))
-        row = "{:6}" + "  {:15} "*len(self.columns)
+        print "="*(6+18+10*(len(self.columns)-1))
+        row = "{:6}" + "  {:7} "*(len(self.columns)-1) + "| {:15} "
         lineCount = 0
         for entry in d:
             r = [lineCount]

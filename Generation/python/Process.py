@@ -118,7 +118,7 @@ class Process:
     def makeGridpack(self, modified_couplings = None, overwrite=False):
 
         # gridpack file name
-        key = self.getKey( modified_couplings )
+        key = self.getFileName( modified_couplings )
         gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, ( '_'.join( key ) ).rstrip('_') )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
@@ -215,7 +215,7 @@ class Process:
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
         
-    def getKeyOld(self, modified_couplings):
+    def getFileName(self, modified_couplings):
 
         mod_c = modified_couplings.keys()
         mod_c.sort()
