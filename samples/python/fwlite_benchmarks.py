@@ -8,6 +8,7 @@ from RootTools.core.standard import *
 #fwlite_ttZ_bm1  = FWLiteSample.fromFiles( "C1Vm1p0_C1A0p5", texName = "C1V=-1.0 C1A=0.5", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ_DC1A_0.500000_DC1V_-1.000000.root"] )
 #fwlite_ttZ_bm2  = FWLiteSample.fromFiles( "C1V0p5_C1A0p5",  texName = "C1V=0.5 C1A=0.5", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ_DC1A_0.500000_DC1V_0.500000.root"] )
 
+
 # dipole moments = 0, approx SM LO x-sec
 fwlite_ttZ_ll_LO_sm                   = FWLiteSample.fromDAS("ttZ_ll_LO_sm", "/ewkDM_ttZ_ll/schoef-ewkDM-e1a069162e896efecc10f859afdda0d0/USER", "phys03")
 fwlite_ttZ_ll_LO_DC1V_0p5_DC1A_0p5    = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_0p5_DC1A_0p5", "/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-ewkDM-863d441c1e97429a518397b2b60fd1be/USER", "phys03")
@@ -26,3 +27,30 @@ fwlite_ttZ_ll_LO_minXSecC1VA_4 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_4",
 fwlite_ttZ_ll_LO_minXSecC1VA_5 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_5", "/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700/schoef-ewkDM-10e11608d2c97bb8d3584319b95ebd12/USER", "phys03")
 fwlite_ttZ_ll_LO_minXSecC1VA_6 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_6", "/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000/schoef-ewkDM-3a75ae4139536634dab39690896bcd56/USER", "phys03")
 fwlite_ttZ_ll_LO_minXSecC1VA_7 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_7", "/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700/schoef-ewkDM-28215b5f801d5ea3987bbdce381a4244/USER", "phys03")
+
+# samples where C1A/V are set to SM values, 10k events
+daniel_fwlite_ttZ_ll_LO_sm                     = FWLiteSample.fromFiles( "ttZ_ll_LO_SM", texName = "SM", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p2_DC2V_0p2      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p2_DC2V_0p2", texName = "DC2A_0p2_DC2V_0p2", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p2_DC2V_0p2/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p4_DC2V_0p4      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p4_DC2V_0p4", texName = "DC2A_0p4_DC2V_0p4", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p4_DC2V_0p4/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p6_DC2V_0p6      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p6_DC2V_0p6", texName = "DC2A_0p6_DC2V_0p6", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p6_DC2V_0p6/events.root"] )
+
+daniel_fwlite_ttZ_ll_LO_DC2A_0p216_DC2V_0p523   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p216_DC2V_0p523", texName = "DC2A_0p216_DC2V_0p523", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p216_DC2V_0p523/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p523_DC2V_0p216   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p523_DC2V_0p216", texName = "DC2A_0p523_DC2V_0p216", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p523_DC2V_0p216/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p57_DC2V_0p0      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p57_DC2V_0p0", texName = "DC2A_0p57_DC2V_0p0", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p57_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p0_DC2V_0p57      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p0_DC2V_0p57", texName = "DC2A_0p0_DC2V_0p57", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p0_DC2V_0p57/events.root"] )
+
+# samples where C1A/V are set to 0, so DC1A/V = -C1A/V(SM), 25k events
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p28_DC2V_0p0       = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p28_DC2V_0p0", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3        = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p3/events.root"] )
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p205_DC2V_0p205    = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p205_DC2V_0p205", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p205_DC2V_0p205/events.root"] )
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p12_DC2V_0p27      = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p12_DC2V_0p27", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p12_DC2V_0p27/events.root"] )
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p24_DC2V_0p155     = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p24_DC2V_0p155", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p24_DC2V_0p155/events.root"] )
+
+# same as above, but using ttZ instead of ttZ_ll process cards, 25k events
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0       = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0", texName = "",    files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3        = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3", texName = "",     files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p3/events.root"] )
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p205_DC2V_0p205    = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p205_DC2V_0p205", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p205_DC2V_0p205/events.root"] )
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27      = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27", texName = "",   files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p12_DC2V_0p27/even
+ts.root"] )
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p24_DC2V_0p155     = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p24_DC2V_0p155", texName = "",  files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p24_DC2V_0p155/events.root"] )
+
