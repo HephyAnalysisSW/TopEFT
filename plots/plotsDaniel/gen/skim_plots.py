@@ -7,7 +7,7 @@
 import ROOT, os
 ROOT.gROOT.SetBatch(True)
 
-from math                                import sqrt, cos, sin, pi
+from math                                import sqrt, cos, sin, pi, isnan
 from RootTools.core.standard             import *
 from TopEFT.tools.user                   import plot_directory
 from TopEFT.tools.helpers                import deltaPhi
@@ -21,6 +21,7 @@ argParser.add_argument('--logLevel',           action='store',      default='INF
 argParser.add_argument('--samples',            action='store',      nargs='*',               help="Which samples?")
 argParser.add_argument('--plot_directory',     action='store',      default='gen')
 #argParser.add_argument('--selection',          action='store',      default='njet2p-btag1p-relIso0.12-looseLeptonVeto-mll20-met80-metSig5-dPhiJet0-dPhiJet1')
+argParser.add_argument('--normalize',          action='store_true',                          help="Normalize histograms to 1?")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 args = argParser.parse_args()
 
@@ -55,7 +56,7 @@ def drawObjects( hasData = False ):
 
 def drawPlots(plots):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, args.plot_directory)
+    plot_directory_ = os.path.join(plot_directory, 'gen', args.plot_directory)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
 
@@ -67,6 +68,7 @@ def drawPlots(plots):
 	    scaling = {},
 	    legend =  ( (0.17,0.9-0.05*sum(map(len, plot.histos))/2,1.,0.9), 2),
 	    drawObjects = drawObjects( ),
+        normalize = args.normalize,
       )
 
 #
@@ -103,7 +105,12 @@ def makeDeltaPhi( event, sample ):
     else:
         event.dPhi_ll = -1
 
+def getLeadingZ( event, sample ):
+    Zs = [ z for z in event.Z_pt ]
+    event.leading_Z_pt = Zs[0] if not isnan(Zs[0]) else -1
+
 sequence.append( makeDeltaPhi )
+sequence.append( getLeadingZ )
 
 for sample in samples:
     sample.setSelectionString( "(1)" )
@@ -125,8 +132,20 @@ plots = []
 
 plots.append(Plot( name = "leading_Z_pT",
   texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 20 GeV',
-  attribute = lambda event, sample: event.Z_pt[0],
+  attribute = lambda event, sample: event.leading_Z_pt,
   binning=[400/20,0,400],
+))
+
+plots.append(Plot( name = "leading_Z_pT_ext",
+  texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 40 GeV',
+  attribute = lambda event, sample: event.leading_Z_pt,
+  binning=[800/40,0,800],
+))
+
+plots.append(Plot( name = "leading_Z_pT_coarse",
+  texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 100 GeV',
+  attribute = lambda event, sample: event.leading_Z_pt,
+  binning=[800/100,0,800],
 ))
 
 plots.append(Plot(
@@ -153,6 +172,14 @@ name = 'deltaPhi_ll',
 attribute = lambda event, sample:event.dPhi_ll,
 binning=[16,0,pi],
 ))
+
+plots.append(Plot(
+texX = '#Delta#phi(ll)', texY = 'Number of Events',
+name = 'deltaPhi_ll_coarse',
+attribute = lambda event, sample:event.dPhi_ll,
+binning=[4,0,pi],
+))
+
 
 #plots.append(Plot(
 #texX = 'H_{T} (GeV)', texY = 'Number of Events / 25 GeV',

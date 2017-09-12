@@ -39,6 +39,16 @@ daniel_fwlite_ttZ_ll_LO_DC2A_0p523_DC2V_0p216   = FWLiteSample.fromFiles( "ttZ_l
 daniel_fwlite_ttZ_ll_LO_DC2A_0p57_DC2V_0p0      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p57_DC2V_0p0", texName = "DC2A_0p57_DC2V_0p0", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p57_DC2V_0p0/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p0_DC2V_0p57      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p0_DC2V_0p57", texName = "DC2A_0p0_DC2V_0p57", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p0_DC2V_0p57/events.root"] )
 
+# samples on the C1A/V ellipse with SM x-sec
+daniel_fwlite_ttZ_ll_LO_DC1A_1p19_DC1V_m0p31    = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_1p19_DC1V_-0p31", texName="",     files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_1p19_DC1V_-0p31_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p8_DC1V_0p8       = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p8_DC1V_0p8", texName="",        files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p8_DC1V_0p8_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC1V_0p59      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC1V_0p59", texName="",       files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_0p59_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC1V_m1p05     = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC1V_-1p05", texName="",      files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-1p05_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC1V_m0p24     = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC1V_-0p24", texName="",      files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p4_DC1V_0p4       = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p4_DC1V_0p4", texName="",        files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p4_DC1V_0p4_DC2A_0p0_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_1p0_DC1V_1p0       = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_1p0_DC1V_1p0", texName="",        files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_1p0_DC1V_1p0_DC2A_0p0_DC2V_0p0/events.root"] )
+
+
 # samples where C1A/V are set to 0, so DC1A/V = -C1A/V(SM), 25k events
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p28_DC2V_0p0       = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p28_DC2V_0p0", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3        = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p3/events.root"] )
@@ -46,11 +56,20 @@ daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p205_DC2V_0p205    = FWLiteSample.fromFiles
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p12_DC2V_0p27      = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p12_DC2V_0p27", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p12_DC2V_0p27/events.root"] )
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p24_DC2V_0p155     = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p24_DC2V_0p155", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p24_DC2V_0p155/events.root"] )
 
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p5 = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p5", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p5_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p7 = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p7", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p7_DC2V_0p0/events.root"] )
+
+
 # same as above, but using ttZ instead of ttZ_ll process cards, 25k events
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0       = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0", texName = "",    files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3        = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3", texName = "",     files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p3/events.root"] )
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p205_DC2V_0p205    = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p205_DC2V_0p205", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p205_DC2V_0p205/events.root"] )
-daniel_fwlite_ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27      = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27", texName = "",   files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p12_DC2V_0p27/even
-ts.root"] )
+daniel_fwlite_ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27      = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p12_DC2V_0p27", texName = "",   files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p12_DC2V_0p27/events.root"] )
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p24_DC2V_0p155     = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p24_DC2V_0p155", texName = "",  files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p24_DC2V_0p155/events.root"] )
+
+# settting one of C1V/A to 0, the other is kept at the SM value, 25k events
+daniel_fwlite_ttZ_ll_LO_DC1V_m0p24_DC2V_0p3     = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1V_m0p24_DC2V_0p3",  texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p0_DC1V_-0p24_DC2A_0p0_DC2V_0p30/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1V_m0p24_DC2A_0p28    = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1V_m0p24_DC2A_0p28", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p0_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC2V_0p3       = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC2V_0p3",    texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_0p0_DC2A_0p0_DC2V_0p30/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC2A_0p28      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC2A_0p28",   texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_0p0_DC2A_0p28_DC2V_0p0/events.root"] )
 
