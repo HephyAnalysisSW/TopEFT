@@ -100,8 +100,11 @@ class Configuration:
 
         # copy private UFO files from models in repository
         if not os.path.isdir( self.MG5_tmpdir+"/Models/"+self.model_name ):
-            logger.info( "Copying UFO from private Model database for model %s",self.model_name )
-            shutil.copytree(os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Models/%s/UFO'%self.model_name ), self.MG5_tmpdir+"/models/"+self.model_name )
+            logger.info(  "Copying UFO from private Model database for model %s",self.model_name )
+            src_dir    =  os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Models/%s/UFO'%self.model_name )
+            target_dir =  os.path.join( self.MG5_tmpdir, "models", self.model_name )
+            logger.debug( "Copying UFO from %s to %s", src_dir, target_dir )
+            shutil.copytree( src_dir, target_dir )
         else:
             logger.info( "Using UFO from MG5 for model %s", self.model_name )
 

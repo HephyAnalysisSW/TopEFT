@@ -11,6 +11,14 @@ ewkDM = { 'ewkDM': [
     ['DC2A', 0.],
 ]}
 
+ewkDM2 = { 'ewkDM2': [
+
+    ['DC1V', 0.],
+    ['DC1A', 0.],
+    ['DC2V', 0.],
+    ['DC2A', 0.],
+]}
+
 HEL_UFO = { 'newcoup': [\
     ['cH', 0.],
     ['cT', 0.],
