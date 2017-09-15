@@ -40,6 +40,8 @@ from TopEFT.samples.skim_benchmarks import *
 
 samples = map( eval, args.samples ) 
 
+selection = "Sum$(abs(GenLep_motherPdgId)==23)==2"
+
 ##
 ## Text on the plots
 ##
@@ -109,6 +111,9 @@ def getLeadingZ( event, sample ):
     Zs = [ z for z in event.Z_pt ]
     event.leading_Z_pt = Zs[0] if not isnan(Zs[0]) else -1
 
+#def getZToInv( event, sample ):
+#   
+
 sequence.append( makeDeltaPhi )
 sequence.append( getLeadingZ )
 
@@ -117,7 +122,7 @@ for sample in samples:
     sample.style = styles.lineStyle(sample.color)
 
 weight_         = None
-selectionString = None
+selectionString = selection
 
 stack = Stack(*[ [ sample ] for sample in samples] )
 

@@ -23,11 +23,14 @@ model_name = "ewkDM"
 
 # for 4D scans
 nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
-dc1v = [ i*1.3/4 for i in range(-4,3) ]
-dc1a = [ i*1.3/4 for i in range(-2,5) ]
-dc2v = [ i*0.30/6 for i in range(-5,7) ]
-dc2a = [ i*0.30/6 for i in range(-5,7) ]
-couplingValues = [dc1v,dc1a,dc2v,dc2a]
+#dc1v = [ i*1.3/4 for i in range(-4,3) ]
+#dc1a = [ i*1.3/4 for i in range(-2,5) ]
+#dc2v = [ i*0.30/6 for i in range(-5,7) ]
+#dc2a = [ i*0.30/6 for i in range(-5,7) ]
+#couplingValues = [dc1v,dc1a,dc2v,dc2a]
+
+dc1v = [ i*1./2 for i in range(-2,3) ]
+couplingValues = [ dc1v, dc1v, dc1v, dc1v ]
 
 ## for 2D scans
 #nonZeroCouplings = ("DC2V","DC2A")
@@ -47,15 +50,15 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 
-processes = ['ttZ','ttW','ttH']
-#submitCMD = "submitBatch.py"
-submitCMD = "echo"
+processes = ['tZq_4f', 'ttZ','ttW','ttH']
+submitCMD = "submitBatch.py"
+#submitCMD = "echo"
 
 nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 300)
+combinationChunks = chunks(allCombinationsFlat, 30)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
@@ -65,6 +68,6 @@ for p in processes[:1]:
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
         #if i < 7: continue
-        os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt'"%(p,i))
+        os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt --calcXSec'"%(p,i))
         if "echo" not in submitCMD:
-            time.sleep(60)
+            time.sleep(6)
