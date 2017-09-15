@@ -1,9 +1,8 @@
-# run in CMSSW_7_1_25_patch2
-import os
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
 options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
+options.register('outputDir','./',          VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Where to store the output root file?")
 options.maxEvents=10 # maxEvents is a registered option. 
 
 if not 'ipython' in VarParsing.sys.argv[0]:
@@ -11,15 +10,14 @@ if not 'ipython' in VarParsing.sys.argv[0]:
 else:
   print "No parsing of arguments!"
 
-# Below here, slightly modified to swallow command line arguments:
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: Configuration/GenProduction/python/TOP-RunIISummer15wmLHEGS-00013-fragment.py --fileout file:TOP-RunIISummer15wmLHEGS-00013.root --mc --eventcontent RAWSIM,LHE --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN-SIM,LHE --conditions MCRUN2_71_V1::All --beamspot Realistic50ns13TeVCollision --step LHE,GEN,SIM --magField 38T_PostLS1 --python_filename TOP-RunIISummer15wmLHEGS-00013_1_cfg.py --no_exec -n 37
+# with command line options: Configuration/GenProduction/python/SUS-RunIISummer15wmLHEGS-00101-fragment.py --fileout file:events.root --mc --eventcontent RAW --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,Configuration/DataProcessing/Utils.addMonitoring --datatier GEN --conditions MCRUN2_71_V1::All --beamspot Realistic50ns13TeVCollision --step LHE,GEN --magField 38T_PostLS1 --python_filename GEN_production.py --no_exec -n 100
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('SIM')
+process = cms.Process('GEN')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -28,12 +26,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.Geometry.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -51,40 +47,25 @@ process.options = cms.untracked.PSet(
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.19 $'),
-    annotation = cms.untracked.string('Configuration/GenProduction/python/TOP-RunIISummer15wmLHEGS-00013-fragment.py nevts:%i'%options.maxEvents),
+    annotation = cms.untracked.string('Configuration/GenProduction/python/SUS-RunIISummer15wmLHEGS-00101-fragment.py nevts:%i'%options.maxEvents),
     name = cms.untracked.string('Applications')
-)
-
-process.Timing = cms.Service("Timing",
-    summaryOnly = cms.untracked.bool(True)
 )
 
 # Output definition
 
-process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
+process.RAWoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('file:TOP-RunIISummer15wmLHEGS-00013.root'),
+    outputCommands = process.RAWEventContent.outputCommands,
+    fileName = cms.untracked.string('file:%s/events.root'%options.outputDir),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM')
+        dataTier = cms.untracked.string('GEN')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
     )
 )
-
-#process.LHEoutput = cms.OutputModule("PoolOutputModule",
-#    splitLevel = cms.untracked.int32(0),
-#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-#    outputCommands = process.LHEEventContent.outputCommands,
-#    fileName = cms.untracked.string('file:TOP-RunIISummer15wmLHEGS-00013_inLHE.root'),
-#    dataset = cms.untracked.PSet(
-#        filterName = cms.untracked.string(''),
-#        dataTier = cms.untracked.string('LHE')
-#    )
-#)
 
 # Additional output definition
 
@@ -114,46 +95,29 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
             'MultipartonInteractions:pT0Ref=2.4024', 
             'MultipartonInteractions:ecmPow=0.25208', 
             'MultipartonInteractions:expPow=1.6'),
-        pythia8aMCatNLOSettings = cms.vstring('SpaceShower:pTmaxMatch = 1', 
-            'SpaceShower:pTmaxFudge = 1', 
-            'SpaceShower:MEcorrections = off', 
-            'TimeShower:pTmaxMatch = 1', 
-            'TimeShower:pTmaxFudge = 1', 
-            'TimeShower:MEcorrections = off', 
-            'TimeShower:globalRecoil = on', 
-            'TimeShower:limitPTmaxGlobal = on', 
-            'TimeShower:nMaxGlobalRecoil = 1', 
-            'TimeShower:globalRecoilMode = 2', 
-            'TimeShower:nMaxGlobalBranch = 1', 
-            'TimeShower:weightGluonToQuark = 1'),
-        processParameters = cms.vstring('TimeShower:nPartonsInBorn = 0'),
+        processParameters = cms.vstring('JetMatching:setMad = off', 
+            'JetMatching:scheme = 1', 
+            'JetMatching:merge = on', 
+            'JetMatching:jetAlgorithm = 2', 
+            'JetMatching:etaJetMax = 5.', 
+            'JetMatching:coneRadius = 1.', 
+            'JetMatching:slowJetPower = 1', 
+            'JetMatching:qCut = 60.', 
+            'JetMatching:nQmatch = 5', 
+            'JetMatching:nJetMax = 1', 
+            'JetMatching:doShowerKt = off'),
         parameterSets = cms.vstring('pythia8CommonSettings', 
             'pythia8CUEP8M1Settings', 
-            'pythia8aMCatNLOSettings', 
             'processParameters')
     )
 )
 
-import os
-
-print "Listing all content"
-for dirname, dirnames, filenames in os.walk('.'):
-    # print path to all subdirectories first.
-    for subdirname in dirnames:
-        print(os.path.join(dirname, subdirname))
-
-    # print path to all filenames.
-    for filename in filenames:
-        print(os.path.join(dirname, filename))
-
-process.RandomNumberGeneratorService.externalLHEProducer.initialSeed = 1111111
 
 process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
     nEvents = cms.untracked.uint32(options.maxEvents),
     outputFile = cms.string('cmsgrid_final.lhe'),
     scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh'),
     numberOfParameters = cms.uint32(1),
-    #args = cms.vstring(os.path.expandvars(options.gridpack))
     args = cms.vstring(options.gridpack)
 )
 
@@ -161,14 +125,14 @@ process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 # Path and EndPath definitions
 process.lhe_step = cms.Path(process.externalLHEProducer)
 process.generation_step = cms.Path(process.pgen)
-process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
-#process.LHEoutput_step = cms.EndPath(process.LHEoutput)
+process.RAWoutput_step = cms.EndPath(process.RAWoutput)
+
+process.RAWoutput.outputCommands.extend([ 'keep *_genMetTrue_*_*', 'keep *_ak4GenJets_*_*', 'keep *_genParticles_*_*' ])
 
 # Schedule definition
-process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step)#,process.LHEoutput_step)
+process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.endjob_step,process.RAWoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
 	if path in ['lhe_step']: continue

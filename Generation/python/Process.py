@@ -118,8 +118,7 @@ class Process:
     def makeGridpack(self, modified_couplings = None, overwrite=False):
 
         # gridpack file name
-        key = self.getKey( modified_couplings )
-        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, ( '_'.join( key ) ).rstrip('_') )
+        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ) )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
             logger.debug( "Found gridpack %s. Do nothing", gridpack )
@@ -201,20 +200,28 @@ class Process:
 #
 #            return gridpack
 
-    def diagrams(self, plot_dir):
-        self.setup()
+    def diagrams(self, plot_dir, modified_couplings):
+        self.__initialize( modified_couplings )
         subprocessDir = os.path.join(self.processTmpDir,"SubProcesses")
         subProcessDirs = [ os.path.join(subprocessDir,d) for d in os.listdir(subprocessDir) if os.path.isdir(os.path.join(subprocessDir,d)) ]
         for i,sb in enumerate(subProcessDirs):
             postScriptFiles = [ os.path.join(sb,d) for d in os.listdir(sb) if ".ps" in d ]
             for j,ps in enumerate(postScriptFiles):
-                mod_c = self.config.modified_couplings.keys()
-                mod_c_str = "_".join( [ "%s_%8.6f"%( k, self.config.modified_couplings[k] ) for k in mod_c ] )
+                mod_c = modified_couplings.keys()
+                mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
                 plot_path = os.path.join(plot_dir, self.config.model_name, "diagrams", self.process, mod_c_str)
                 if not os.path.isdir(plot_path):
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
         
+    def getGridpackFileName(self, modified_couplings):
+
+        mod_c = modified_couplings.keys()
+        mod_c.sort()
+        
+        mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
+        return ( '_'.join( [self.config.model_name, self.process, mod_c_str ])).rstrip('_')
+    
     def getKey(self, modified_couplings):
         key = {"process":self.process, "nEvents":self.nEvents}
         for k in self.config.all_model_couplings:
