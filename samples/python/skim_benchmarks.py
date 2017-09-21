@@ -7,18 +7,16 @@ import ROOT
 # RootTools
 from RootTools.core.standard import *
 
-# TopEFT
-from TopEFT.tools.user import skim_directory
-
+skim_directory = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/"
 directory = 'v1'
 
 ## dipole moments = 0, approx SM LO x-sec
-#ttZ_ll_LO_sm                   = Sample.fromDirectory("ttZ_ll_LO_sm",                texName = "SM",                 directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_sm"                ) , color = ROOT.kBlack ) 
+ttZ_ll_LO_sm                   = Sample.fromDirectory("ttZ_ll_LO_sm",                texName = "SM",                 directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_sm"                ) , color = ROOT.kBlack ) 
 #ttZ_ll_LO_DC1V_0p5_DC1A_0p5    = Sample.fromDirectory("ttZ_ll_LO_DC1V_0p5_DC1A_0p5", texName = "C1V=0.5 C1A=0.5",    directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC1V_0p5_DC1A_0p5" ) , color = ROOT.kRed )
 #ttZ_ll_LO_DC1V_m1_DC1A0p5      = Sample.fromDirectory("ttZ_ll_LO_DC1V_m1_DC1A0p5",   texName = "C1V=-1.0 C1A=0.5",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC1V_m1_DC1A0p5"   ) , color = ROOT.kBlue )
 #
 ## benchmark from https://arxiv.org/pdf/1501.05939.pdf
-#ttZ_ll_LO_C2VA_0p2 = Sample.fromDirectory("ttZ_ll_LO_C2VA_0p2",                      texName = "C2V/A=0.2",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_C2VA_0p2") , color = ROOT.kMagenta )
+ttZ_ll_LO_C2VA_0p2 = Sample.fromDirectory("ttZ_ll_LO_C2VA_0p2",                      texName = "C2V/A=0.2",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_C2VA_0p2") , color = ROOT.kMagenta )
 #
 #
 ## DC1V/A = - C1V/A(SM), then 8 points on a circle in DC2V/A space such that x-sec(BSM)~x-sec(SM) at NLO
@@ -31,6 +29,8 @@ directory = 'v1'
 #ttZ_ll_LO_minXSecC1VA_6 = Sample.fromDirectory("ttZ_ll_LO_minXSecC1VA_6", texName = "C1VA=0 DC2V=0.0 DC2A=-0.25",      directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_minXSecC1VA_6") , color = ROOT.kOrange-7)
 #ttZ_ll_LO_minXSecC1VA_7 = Sample.fromDirectory("ttZ_ll_LO_minXSecC1VA_7", texName = "C1VA=0 DC2V=0.18 DC2A=-0.18",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_minXSecC1VA_7") , color = ROOT.kCyan)
 
+skim_directory = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
+directory = 'v1'
 
 # samples where C1A/V are set to SM values
 ttZ_ll_LO_DC2A_0p0_DC2V_0p0 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p0_DC2V_0p0", texName = "DC1V=0 DC1A=0 C2V=0.0 C2A=0.0",         directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_SM"), color = ROOT.kBlack)
@@ -51,8 +51,6 @@ ttZ_ll_LO_DC1A_0p6_DC1V_m1p05     = Sample.fromDirectory( "ttZ_ll_LO_DC1A_0p6_DC
 ttZ_ll_LO_DC1A_0p6_DC1V_m0p24     = Sample.fromDirectory( "ttZ_ll_LO_DC1A_0p6_DC1V_-0p24",  texName="DC1V=-0.24 DC1A=0.60",  directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC1A_0p6_DC1V_-0p24"), color = ROOT.kBlue+1)   
 ttZ_ll_LO_DC1A_0p4_DC1V_0p4       = Sample.fromDirectory( "ttZ_ll_LO_DC1A_0p4_DC1V_0p4",    texName="DC1V=0.40 DC1A=0.40",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC1A_0p4_DC1V_0p4"), color = ROOT.kRed+1) 
 ttZ_ll_LO_DC1A_1p0_DC1V_1p0       = Sample.fromDirectory( "ttZ_ll_LO_DC1A_1p0_DC1V_1p0",    texName="DC1V=1.00 DC1A=1.00",   directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC1A_1p0_DC1V_1p0"), color = ROOT.kGreen+1)
-
-
 
 # samples where C1A/V are set to 0, so DC1A/V = -C1A/V(SM)
 ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3      = Sample.fromDirectory("ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3",      texName = "SM=0 C2V=0.30 DC2A=0.00",     directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_antiSM_DC2A_0p0_DC2V_0p3"), color = ROOT.kOrange)

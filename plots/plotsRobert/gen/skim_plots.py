@@ -7,9 +7,10 @@
 import ROOT, os
 ROOT.gROOT.SetBatch(True)
 
-from math                                import sqrt, cos, sin, pi
+from math                                import sqrt, cos, sin, pi, isnan
 from RootTools.core.standard             import *
 from TopEFT.tools.user                   import plot_directory
+from TopEFT.tools.helpers                import deltaPhi
 
 #
 # Arguments
@@ -52,9 +53,10 @@ def drawObjects( hasData = False ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
-def drawPlots(plots):
+def drawPlots(plots, subDirectory=''):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, args.plot_directory)
+    plot_directory_ = os.path.join(plot_directory, args.plot_directory, subDirectory)
+    plot_directory_ = os.path.join(plot_directory_, "log") if log else os.path.join(plot_directory_, "lin")
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
 
@@ -80,20 +82,19 @@ read_variables = [
     "nZ/I", "Z[pt/F,eta/F,phi/F]", 
 ]
 
-#def makeleptons( event, sample):
-#
-#    print [ event.GenLep_pt[i] for i in xrange(event.nGenLep) ]
+selection = [ 
+    ("nlep3p", "Sum$(GenLep_pt>20&&(abs(GenLep_pdgId)==11||abs(GenLep_pdgId)==13)&&abs(GenLep_eta)<2.4)>=3"),
+    ("njet1p", "Sum$(GenJet_pt>20&&abs(GenJet_eta)<2.4)>=1"),
+]
 
-#sequence = [ makeleptons ]
-
-sequence = []
+selectionString = "&&".join( c[1] for c in selection )
+subDirectory    = '-'.join(  c[0] for c in selection )
 
 for sample in samples:
     sample.setSelectionString( "(1)" )
     sample.style = styles.lineStyle(sample.color)
 
 weight_         = None
-selectionString = None
 
 stack = Stack(*[ [ sample ] for sample in samples] )
 
@@ -101,35 +102,51 @@ if args.small:
     for sample in stack.samples:
         sample.reduceFiles( to = 1 )
 
+sequence = []
+
+def getLepsFromZ( event, sample ):
+    leps = []
+    for i, motherId in enumerate(event.GenLep_motherPdgId):
+        if abs(motherId) == 23:
+            leps.append( {'pt':event.GenLep_pt[i], 'phi': event.GenLep_phi[i], 'pdgId': event.GenLep_pdgId[i], 'eta': event.GenLep_eta[i]} )
+    return leps
+
+def makeDeltaPhi( event, sample ):
+    leps = getLepsFromZ( event, sample )
+    if len(leps) == 2 and leps[0]['pdgId']*leps[1]['pdgId']<0:
+        event.dPhi_ll = deltaPhi(leps[0]['phi'], leps[1]['phi'])
+    else:
+        event.dPhi_ll = -1
+
+def getLeadingZ( event, sample ):
+    Zs = [ z for z in event.Z_pt ]
+    event.leading_Z_pt = Zs[0] if not isnan(Zs[0]) else -1
+
+sequence.append( makeDeltaPhi )
+sequence.append( getLeadingZ )
+
 # Use some defaults
 Plot.setDefaults(stack = stack, weight = weight_, selectionString = selectionString, addOverFlowBin='upper')
   
 plots = []
 
-plots.append(Plot( name = "leading_Z_eta",
-  texX = 'leading Z #eta', texY = 'Number of Events / 20 GeV',
-  attribute = lambda event, sample: event.Z_eta[0],
-  binning=[52,-5.2,5.2],
-))
-
 plots.append(Plot( name = "leading_Z_pT",
   texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 20 GeV',
-  attribute = lambda event, sample: event.Z_pt[0],
+  attribute = lambda event, sample: event.leading_Z_pt,
   binning=[400/20,0,400],
 ))
 
-plots.append(Plot( name = "leading_top_eta",
-  texX = 'leading top #eta', texY = 'Number of Events / 20 GeV',
-  attribute = lambda event, sample: event.top_eta[0],
-  binning=[52,-5.2,5.2],
+plots.append(Plot( name = "leading_Z_pT_ext",
+  texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 40 GeV',
+  attribute = lambda event, sample: event.leading_Z_pt,
+  binning=[800/40,0,800],
 ))
 
-plots.append(Plot( name = "leading_top_pT",
-  texX = 'leading top p_{T} (GeV)', texY = 'Number of Events / 20 GeV',
-  attribute = lambda event, sample: event.top_pt[0],
-  binning=[400/20,0,400],
+plots.append(Plot( name = "leading_Z_pT_coarse",
+  texX = 'leading Z p_{T} (GeV)', texY = 'Number of Events / 100 GeV',
+  attribute = lambda event, sample: event.leading_Z_pt,
+  binning=[800/100,0,800],
 ))
-
 
 plots.append(Plot(
   texX = 'gen E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
@@ -137,186 +154,34 @@ plots.append(Plot(
   binning=[400/20,0,400],
 ))
 
+#plots.append(Plot(
+#  texX = 'gen #phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
+#  attribute = TreeVariable.fromString( "GenMet_phi/F" ),
+#  binning=[10,-pi,pi],
+#))
+
 plots.append(Plot(
 texX = 'number of gen jets', texY = 'Number of Events',
 attribute = TreeVariable.fromString('nGenJet/I'),
 binning=[14,0,14],
 ))
 
-#plots.append(Plot(
-#texX = 'H_{T} (GeV)', texY = 'Number of Events / 25 GeV',
-#attribute = TreeVariable.fromString( "ht/F" ),
-#binning=[500/25,0,600],
-#))
-#
-#plots.append(Plot(
-#texX = 'm(ll) of leading dilepton (GeV)', texY = 'Number of Events / 4 GeV',
-#attribute = TreeVariable.fromString( "dl_mass/F" ),
-#binning=[200/4,0,200],
-#))
-#
-#plots.append(Plot(
-#texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 10 GeV',
-#attribute = TreeVariable.fromString( "dl_pt/F" ),
-#binning=[20,0,400],
-#))
-#
-#plots.append(Plot(
-#  texX = '#eta(ll) ', texY = 'Number of Events',
-#  name = 'dl_eta', attribute = lambda event, sample: abs(event.dl_eta), read_variables = ['dl_eta/F'],
-#  binning=[10,0,3],
-#))
-#
-#plots.append(Plot(
-#texX = '#phi(ll)', texY = 'Number of Events',
-#attribute = TreeVariable.fromString( "dl_phi/F" ),
-#binning=[10,-pi,pi],
-#))
-#
-#plots.append(Plot(
-#texX = 'Cos(#Delta#phi(ll, E_{T}^{miss}))', texY = 'Number of Events',
-#name = 'cosZMetphi',
-#attribute = lambda event, sample: cos( event.dl_phi - event.met_phi ), 
-#read_variables = ["met_phi/F", "dl_phi/F"],
-#binning = [10,-1,1],
-#))
-#
-#plots.append(Plot(
-#texX = 'p_{T}(l_{1}) (GeV)', texY = 'Number of Events / 15 GeV',
-#attribute = TreeVariable.fromString( "l1_pt/F" ),
-#binning=[20,0,300],
-#))
-#
-#plots.append(Plot(
-#texX = '#eta(l_{1})', texY = 'Number of Events',
-#name = 'l1_eta', attribute = lambda event, sample: abs(event.l1_eta), read_variables = ['l1_eta/F'],
-#binning=[15,0,3],
-#))
-#
-#plots.append(Plot(
-#texX = '#phi(l_{1})', texY = 'Number of Events',
-#attribute = TreeVariable.fromString( "l1_phi/F" ),
-#binning=[10,-pi,pi],
-#))
-#
-#plots.append(Plot(
-#texX = 'p_{T}(l_{2}) (GeV)', texY = 'Number of Events / 15 GeV',
-#attribute = TreeVariable.fromString( "l2_pt/F" ),
-#binning=[20,0,300],
-#))
-#
-#plots.append(Plot(
-#texX = '#eta(l_{2})', texY = 'Number of Events',
-#name = 'l2_eta', attribute = lambda event, sample: abs(event.l2_eta), read_variables = ['l2_eta/F'],
-#binning=[15,0,3],
-#))
-#
-#plots.append(Plot(
-#texX = '#phi(l_{2})', texY = 'Number of Events',
-#attribute = TreeVariable.fromString( "l2_phi/F" ),
-#binning=[10,-pi,pi],
-#))
-#
-## Plots only when at least one jet:
-#if args.selection.count('njet2') or args.selection.count('njet1'):
-#plots.append(Plot(
-#  texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-#  name = 'jet1_pt', attribute = lambda event, sample: event.JetGood_pt[0],
-#  binning=[600/30,0,600],
-#))
-#
-#plots.append(Plot(
-#  texX = '#eta(leading jet) (GeV)', texY = 'Number of Events',
-#  name = 'jet1_eta', attribute = lambda event, sample: abs(event.JetGood_eta[0]),
-#  binning=[10,0,3],
-#))
-#
-#plots.append(Plot(
-#  texX = '#phi(leading jet) (GeV)', texY = 'Number of Events',
-#  name = 'jet1_phi', attribute = lambda event, sample: event.JetGood_phi[0],
-#  binning=[10,-pi,pi],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosMetJet1phi',
-#  texX = 'Cos(#Delta#phi(E_{T}^{miss}, leading jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.met_phi - event.JetGood_phi[0]), 
-#  read_variables = ["met_phi/F", "JetGood[phi/F]"],
-#  binning = [10,-1,1],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosMetJet1phi_smallBinning',
-#  texX = 'Cos(#Delta#phi(E_{T}^{miss}, leading jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.met_phi - event.JetGood_phi[0] ) , 
-#  read_variables = ["met_phi/F", "JetGood[phi/F]"],
-#  binning = [20,-1,1],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosZJet1phi',
-#  texX = 'Cos(#Delta#phi(Z, leading jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.dl_phi - event.JetGood_phi[0] ) ,
-#  read_variables =  ["dl_phi/F", "JetGood[phi/F]"],
-#  binning = [10,-1,1],
-#))
-#
-## Plots only when at least two jets:
-#if args.selection.count('njet2'):
-#plots.append(Plot(
-#  texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-#  name = 'jet2_pt', attribute = lambda event, sample: event.JetGood_pt[1],
-#  binning=[600/30,0,600],
-#))
-#
-#plots.append(Plot(
-#  texX = '#eta(2nd leading jet) (GeV)', texY = 'Number of Events',
-#  name = 'jet2_eta', attribute = lambda event, sample: abs(event.JetGood_eta[1]),
-#  binning=[10,0,3],
-#))
-#
-#plots.append(Plot(
-#  texX = '#phi(2nd leading jet) (GeV)', texY = 'Number of Events',
-#  name = 'jet2_phi', attribute = lambda event, sample: event.JetGood_phi[1],
-#  binning=[10,-pi,pi],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosMetJet2phi',
-#  texX = 'Cos(#Delta#phi(E_{T}^{miss}, second jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.met_phi - event.JetGood_phi[1] ) , 
-#  read_variables = ["met_phi/F", "JetGood[phi/F]"],
-#  binning = [10,-1,1],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosMetJet2phi_smallBinning',
-#  texX = 'Cos(#Delta#phi(E_{T}^{miss}, second jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.met_phi - event.JetGood_phi[1] ) , 
-#  read_variables = ["met_phi/F", "JetGood[phi/F]"],
-#  binning = [20,-1,1],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosZJet2phi',
-#  texX = 'Cos(#Delta#phi(Z, 2nd leading jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.dl_phi - event.JetGood_phi[0] ),
-#  read_variables = ["dl_phi/F", "JetGood[phi/F]"],
-#  binning = [10,-1,1],
-#))
-#
-#plots.append(Plot(
-#  name = 'cosJet1Jet2phi',
-#  texX = 'Cos(#Delta#phi(leading jet, 2nd leading jet))', texY = 'Number of Events',
-#  attribute = lambda event, sample: cos( event.JetGood_phi[1] - event.JetGood_phi[0] ) ,
-#  read_variables =  ["JetGood[phi/F]"],
-#  binning = [10,-1,1],
-#))
+plots.append(Plot(
+texX = '#Delta#phi(ll)', texY = 'Number of Events',
+name = 'deltaPhi_ll',
+attribute = lambda event, sample:event.dPhi_ll,
+binning=[16,0,pi],
+))
 
+plots.append(Plot(
+texX = '#Delta#phi(ll)', texY = 'Number of Events',
+name = 'deltaPhi_ll_coarse',
+attribute = lambda event, sample:event.dPhi_ll,
+binning=[4,0,pi],
+))
 
 plotting.fill(plots, read_variables = read_variables, sequence = sequence, max_events = 100 if args.small else -1)
 
-
-drawPlots(plots)
+drawPlots(plots, subDirectory = subDirectory)
 
 #logger.info( "Done with prefix %s and selectionString %s", args.selection, cutInterpreter.cutString(args.selection) )

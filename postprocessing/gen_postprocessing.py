@@ -107,8 +107,12 @@ def filler( event ):
 
     # find heavy objects before they decay
     tops = map( lambda t:{var: getattr(t, var)() for var in top_varnames}, filter( lambda p:abs(p.pdgId())==6 and search.isLast(p),  gp) )
+
+    tops.sort( key = lambda p:-p.pt() )
     fill_vector( event, "top", top_varnames, tops ) 
+
     Zs   = map( lambda Z:{var: getattr(Z, var)() for var in Z_varnames},   filter( lambda p:abs(p.pdgId())==23 and search.isLast(p), gp) )
+    Zs.sort( key = lambda p:-p.pt() )
     fill_vector( event, "Z", Z_varnames, Zs ) 
     #Ws   = filter( lambda p:abs(p.pdgId())==24 and search.isLast(p), gp)
 
@@ -119,6 +123,8 @@ def filler( event ):
         mother_pdgId = first.mother(0).pdgId() if first.numberOfMothers()>0 else -1
         leps.append( {var: getattr(last, var)() for var in lep_varnames} )
         leps[-1]['motherPdgId'] = mother_pdgId
+
+    leps.sort( key = lambda p:-p.pt() )
     fill_vector( event, "GenLep", lep_all_varnames, leps)
 
     # MET
@@ -131,6 +137,7 @@ def filler( event ):
     # jet/lepton disambiguation
     jets = filter( lambda j: (min([999]+[deltaR2(j, l) for l in leps]) > 0.3**2 ), jets )
 
+    jets.sort( key = lambda p:-p.pt() )
     fill_vector( event, "GenJet", jet_varnames, jets)
 
 tmp_dir     = ROOT.gDirectory
