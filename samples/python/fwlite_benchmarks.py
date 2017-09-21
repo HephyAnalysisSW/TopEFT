@@ -17,7 +17,6 @@ fwlite_ttZ_ll_LO_DC1V_m1_DC1A0p5      = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_m1_
 # benchmark from https://arxiv.org/pdf/1501.05939.pdf
 fwlite_ttZ_ll_LO_C2VA_0p2 = FWLiteSample.fromDAS("ttZ_ll_LO_C2VA_0p2", "/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-ewkDM-d5ca1cdb139c8f92e34abf823fbeb652/USER", "phys03")
 
-
 # DC1V/A = - C1V/A(SM), then 8 points on a circle in DC2V/A space such that x-sec(BSM)~x-sec(SM) at NLO
 fwlite_ttZ_ll_LO_minXSecC1VA_0 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_0", "/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-ewkDM-83046cbf09b262686da67ff44f4901ef/USER", "phys03")
 fwlite_ttZ_ll_LO_minXSecC1VA_1 = FWLiteSample.fromDAS("ttZ_ll_LO_minXSecC1VA_1", "/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700/schoef-ewkDM-bedd681b46b413b9e38bf1a1ea2e75b5/USER", "phys03")

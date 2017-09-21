@@ -124,8 +124,7 @@ class Process:
     def makeGridpack(self, modified_couplings = None, overwrite=False):
 
         # gridpack file name
-        key = self.getFileName( modified_couplings )
-        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, ( '_'.join( key ) ).rstrip('_') )
+        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ) )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
             logger.debug( "Found gridpack %s. Do nothing", gridpack )
@@ -221,14 +220,13 @@ class Process:
                     os.makedirs(plot_path)
                 subprocess.call(" ".join(["ps2pdf",ps,"%s/Diagrams_%i_%i.pdf"%(plot_path,i,j)]), shell=True)
         
-    def getFileName(self, modified_couplings):
+    def getGridpackFileName(self, modified_couplings):
 
         mod_c = modified_couplings.keys()
         mod_c.sort()
         
         mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
-        key = self.config.model_name, self.process, mod_c_str
-        return key
+        return ( '_'.join( [self.config.model_name, self.process, mod_c_str ])).rstrip('_')
     
     def getKey(self, modified_couplings):
         key = {"process":self.process, "nEvents":self.nEvents}
