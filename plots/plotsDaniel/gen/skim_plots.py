@@ -58,7 +58,9 @@ def drawObjects( hasData = False ):
 
 def drawPlots(plots):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'gen', args.plot_directory)
+    if log: subDir = "log"
+    else: subDir ="linear"
+    plot_directory_ = os.path.join(plot_directory, 'gen', args.plot_directory, subDir)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
 
