@@ -10,6 +10,13 @@ if not 'ipython' in VarParsing.sys.argv[0]:
 else:
   print "No parsing of arguments!"
 
+import os
+print options.outputDir
+print os.path.isdir(options.outputDir)
+if not os.path.isdir(options.outputDir):
+    os.makedirs(options.outputDir)
+
+
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
