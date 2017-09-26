@@ -50,9 +50,9 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 
-processes = ['tZq_4f', 'ttZ','ttW','ttH']
-submitCMD = "submitBatch.py"
-#submitCMD = "echo"
+processes = ['tZq_4f']#, 'ttZ','ttW','ttH']
+#submitCMD = "submitBatch.py"
+submitCMD = "echo"
 
 nJobs = len(processes[:1])*len(allCombinationsFlat)
 

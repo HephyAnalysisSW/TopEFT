@@ -45,7 +45,7 @@ interpolate         = True
 drawContours        = True
 model_name          = 'ewkDM'
 nZC_latex           = ("#DeltaC_{1,V}", "#DeltaC_{1,A}", "#DeltaC_{2,V}", "#DeltaC_{2,A}")
-processes           = ["ttZ","ttH","ttW"]
+processes           = ["tZq_4f","ttZ","ttH","ttW"]
 
 nonZeroCouplings    = ("DC1V","DC1A","DC2V","DC2A")
 #dc1v = [ i*1.3/4 for i in range(-4,3) ]
@@ -67,7 +67,7 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 
-contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67]}
+contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67], 'tZq_4f':[0.28,0.64,1.36,1.72]}
 
 n = 2
 #points          = [ round(i*1.0/n,2) for i in range(-n,n+1) ]
@@ -86,7 +86,7 @@ latex1.SetTextAlign(11)
 
 logger.info("Model:        %s", model_name)
 
-for proc in processes:
+for proc in processes[:1]:
     logger.info("Starting with process %s", proc)
     config = Configuration( model_name = model_name )
     p = Process(process = proc, nEvents = 50000, config = config)
