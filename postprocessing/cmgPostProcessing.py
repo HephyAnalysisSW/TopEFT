@@ -21,7 +21,7 @@ from RootTools.core.standard import *
 import TopEFT.tools.user as user
 
 # Tools for systematics
-from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, m3, deltaR, bestDRMatchInCollection, deltaPhi
+from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, m3, deltaR, bestDRMatchInCollection, deltaPhi, mZ
 #from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons,  getGoodBJets, getGoodJets, isBJet, jetId, isBJet, getGoodPhotons, getGenPartsAll
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
@@ -55,7 +55,7 @@ def get_parser():
     argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',                         action='store',         nargs='?',  type=int,                           default=[],                         help="Run only job i")
+    argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
     argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.data_output_directory, help="Name of the directory the post-processed files will be saved")
@@ -340,14 +340,14 @@ if isMC:
 
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
-    VectorTreeVariable.fromString('LepGood[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
+    VectorTreeVariable.fromString('LepGood[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
     TreeVariable.fromString('nJet/I'),
     VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) )
 ]
 if isVeryLoose:
     read_variables += [\
         TreeVariable.fromString('nLepOther/I'),
-        VectorTreeVariable.fromString('LepOther[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
+        VectorTreeVariable.fromString('LepOther[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
     ]
     if isMC: read_variables += [VectorTreeVariable.fromString('LepOther[mcMatchId/I, mcMatchAny/I]')]
 new_variables += [\
@@ -509,8 +509,8 @@ def filler( event ):
         ## loose relIso lepton selection
     else:
         # using miniRelIso 0.2 as baseline 
-        mu_selector  = muonSelector( relIso03 = 0.25, absEtaCut = 2.5, dxy = 0.05, dz = 0.1 )
-        ele_selector = eleSelector( relIso03 = 0.2, eleId = "T", absEtaCut = 2.5, dxy = 0.05, dz = 0.1, noMissingHits=False )
+        mu_selector  = muonSelector( isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEtaCut = 2.4, dxy = 0.05, dz = 0.1 )
+        ele_selector = eleSelector(  isoVar = "relIso03", barrelIso = 0.1,  endcapIso = 0.1,  absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=False )
         leptons_pt10 = getGoodLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
         leptons      = filter(lambda l:l['pt']>10, leptons_pt10)
 
@@ -634,18 +634,25 @@ def filler( event ):
 
                     l_pdgs.append(abs(leptons[i]['pdgId']))
                 
-                for i,j in enumerate([zl1, zl2]):
-                    setattr(event, 'Z_l%i_pt'%(i+1), leptons[j]['pt'])
-                    setattr(event, 'Z_l%i_phi'%(i+1), leptons[j]['phi'])
-                    setattr(event, 'Z_l%i_eta'%(i+1), leptons[j]['eta'])
-                    setattr(event, 'Z_l%i_pdgId'%(i+1), leptons[j]['pdgId'])
-                    setattr(event, 'Z_l%i_index'%(i+1), leptons[j]['index'])
-                    setattr(event, 'Z_l%i_relIso03'%(i+1), leptons[j]['relIso03'])
-                    setattr(event, 'Z_l%i_dxy'%(i+1), leptons[j]['dxy'])
-                    setattr(event, 'Z_l%i_dz'%(i+1), leptons[j]['dz'])
-
-
                 if event.mlmZ_mass > 0:
+                    for i,j in enumerate([zl1, zl2]):
+                        setattr(event, 'Z_l%i_pt'%(i+1), leptons[j]['pt'])
+                        setattr(event, 'Z_l%i_phi'%(i+1), leptons[j]['phi'])
+                        setattr(event, 'Z_l%i_eta'%(i+1), leptons[j]['eta'])
+                        setattr(event, 'Z_l%i_pdgId'%(i+1), leptons[j]['pdgId'])
+                        setattr(event, 'Z_l%i_index'%(i+1), leptons[j]['index'])
+                        setattr(event, 'Z_l%i_relIso03'%(i+1), leptons[j]['relIso03'])
+                        setattr(event, 'Z_l%i_dxy'%(i+1), leptons[j]['dxy'])
+                        setattr(event, 'Z_l%i_dz'%(i+1), leptons[j]['dz'])
+                    if event.Z_l1_pdgId * event.Z_l2_pdgId > 1:
+                        print "Problem!"
+                        print zl1, zl2
+                        print leptons[zl1]['pt'], leptons[zl2]['pt']
+                        print event.Z_l1_pdgId, event.Z_l2_pdgId
+                        print event.Z_l1_pt, event.Z_l2_pt
+                        print event.mlmZ_mass
+
+                #if event.mlmZ_mass > 0:
                     Z_l1 = ROOT.TLorentzVector()
                     Z_l1.SetPtEtaPhiM(event.Z_l1_pt, event.Z_l1_eta, event.Z_l1_phi, 0 )
                     Z_l2 = ROOT.TLorentzVector()
@@ -664,7 +671,7 @@ def filler( event ):
         event.isDilepSF = ( len(leptons) == 2 and l_pdgs[0] == l_pdgs[1] )
         event.isTrilep = len(leptons) == 3
         event.isQuadlep = len(leptons) == 4
-        event.isTTZcand = event.mlmZ_mass > 0
+        event.isTTZcand = abs(event.mlmZ_mass - mZ) < 10
 
 
         # For TTZ studies: find Z boson candidate, and use third lepton to calculate mt
