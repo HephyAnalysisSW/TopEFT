@@ -16,5 +16,10 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
     skim_directory      = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
     skim_output_directory      = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
     plot_directory      = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/"
+
+    dpm_directory = '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/'
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    data_output_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+
     runOnGentT2 = False
 
