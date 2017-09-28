@@ -30,7 +30,7 @@ dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_ext"]
 dirs["WZ"]              = ["WZTo3LNu_amcatnlo"]
 dirs['TTX']             = ["TTHnobb_pow", "TTWToLNu_ext", "tWll", "tZq_ll_ext"] # just a subset, not complete
 dirs['rare']            = ["ZZ","WZZ","WWZ","ZZZ"] # just a subset, not complete
-dirs['nonprompt']       = ['DYJetsToLL_M50'] # ttjets missing
+dirs['nonprompt']       = ['DYJetsToLL_M50', 'TTJets']
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 

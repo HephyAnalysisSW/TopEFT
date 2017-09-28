@@ -102,91 +102,95 @@ yields     = {}
 allPlots   = {}
 allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
-  yields[mode] = {}
-  if not args.noData:
-    if   mode=="mumu": data_sample = DoubleMuon_Run2016_backup
-    if   mode=="mumu": data_sample.texName = "data (2 #mu)"
+    yields[mode] = {}
+    if not args.noData:
+      if   mode=="mumu": data_sample = DoubleMuon_Run2016_backup
+      if   mode=="mumu": data_sample.texName = "data (2 #mu)"
 
-    data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
-    data_sample.name           = "data"
-    data_sample.read_variables = ["evt/I","run/I"]
-    data_sample.style          = styles.errorStyle(ROOT.kBlack)
-    lumi_scale                 = data_sample.lumi/1000
+      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+      data_sample.name           = "data"
+      data_sample.read_variables = ["evt/I","run/I"]
+      data_sample.style          = styles.errorStyle(ROOT.kBlack)
+      lumi_scale                 = data_sample.lumi/1000
 
-  if args.noData: lumi_scale = 35.9
-  weight_ = lambda event, sample: event.weight
+    if args.noData: lumi_scale = 35.9
+    weight_ = lambda event, sample: event.weight
 
-  mc             = [ TTZtoLLNuNu, TTX, WZ, rare ]#, nonprompt ]
+    mc             = [ TTZtoLLNuNu, TTX, WZ, rare ]#, nonprompt ]
 
-  for sample in mc: sample.style = styles.fillStyle(sample.color)
+    for sample in mc: sample.style = styles.fillStyle(sample.color)
 
-  for sample in mc + signals:
-    sample.scale          = lumi_scale
-    #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
-    #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-    sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+    for sample in mc + signals:
+      sample.scale          = lumi_scale
+      #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
+      #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
+      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
 
-  if not args.noData:
-    stack = Stack(mc, data_sample)
-  else:
-    stack = Stack(mc)
+    if not args.noData:
+      stack = Stack(mc, data_sample)
+    else:
+      stack = Stack(mc)
 
-  stack.extend( [ [s] for s in signals ] )
+    stack.extend( [ [s] for s in signals ] )
 
-  if args.small:
+    if args.small:
         for sample in stack.samples:
             sample.reduceFiles( to = 1 )
 
-  # Use some defaults
-  Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
-  
-  plots = []
+    # Use some defaults
+    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
 
-  plots.append(Plot(
-    name = 'yield', texX = 'yield', texY = 'Number of Events',
-    attribute = lambda event, sample: 0.5 + index,
-    binning=[4, 0, 4],
-  ))
+    plots = []
+    
+    plots.append(Plot(
+      name = 'yield', texX = 'yield', texY = 'Number of Events',
+      attribute = lambda event, sample: 0.5 + index,
+      binning=[4, 0, 4],
+    ))
+    
+    plots.append(Plot(
+      name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
+      attribute = TreeVariable.fromString( "nVert/I" ),
+      binning=[50,0,50],
+    ))
+    
+    plots.append(Plot(
+        texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = TreeVariable.fromString( "met_pt/F" ),
+        binning=[400/20,0,400],
+    ))
+    
+    plots.append(Plot(
+        texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
+        attribute = TreeVariable.fromString( "met_phi/F" ),
+        binning=[10,-pi,pi],
+    ))
+    
+    plots.append(Plot(
+        texX = '#Delta#phi(ll)', texY = 'Number of Events',
+        attribute = TreeVariable.fromString( "dl_dphi/F" ),
+        binning=[10,0,pi],
+    ))
 
-  plots.append(Plot(
-    name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
-    attribute = TreeVariable.fromString( "nVert/I" ),
-    binning=[50,0,50],
-  ))
+    plotting.fill(plots, read_variables = read_variables, sequence = [])
 
-  plots.append(Plot(
-      texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
-      attribute = TreeVariable.fromString( "met_pt/F" ),
-      binning=[400/20,0,400],
-  ))
+    # Get normalization yields from yield histogram
+    for plot in plots:
+      if plot.name == "yield":
+        for i, l in enumerate(plot.histos):
+          for j, h in enumerate(l):
+            yields[mode][plot.stack[i][j].name] = h.GetBinContent(h.FindBin(0.5+index))
+            h.GetXaxis().SetBinLabel(1, "#mu#mu#mu")
+            h.GetXaxis().SetBinLabel(2, "#mu#mue")
+            h.GetXaxis().SetBinLabel(3, "#muee")
+            h.GetXaxis().SetBinLabel(4, "eee")
+    if args.noData: yields[mode]["data"] = 0
 
-  plots.append(Plot(
-      texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
-      attribute = TreeVariable.fromString( "met_phi/F" ),
-      binning=[10,-pi,pi],
-  ))
+    yields[mode]["MC"] = sum(yields[mode][s.name] for s in mc)
+    dataMCScale        = yields[mode]["data"]/yields[mode]["MC"] if yields[mode]["MC"] != 0 else float('nan')
 
-
-
-  plotting.fill(plots, read_variables = read_variables, sequence = [])
-
-  # Get normalization yields from yield histogram
-  for plot in plots:
-    if plot.name == "yield":
-      for i, l in enumerate(plot.histos):
-        for j, h in enumerate(l):
-          yields[mode][plot.stack[i][j].name] = h.GetBinContent(h.FindBin(0.5+index))
-          h.GetXaxis().SetBinLabel(1, "#mu#mu#mu")
-          h.GetXaxis().SetBinLabel(2, "#mu#mue")
-          h.GetXaxis().SetBinLabel(3, "#muee")
-          h.GetXaxis().SetBinLabel(4, "eee")
-  if args.noData: yields[mode]["data"] = 0
-
-  yields[mode]["MC"] = sum(yields[mode][s.name] for s in mc)
-  dataMCScale        = yields[mode]["data"]/yields[mode]["MC"] if yields[mode]["MC"] != 0 else float('nan')
-
-  drawPlots(plots, mode, dataMCScale)
-  allPlots[mode] = plots
+    drawPlots(plots, mode, dataMCScale)
+    allPlots[mode] = plots
 
 # Add the different channels into SF and all
 for mode in ["comb1","comb2","all"]:
