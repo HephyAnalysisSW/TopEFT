@@ -104,8 +104,14 @@ class Process:
                 f.write(".false. =  gridpack\n")
             logger.info( "Calculate x-sec: Calling bin/generate_events" )
             output = subprocess.check_output([ os.path.join( self.processTmpDir, 'bin/generate_events') , '-f'])
-            m = re.search("Cross-section :\s*(.*) \pb", output)
-            logger.info( "x-sec: {} pb".format(m.group(1)) )
+            for i in range(10):
+                try:
+                    output = subprocess.check_output([ os.path.join( self.processTmpDir, 'bin/generate_events') , '-f'])
+                    m = re.search("Cross-section :\s*(.*) \pb", output)
+                    logger.info( "x-sec: {} pb".format(m.group(1)) )
+                    break
+                except ValueError:
+                    logger.info("Encountered problem during the MG run. Restarting.")
 
             xsec_ = u_float.fromString(m.group(1)) 
             

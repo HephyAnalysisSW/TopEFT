@@ -38,6 +38,10 @@ ttZ_ll_LO_DC2A_0p2_DC2V_0p2 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p2_DC2V_0p2"
 ttZ_ll_LO_DC2A_0p4_DC2V_0p4 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p4_DC2V_0p4", texName = "DC1V=0 DC1A=0 C2V=0.4 C2A=0.4",         directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p4_DC2V_0p4"), color = ROOT.kBlue)
 ttZ_ll_LO_DC2A_0p6_DC2V_0p6 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p6_DC2V_0p6", texName = "DC1V=0 DC1A=0 C2V=0.6 C2A=0.6",         directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p6_DC2V_0p6"), color = ROOT.kGreen)
 
+# extensions
+ttZ_ll_LO_DC2A_0p0_DC2V_0p0_ext1 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p0_DC2V_0p0_ext1", texName = "DC1V=0 DC1A=0 C2V=0.0 C2A=0.0",         directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_SM_ext1"), color = ROOT.kBlack)
+ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1", texName = "DC1V=0 DC1A=0 C2V=0.2 C2A=0.2",         directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1"), color = ROOT.kRed)
+
 ttZ_ll_LO_DC2A_0p0_DC2V_0p57    = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p0_DC2V_0p57",      texName = "DC1V=0 DC1A=0 C2V=0.57 C2A=0.0",      directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p0_DC2V_0p57"), color = ROOT.kOrange)
 ttZ_ll_LO_DC2A_0p57_DC2V_0p0    = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p57_DC2V_0p0",      texName = "DC1V=0 DC1A=0 C2V=0.0  C2A=0.57",     directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p57_DC2V_0p0"), color = ROOT.kCyan)
 ttZ_ll_LO_DC2A_0p216_DC2V_0p523 = Sample.fromDirectory("ttZ_ll_LO_DC2A_0p216_DC2V_0p523",   texName = "DC1V=0 DC1A=0 C2V=0.52 C2A=0.22",     directory = os.path.join( skim_directory, directory, "ttZ_ll_LO_DC2A_0p216_DC2V_0p523"), color = ROOT.kMagenta)

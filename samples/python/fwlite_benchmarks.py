@@ -33,6 +33,11 @@ daniel_fwlite_ttZ_ll_LO_DC2A_0p2_DC2V_0p2      = FWLiteSample.fromFiles( "ttZ_ll
 daniel_fwlite_ttZ_ll_LO_DC2A_0p4_DC2V_0p4      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p4_DC2V_0p4", texName = "DC2A_0p4_DC2V_0p4", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p4_DC2V_0p4/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p6_DC2V_0p6      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p6_DC2V_0p6", texName = "DC2A_0p6_DC2V_0p6", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p6_DC2V_0p6/events.root"] )
 
+# extensions
+daniel_fwlite_ttZ_ll_LO_sm_ext1                     = FWLiteSample.fromFiles( "ttZ_ll_LO_SM_ext1", texName = "SM", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_SM_exp1/events.root"] )
+daniel_fwlite_ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1", texName = "DC2A_0p2_DC2V_0p2", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p2_DC2V_0p2_exp1/events.root"] )
+
+
 daniel_fwlite_ttZ_ll_LO_DC2A_0p216_DC2V_0p523   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p216_DC2V_0p523", texName = "DC2A_0p216_DC2V_0p523", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p216_DC2V_0p523/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p523_DC2V_0p216   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p523_DC2V_0p216", texName = "DC2A_0p523_DC2V_0p216", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p523_DC2V_0p216/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p57_DC2V_0p0      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p57_DC2V_0p0", texName = "DC2A_0p57_DC2V_0p0", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p57_DC2V_0p0/events.root"] )
