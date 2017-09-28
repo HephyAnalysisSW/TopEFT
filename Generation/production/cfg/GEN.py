@@ -2,6 +2,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
 options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
+options.register('outputDir','./',          VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Where to store the output root file?")
 options.maxEvents=10 # maxEvents is a registered option. 
 
 if not 'ipython' in VarParsing.sys.argv[0]:
@@ -56,7 +57,7 @@ process.RAWoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWEventContent.outputCommands,
-    fileName = cms.untracked.string('file:events.root'),
+    fileName = cms.untracked.string('file:%s/events.root'%options.outputDir),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN')

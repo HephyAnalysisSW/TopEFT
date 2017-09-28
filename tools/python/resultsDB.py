@@ -84,11 +84,11 @@ class resultsDB:
         '''
         d = self.getDicts(key)
         tableColumns = ["Row#"] + self.columns
-        header = "{:6}" + "| {:15} "*len(self.columns)
-        print "="*(6+18*len(self.columns))
+        header = "{:6}" + "| {:7} "*(len(self.columns)-1) + "| {:15} "
+        print "="*(6+18+10*(len(self.columns)-1))
         print header.format(*tableColumns)
-        print "="*(6+18*len(self.columns))
-        row = "{:6}" + "  {:15} "*len(self.columns)
+        print "="*(6+18+10*(len(self.columns)-1))
+        row = "{:6}" + "  {:7} "*(len(self.columns)-1) + "| {:15} "
         lineCount = 0
         for entry in d:
             r = [lineCount]
@@ -158,6 +158,34 @@ class resultsDB:
         
         self.close()
         raise e
+
+    def removeObjects(self, key):
+        '''
+        Remove entries matching the key. Careful when not all columns are specified!
+        '''
+        selection = " AND ".join([ "%s = '%s'"%(k, key[k]) for k in key.keys() ])
+
+        selectionString = "DELETE FROM {} ".format(self.tableName) + " WHERE {} ".format(selection)
+        self.connect()
+        
+        for i in range(60):
+
+            try:
+                self.cursor.execute(selectionString)
+                self.database.commit()
+                self.close()
+                return
+
+            except sqlite3.DatabaseError as e:
+                logger.info( "There seems to be an issue with the database, trying again." )
+                logger.info( "Attempt no %i", i )
+                self.close()
+                self.connect()
+                time.sleep(1.0)
+
+        self.close()
+        raise e
+
 
     def resetDatabase(self):
         if os.path.isfile(self.database_file):

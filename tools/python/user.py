@@ -13,7 +13,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
 if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
     tmp_directory       = "/afs/hephy.at/data/dspitzbart01/Top_tmp/"
     results_directory   = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/"
-    skim_directory      = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/"
+    skim_directory      = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
     skim_output_directory      = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
     plot_directory      = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/"
     runOnGentT2 = False

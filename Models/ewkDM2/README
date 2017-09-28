@@ -1,0 +1,3 @@
+# Equivalent to ewkDM but did not partially integrate q_nu in Eq. 2.3 in arxiv:1501.05939. Hence, Feynman rules
+# involving C2V/A are in terms of fermion momenta and not the Z boson momenta. 
+
