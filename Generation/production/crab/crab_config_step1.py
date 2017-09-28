@@ -22,7 +22,7 @@ config.Data.publication = True
 config.Data.inputDBS = 'phys03'
 config.Data.publishDBS = 'phys03'
 
-config.Data.outputDatasetTag = 'ewkDM'
+config.Data.outputDatasetTag = 'ewkDM_GENSIMRAW'
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 
 config.section_("Site")
