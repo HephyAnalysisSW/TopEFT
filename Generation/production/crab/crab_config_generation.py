@@ -1,3 +1,4 @@
+# run in CMSSW_7_1_25_patch2
 from WMCore.Configuration import Configuration
 config = Configuration()
 

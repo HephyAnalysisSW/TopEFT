@@ -1,3 +1,4 @@
+#run in CMSSW_8_0_21
 from WMCore.Configuration import Configuration
 config = Configuration()
 
@@ -8,20 +9,20 @@ config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'step1_DIGI_L1_DIGI2RAW_HLT_PU.py'
+config.JobType.psetName = '../cfg/step1_DIGI_L1_DIGI2RAW_HLT_PU.py'
 config.JobType.disableAutomaticOutputCollection = False
 
 config.section_("Data")
-#config.Data.splitting = 'EventAwareLumiBased'
-config.Data.splitting = 'Automatic'
+config.Data.splitting = 'EventAwareLumiBased'
+#config.Data.splitting = 'Automatic'
 
-config.Data.unitsPerJob = 100
+config.Data.unitsPerJob = 1
 #config.Data.totalUnits  = 50000 
 config.Data.publication = True
 config.Data.inputDBS = 'phys03'
 config.Data.publishDBS = 'phys03'
 
-config.Data.outputDatasetTag = 'ewkDM'
+config.Data.outputDatasetTag = 'ewkDM_GENSIMRAW'
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 
 config.section_("Site")
