@@ -21,7 +21,8 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "T2tt", "DM", "T8bbllnunu", "compilation"], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM"], help="Add signal to plot")
+argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v1')
@@ -40,13 +41,19 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 if args.small:                        args.plot_directory += "_small"
 if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
+if args.signal:                       args.plot_directory += "_signal_"+args.signal
 #
 # Make samples, will be searched for in the postProcessing directory
 #
 postProcessing_directory = "TopEFT_PP_v1/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-signals = []
+if args.signal == "ewkDM":
+    postProcessing_directory = "TopEFT_PP_v1/dilep/"
+    from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
+    ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
+
+signals = [ewkDM_1]
 
 #
 # Text on the plots
@@ -116,7 +123,10 @@ for index, mode in enumerate(allModes):
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
 
-    mc             = [ TTZtoLLNuNu, TTX, WZ, rare ]#, nonprompt ]
+    if args.onlyTTZ:
+        mc = [ TTZtoLLNuNu ]
+    else:
+        mc             = [ TTZtoLLNuNu, TTX, WZ, rare ]#, nonprompt ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

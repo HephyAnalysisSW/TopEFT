@@ -1,3 +1,5 @@
+## backgrounds
+
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTZToLLNuNu_ext --noTopPtReweighting --overwrite # SPLIT20
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WZTo3LNu_amcatnlo --noTopPtReweighting --overwrite # SPLIT10
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTWToLNu_ext --noTopPtReweighting --overwrite # SPLIT10
@@ -9,8 +11,11 @@
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WWZ --noTopPtReweighting --overwrite # SPLIT10
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ZZZ --noTopPtReweighting --overwrite # SPLIT10
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample DYJetsToLL_M50 --noTopPtReweighting --overwrite # SPLIT20
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTJets --noTopPtReweighting --overwrite # SPLIT20
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample  --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample  --noTopPtReweighting --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTJets --noTopPtReweighting --overwrite # SPLIT20
+#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ZGTo2LG_ext --noTopPtReweighting --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WGToLNuG --noTopPtReweighting --overwrite
 #python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample  --noTopPtReweighting --overwrite # SPLIT10
 
+## signals
+
+python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000 --noTopPtReweighting --overwrite
