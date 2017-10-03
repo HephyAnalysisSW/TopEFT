@@ -51,9 +51,16 @@ from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 if args.signal == "ewkDM":
     postProcessing_directory = "TopEFT_PP_v1/dilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
+    ewkDM_0     = ewkDM_ttZ_ll
     ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
 
-signals = [ewkDM_1]
+    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
+    ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
+
+
+    signals = [ewkDM_0,ewkDM_1]
+else:
+    signals = []
 
 #
 # Text on the plots
@@ -91,8 +98,34 @@ def drawPlots(plots, mode, dataMCScale):
 #
 # Read variables and sequences
 #
-read_variables = ["weight/F", "l1_eta/F" , "l1_phi/F", "l2_eta/F", "l2_phi/F", "JetGood[pt/F,eta/F,phi/F,btagCSV/F]",# "dl_mass/F", "dl_eta/F", "dl_mt2ll/F", "dl_mt2bb/F", "dl_mt2blbl/F",
-                  "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", "nJetGood/I"]
+read_variables =    ["weight/F", "l1_eta/F" , "l1_phi/F", "l2_eta/F", "l2_phi/F", "JetGood[pt/F,eta/F,phi/F,btagCSV/F]",# "dl_mass/F", "dl_eta/F", "dl_mt2ll/F", "dl_mt2bb/F", "dl_mt2blbl/F",
+                    "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", "nJetGood/I", "nLep/I", "Z_l1_index/I", "Z_l2_index/I", "dl_phi/F", "l3_phi/F","l4_phi/F",
+                    "l1_pt/F", "l2_pt/F","l3_pt/F", "l4_pt/F", "Z_l1_pt/F", "Z_l2_pt/F"]
+
+sequence = []
+
+def getDPhiZLep( event, sample ):
+    l_indices = range(event.nLep)
+    l_pts = [event.l1_pt, event.l2_pt, event.l3_pt, event.l4_pt]
+    Z_l_pts = [event.Z_l1_pt, event.Z_l2_pt]
+    if event.nLep<=2:
+        event.dPhiZLep = 0
+    else:
+        leadingLep = -1
+        for i,pt in enumerate(l_pts):
+            if not pt in Z_l_pts:
+                leadingNonZLepIndex = i
+                break
+        #print l_indices
+        #print event.Z_l1_index
+        #print event.Z_l2_index
+        #l_indices.remove(event.Z_l1_index)
+        #l_indices.remove(event.Z_l2_index)
+        #leadingNonZLepIndex = min(l_indices)
+        leadingNonZLepPhi = getattr(event, "l%i_phi"%(leadingNonZLepIndex+1))
+        event.dPhiZLep = deltaPhi(leadingNonZLepPhi, event.dl_phi)
+
+sequence.append( getDPhiZLep )
 
 def getLeptonSelection( mode ):
   if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
@@ -182,7 +215,14 @@ for index, mode in enumerate(allModes):
         binning=[10,0,pi],
     ))
 
-    plotting.fill(plots, read_variables = read_variables, sequence = [])
+    plots.append(Plot(
+        name = "dPhiZL",
+        texX = '#Delta#phi(Z,l)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dPhiZLep,
+        binning=[10,0,pi],
+    )) 
+
+    plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 
     # Get normalization yields from yield histogram
     for plot in plots:

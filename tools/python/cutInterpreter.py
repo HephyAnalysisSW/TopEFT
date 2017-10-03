@@ -13,7 +13,7 @@ special_cuts = {
     # ("multiIsoVT":        "(1)", 
     "looseLeptonVeto":   "Sum$(LepGood_pt>15&&LepGood_relIso03<0.4)==2",
 
-    "lepSel":            "l1_pt>40&&l2_pt>20&&l3_pt>10&&isTTZcand&&mlmZ_mass>0",
+    "lepSel":            "l1_pt>40&&l2_pt>20&&l3_pt>10&&isTTZcand&&mlmZ_mass>0&&nLep==3",
     "allZ":              "(1)",
     "onZ":               "abs(dl_mass-91.1876)<15",
     "offZ":              "abs(dl_mass-91.1876)>15",
