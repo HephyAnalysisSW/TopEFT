@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 #scripts
 ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C")
 ROOT.setTDRStyle()
-mZ=91.1876
+#mZ=91.1876
+mZ = 91.2
 
 def natural_sort(list, key=lambda s:s):
     """

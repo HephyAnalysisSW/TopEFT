@@ -15,9 +15,9 @@ special_cuts = {
 
     "lepSel":            "l1_pt>40&&l2_pt>20&&l3_pt>10&&isTTZcand&&mlmZ_mass>0&&nLep==3",
     "allZ":              "(1)",
-    "onZ":               "abs(dl_mass-91.1876)<15",
-    "offZ":              "abs(dl_mass-91.1876)>15",
-    "llgNoZ":            "(abs(dlg_mass-91.1876)>15||isEMu)",
+    "onZ":               "abs(dl_mass-91.2)<15",
+    "offZ":              "abs(dl_mass-91.2)>15",
+    "llgNoZ":            "(abs(dlg_mass-91.2)>15||isEMu)",
 
     "gLepdR":            "(1)",
     "gJetdR":            "(1)",

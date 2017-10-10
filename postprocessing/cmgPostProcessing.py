@@ -23,7 +23,7 @@ import TopEFT.tools.user as user
 # Tools for systematics
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, m3, deltaR, bestDRMatchInCollection, deltaPhi, mZ
 #from TopEFT.tools.addJERScaling              import addJERScaling
-from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons,  getGoodBJets, getGoodJets, isBJet, jetId, isBJet, getGoodPhotons, getGenPartsAll
+from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons,  getGoodBJets, getGoodJets, isBJet, jetId, isBJet, getGoodPhotons, getGenPartsAll,getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
 #from TopEFT.tools.triggerEfficiency          import triggerEfficiency
@@ -59,7 +59,7 @@ def get_parser():
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
     argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.data_output_directory, help="Name of the directory the post-processed files will be saved")
-    argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v1',             help="Name of the processing era")
+    argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
     argParser.add_argument('--skim',                        action='store',         nargs='?',  type=str,                           default='dilepTiny',                help="Skim conditions to be applied for post-processing")
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--keepForwardJets',             action='store_true',                                                                                        help="Keep forward jets?")
@@ -101,7 +101,7 @@ writeToDPM = options.targetDir == '/dpm/'
 # Skim condition
 skimConds = []
 if isDiLep:
-    skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=2" )
+    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_relIso03<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_relIso03<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
 elif isSingleLep:
@@ -231,7 +231,7 @@ if isTiny:
         "met_pt", "met_phi", "met_chsPt", "met_chsPhi",
         "Flag_*", "HLT_*",
         "LepGood_eta", "LepGood_etaSc", "LepGood_pt","LepGood_phi", "LepGood_dxy", "LepGood_dz","LepGood_tightId", "LepGood_pdgId",
-        "LepGood_mediumMuonId", "LepGood_miniRelIso", "LepGood_relIso03", "LepGood_sip3d", "LepGood_mvaIdSpring15", "LepGood_convVeto", "LepGood_lostHits","LepGood_jetPtRelv2", "LepGood_jetPtRatiov2", "LepGood_eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"
+        "LepGood_mediumMuonId","ICHEPmediumMuonId", "LepGood_miniRelIso", "LepGood_relIso03", "LepGood_sip3d", "LepGood_mvaIdSpring15", "LepGood_convVeto", "LepGood_lostHits","LepGood_jetPtRelv2", "LepGood_jetPtRatiov2", "LepGood_eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"
         ]
 
     #branches to be kept for MC samples only
@@ -325,7 +325,7 @@ read_variables += [ TreeVariable.fromString('ngamma/I'),
 
 new_variables = [ 'weight/F']
 if isMC:
-    read_variables+= [TreeVariable.fromString('nTrueInt/F'), VectorTreeVariable.fromString('LepGood[mcMatchId/I, mcMatchAny/I]')]
+    read_variables+= [TreeVariable.fromString('nTrueInt/F'), VectorTreeVariable.fromString('LepGood[mcMatchId/I, mcMatchAny/I]'), VectorTreeVariable.fromString('LepOther[mcMatchId/I, mcMatchAny/I]')]
     # reading gen particles for top pt reweighting
     read_variables.append( TreeVariable.fromString('ngenPartAll/I') )
     read_variables.append( VectorTreeVariable.fromString('genPartAll[pt/F,eta/F,phi/F,mass/F,pdgId/I,status/I,charge/I,motherId/I,grandmotherId/I,nMothers/I,motherIndex1/I,motherIndex2/I,nDaughters/I,daughterIndex1/I,daughterIndex2/I,isPromptHard/I]', nMax=200 )) # default nMax is 100, which would lead to corrupt values in this case
@@ -340,9 +340,13 @@ if isMC:
 
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
-    VectorTreeVariable.fromString('LepGood[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
+    TreeVariable.fromString('nLepOther/I'),
+    VectorTreeVariable.fromString('LepGood[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,ICHEPmediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F]'),
+    VectorTreeVariable.fromString('LepOther[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,ICHEPmediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F]'),
     TreeVariable.fromString('nJet/I'),
-    VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) )
+    TreeVariable.fromString('nDiscJet/I'),
+    VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) ),
+    VectorTreeVariable.fromString('DiscJet[%s]'% ( ','.join(jetVars) ) )
 ]
 if isVeryLoose:
     read_variables += [\
@@ -492,11 +496,11 @@ def filler( event ):
     else:
         jetAbsEtaCut = 2.4
         
-    allJets      = getGoodJets(r, ptCut=0, jetVars = jetVarNames, absEtaCut=jetAbsEtaCut)
-    jets         = filter(lambda j:jetId(j, ptCut=30, absEtaCut=jetAbsEtaCut), allJets)
-    soft_jets    = filter(lambda j:jetId(j, ptCut=0,  absEtaCut=jetAbsEtaCut) and j['pt']<30., allJets) if options.keepAllJets else []
-    bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets)
-    nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets)
+    allJets_old      = getGoodJets(r, ptCut=0, jetVars = jetVarNames, absEtaCut=jetAbsEtaCut)
+    jets_old         = filter(lambda j:jetId(j, ptCut=30, absEtaCut=jetAbsEtaCut), allJets_old)
+    soft_jets    = filter(lambda j:jetId(j, ptCut=0,  absEtaCut=jetAbsEtaCut) and j['pt']<30., allJets_old) if options.keepAllJets else []
+    bJets_old        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets_old)
+    nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets_old)
     if isVeryLoose:
         ## all leptons up to relIso 0.4
         mu_selector = muonSelector( relIso03 = 999., dxy = 1., dz = 0.1 )
@@ -511,11 +515,27 @@ def filler( event ):
         # using miniRelIso 0.2 as baseline 
         mu_selector  = muonSelector( isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEtaCut = 2.4, dxy = 0.05, dz = 0.1 )
         ele_selector = eleSelector(  isoVar = "relIso03", barrelIso = 0.1,  endcapIso = 0.1,  absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=False )
-        leptons_pt10 = getGoodLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
+        #leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
+        leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
         leptons      = filter(lambda l:l['pt']>10, leptons_pt10)
 
     leptons.sort(key = lambda p:-p['pt'])
     
+    allJets      = getAllJets(r, leptons, ptCut=0, jetVars = jetVarNames, absEtaCut=jetAbsEtaCut)
+    jets         = filter(lambda j:jetId(j, ptCut=30, absEtaCut=jetAbsEtaCut), allJets)
+    soft_jets    = filter(lambda j:jetId(j, ptCut=0,  absEtaCut=jetAbsEtaCut) and j['pt']<30., allJets) if options.keepAllJets else []
+    bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets)
+    nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets)
+
+    #if len(jets_old) < len(jets):
+    #    print "Had to add back in jets"
+    #    print "Old collection"
+    #    print jets_old
+    #    print "New collection"
+    #    print jets
+    #    print "Leptons"
+    #    print leptons
+        
     event.met_pt  = r.met_pt
     event.met_phi = r.met_phi
 

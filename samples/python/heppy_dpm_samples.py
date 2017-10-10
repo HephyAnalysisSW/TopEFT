@@ -138,12 +138,20 @@ proxy_path = os.path.expandvars('$HOME/private/.proxy')
 proxy = renew_proxy( proxy_path )
 logger.info( "Using proxy %s"%proxy )
 
+## Moriond MC
+#mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16.pkl'
+#daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_30', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_31', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_36']
+#mc_Moriond_dpm_directories = daniel
+#from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+#mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
+
 # Moriond MC
-mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16.pkl'
-daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_30', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_31', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_36']
+mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_1l_v1.pkl'
+daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_v1']
 mc_Moriond_dpm_directories = daniel
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
+
 
 # Data ReminiAOD
 data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_1l_data_03Feb2017.pkl'
@@ -152,11 +160,11 @@ data_dpm_directories = [def_robert]
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
 data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
 
-# Moriond MC
-signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16.pkl'
-daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_32']
-signal_dpm_directories = daniel
-from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
-signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
+## Private signal MC
+#signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16.pkl'
+#daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_32']
+#signal_dpm_directories = daniel
+#from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
+#signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
 
 
