@@ -422,10 +422,6 @@ def getMetCorrected(r, var, addPhoton = None):
     else:
         raise ValueError
 
-mothers = {"D":0, "B":0}
-grannies_D = {}
-grannies_B = {}
-
 def filler( event ):
     # shortcut
     r = reader.event
