@@ -212,8 +212,6 @@ def getLeptonSelection( mode ):
   elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
   elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
 
-
-
 #
 # Loop over channels
 #

@@ -13,19 +13,19 @@ def jetId(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
     return filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
 
-def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl1="Jet", jetColl2="DiscJet"):
-    jets1 = filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl1))
-    jets2 = filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl2))
-    allJets = []
-    for jet in jets1+jets2:
+def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"]):
+    jets = sum( [ filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
+    res  = []
+    for jet in jets:
         clean = True
         for lepton in leptons:
             if deltaR(lepton, jet) < 0.4:
                 clean = False
+                break
         if clean:
-            allJets.append(jet)
-    allJets.sort( key = lambda j:-j['pt'] )
-    return allJets
+            res.append(jet)
+    res.sort( key = lambda j:-j['pt'] )
+    return res
 
 def isBJet(j):
     return j['btagCSV']>0.8484
