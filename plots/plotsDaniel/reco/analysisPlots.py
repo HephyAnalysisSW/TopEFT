@@ -423,6 +423,12 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
+        name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
+        attribute = lambda event, sample:event.top1_pt,
+        binning=[3,0,600],
+    ))
+
+    plots.append(Plot(
         name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
         attribute = lambda event, sample:event.top1_mass,
         binning=[20,0,300],
