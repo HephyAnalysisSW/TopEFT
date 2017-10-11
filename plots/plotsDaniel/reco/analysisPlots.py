@@ -46,7 +46,7 @@ if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v4/dilep/"
+postProcessing_directory = "TopEFT_PP_v1/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 if args.signal == "ewkDM":
@@ -119,9 +119,10 @@ def drawPlots(plots, mode, dataMCScale):
 #
 # Read variables and sequences
 #
-read_variables =    ["weight/F", "l1_eta/F" , "l1_phi/F", "l2_eta/F", "l2_phi/F", "l3_eta/F", "l3_phi/F", "l4_eta/F", "l4_phi/F", "JetGood[pt/F,eta/F,phi/F,btagCSV/F]",# "dl_mass/F", "dl_eta/F", "dl_mt2ll/F", "dl_mt2bb/F", "dl_mt2blbl/F",
-                    "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", "nJetGood/I", "nLep/I", "Z_l1_index/I", "Z_l2_index/I", "dl_phi/F", "l3_phi/F","l4_phi/F",
-                    "l1_pt/F", "l2_pt/F","l3_pt/F", "l4_pt/F", "Z_l1_pt/F", "Z_l2_pt/F", "Z_l1_phi/F", "Z_l2_phi/F", "Z_l1_eta/F", "Z_l2_eta/F"]
+read_variables =    ["weight/F", "l1_pt/F", "l1_eta/F" , "l1_phi/F", "l2_pt/F", "l2_eta/F", "l2_phi/F", "l3_pt/F", "l3_eta/F", "l3_phi/F", "l4_pt/F"," l4_eta/F", "l4_phi/F",
+                    "JetGood[pt/F,eta/F,phi/F,btagCSV/F]",
+                    "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", "nJetGood/I", "nLep/I", "Z_l1_index/I", "Z_l2_index/I", "dl_phi/F",
+                    "Z_l1_pt/F", "Z_l2_pt/F", "Z_l1_phi/F", "Z_l2_phi/F", "Z_l1_eta/F", "Z_l2_eta/F"]
 
 sequence = []
 
