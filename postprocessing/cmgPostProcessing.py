@@ -22,7 +22,7 @@ import TopEFT.tools.user as user
 
 # Tools for systematics
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, m3, deltaR, bestDRMatchInCollection, deltaPhi, mZ
-#from TopEFT.tools.addJERScaling              import addJERScaling
+from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons,  getGoodBJets, getGoodJets, isBJet, jetId, isBJet, getGoodPhotons, getGenPartsAll,getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
@@ -58,7 +58,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
-    argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.data_output_directory, help="Name of the directory the post-processed files will be saved")
+    argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.postprocessing_output_directory, help="Name of the directory the post-processed files will be saved")
     argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
     argParser.add_argument('--skim',                        action='store',         nargs='?',  type=str,                           default='dilepTiny',                help="Skim conditions to be applied for post-processing")
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
@@ -155,13 +155,13 @@ elif len(samples)==1:
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
-#if isMC:
-#    from TopEFT.tools.puReweighting import getReweightingFunction
-#    mcProfile = "Summer16"
-#    # nTrueIntReweighting
-#    nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
-#    nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
-#    nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
+if isMC:
+    from TopEFT.tools.puReweighting import getReweightingFunction
+    mcProfile = "Summer16"
+    # nTrueIntReweighting
+    nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
+    nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
+    nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
         
 # top pt reweighting
 from TopEFT.tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
@@ -781,6 +781,7 @@ def filler( event ):
         for var in btagEff.btagWeightNames:
             if var!='MC':
                 setattr(event, 'reweightBTag_'+var, btagEff.getBTagSF_1a( var, bJets, filter( lambda j: abs(j['eta'])<2.4, nonBJets ) ) )
+
     # gen information on extra leptons
     if isMC and not options.skipGenLepMatching:
         genSearch.init( gPart )
