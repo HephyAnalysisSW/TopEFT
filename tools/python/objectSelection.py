@@ -7,15 +7,17 @@ jetVars = ['eta','pt','phi','btagCSV', 'id', 'area']
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
 
-def jetId(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
+def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
   return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j['id']
 
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
-    return filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
+    return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
 
 def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"]):
-    jets = sum( [ filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
+
+    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
     res  = []
+
     for jet in jets:
         clean = True
         for lepton in leptons:
@@ -24,7 +26,9 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
                 break
         if clean:
             res.append(jet)
+
     res.sort( key = lambda j:-j['pt'] )
+
     return res
 
 def isBJet(j):
@@ -145,9 +149,10 @@ def eleSelector(isoVar = "relIso03", barrelIso = 0.1, endcapIso = 0.1, absEtaCut
 
 default_ele_selector = eleSelector( )
 
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,ICHEPmediumMuonId/I,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F'
+lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
-leptonVars_data = ['eta','etaSc', 'pt','phi','dxy', 'dz','tightId', 'pdgId', 'mediumMuonId', 'miniRelIso', 'relIso03', 'relIso04', 'sip3d', 'mvaIdSpring15', 'convVeto', 'lostHits', 'jetPtRelv2', 'jetPtRatiov2', 'eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz','mvaIdSpring16','hadronicOverEm','dEtaScTrkIn','dPhiScTrkIn','eInvMinusPInv','full5x5_sigmaIetaIeta','ICHEPmediumMuonId']
-leptonVars = leptonVars_data + ['mcMatchId','mcMatchAny']
+leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
 
 def getLeptons(c, collVars=leptonVars):
     return [getObjDict(c, 'LepGood_', collVars, i) for i in range(int(getVarValue(c, 'nLepGood')))]

@@ -46,7 +46,7 @@ if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v1/dilep/"
+postProcessing_directory = "TopEFT_PP_v4/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 if args.signal == "ewkDM":
