@@ -20,14 +20,15 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 # 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM"], help="Add signal to plot")
-argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
-argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
-argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v1')
-argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p')
-argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
+argParser.add_argument('--logLevel',            action='store',      default='INFO',            nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--signal',              action='store',      default=None,              nargs='?', choices=[None, "ewkDM"], help="Add signal to plot")
+argParser.add_argument('--onlyTTZ',             action='store_true', default=False,             help="Plot only ttZ")
+argParser.add_argument('--noData',              action='store_true', default=False,             help='also plot data?')
+argParser.add_argument('--small',                                    action='store_true',       help='Run only on a small subset of the data?', )
+argParser.add_argument('--plot_directory',      action='store',      default='80X_v1')
+argParser.add_argument('--selection',           action='store',      default='lepSel-njet3p-btag1p')
+argParser.add_argument('--badMuonFilters',      action='store',      default="Summer2016",      help="Which bad muon filters" )
+argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields to 1" )
 args = argParser.parse_args()
 
 #
@@ -43,14 +44,15 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.normalize:                    args.plot_directory += "_normalize"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v1/dilep/"
+postProcessing_directory = "TopEFT_PP_v4/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v1/dilep/"
+    postProcessing_directory = "TopEFT_PP_v4/dilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
     ewkDM_0     = ewkDM_ttZ_ll
     ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
@@ -63,6 +65,8 @@ if args.signal == "ewkDM":
     ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
     ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
 
+    ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
+    ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
 
     ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
     ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
@@ -76,10 +80,14 @@ if args.signal == "ewkDM":
     ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
     ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
+    ewkDM_9.style = styles.lineStyle( ROOT.kBlue, width=3)
+    ewkDM_10.style = styles.lineStyle( ROOT.kGreen+2, width=3)
+
 
     #signals = [ewkDM_0,ewkDM_1]
     #signals = [ewkDM_1]
     signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8]
+    #signals = [ewkDM_0,ewkDM_9,ewkDM_10]
 else:
     signals = []
 
@@ -113,7 +121,8 @@ def drawPlots(plots, mode, dataMCScale):
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = {},
 	    legend = (0.50,0.88-0.04*sum(map(len, plot.histos)),0.9,0.88) if not args.noData else (0.50,0.9-0.047*sum(map(len, plot.histos)),0.85,0.9),
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale )
+	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
+        normalize = True if args.normalize else False
       )
 
 #
@@ -150,8 +159,9 @@ def getDPhiZLep( event, sample ):
         nonZl.SetPtEtaPhiM(event.nonZl_pt, event.nonZl_eta, event.nonZl_phi, 0)
 
         Z = Zl1 + Zl2
-        nonZl.Boost(-Z.BoostVector())
-        event.dPhiZLep_RF = abs(nonZl.Phi())
+        event.Z = Z
+        nonZl.Boost(-Z.BoostVector()) #minus sign?
+        event.dPhiZLep_RF = deltaPhi(nonZl.Phi(),Z.Phi())
         event.dPhiZLep = deltaPhi(event.nonZl_phi, event.dl_phi)
 
 def getJets( event, sample ):
@@ -194,6 +204,13 @@ def getTopCands( event, sample ):
     event.b2_pt     = b2.Pt()
     event.b2_phi    = b2.Phi()
 
+    event.dPhiTop1L = deltaPhi(lepton.Phi(),top1.Phi())
+    event.dPhiTop1Z = deltaPhi(event.Z.Phi(),top1.Phi())
+
+    lepton.Boost(-top1.BoostVector()) #minus sign for boost?
+    event.dPhiTop1L_TopRF = deltaPhi(lepton.Phi(),top1.Phi())
+    event.Z.Boost(-top1.BoostVector()) #minus sign for boost?
+    event.dPhiTop1Z_TopRF = deltaPhi(event.Z.Phi(),top1.Phi())
 
 def getDPhiZJet( event, sample ):
     if event.nLep<=2:
@@ -295,15 +312,15 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = 'dl_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 40 GeV',
+        name = 'dl_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "dl_pt/F" ),
-        binning=[20,0,800],
+        binning=[12,0,600],
     ))
     
     plots.append(Plot(
         name = 'dl_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "dl_pt/F" ),
-        binning=[3,0,800],
+        binning=[3,0,600],
     ))
     
     plots.append(Plot(
@@ -458,6 +475,31 @@ for index, mode in enumerate(allModes):
         attribute = lambda event, sample:event.top2_phi,
         binning=[10,-pi,pi],
     ))
+    
+    plots.append(Plot(
+        name = "dPhiTop1L", texX = '#Delta#phi(t,l)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dPhiTop1L,
+        binning=[10,0,pi],
+    ))
+    
+    plots.append(Plot(
+        name = "dPhiTop1L_TopRF", texX = '#Delta#phi(t,l) in top RF', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dPhiTop1L_TopRF,
+        binning=[10,0,pi],
+    ))
+
+    plots.append(Plot(
+        name = "dPhiTop1Z", texX = '#Delta#phi(t,Z)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dPhiTop1Z,
+        binning=[10,0,pi],
+    ))
+
+    plots.append(Plot(
+        name = "dPhiTop1Z_TopRF", texX = '#Delta#phi(t,Z) in Top RF', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dPhiTop1Z_TopRF,
+        binning=[10,0,pi],
+    ))
+
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 

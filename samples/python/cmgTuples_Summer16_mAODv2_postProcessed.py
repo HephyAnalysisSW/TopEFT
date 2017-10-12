@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v1/dilep/"
+  postProcessing_directory = "TopEFT_PP_v4/dilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -29,11 +29,11 @@ dirs = {}
 dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_ext"]
 dirs["WZ"]              = ["WZTo3LNu_amcatnlo"]
 
-dirs['TTX']             = ["TTHnobb_pow", "TTWToLNu_ext", "tWll", "tZq_ll_ext"] # just a subset, not complete
-#dirs['TTX']             = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "TTWToLNu_ext_comb", "tWll", "tZq_ll_ext"] # should be complete
+#dirs['TTX']             = ["TTHnobb_pow", "TTWToLNu_ext", "tWll", "tZq_ll_ext"] # just a subset, not complete
+dirs['TTX']             = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "TTWToLNu_ext_comb", "tWll", "tZq_ll_ext"] # should be complete
 
-dirs['rare']            = ["ZZ","WZZ","WWZ","ZZZ"] # just a subset, not complete
-#dirs['rare']            = ["WGToLNuG","WWZ","WZZ","ZGTo2LG_ext","ZZTo4L","ZZZ"] # should be complete
+#dirs['rare']            = ["ZZ","WZZ","WWZ","ZZZ"] # just a subset, not complete
+dirs['rare']            = ["WGToLNuG","WWZ","WZZ","ZGTo2LG_ext","ZZTo4L","ZZZ"] # should be complete
 
 #dirs['nonprompt']       = ['DYJetsToLL_M50', 'TTJets'] # no v4 version atm
 
