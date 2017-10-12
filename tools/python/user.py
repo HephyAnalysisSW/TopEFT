@@ -8,6 +8,9 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     skim_directory      = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/"
     tmp_directory       = "/afs/hephy.at/data/rschoefbeck02/TopEFT_tmp/"
     plot_directory      = "/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/"
+    data_directory      = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+
     runOnGentT2 = False
 
 if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
@@ -19,7 +22,7 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
 
     dpm_directory = '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/'
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    data_output_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postprocessing_output_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
     runOnGentT2 = False
 

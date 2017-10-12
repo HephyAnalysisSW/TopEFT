@@ -176,7 +176,7 @@ class btagEfficiency:
 #Method 1d
 #https://twiki.cern.ch/twiki/bin/view/CMS/BTagShapeCalibration
 #https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
-sfFile_1d = '$CMSSW_BASE/src/StopsDilepton/tools/data/btagEfficiencyData/ttH_BTV_CSVv2_13TeV_2015D_20151120.csv'
+sfFile_1d = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/ttH_BTV_CSVv2_13TeV_2015D_20151120.csv'
 flavourSys_1d = {
     5:{'central', 'up_jes', 'down_jes', 'up_lf', 'down_lf', 'up_hfstats1', 'down_hfstats1', 'up_hfstats2', 'down_hfstats2'},
     4:{'central', 'up_cferr1', 'down_cferr1', 'up_cferr2', 'down_cferr2'},

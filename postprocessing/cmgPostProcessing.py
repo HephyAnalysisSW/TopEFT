@@ -22,7 +22,7 @@ import TopEFT.tools.user as user
 
 # Tools for systematics
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, m3, deltaR, bestDRMatchInCollection, deltaPhi, mZ
-#from TopEFT.tools.addJERScaling              import addJERScaling
+from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons,  getGoodBJets, getGoodJets, isBJet, jetId, isBJet, getGoodPhotons, getGenPartsAll,getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
@@ -52,13 +52,13 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['TTJets'],                 help="List of samples to be post-processed, given as CMG component name")
-    argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
+    # argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
-    argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.data_output_directory, help="Name of the directory the post-processed files will be saved")
+    argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.postprocessing_output_directory, help="Name of the directory the post-processed files will be saved")
     argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
     argParser.add_argument('--skim',                        action='store',         nargs='?',  type=str,                           default='dilepTiny',                help="Skim conditions to be applied for post-processing")
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
@@ -69,7 +69,7 @@ def get_parser():
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--checkTTGJetsOverlap',         action='store_true',                                                    default=True,                       help="Keep TTGJetsEventType which can be used to clean TTG events from TTJets samples")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
-    argParser.add_argument('--noTopPtReweighting',          action='store_true',                                                                                        help="Skip top pt reweighting.")
+    argParser.add_argument('--noTopPtReweighting',          action='store_true',                                                    default=True,                       help="Skip top pt reweighting.")
 
     return argParser
 
@@ -86,15 +86,10 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
 # Flags 
 isDiLep     =   options.skim.lower().startswith('dilep')
-isTriLep     =   options.skim.lower().startswith('trilep')
+isTriLep    =   options.skim.lower().startswith('trilep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
+isInclusive = options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
-isSmall      =   options.skim.lower().count('small')
-isInclusive  = options.skim.lower().count('inclusive') 
-isVeryLoose =  'veryloose' in options.skim.lower()
-isVeryLoosePt10 =  'veryloosept10' in options.skim.lower()
-isLoose     =  'loose' in options.skim.lower() and not isVeryLoose
-isJet250    = 'jet250' in options.skim.lower()
 
 writeToDPM = options.targetDir == '/dpm/'
 
@@ -106,9 +101,6 @@ if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_relIso03<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_relIso03<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
 elif isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
-elif isJet250:
-    skimConds.append( "Sum$(Jet_pt>250) +  Sum$(DiscJet_pt>250) + Sum$(JetFailId_pt>250) + Sum$(gamma_pt>250) > 0" )
-
 if isInclusive:
     skimConds = []
 
@@ -130,16 +122,15 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-
-if isData and options.triggerSelection is not None:
-    if options.triggerSelection == 'mumu':
-        skimConds.append( "(HLT_mumuIso||HLT_mumuNoiso)" )
-    else:
-        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
-    sample_name_postFix = "_Trig_"+options.triggerSelection
-    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
-else:
-    sample_name_postFix = ""
+#if isData and options.triggerSelection is not None:
+#    if options.triggerSelection == 'mumu':
+#        skimConds.append( "(HLT_mumuIso||HLT_mumuNoiso)" )
+#    else:
+#        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
+#    sample_name_postFix = "_Trig_"+options.triggerSelection
+#    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
+#else:
+#    sample_name_postFix = ""
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -151,17 +142,16 @@ if len(samples)>1:
         sample.clear()
 elif len(samples)==1:
     sample = samples[0]
-    sample.name+=sample_name_postFix
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
-#if isMC:
-#    from TopEFT.tools.puReweighting import getReweightingFunction
-#    mcProfile = "Summer16"
-#    # nTrueIntReweighting
-#    nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
-#    nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
-#    nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
+if isMC:
+    from TopEFT.tools.puReweighting import getReweightingFunction
+    mcProfile = "Summer16"
+    # nTrueIntReweighting
+    nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
+    nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
+    nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
         
 # top pt reweighting
 from TopEFT.tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
@@ -241,22 +231,6 @@ if isTiny:
 
     #branches to be kept for data only
     branchKeepStrings_DATA = [ ]
-elif isSmall:
-    #branches to be kept for data and MC
-    branchKeepStrings_DATAMC = [\
-        "run", "lumi", "evt", "isData", "rho", "nVert",
-        "met_pt", "met_phi","met_Jet*", "met_Unclustered*", "met_sumEt", "met_rawPt","met_rawPhi", "met_rawSumEt", "met_caloPt", "met_caloPhi",
-        "Flag_*","HLT_*",
-        "nLepGood", "LepGood_*",
-        "nLepOther", "LepOther_*",
-    ]
-    #branches to be kept for MC samples only
-    branchKeepStrings_MC = [\
-        "nTrueInt", "genWeight", "xsec", "met_gen*", "lheHTIncoming",
-    ]
-
-    #branches to be kept for data only
-    branchKeepStrings_DATA = [ ]
 else:
     #branches to be kept for data and MC
     branchKeepStrings_DATAMC = [\
@@ -287,7 +261,7 @@ if isSingleLep:
 # Jet variables to be read from chain
 jetCorrInfo = ['corr/F', 'corr_JECUp/F', 'corr_JECDown/F'] if addSystematicVariations else []
 if isMC:
-    if isTiny or isSmall:
+    if isTiny:
         jetMCInfo = ['mcPt/F', 'hadronFlavour/I','mcMatchId/I']
     else:
         jetMCInfo = ['mcMatchFlav/I', 'partonId/I', 'partonMotherId/I', 'mcPt/F', 'mcFlavour/I', 'hadronFlavour/I', 'mcMatchId/I']
@@ -295,7 +269,7 @@ if isMC:
 else:
     jetMCInfo = []
 
-if not (isTiny or isSmall):
+if not isTiny:
     branchKeepStrings_DATAMC+=[
         "ngamma", "gamma_idCutBased", "gamma_hOverE", "gamma_r9", "gamma_sigmaIetaIeta", "gamma_chHadIso04", "gamma_chHadIso", "gamma_phIso",
         "gamma_neuHadIso", "gamma_relIso", "gamma_pdgId", "gamma_pt", "gamma_eta", "gamma_phi", "gamma_mass",
@@ -324,6 +298,8 @@ read_variables += [ TreeVariable.fromString('ngamma/I'),
                     VectorTreeVariable.fromString('gamma[pt/F,eta/F,phi/F,mass/F,idCutBased/I,pdgId/I]') ]
 
 new_variables = [ 'weight/F']
+new_variables+= [ 'JetGood[%s]'% ( ','.join(jetVars) ) ]
+
 if isMC:
     read_variables+= [TreeVariable.fromString('nTrueInt/F'), VectorTreeVariable.fromString('LepGood[mcMatchId/I, mcMatchAny/I]'), VectorTreeVariable.fromString('LepOther[mcMatchId/I, mcMatchAny/I]')]
     # reading gen particles for top pt reweighting
@@ -333,7 +309,7 @@ if isMC:
     read_variables.append( TreeVariable.fromString('nIsr/I') )
     read_variables.append( VectorTreeVariable.fromString('gamma[mcPt/F]') )
 
-    new_variables.extend([ 'reweightTopPt/F', 'reweight_nISR/F', 'reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
+    new_variables.extend([ 'reweightTopPt/F', 'reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
     if not options.skipGenLepMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
         new_variables.append( 'GenLep[%s]'% ( ','.join(genLepVars) ) )
@@ -348,15 +324,6 @@ read_variables += [\
     VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) ),
     VectorTreeVariable.fromString('DiscJet[%s]'% ( ','.join(jetVars) ) )
 ]
-if isVeryLoose:
-    read_variables += [\
-        TreeVariable.fromString('nLepOther/I'),
-        VectorTreeVariable.fromString('LepOther[pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,mvaIdSpring15/F,lostHits/I,convVeto/I,dxy/F,dz/F,jetPtRelv2/F,jetPtRatiov2/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I]'),
-    ]
-    if isMC: read_variables += [VectorTreeVariable.fromString('LepOther[mcMatchId/I, mcMatchAny/I]')]
-new_variables += [\
-    'JetGood[%s]'% ( ','.join(jetVars) )
-]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'ht/F', 'metSig/F'] )
@@ -369,7 +336,6 @@ if isTriLep or isDiLep or isSingleLep:
     if isMC: new_variables.extend(['l1_mcMatchId/I', 'l1_mcMatchAny/I'])
     new_variables.extend( ['mlmZ_mass/F'] )
     new_variables.extend( ['mt_photonEstimated/F'])
-    if isMC: new_variables.extend(['reweightLeptonSF/F', 'reweightLeptonSFUp/F', 'reweightLeptonSFDown/F'])
 
 if isTriLep or isDiLep:
 
@@ -384,8 +350,6 @@ if isTriLep or isDiLep:
     new_variables.extend( ['dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'dl_dphi/F', 'dl_mass/F'] )
     if isMC: new_variables.extend( \
         [   'zBoson_genPt/F', 'zBoson_genEta/F', 
-            'reweightDilepTrigger/F', 'reweightDilepTriggerUp/F', 'reweightDilepTriggerDown/F', 'reweightDilepTriggerBackup/F', 'reweightDilepTriggerBackupUp/F', 'reweightDilepTriggerBackupDown/F',
-            'reweightLeptonTrackingSF/F',
          ] )
 if isTriLep:
     new_variables.extend( ['l3_pt/F', 'l3_eta/F', 'l3_phi/F', 'l3_pdgId/I', 'l3_index/I', 'l3_jetPtRelv2/F', 'l3_jetPtRatiov2/F', 'l3_miniRelIso/F', 'l3_relIso03/F', 'l3_dxy/F', 'l3_dz/F', 'l3_mIsoWP/I' ] )
@@ -458,10 +422,6 @@ def getMetCorrected(r, var, addPhoton = None):
     else:
         raise ValueError
 
-mothers = {"D":0, "B":0}
-grannies_D = {}
-grannies_B = {}
-
 def filler( event ):
     # shortcut
     r = reader.event
@@ -482,10 +442,10 @@ def filler( event ):
         # store decision to use after filler has been executed
         event.jsonPassed_ = event.jsonPassed
 
-    #if isMC:
-    #    event.reweightPU36fb     = nTrueInt36fb_puRW       ( r.nTrueInt )
-    #    event.reweightPU36fbDown = nTrueInt36fb_puRWDown   ( r.nTrueInt )
-    #    event.reweightPU36fbUp   = nTrueInt36fb_puRWUp     ( r.nTrueInt )
+    if isMC:
+        event.reweightPU36fb     = nTrueInt36fb_puRW       ( r.nTrueInt )
+        event.reweightPU36fbDown = nTrueInt36fb_puRWDown   ( r.nTrueInt )
+        event.reweightPU36fbUp   = nTrueInt36fb_puRWUp     ( r.nTrueInt )
 
     # top pt reweighting
     if isMC: event.reweightTopPt = topPtReweightingFunc(getTopPtsForReweighting(r))/topScaleF if doTopPtReweighting else 1.
@@ -496,28 +456,17 @@ def filler( event ):
     else:
         jetAbsEtaCut = 2.4
         
-    allJets_old      = getGoodJets(r, ptCut=0, jetVars = jetVarNames, absEtaCut=jetAbsEtaCut)
-    jets_old         = filter(lambda j:jetId(j, ptCut=30, absEtaCut=jetAbsEtaCut), allJets_old)
-    soft_jets    = filter(lambda j:jetId(j, ptCut=0,  absEtaCut=jetAbsEtaCut) and j['pt']<30., allJets_old) if options.keepAllJets else []
-    bJets_old        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets_old)
-    nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets_old)
-    if isVeryLoose:
-        ## all leptons up to relIso 0.4
-        mu_selector = muonSelector( relIso03 = 999., dxy = 1., dz = 0.1 )
-        ele_selector = eleSelector( relIso03 = 999., dxy = 1., dz = 0.1 )
-        leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
-        ptCut = 20 if not isVeryLoosePt10 else 10 
-        leptons      = filter(lambda l:l['pt']>ptCut, leptons_pt10)
-    elif isLoose:
-        raise NotImplementedError
-        ## loose relIso lepton selection
-    else:
-        # using miniRelIso 0.2 as baseline 
-        mu_selector  = muonSelector( isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEtaCut = 2.4, dxy = 0.05, dz = 0.1 )
-        ele_selector = eleSelector(  isoVar = "relIso03", barrelIso = 0.1,  endcapIso = 0.1,  absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=False )
-        #leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
-        leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
-        leptons      = filter(lambda l:l['pt']>10, leptons_pt10)
+    #allJets_old      = getGoodJets(r, ptCut=0, jetVars = jetVarNames, absEtaCut=jetAbsEtaCut)
+    #jets_old         = filter(lambda j:jetId(j, ptCut=30, absEtaCut=jetAbsEtaCut), allJets_old)
+    #soft_jets    = filter(lambda j:jetId(j, ptCut=0,  absEtaCut=jetAbsEtaCut) and j['pt']<30., allJets_old) if options.keepAllJets else []
+    #bJets_old        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets_old)
+    #nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets_old)
+
+    mu_selector  = muonSelector( isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEtaCut = 2.4, dxy = 0.05, dz = 0.1 )
+    ele_selector = eleSelector(  isoVar = "relIso03", barrelIso = 0.1,  endcapIso = 0.1,  absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=False )
+    #leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
+    leptons_pt10 = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
+    leptons      = filter(lambda l:l['pt']>10, leptons_pt10)
 
     leptons.sort(key = lambda p:-p['pt'])
     
@@ -527,15 +476,6 @@ def filler( event ):
     bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4    , jets)
     nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), jets)
 
-    #if len(jets_old) < len(jets):
-    #    print "Had to add back in jets"
-    #    print "Old collection"
-    #    print jets_old
-    #    print "New collection"
-    #    print jets
-    #    print "Leptons"
-    #    print leptons
-        
     event.met_pt  = r.met_pt
     event.met_phi = r.met_phi
 
@@ -693,86 +633,8 @@ def filler( event ):
         event.isQuadlep = len(leptons) == 4
         event.isTTZcand = abs(event.mlmZ_mass - mZ) < 10
 
-
         # For TTZ studies: find Z boson candidate, and use third lepton to calculate mt
         (event.mlmZ_mass, zl1, zl2) = closestOSDLMassToMZ(leptons_pt10)
-
-
-        if isMC:
-            event.reweightDilepTrigger       = 0 
-            event.reweightDilepTriggerUp     = 0 
-            event.reweightDilepTriggerDown   = 0 
-            event.reweightDilepTriggerBackup       = 0 
-            event.reweightDilepTriggerBackupUp     = 0 
-            event.reweightDilepTriggerBackupDown   = 0 
-
-            #leptonsForSF = (leptons[:2] if isDiLep else (leptons[:3] if isTriLep else leptons[:1]))
-            #event.reweightLeptonSF           = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonsForSF], 1)
-            #event.reweightLeptonSFUp         = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] , sigma = +1) for l in leptonsForSF], 1)
-            #event.reweightLeptonSFDown       = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] , sigma = -1) for l in leptonsForSF], 1)
-
-            #event.reweightLeptonTrackingSF   = reduce(mul, [leptonTrackingSF.getSF( \
-            #    pdgId = l['pdgId'],
-            #    pt  =   l['pt'], 
-            #    eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta'])
-            #    )[0]  for l in leptonsForSF], 1)
-
-    #if isTriLep or isDiLep:
-    #    if len(leptons)>=2:
-    #        event.l2_pt     = leptons[1]['pt']
-    #        event.l2_eta    = leptons[1]['eta']
-    #        event.l2_phi    = leptons[1]['phi']
-    #        event.l2_pdgId  = leptons[1]['pdgId']
-    #        event.l2_index  = leptons[1]['index']
-    #        if isMC:
-    #          event.l2_mcMatchId   = leptons[1]['mcMatchId']
-    #          event.l2_mcMatchAny  = leptons[1]['mcMatchAny']
-    #        event.l2_jetPtRatiov2  = leptons[1]['jetPtRatiov2']
-    #        event.l2_jetPtRelv2    = leptons[1]['jetPtRelv2']
-    #        event.l2_miniRelIso = leptons[1]['miniRelIso']
-    #        event.l2_relIso03 = leptons[1]['relIso03']
-    #        event.l2_dxy = leptons[1]['dxy']
-    #        event.l2_dz = leptons[1]['dz']
-    #        
-
-    #        l_pdgs = [abs(leptons[0]['pdgId']), abs(leptons[1]['pdgId'])]
-    #        l_pdgs.sort()
-    #        event.isMuMu = l_pdgs==[13,13]
-    #        event.isEE   = l_pdgs==[11,11]
-    #        event.isEMu  = l_pdgs==[11,13]
-    #        event.isOS   = event.l1_pdgId*event.l2_pdgId<0
-
-    #        l1 = ROOT.TLorentzVector()
-    #        l1.SetPtEtaPhiM(leptons[0]['pt'], leptons[0]['eta'], leptons[0]['phi'], 0 )
-    #        l2 = ROOT.TLorentzVector()
-    #        l2.SetPtEtaPhiM(leptons[1]['pt'], leptons[1]['eta'], leptons[1]['phi'], 0 )
-    #        dl = l1+l2
-    #        event.dl_pt   = dl.Pt()
-    #        event.dl_eta  = dl.Eta()
-    #        event.dl_phi  = dl.Phi()
-    #        event.dl_mass = dl.M()
-
-    #        # To check MC truth when looking at the TTZToLLNuNu sample
-    #        if isMC:
-    #          #trig_eff, trig_eff_err =  triggerEff.getSF(event.l1_pt, event.l1_eta, event.l1_pdgId, event.l2_pt, event.l2_eta, event.l2_pdgId)
-    #          #event.reweightDilepTrigger       = trig_eff 
-    #          #event.reweightDilepTriggerUp     = trig_eff + trig_eff_err
-    #          #event.reweightDilepTriggerDown   = trig_eff - trig_eff_err
-    #          #trig_eff, trig_eff_err =  triggerEff_withBackup.getSF(event.l1_pt, event.l1_eta, event.l1_pdgId, event.l2_pt, event.l2_eta, event.l2_pdgId)
-    #          #event.reweightDilepTriggerBackup       = trig_eff 
-    #          #event.reweightDilepTriggerBackupUp     = trig_eff + trig_eff_err
-    #          #event.reweightDilepTriggerBackupDown   = trig_eff - trig_eff_err
-
-    #          zBoson          = getGenZ(gPart)
-    #          event.zBoson_genPt  = zBoson['pt']  if zBoson is not None else float('nan')
-    #          event.zBoson_genEta = zBoson['eta'] if zBoson is not None else float('nan')
-
-    #        if event.nPhotonGood > 0:
-    #          gamma = ROOT.TLorentzVector()
-    #          gamma.SetPtEtaPhiM(photons[0]['pt'], photons[0]['eta'], photons[0]['phi'], photons[0]['mass'] )
-    #          dlg = dl + gamma
-    #          event.dlg_mass = dlg.M()
-
 
     if addSystematicVariations:
         # B tagging weights method 1a
@@ -781,6 +643,7 @@ def filler( event ):
         for var in btagEff.btagWeightNames:
             if var!='MC':
                 setattr(event, 'reweightBTag_'+var, btagEff.getBTagSF_1a( var, bJets, filter( lambda j: abs(j['eta'])<2.4, nonBJets ) ) )
+
     # gen information on extra leptons
     if isMC and not options.skipGenLepMatching:
         genSearch.init( gPart )
