@@ -11,7 +11,7 @@ import itertools
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
 from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue
+from TopEFT.tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
 from TopEFT.tools.objectSelection import getFilterCut
 from TopEFT.tools.cutInterpreter  import cutInterpreter
 
@@ -124,13 +124,16 @@ read_variables =    ["weight/F",
                     "lep[pt/F,eta/F,phi/F,pdgId/F]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
-                    "Z_phi/F","Z_pt/F", "Z_mass/F", "Z_lldPhi/F", "Z_lldR/F"
+                    "Z_phi/F", "Z_eta/F", "Z_pt/F", "Z_mass/F", "Z_lldPhi/F", "Z_lldR/F"
                     ]
 
 sequence = []
 
 def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
+
+def getDRZLep( event, sample ):
+    event.dRZLep = deltaR({'phi':event.lep_phi[event.nonZ_l1_index],'eta':event.lep_eta[event.nonZ_l1_index]},{'phi': event.Z_phi, 'eta':event.Z_eta})
 
 def getDPhiZJet( event, sample ):
     event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan')
@@ -175,7 +178,7 @@ def getTopCands( event, sample ):
     event.b2_phi    = b2.Phi()
 
 
-sequence = [getDPhiZLep, getDPhiZJet,getJets,getTopCands ]
+sequence = [getDPhiZLep, getDRZLep, getDPhiZJet,getJets,getTopCands ]
 
 
 def getLeptonSelection( mode ):
@@ -283,18 +286,30 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
+        texX = '#DeltaR(ll)', texY = 'Number of Events',
+        attribute = TreeVariable.fromString( "Z_lldR/F" ),
+        binning=[10,0,4],
+    ))
+    plots.append(Plot(
+        name = "Z_lldEta",
+        texX = '#Delta #eta(ll)', texY = 'Number of Events',
+        attribute = lambda event, sample: abs(event.lep_eta[event.Z_l1_index] - event.lep_eta[event.Z_l2_index]),
+        binning=[10,0,4],
+    ))
+
+    plots.append(Plot(
         name = "dPhiZL",
         texX = '#Delta#phi(Z,l)', texY = 'Number of Events',
         attribute = lambda event, sample:event.dPhiZLep,
         binning=[10,0,pi],
     ))
-    
-    #plots.append(Plot( #FIXME -> what is this? Didn't understand the formula
-    #    name = "dPhiZL_RF",
-    #    texX = '#Delta#phi(Z,l) in Z RF', texY = 'Number of Events',
-    #    attribute = lambda event, sample:event.dPhiZLep_RF,
-    #    binning=[10,0,pi],
-    #))
+
+    plots.append(Plot(
+        name = "dRZL",
+        texX = '#Delta#R(Z,l)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.dRZLep,
+        binning=[12,0,6],
+    ))
     
     plots.append(Plot(
         name = "dPhiZJet",
