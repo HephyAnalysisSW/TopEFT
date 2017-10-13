@@ -337,7 +337,7 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        name = 'lnonZ1_pt',
+        name = 'lnonZ1_pt_ext',
         texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
         binning=[12,0,180],

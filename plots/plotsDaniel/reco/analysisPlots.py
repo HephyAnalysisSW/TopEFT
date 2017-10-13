@@ -26,7 +26,7 @@ argParser.add_argument('--onlyTTZ',            action='store_true', default=Fals
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v4')
-argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p')
+argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
@@ -337,7 +337,7 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        name = 'lnonZ1_pt',
+        name = 'lnonZ1_pt_ext',
         texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
         binning=[12,0,180],
