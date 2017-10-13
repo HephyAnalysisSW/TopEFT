@@ -22,7 +22,8 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
     plot_directory      = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/"
 
     dpm_directory = '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/'
-    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
     runOnGentT2 = False

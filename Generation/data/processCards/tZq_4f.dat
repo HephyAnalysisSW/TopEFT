@@ -2,7 +2,7 @@ set group_subprocesses Auto
 set ignore_six_quark_processes False
 set loop_optimized_output True
 set complex_mass_scheme False
-import model HEL_UFO-no_b_mass
+import model HEL_UFO
 
 define l+ = e+ mu+ ta+
 define l- = e- mu- ta-

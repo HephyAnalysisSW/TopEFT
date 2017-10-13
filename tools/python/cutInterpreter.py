@@ -4,36 +4,21 @@
 import logging
 logger = logging.getLogger(__name__)
 
-jetSelection    = "nJetGood"
+jetSelection    = "njet"
 bJetSelectionM  = "nBTag"
 
 mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
-    # ("multiIsoVT":        "(1)", 
-    "looseLeptonVeto":   "Sum$(LepGood_pt>15&&LepGood_relIso03<0.4)==2",
+    #"looseLeptonVeto":   "Sum$(lep_pt>15&&lep_relIso03<0.4)==2",
 
-    "lepSel":            "l1_pt>40&&l2_pt>20&&l3_pt>10&&isTTZcand&&mlmZ_mass>0&&nLep==3",
-    "allZ":              "(1)",
-    "onZ":               "abs(dl_mass-91.2)<15",
-    "offZ":              "abs(dl_mass-91.2)>15",
-    "llgNoZ":            "(abs(dlg_mass-91.2)>15||isEMu)",
-
-    "gLepdR":            "(1)",
-    "gJetdR":            "(1)",
-   
-    "dPhiJet0":          "Sum$( ( cos(met_phi-JetGood_phi)>0.8 )*(Iteration$==0) )==0",
-    "dPhiJet1":          "Sum$( ( cos(met_phi-JetGood_phi)>cos(0.25) )*(Iteration$<2) )==0",
-    "dPhiInv":           '(!(cos(met_phi-JetGood_phi[0])<0.8&&cos(met_phi-JetGood_phi[1])<cos(0.25)))', # here we want an njet requirement
-    "metInv":            "met_pt<80",
-    "metSigInv":         "metSig<5",
-
-    "extraLepVeto":      "Sum$(abs(LepGood_pdgId)==13&&LepGood_pt>20&&( abs(LepGood_dz)>0.2 || abs(LepGood_dxy)>0.2 ) ) + Sum$(abs(LepOther_pdgId)==13&&LepOther_pt>20&&( abs(LepOther_dz)>0.2 || abs(LepOther_dxy)>0.2 ) )==0",
+    "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
+    "onZ":               "abs(Z_mass-91.2)<10",
 
   }
 
 continous_variables = [ ("metSig", "metSig"), ("mll", "dl_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt") ]
-discrete_variables  = [ ("njet", "nJetGood"), ("btag", "nBTag") , ("nCMGjet", "nJet30")]
+discrete_variables  = [ ("njet", "njet"), ("btag", "nBTag") , ("nlep","nlep") ]
 
 class cutInterpreter:
     ''' Translate var100to200-var2p etc.
@@ -42,12 +27,6 @@ class cutInterpreter:
     @staticmethod
     def translate_cut_to_string( string ):
 
-        if string.startswith("multiIso"):
-            str_ = mIsoWP[ string.replace('multiIso','') ]
-            return "l1_mIsoWP>%i&&l2_mIsoWP>%i" % (str_, str_)
-        elif string.startswith("relIso"):
-           iso = float( string.replace('relIso','') )
-           return "l1_relIso03<%3.2f&&l2_relIso03<%3.2f"%( iso, iso )
         # special cuts
         if string in special_cuts.keys(): return special_cuts[string]
 
@@ -124,6 +103,4 @@ class cutInterpreter:
         #return  "&&".join( map( cutInterpreter.translate_cut_to_string, cuts ) )
 
 if __name__ == "__main__":
-    print cutInterpreter.cutString("njet2-btag0p-multiIsoVT-relIso0.12-looseLeptonVeto-mll20-onZ-met80-metSig5-dPhiJet0-dPhiJet1-mt2ll100")
-    print
-    print cutInterpreter.cutList("njet2-btag0p-multiIsoVT-relIso0.12-looseLeptonVeto-mll20-onZ-met80-metSig5-dPhiJet0-dPhiJet1-mt2ll100")
+    print cutInterpreter.cutString("lepSel-njet3p-btag1p")
