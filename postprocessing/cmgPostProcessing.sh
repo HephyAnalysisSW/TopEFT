@@ -24,16 +24,16 @@
 
 ## signals
 
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000 --noTopPtReweighting --overwrite
-python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ewkDM_ttZ_ll --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000 --noTopPtReweighting --overwrite
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll --noTopPtReweighting --overwrite
 
