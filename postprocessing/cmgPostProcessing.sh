@@ -1,25 +1,20 @@
+#!/bin/sh
 ## backgrounds
 
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTZToLLNuNu_ext --noTopPtReweighting --overwrite # SPLIT30
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WZTo3LNu_amcatnlo --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTWToLNu_ext TTWToLNu_ext2 --noTopPtReweighting --overwrite # SPLIT20
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTHnobb_pow --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample tWll --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample tZq_ll_ext --noTopPtReweighting --overwrite # SPLIT20
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ZZTo4L --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WZZ --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WWZ --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ZZZ --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample ZGTo2LG_ext --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample WGToLNuG --noTopPtReweighting --overwrite # SPLIT10
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTGJets TTGJets_ext --noTopPtReweighting --overwrite # SPLIT20
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTTT --noTopPtReweighting --overwrite # SPLIT10
-
-## For fake rate studies?
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample DYJetsToLL_M50 --noTopPtReweighting --overwrite # SPLIT20
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample TTJets --noTopPtReweighting --overwrite # SPLIT20
-
-#python cmgPostProcessing.py --skim dilep --skipSystematicVariations --sample  --noTopPtReweighting --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTZToLLNuNu_ext  --overwrite # SPLIT30
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample WZTo3LNu_amcatnlo  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTWToLNu_ext TTWToLNu_ext2  --overwrite # SPLIT20
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTHnobb_pow  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample tWll  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample tZq_ll_ext  --overwrite # SPLIT20
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample ZZTo4L  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample WZZ  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample WWZ  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample ZZZ  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample ZGTo2LG_ext  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample WGToLNuG  --overwrite # SPLIT10
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTGJets TTGJets_ext  --overwrite # SPLIT20
+#python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTTT  --overwrite # SPLIT10
 
 
 ## signals
@@ -36,4 +31,9 @@ python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipS
 python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000 --noTopPtReweighting --overwrite
 python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000 --noTopPtReweighting --overwrite
 python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_vTest --skipSystematicVariations --sample ewkDM_ttZ_ll --noTopPtReweighting --overwrite
+
+### For fake rate studies?
+##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample DYJetsToLL_M50  --overwrite # SPLIT20
+##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTJets  --overwrite # SPLIT20
+##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample   --overwrite # SPLIT10
 
