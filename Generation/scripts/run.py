@@ -19,7 +19,7 @@ processes    = [os.path.splitext(f)[0] for f in os.listdir(process_path) if os.p
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--process',     action='store',         default='ttZ',      choices=processes,     help="Which process?")
-argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'ewkDM2', 'HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'ewkDM2', 'HEL_UFO', 'TopEffTh', 'dim6top_LO'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--overwrite',   action='store_true',    help="Overwrite exisiting x-sec calculation and gridpack")
 argParser.add_argument('--keepWorkspace',   action='store_true',    help="keep the temporary workspace?")
