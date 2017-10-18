@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v4/dilep/"
+  postProcessing_directory = "TopEFT_PP_v4/trilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -67,3 +67,7 @@ ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25  = Sample.fromDirectory(name="ewkDM_
 
 ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25 = Sample.fromDirectory(name="ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25", treeName="Events", isData=False, color=1, texName="C_{1A/V}=0, C_{2A}=-0.25, C_{2V}=0",    directory=directories['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25'])
 
+
+allSignals = [ewkDM_ttZ_ll,ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20,ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50,ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00,ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767,\
+                ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767,ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767,ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25,\
+                ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25,ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25,ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25]

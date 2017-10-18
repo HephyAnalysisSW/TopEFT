@@ -115,7 +115,7 @@ class Process:
 
             xsec_ = u_float.fromString(m.group(1)) 
             
-            self.xsecDB.add(key, xsec_, save=True)
+            self.xsecDB.add(key, xsec_, overwrite=True)
 
             logger.info( "Done!" )
 
