@@ -25,6 +25,7 @@ argParser.add_argument('--signal',             action='store',      default=None
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v4')
 argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
@@ -43,6 +44,7 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
@@ -83,6 +85,157 @@ if args.signal == "ewkDM":
 else:
     signals = []
 
+# define 3l selections
+def getLeptonSelection( mode ):
+  if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
+  elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
+  elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
+  elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
+  elif mode=='all':    return "nGoodMuons+nGoodElectrons==3"
+
+# backgrounds / mc
+if args.onlyTTZ:
+    mc = [ TTZtoLLNuNu ]
+else:
+    mc             = [ TTZtoLLNuNu , TTX, WZ, rare ]#, nonprompt ]
+
+for sample in mc: sample.style = styles.fillStyle(sample.color)
+
+# reweighting 
+if args. reweightPtZToSM:
+    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
+    TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
+    TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
+
+    def get_reweight( var, histo ):
+
+        def reweight(event, sample):
+            i_bin = histo.FindBin(getattr( event, var ) )
+            return histo.GetBinContent(i_bin)
+
+        return reweight
+
+    for signal in signals:
+        logger.info( "Computing PtZ reweighting for signal %s", signal.name )
+        signal_ptZ = signal.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
+        signal_ptZ.Scale(1./signal_ptZ.Integral())
+
+        signal.reweight_ptZ_histo = TTZ_ptZ.Clone()
+        signal.reweight_ptZ_histo.Divide(signal_ptZ)
+
+        signal.weight = get_reweight( "Z_pt", signal.reweight_ptZ_histo )
+
+# Read variables and sequences
+#
+read_variables =    ["weight/F",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
+                    "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
+                    "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
+                    "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
+                    "Z_phi/F", "Z_eta/F", "Z_pt/F", "Z_mass/F", "Z_lldPhi/F", "Z_lldR/F"
+                    ]
+
+sequence = []
+
+def getDPhiZLep( event, sample ):
+    event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
+sequence.append( getDPhiZLep )
+
+def getDRZLep( event, sample ):
+    event.dRZLep = deltaR({'phi':event.lep_phi[event.nonZ_l1_index],'eta':event.lep_eta[event.nonZ_l1_index]},{'phi': event.Z_phi, 'eta':event.Z_eta})
+sequence.append( getDRZLep )
+
+def getDPhiZJet( event, sample ):
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan')
+sequence.append( getDPhiZJet )
+
+def getJets( event, sample ):
+    jetVars     = ['eta','pt','phi','btagCSV']
+    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
+sequence.append( getJets )
+
+#def getL( event, sample):
+#
+#    # Lp generalization for Z's. Doesn't work, because Z couples to L and R
+#    pxZ = event.Z_pt*cos(event.Z_phi)
+#    pyZ = event.Z_pt*sin(event.Z_phi)
+#    pxZl1 = event.lep_pt[event.Z_l1_index]*cos(event.lep_phi[event.Z_l1_index])
+#    pyZl1 = event.lep_pt[event.Z_l1_index]*sin(event.lep_phi[event.Z_l1_index])
+#
+#    event.LZp  = (pxZ*pxZl1+pyZ*pyZl1)/event.Z_pt**2
+#
+#    # 3D generalization of the above 
+#    if  event.lep_pdgId[event.Z_l1_index]>0:
+#        Z_lp_index, Z_lm_index = event.Z_l1_index, event.Z_l2_index
+#    else:
+#        Z_lm_index, Z_lp_index = event.Z_l1_index, event.Z_l2_index
+#
+#    lp  = ROOT.TVector3()
+#    lp.SetPtEtaPhi(event.lep_pt[Z_lp_index], event.lep_eta[Z_lp_index], event.lep_phi[Z_lp_index])
+#    lm  = ROOT.TVector3()
+#    lm.SetPtEtaPhi(event.lep_pt[Z_lm_index], event.lep_eta[Z_lm_index], event.lep_phi[Z_lm_index])
+#    Z = lp+lm
+#    event.LZp3D = lp*Z/(Z*Z)
+#
+#    event.LZp = 1-event.lep_pt[Z_lp_index]/event.Z_pt*cos(event.lep_phi[Z_lp_index] - event.Z_phi)
+#    event.LZm = 1-event.lep_pt[Z_lm_index]/event.Z_pt*cos(event.lep_phi[Z_lm_index] - event.Z_phi)
+#
+#    # Lp for the W
+#    pxNonZl1 = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index])
+#    pyNonZl1 = event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+#    pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
+#    pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
+#    event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+#sequence.append( getL )
+#
+#mt = 172.5
+#def getTopCands( event, sample ):
+#    
+#    lepton  = ROOT.TLorentzVector()
+#    met     = ROOT.TLorentzVector()
+#    b1      = ROOT.TLorentzVector()
+#    b2      = ROOT.TLorentzVector()
+#    
+#    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+#    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+#    b1.SetPtEtaPhiM(event.jets_sortbtag[0]['pt'], event.jets_sortbtag[0]['eta'], event.jets_sortbtag[0]['phi'], 0. )
+#    b2.SetPtEtaPhiM(event.jets_sortbtag[1]['pt'], event.jets_sortbtag[1]['eta'], event.jets_sortbtag[1]['phi'], 0. )
+#
+#    W    = lepton + met
+#    top1 = W + b1
+#    top2 = W + b2
+#
+#    ## order top candidates in terms of mass closest to the top mass
+#    if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
+#    #if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
+#
+#    event.top1_mass = top1.M()
+#    event.top1_pt   = top1.Pt()
+#    event.top1_phi  = top1.Phi()
+#
+#    event.top2_mass = top2.M()
+#    event.top2_pt   = top2.Pt()
+#    event.top2_phi  = top2.Phi()
+#
+#    event.b1_pt     = b1.Pt()
+#    event.b1_phi    = b1.Phi()
+#    event.b2_pt     = b2.Pt()
+#    event.b2_phi    = b2.Phi()
+#
+#sequence.append( getTopCands )
+
+def get3rdLepKin( event, sample ):
+    
+    Zx, Zy = event.Z_pt*cos(event.Z_phi), event.Z_pt*sin(event.Z_phi)
+    lx, ly = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index]), event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+   
+    event.pZl = (Zx*lx+Zy*ly)/event.lep_pt[event.nonZ_l1_index] 
+    event.plZ = (Zx*lx+Zy*ly)/event.Z_pt
+    event.ptrel = (lx*Zy-ly*Zx)/event.Z_pt
+
+sequence.append( get3rdLepKin )
+
 #
 # Text on the plots
 #
@@ -117,77 +270,6 @@ def drawPlots(plots, mode, dataMCScale):
       )
 
 #
-# Read variables and sequences
-#
-read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
-                    "lep[pt/F,eta/F,phi/F,pdgId/F]", "nlep/I",
-                    "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
-                    "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
-                    "Z_phi/F", "Z_eta/F", "Z_pt/F", "Z_mass/F", "Z_lldPhi/F", "Z_lldR/F"
-                    ]
-
-sequence = []
-
-def getDPhiZLep( event, sample ):
-    event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
-
-def getDRZLep( event, sample ):
-    event.dRZLep = deltaR({'phi':event.lep_phi[event.nonZ_l1_index],'eta':event.lep_eta[event.nonZ_l1_index]},{'phi': event.Z_phi, 'eta':event.Z_eta})
-
-def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan')
-
-def getJets( event, sample ):
-    jetVars     = ['eta','pt','phi','btagCSV']
-    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
-    event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
-
-mt = 172.5
-def getTopCands( event, sample ):
-    
-    lepton  = ROOT.TLorentzVector()
-    met     = ROOT.TLorentzVector()
-    b1      = ROOT.TLorentzVector()
-    b2      = ROOT.TLorentzVector()
-    
-    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
-    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
-    b1.SetPtEtaPhiM(event.jets_sortbtag[0]['pt'], event.jets_sortbtag[0]['eta'], event.jets_sortbtag[0]['phi'], 0. )
-    b2.SetPtEtaPhiM(event.jets_sortbtag[1]['pt'], event.jets_sortbtag[1]['eta'], event.jets_sortbtag[1]['phi'], 0. )
-
-    W    = lepton + met
-    top1 = W + b1
-    top2 = W + b2
-
-    ## order top candidates in terms of mass closest to the top mass
-    if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
-    #if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
-
-    event.top1_mass = top1.M()
-    event.top1_pt   = top1.Pt()
-    event.top1_phi  = top1.Phi()
-
-    event.top2_mass = top2.M()
-    event.top2_pt   = top2.Pt()
-    event.top2_phi  = top2.Phi()
-
-    event.b1_pt     = b1.Pt()
-    event.b1_phi    = b1.Phi()
-    event.b2_pt     = b2.Pt()
-    event.b2_phi    = b2.Phi()
-
-
-sequence = [getDPhiZLep, getDRZLep, getDPhiZJet,getJets,getTopCands ]
-
-
-def getLeptonSelection( mode ):
-  if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
-  elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
-  elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
-  elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
-
-#
 # Loop over channels
 #
 yields     = {}
@@ -207,13 +289,6 @@ for index, mode in enumerate(allModes):
 
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
-
-    if args.onlyTTZ:
-        mc = [ TTZtoLLNuNu ]
-    else:
-        mc             = [ TTZtoLLNuNu , TTX, WZ, rare ]#, nonprompt ]
-
-    for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
@@ -262,21 +337,33 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[25,0,500],
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 40 GeV',
+        name = 'Z_pt_coarse', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events / 40 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[20,0,800],
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
+        name = 'Z_pt_superCoarse', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[3,0,800],
+    ))
+
+    plots.append(Plot(
+        name = 'Z_pt_reweighting', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events',
+        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        binning=[20,0,1000],
+    ))
+
+    plots.append(Plot(
+        name = 'Z_eta', texX = '#eta(Z) ', texY = 'Number of Events',
+        attribute = TreeVariable.fromString( "Z_eta/F" ),
+        binning=[30,-3,3],
     ))
     
     plots.append(Plot(
@@ -302,6 +389,74 @@ for index, mode in enumerate(allModes):
         texX = '#Delta#phi(Z,l)', texY = 'Number of Events',
         attribute = lambda event, sample:event.dPhiZLep,
         binning=[10,0,pi],
+    ))
+
+#    plots.append(Plot(
+#        name = "LZp",
+#        texX = 'LZp', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.LZp,
+#        binning=[15,0.5,2],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "LZp3D",
+#        texX = 'LZp3D', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.LZp3D,
+#        binning=[15,-0.5,2],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "LZm",
+#        texX = 'LZm', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.LZm,
+#        binning=[15,0.5,2],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "LZp",
+#        texX = 'LZp', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.LZp,
+#        binning=[15,0.5,2],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "Lp",
+#        texX = 'Lp', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.Lp,
+#        binning=[25,-0.5,2],
+#    ))
+#    plots.append(Plot(
+#        name = "Lp_plus",
+#        texX = 'Lp_{+}', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.Lp if event.lep_pdgId[event.nonZ_l1_index] > 0 else float('nan'),
+#        binning=[25,-0.5,2],
+#    ))
+#    plots.append(Plot(
+#        name = "Lp_minus",
+#        texX = 'Lp_{-}', texY = 'Number of Events',
+#        attribute = lambda event, sample: event.Lp if event.lep_pdgId[event.nonZ_l1_index] < 0 else float('nan'),
+#        binning=[25,-0.5,2],
+#    ))
+
+    plots.append(Plot(
+        name = "pZl",
+        texX = '#vec{p}(Z) . #vec{n}(l)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.pZl,
+        binning=[20,0,200],
+    ))
+
+    plots.append(Plot(
+        name = "plZ",
+        texX = '#vec{p}(l) . #vec{n}(Z)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.plZ,
+        binning=[20,0,200],
+    ))
+
+    plots.append(Plot(
+        name = "ptrel",
+        texX = 'p_{T,l}(rel.)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.ptrel,
+        binning=[20,0,200],
     ))
 
     plots.append(Plot(
@@ -390,59 +545,59 @@ for index, mode in enumerate(allModes):
       binning=[600/30,0,600],
     ))
     
-    plots.append(Plot(
-      texX = 'p_{T}(leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-      name = 'bjet1_pt', attribute = lambda event, sample: event.b1_pt,
-      binning=[20,0,400],
-    ))
-
-    plots.append(Plot(
-      texX = 'p_{T}(2nd leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-      name = 'bjet2_pt', attribute = lambda event, sample: event.b2_pt,
-      binning=[20,0,400],
-    ))
-    
-    plots.append(Plot(
-        name = "top_cand1_pt", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 30 GeV',
-        attribute = lambda event, sample:event.top1_pt,
-        binning=[20,0,600],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
-        attribute = lambda event, sample:event.top1_pt,
-        binning=[3,0,600],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
-        attribute = lambda event, sample:event.top1_mass,
-        binning=[20,0,300],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand1_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.top1_phi,
-        binning=[10,-pi,pi],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand2_pt", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 30 GeV',
-        attribute = lambda event, sample:event.top2_pt,
-        binning=[20,0,600],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
-        attribute = lambda event, sample:event.top2_mass,
-        binning=[20,0,300],
-    ))
-
-    plots.append(Plot(
-        name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.top2_phi,
-        binning=[10,-pi,pi],
-    ))
+#    plots.append(Plot(
+#      texX = 'p_{T}(leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
+#      name = 'bjet1_pt', attribute = lambda event, sample: event.b1_pt,
+#      binning=[20,0,400],
+#    ))
+#
+#    plots.append(Plot(
+#      texX = 'p_{T}(2nd leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
+#      name = 'bjet2_pt', attribute = lambda event, sample: event.b2_pt,
+#      binning=[20,0,400],
+#    ))
+#    
+#    plots.append(Plot(
+#        name = "top_cand1_pt", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 30 GeV',
+#        attribute = lambda event, sample:event.top1_pt,
+#        binning=[20,0,600],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
+#        attribute = lambda event, sample:event.top1_pt,
+#        binning=[3,0,600],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
+#        attribute = lambda event, sample:event.top1_mass,
+#        binning=[20,0,300],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand1_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
+#        attribute = lambda event, sample:event.top1_phi,
+#        binning=[10,-pi,pi],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand2_pt", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 30 GeV',
+#        attribute = lambda event, sample:event.top2_pt,
+#        binning=[20,0,600],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
+#        attribute = lambda event, sample:event.top2_mass,
+#        binning=[20,0,300],
+#    ))
+#
+#    plots.append(Plot(
+#        name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
+#        attribute = lambda event, sample:event.top2_phi,
+#        binning=[10,-pi,pi],
+#    ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 

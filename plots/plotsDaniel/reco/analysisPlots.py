@@ -121,7 +121,7 @@ def drawPlots(plots, mode, dataMCScale):
 #
 read_variables =    ["weight/F",
                     "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
-                    "lep[pt/F,eta/F,phi/F,pdgId/F]", "nlep/I",
+                    "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
                     "Z_phi/F","Z_pt/F", "Z_mass/F", "Z_lldPhi/F", "Z_lldR/F"

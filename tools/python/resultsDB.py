@@ -62,7 +62,7 @@ class resultsDB:
                 return objs
 
             except sqlite3.DatabaseError as e:
-                logger.info( "There seems to be an issue with the database, trying to read again." )
+                logger.info( "There seems to be an issue with the database %s, trying to read again.", self.database_file)
                 logger.info( "Attempt no %i", i )
                 self.close()
                 self.connect()
