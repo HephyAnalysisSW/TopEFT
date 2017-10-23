@@ -39,7 +39,7 @@ cd EgammaAnalysis/ElectronTools/data
 git clone https://github.com/ECALELFS/ScalesSmearings.git
 git checkout Moriond17_23Jan_v2
 
-cd $CMSSW_BASE/src
+#cd $CMSSW_BASE/src
 #git fetch origin
 #git checkout -b 80X_StopsDilepton origin/80X_StopsDilepton
 
