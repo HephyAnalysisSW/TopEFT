@@ -43,12 +43,12 @@ cd $CMSSW_BASE/src
 #git fetch origin
 #git checkout -b 80X_StopsDilepton origin/80X_StopsDilepton
 
-# DeepCSV
-git cms-merge-topic -u mverzett:DeepFlavourCMVA-from-CMSSW_8_0_21
-mkdir RecoBTag/DeepFlavour/data/
-cd RecoBTag/DeepFlavour/data/
-wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json
-wget http://mon.iihe.ac.be/~smoortga/DeepFlavour/CMSSW_implementation_DeepCMVA/Model_DeepCMVA.json
+## DeepCSV
+#git cms-merge-topic -u mverzett:DeepFlavourCMVA-from-CMSSW_8_0_21
+#mkdir RecoBTag/DeepFlavour/data/
+#cd RecoBTag/DeepFlavour/data/
+#wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json
+#wget http://mon.iihe.ac.be/~smoortga/DeepFlavour/CMSSW_implementation_DeepCMVA/Model_DeepCMVA.json
 
 cd $CMSSW_BASE/src
 
