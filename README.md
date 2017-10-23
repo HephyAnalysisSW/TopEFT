@@ -4,8 +4,8 @@ Repository for work on top quark coupling measurements
 ## Installation
 
 ```
-cmsrel CMSSW_8_0_27
-cd CMSSW_8_0_27/src
+cmsrel CMSSW_8_0_28
+cd CMSSW_8_0_28/src
 cmsenv
 git cms-init
 git clone https://github.com/danbarto/TopEFT
