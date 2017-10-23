@@ -1,4 +1,18 @@
 # TopEFT
+
+## Installation
+
+# Stops-dilepton + CMG in 80X
+```
+cmsrel CMSSW_8_0_27
+cd CMSSW_8_0_27/src
+cmsenv
+git cms-init
+git clone https://github.com/danbarto/TopEFT
+./TopEFT/setup80X.sh
+```
+
+## run.py
 Repository for work on top quark coupling measurements
 
 Use a gridpack used for central MC production (ttZ01j_5f_MLM_tarball.tar.xz) and replace model relevant information to obtain cross-sections and MC samples for EFT models. The Madgraph tarball contains the customized Higgs Effective Lagrangian (HEL) UFO where first and second generation couplings are disabled.
