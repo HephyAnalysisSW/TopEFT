@@ -1,4 +1,5 @@
 /.gitignore/
+/FWCore/GuiBrowsers
 /DataFormats/BTauReco/
 /EgammaAnalysis/ElectronTools/
 /PhysicsTools/Heppy/
