@@ -364,6 +364,24 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
+      texX = 'p_{T}(leading l) (GeV)', texY = 'Number of Events / 20 GeV',
+      name = 'lep1_pt', attribute = lambda event, sample: event.lep_pt[0],
+      binning=[400/20,0,400],
+    ))
+
+    plots.append(Plot(
+      texX = 'p_{T}(subleading l) (GeV)', texY = 'Number of Events / 10 GeV',
+      name = 'lep2_pt', attribute = lambda event, sample: event.lep_pt[1],
+      binning=[200/10,0,200],
+    ))
+
+    plots.append(Plot(
+      texX = 'p_{T}(trailing l) (GeV)', texY = 'Number of Events / 10 GeV',
+      name = 'lep3_pt', attribute = lambda event, sample: event.lep_pt[2],
+      binning=[150/10,0,150],
+    ))
+    
+    plots.append(Plot(
       texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
       name = 'jet1_pt', attribute = lambda event, sample: event.jet_pt[0],
       binning=[600/30,0,600],
