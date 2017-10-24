@@ -18,7 +18,7 @@ git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git -f -t he
 git remote add ghent-cmg-cmssw git@github.com:GhentAnalysis/cmg-cmssw -f -t heppy_80X_StopsDilepton
 cp $CMSSW_BASE/src/TopEFT/.sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout
 #git checkout -b heppy_80X cmg-central/heppy_80X
-git checkout -b heppy_80XStopsDilepton ghent-cmg-cmssw/heppy_80X_StopsDilepton
+git checkout -b heppy_80X_StopsDilepton ghent-cmg-cmssw/heppy_80X_StopsDilepton
 
 # add your mirror, and push the 80X branch to it
 git remote add origin git@github.com:GhentAnalysis/cmg-cmssw.git
