@@ -51,17 +51,14 @@ setups = [setup]
 ##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
 from TopEFT.tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
 from TopEFT.tools.cardFileWriter import cardFileWriter
+from TopEFT.analysis.getResults  import getResult, addResult
+
 
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
 limitDir    = os.path.join(baseDir, 'cardFiles', args.signal + args.extension)
 overWrite   = (args.only is not None) or args.overwrite
-useCache    = True
-verbose     = True
-cacheFileName = os.path.join(plot_directory, 'calculatedLimits.db')
-limitCache    = resultsDB(cacheFileName, "limits", ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit'])
-
 
 def wrapper(s):
     xSecScale = 1
@@ -171,31 +168,37 @@ def wrapper(s):
     else:
         print "File %s found. Reusing."%cardFileName
     
-    sConfig = {"signal":s.name}
-    if useCache and not overWrite and limitCache.contains(sConfig):
-        res = limitCache.get(sConfig)
+    res = {}
+    
+    if getResult(s) and not overWrite:
+        res = getResult(s)
+        print "Found result for %s, reusing"%s.name
     else:
         # calculate the limit
-        res = c.calcLimit(cardFileName)#, options="--run blind")
-        sConfig.update({"exp":res['0.500'], "obs":res['-1.000'], "exp1up":res['0.840'], "exp2up":res['0.975'], "exp1down":res['0.160'], "exp2down":res['0.025']})
+        limit = c.calcLimit(cardFileName)#, options="--run blind")
+        res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
         # run the checks
         c.calcNuisances(cardFileName)
         # extract the NLL
         nll = c.calcNLL(cardFileName)
-        sConfig.update({"dNLL_postfit":nll["nll"], "NLL_prefit":nll["nll0"]})
-        limitCache.add(sConfig, nll['nll_abs'], overwrite=True)
+        res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+        addResult(s, res, nll['nll_abs'], overwrite=True)
+        
+    print "NLL results:"
+    print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
+    print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
     
     if xSecScale != 1:
         for k in res:
             res[k] *= xSecScale
     
-    if res: 
-        try:
-            print "Result: %r obs %5.3f exp %5.3f -1sigma %5.3f +1sigma %5.3f"%(s.name, res['-1.000'], res['0.500'], res['0.160'], res['0.840'])
-            return sConfig, res
-        except:
-            print "Problem with limit: %r" + str(res)
-            return None
+    #if res: 
+    #    try:
+    #        print "Result: %r obs %5.3f exp %5.3f -1sigma %5.3f +1sigma %5.3f"%(s.name, res['-1.000'], res['0.500'], res['0.160'], res['0.840'])
+    #        return sConfig, res
+    #    except:
+    #        print "Problem with limit: %r" + str(res)
+    #        return None
 
 from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import allSignals
 

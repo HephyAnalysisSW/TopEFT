@@ -311,8 +311,15 @@ class cardFileWriter:
         combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
         print combineCommand
         os.system(combineCommand)
-
         nll = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 10 --rMin 0. --rMax 2.0 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        os.system(combineCommand)
+        nll2 = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
+        
+        nll["bestfit"] = nll2["nll"]
+        print "Comparing the two fits"
+        print nll["nll0"], nll2["nll0"]
+
         print nll
 
         return nll
