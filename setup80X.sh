@@ -15,8 +15,10 @@ scram b -j9
 # Setting up CMG
 #
 git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git -f -t heppy_80X
+git remote add ghent-cmg-cmssw git@github.com:GhentAnalysis/cmg-cmssw -f -t heppy_80X_StopsDilepton
 cp $CMSSW_BASE/src/TopEFT/.sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout
-git checkout -b heppy_80X cmg-central/heppy_80X
+#git checkout -b heppy_80X cmg-central/heppy_80X
+git checkout -b heppy_80XStopsDilepton ghent-cmg-cmssw/heppy_80X_StopsDilepton
 
 # add your mirror, and push the 80X branch to it
 git remote add origin git@github.com:GhentAnalysis/cmg-cmssw.git
@@ -44,11 +46,11 @@ git checkout Moriond17_23Jan_v2
 #git checkout -b 80X_StopsDilepton origin/80X_StopsDilepton
 
 ## DeepCSV
-#git cms-merge-topic -u mverzett:DeepFlavourCMVA-from-CMSSW_8_0_21
-#mkdir RecoBTag/DeepFlavour/data/
-#cd RecoBTag/DeepFlavour/data/
-#wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json
-#wget http://mon.iihe.ac.be/~smoortga/DeepFlavour/CMSSW_implementation_DeepCMVA/Model_DeepCMVA.json
+git cms-merge-topic -u mverzett:DeepFlavourCMVA-from-CMSSW_8_0_21
+mkdir RecoBTag/DeepFlavour/data/
+cd RecoBTag/DeepFlavour/data/
+wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json
+wget http://mon.iihe.ac.be/~smoortga/DeepFlavour/CMSSW_implementation_DeepCMVA/Model_DeepCMVA.json
 
 cd $CMSSW_BASE/src
 
