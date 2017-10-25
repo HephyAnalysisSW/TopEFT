@@ -2,7 +2,7 @@ from TopEFT.tools.helpers import mZ, getVarValue, getObjDict, deltaR
 from math import *
 import numbers
 
-jetVars = ['eta','pt','phi','btagCSV', 'id', 'area']
+jetVars = ['eta','pt','phi','btagCSV', 'id', 'area', 'DFbb', 'DFb']
 
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
@@ -34,8 +34,14 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
 def isBJet(j):
     return j['btagCSV']>0.8484
 
+def isBJetDeepCSV(j):
+    return j['DFbb'] + j['DFb'] > 0.6324
+
 def getGoodBJets(c):
     return filter(lambda j:isBJet(j), getGoodJets(c))
+
+def getGoodBJets(c):
+    return filter(lambda j:isBJetDeepCSV(j), getGoodJets(c))
 
 def getGenLeps(c):
     return [getObjDict(c, 'genLep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId'], i) for i in range(int(getVarValue(c, 'ngenLep')))]

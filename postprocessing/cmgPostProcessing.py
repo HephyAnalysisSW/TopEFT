@@ -24,7 +24,7 @@ import TopEFT.tools.user as user
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ
 from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
-from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, isBJet, getGoodPhotons, getGenPartsAll, getAllJets
+from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, isBJetDeepCSV, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
 #from TopEFT.tools.triggerEfficiency          import triggerEfficiency
@@ -291,7 +291,7 @@ else:
     lumiScaleFactor = xSection*targetLumi/float(sample.normalization) if xSection is not None else None
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
-jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'area/F'] + jetCorrInfo + jetMCInfo
+jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -341,7 +341,7 @@ read_variables += [\
 ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
-new_variables.extend( ['nBTag/I', 'ht/F', 'metSig/F'] )
+new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F'] )
 
 if options.leptonConvinience:
     lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
@@ -506,6 +506,7 @@ def filler( event ):
 
     # Don't change analysis jets even if we keep all jets, hence, apply abs eta cut
     bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4, selected_jets)
+    bJetsDeepCSV = filter(lambda j:isBJetDeepCSV(j) and abs(j['eta'])<=2.4, selected_jets)
     nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
@@ -524,6 +525,7 @@ def filler( event ):
     event.ht         = sum([j['pt'] for j in selected_jets])
     event.metSig     = event.met_pt/sqrt(event.ht) if event.ht>0 else float('nan')
     event.nBTag      = len(bJets)
+    event.nBTagDeepCSV = len(bJetsDeepCSV)
 
     # Systematics
     jets_sys      = {}
