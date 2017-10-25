@@ -8,7 +8,7 @@ import ROOT, os
 ROOT.gROOT.SetBatch(True)
 import itertools
 
-from math                         import sqrt, cos, sin, pi
+from math                         import sqrt, cos, sin, pi, log
 from RootTools.core.standard      import *
 from TopEFT.tools.user            import plot_directory
 from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue
@@ -21,6 +21,9 @@ from TopEFT.tools.user            import plot_directory
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
+def calcAMS(s, b):
+    return sqrt(2*((s+b)*log(1+s/b)-s))
+
 postProcessing_directory = "TopEFT_PP_v4/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
@@ -32,8 +35,8 @@ presel = "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0&&abs(Z_mas
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'all':'(1)'}
 
-btag = "nBTagDeepCSV"
-#btag = "nBTag"
+#btag = "nBTagDeepCSV"
+btag = "nBTag"
 
 regions = [\
             "njet==2&&%s==0"%btag,
@@ -84,7 +87,7 @@ for c in channels:
     for j, r in enumerate(regions):
         y_sig = h_sig.GetBinContent(j+1)
         y_bkg = h_bkg.GetBinContent(j+1)
-        FOM = y_sig/sqrt(y_bkg+(0.1*y_bkg)**2)
+        FOM = calcAMS(y_sig, y_bkg)#y_sig/sqrt(y_bkg+(0.1*y_bkg)**2)
         h_ratio.SetBinContent(j+1, FOM)
     #h_ratio = h_sig.Clone()
     #h_ratio.Divide(h_bkg)
