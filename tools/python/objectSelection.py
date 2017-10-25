@@ -1,4 +1,4 @@
-from TopEFT.tools.helpers import mZ, getVarValue, getObjDict
+from TopEFT.tools.helpers import mZ, getVarValue, getObjDict, deltaR
 from math import *
 import numbers
 
@@ -7,11 +7,29 @@ jetVars = ['eta','pt','phi','btagCSV', 'id', 'area']
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
 
-def jetId(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
+def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
   return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j['id']
 
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
-    return filter(lambda j:jetId(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
+    return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
+
+def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"]):
+
+    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
+    res  = []
+
+    for jet in jets:
+        clean = True
+        for lepton in leptons:
+            if deltaR(lepton, jet) < 0.4:
+                clean = False
+                break
+        if clean:
+            res.append(jet)
+
+    res.sort( key = lambda j:-j['pt'] )
+
+    return res
 
 def isBJet(j):
     return j['btagCSV']>0.8484
@@ -53,7 +71,7 @@ def muonSelector(isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEta
             l["pt"]>=ptCut\
             and abs(l["pdgId"])==13\
             and abs(l["eta"])<absEtaCut\
-            and l["mediumMuonId"]>=1 \
+            and l["ICHEPmediumMuonId"]>=1 \
             and iso_(l) \
             and l["sip3d"]<4.0\
             and abs(l["dxy"])<dxy\
@@ -74,15 +92,17 @@ default_muon_selector = muonSelector( )
 
 # ELECTRONS
 
-ele_MVAID = {'M': {(0,0.8):0.913286 , (0.8, 1.479):0.805013, (1.57, 999): 0.358969},
-            'VL': {(0,0.8):-0.76, (0.8, 1.479):-0.52, (1.57, 999): -0.23}}
+ele_MVAID = {'M': {(0,0.8):0.837, (0.8, 1.479):0.715, (1.57, 999): 0.357}}
+
+#ele_MVAID = {'M': {(0,0.8):0.913286 , (0.8, 1.479):0.805013, (1.57, 999): 0.358969},
+#            'VL': {(0,0.8):-0.76, (0.8, 1.479):-0.52, (1.57, 999): -0.23}}
 
 def eleMVAIDSelector( eleId ):
     ele_mva_WP = ele_MVAID[eleId]
     def func(l):
         abs_ele_eta = abs(l["eta"])
         for abs_ele_bin, mva_threshold in ele_mva_WP.iteritems():
-            if abs_ele_eta>=abs_ele_bin[0] and abs_ele_eta<abs_ele_bin[1] and l["mvaIdSpring15"] > mva_threshold: return True
+            if abs_ele_eta>=abs_ele_bin[0] and abs_ele_eta<abs_ele_bin[1] and l["mvaIdSpring16"] > mva_threshold: return True
         return False
     return func
 
@@ -94,6 +114,7 @@ def eleCutIDSelector( ele_cut_Id = 4):
 def eleSelector(isoVar = "relIso03", barrelIso = 0.1, endcapIso = 0.1, absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=True, loose=False):
 
     iso_ = isoSelector( isolation=isoVar, barrelCut=barrelIso, endcapCut=endcapIso)
+    
 
     if isinstance(eleId, numbers.Number): id_ = eleCutIDSelector( eleId )
     elif type(eleId)==type(""):           id_ = eleMVAIDSelector( eleId )
@@ -106,10 +127,13 @@ def eleSelector(isoVar = "relIso03", barrelIso = 0.1, endcapIso = 0.1, absEtaCut
             and abs(l["pdgId"])==11\
             and id_(l)\
             and iso_(l)\
+            and triggerEmulatorSelector(l)\
             and l["sip3d"]<4.0\
             and (l["lostHits"]==0 or not noMissingHits)\
             and abs(l["dxy"]) < dxy\
             and abs(l["dz"]) < dz
+
+#            and triggerEmulatorSelector(l)\
 
     def funcLoose(l, ptCut = 10):
         return \
@@ -125,9 +149,10 @@ def eleSelector(isoVar = "relIso03", barrelIso = 0.1, endcapIso = 0.1, absEtaCut
 
 default_ele_selector = eleSelector( )
 
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,ICHEPmediumMuonId/I,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F'
+lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
-leptonVars_data = ['eta','etaSc', 'pt','phi','dxy', 'dz','tightId', 'pdgId', 'mediumMuonId', 'miniRelIso', 'relIso03', 'relIso04', 'sip3d', 'mvaIdSpring15', 'convVeto', 'lostHits', 'jetPtRelv2', 'jetPtRatiov2', 'eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz']
-leptonVars = leptonVars_data + ['mcMatchId','mcMatchAny']
+leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
 
 def getLeptons(c, collVars=leptonVars):
     return [getObjDict(c, 'LepGood_', collVars, i) for i in range(int(getVarValue(c, 'nLepGood')))]
@@ -142,17 +167,28 @@ def getGoodMuons(c, ptCut = 20, collVars=leptonVars, mu_selector = default_muon_
     return [l for l in getMuons(c, collVars) if mu_selector(l, ptCut = ptCut)]
 def getGoodElectrons(c, ptCut = 20, collVars=leptonVars, ele_selector = default_ele_selector):
     return [l for l in getElectrons(c, collVars) if ele_selector(l, ptCut = ptCut)]
+
 def getGoodLeptons(c, ptCut=20, collVars=leptonVars, mu_selector = default_muon_selector, ele_selector = default_ele_selector):
     return [l for l in getLeptons(c, collVars) if (abs(l["pdgId"])==11 and ele_selector(l, ptCut = ptCut)) or (abs(l["pdgId"])==13 and mu_selector(l, ptCut = ptCut))]
 
+#def getGoodAndOtherLeptons(c, ptCut=20, collVars=leptonVars, mu_selector = default_muon_selector, ele_selector = default_ele_selector):
+#    good_lep = getLeptons(c, collVars)
+#    other_lep = getOtherLeptons(c, collVars)
+#    print "Getting leptons: good, other"
+#    print len(good_lep), len(other_lep)
+#    for l in other_lep: #dirty trick to find back the full lepton if it was in the 'other' collection
+#        l['index']+=1000
+#    res = [l for l in good_lep+other_lep if (abs(l["pdgId"])==11 and ele_selector(l, ptCut = ptCut)) or (abs(l["pdgId"])==13 and mu_selector(l, ptCut = ptCut))]
+#    print len(res)
+#    res.sort( key = lambda l:-l['pt'] )
+#    return res
+
 def getGoodAndOtherLeptons(c, ptCut=20, collVars=leptonVars, mu_selector = default_muon_selector, ele_selector = default_ele_selector):
-    good_lep = getLeptons(c, collVars)
-    other_lep = getOtherLeptons(c, collVars)
-    for l in other_lep: #dirty trick to find back the full lepton if it was in the 'other' collection
-        l['index']+=1000
-    res = [l for l in good_lep+other_lep if (abs(l["pdgId"])==11 and ele_selector(l, ptCut = ptCut)) or (abs(l["pdgId"])==13 and mu_selector(l, ptCut = ptCut))]
-    res.sort( key = lambda l:-l['pt'] )
-    return res
+    good_lep = [l for l in getLeptons(c, collVars) if (abs(l["pdgId"])==11 and ele_selector(l, ptCut = ptCut)) or (abs(l["pdgId"])==13 and mu_selector(l, ptCut = ptCut))]
+    other_lep = [l for l in getOtherLeptons(c, collVars) if (abs(l["pdgId"])==11 and ele_selector(l, ptCut = ptCut)) or (abs(l["pdgId"])==13 and mu_selector(l, ptCut = ptCut))]
+    all_lep = good_lep + other_lep
+    all_lep.sort( key = lambda l:-l['pt'] )
+    return all_lep
 
 tauVars=['eta','pt','phi','pdgId','charge', 'dxy', 'dz', 'idDecayModeNewDMs', 'idCI3hit', 'idAntiMu','idAntiE','mcMatchId']
 
@@ -179,6 +215,19 @@ def getPhotons(c, collVars=photonVars, idLevel='loose'):
 def getGoodPhotons(c, ptCut=50, idLevel="loose", isData=True, collVars=None):
     if collVars is None: collVars = photonVars if isData else photonVarsMC
     return [p for p in getPhotons(c, collVars) if p['idCutBased'] >= idCutBased[idLevel] and p['pt'] > ptCut and p['pdgId']==22]
+
+def triggerEmulatorSelector(l):
+
+    ECSc = abs(l["etaSc"])>1.479
+    eInvMinusPInv = l["eInvMinusPInv"] if l["eInvMinusPInv"] > 0 else 9e9
+
+    if l["hadronicOverEm"]          >= (0.10-0.03*ECSc):     return False
+    if abs(l["dEtaScTrkIn"])        >= (0.01-0.002*ECSc):    return False
+    if abs(l["dPhiScTrkIn"])        >= (0.04+0.03*ECSc):     return False
+    if l["eInvMinusPInv"]           <= -0.05:                return False
+    if l["eInvMinusPInv"]           >= (0.01-0.005*ECSc):    return False
+    if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
+    return True
 
 def getFilterCut(isData=False, isFastSim = False, badMuonFilters = "Summer2016"):
     if isFastSim:

@@ -21,7 +21,8 @@ class resultsDB:
         self.database_file = database
         self.connect()
         self.tableName      = tableName
-        self.columns        = columns + ["value"]
+        self.columns        = self.clean(columns)
+        self.columns        = self.columns + ["value"]
         self.columnString   = ", ".join([ s+" text" for s in self.columns ])
         executeString = '''CREATE TABLE %s (%s, time_stamp real )'''%(self.tableName, self.columnString)
         try:
@@ -32,6 +33,10 @@ class resultsDB:
         self.cursor.execute('''PRAGMA journal_mode = DELETE''') # WAL doesn't work on network filesystems
         self.cursor.execute('''PRAGMA synchronus = 2''')
         self.close()
+
+    def clean(self, columns):
+        #return [ c.replace("-","m").replace(".","p") for c in columns ]
+        return [ c for c in columns ]
 
     def connect(self):
         self.database = sqlite3.connect(self.database_file)
@@ -47,7 +52,7 @@ class resultsDB:
         '''
         Get all entries in the database matching the provided key.
         '''
-        columns = key.keys()+["value", "time_stamp"]
+        columns = self.clean(key.keys()+["value", "time_stamp"])
         selection = " AND ".join([ "%s = '%s'"%(k, key[k]) for k in key.keys() ])
 
         selectionString = "SELECT * FROM {} ".format(self.tableName) + " WHERE {} ".format(selection) + " ORDER BY time_stamp"
@@ -62,7 +67,7 @@ class resultsDB:
                 return objs
 
             except sqlite3.DatabaseError as e:
-                logger.info( "There seems to be an issue with the database, trying to read again." )
+                logger.info( "There seems to be an issue with the database %s, trying to read again.", self.database_file)
                 logger.info( "Attempt no %i", i )
                 self.close()
                 self.connect()
@@ -123,11 +128,19 @@ class resultsDB:
         except IndexError:
             return False
 
-    def add(self, key, value, save, overwriteOldest=False):
+    def add(self, key, value, overwrite, overwriteOldest=False):
         '''
-        new DB structure. key needs to be a python dictionary
+        new DB structure. key needs to be a python dictionary. Overwrite removes all previous entries found under the key.
         '''
-        columns = key.keys()+["value", "time_stamp"]
+
+        if overwrite and self.contains(key):
+            self.removeObjects(key)
+
+        columns = self.clean(key.keys()+["value"])
+        if not sorted(columns) == sorted(self.columns):
+            raise(ValueError("The columns don't match the table. Use the following: %s"%", ".join(self.columns)))
+        
+        columns += ["time_stamp"]
         values  = key.values()+[str(value), time.time()]
         
         # check if number of columns matches. By default, there is no error if not, but better be save than sorry.

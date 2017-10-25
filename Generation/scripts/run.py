@@ -19,7 +19,7 @@ processes    = [os.path.splitext(f)[0] for f in os.listdir(process_path) if os.p
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--process',     action='store',         default='ttZ',      choices=processes,     help="Which process?")
-argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'ewkDM2', 'HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'ewkDM2', 'HEL_UFO', 'TopEffTh', 'dim6top_LO'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--overwrite',   action='store_true',    help="Overwrite exisiting x-sec calculation and gridpack")
 argParser.add_argument('--keepWorkspace',   action='store_true',    help="keep the temporary workspace?")
@@ -32,15 +32,41 @@ args = argParser.parse_args()
 
 logger = logger.get_logger(args.logLevel, logFile = None)
 
+logger.debug("Coupling arguments: %r", args.couplings )
+
 # Single argument -> interpret as file
-if len(args.couplings) == 1:
+if len(args.couplings) == 1 and os.path.isfile(args.couplings[0]) :
     with open(args.couplings[0], 'r') as f:
         param_points = [ line.rstrip().split() for line in f.readlines() ]
-elif len(args.couplings)%2==0:
-# Even number of arguments -> one line
-    param_points = [args.couplings]
+
+# Interpret couplings 
+#elif len(args.couplings)>=2:
+elif len(args.couplings)==0 or len(args.couplings)>=2:
+    # make a list of the form [ ['c1', v1, v2, ...], ['c2', ...] ] so we can recourse in the couplings c1,c2,... 
+    coupling_list = []
+    for a in args.couplings:
+        try:
+            val = float(a)
+        except ValueError:
+            coupling_list.append( [ a, [] ] )
+            val = None
+
+        if val: coupling_list[-1][1].append( float(a) )
+
+    # recursively make a for loop over all couplings
+    def recurse( c_list ):
+        var, vals = c_list[-1]
+        pairs     = [ (var, val) for val in vals ]
+        if len(c_list)>1:
+            rec       = recurse(c_list[:-1])
+            return [ r + p for p in pairs for r in rec] 
+        else:
+            return pairs
+
+    param_points = recurse( coupling_list ) if len(coupling_list)>0 else [[]]
+    
 else:
-    logger.error("Need an even number of coupling arguments of the format coupling1, value1, coupling2, value2, ... . Got %r", args.couplings )
+    logger.error("Need an even number of coupling arguments of the format coupling1, value1, value2, ... , coupling2, value3, ... . Got %r", args.couplings )
     raise ValueError
 
 # Create configuration class

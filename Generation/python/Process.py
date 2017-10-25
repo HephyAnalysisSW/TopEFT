@@ -47,7 +47,7 @@ class Process:
         # Write process card
         self.__writeProcessCard()
         
-        logger.info( "Running MG executable on %s", self.tmpProcessCard )
+        logger.info( "Running MG executable: python %s -f %s", self.config.MG5_tmpdir+'/bin/mg5_aMC', self.tmpProcessCard )
         subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
         logger.info( "Done with MG executable" ) 
 
@@ -83,6 +83,9 @@ class Process:
                     out.write("import model %s-no_b_mass\n\n"%self.config.model_name)
                 elif "NP=1" in line and self.config.model_name == "TopEffTh":
                     out.write(line.replace("NP=1","NP=2"))
+                elif "NP=1" in line and self.config.model_name == "dim6top_LO":
+                    #out.write(line.replace("NP=1","DIM6=1"))
+                    out.write(line.replace("NP=1","DIM6<=1"))
                 else:
                     out.write(line)
             out.write("output %s -nojpeg" % self.processTmpDir)
@@ -115,7 +118,7 @@ class Process:
 
             xsec_ = u_float.fromString(m.group(1)) 
             
-            self.xsecDB.add(key, xsec_, save=True)
+            self.xsecDB.add(key, xsec_, overwrite=True)
 
             logger.info( "Done!" )
 
