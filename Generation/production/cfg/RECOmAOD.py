@@ -31,7 +31,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step1_DIGI2RAW.root'),
+    #fileNames = cms.untracked.vstring('file:step1_DIGI2RAW.root'),
+    fileNames = cms.untracked.vstring('root://hephyse.oeaw.ac.at//dpm/oeaw.ac.at/home/cms/store/user/dspitzba/ewkDM_ttZ_ll_noH/ewkDM/171024_115112/0000/TOP-RunIISummer15wmLHEGS-00013_103.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
