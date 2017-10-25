@@ -1,5 +1,13 @@
 /.gitignore/
+/FWCore/GuiBrowsers
+/DataFormats/BTauReco/
+/EgammaAnalysis/ElectronTools/
 /PhysicsTools/Heppy/
 /PhysicsTools/HeppyCore/
-/EgammaAnalysis/ElectronTools/
+/PhysicsTools/PatAlgos/
+/RecoBTag/Configuration/
+/RecoBTag/DeepFlavour/
+/RecoBTag/LWTNN/
+/RecoBTag/SecondaryVertex/
+/RecoBTag/Combined/
 /RecoMET/METFilters/
