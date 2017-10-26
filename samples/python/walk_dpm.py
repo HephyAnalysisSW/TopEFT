@@ -173,7 +173,7 @@ class walk_dpm:
     def combine_cmg_directories( cmg_directories, multithreading = True):
         import operator
         all_jobs_ = sum(cmg_directories.values(),[])
-        logger.info( "Now reading normalization of %i files. %s", len( all_jobs_ ), "Using multithreading." if multithreading else "Sequential." )
+        logger.info( "Now reading normalization of %i files. %s", len( all_jobs_ ), "Using multithreading." if multithreading else "Sequential reading (possibly slow)." )
         #all_jobs = [ ( jobID,tree_file,read_normalization( log_file )) for jobID, tree_file, log_file in all_jobs_ ]
 
         # Read normalization

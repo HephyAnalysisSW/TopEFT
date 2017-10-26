@@ -2,7 +2,7 @@ from TopEFT.tools.helpers import mZ, getVarValue, getObjDict, deltaR
 from math import *
 import numbers
 
-jetVars = ['eta','pt','phi','btagCSV', 'id', 'area']
+jetVars = ['eta','pt','phi','btagCSV', 'id', 'area', 'DFbb', 'DFb']
 
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
@@ -34,8 +34,14 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
 def isBJet(j):
     return j['btagCSV']>0.8484
 
+def isBJetDeepCSV(j):
+    return j['DFbb'] + j['DFb'] > 0.6324
+
 def getGoodBJets(c):
     return filter(lambda j:isBJet(j), getGoodJets(c))
+
+def getGoodBJets(c):
+    return filter(lambda j:isBJetDeepCSV(j), getGoodJets(c))
 
 def getGenLeps(c):
     return [getObjDict(c, 'genLep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId'], i) for i in range(int(getVarValue(c, 'ngenLep')))]
@@ -149,7 +155,7 @@ def eleSelector(isoVar = "relIso03", barrelIso = 0.1, endcapIso = 0.1, absEtaCut
 
 default_ele_selector = eleSelector( )
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,ICHEPmediumMuonId/I,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,ICHEPmediumMuonId/I,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdSpring16/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
