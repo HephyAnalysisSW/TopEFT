@@ -185,13 +185,13 @@ mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directo
 #mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
 #
 #
-## Data ReminiAOD
-#data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v2_data.pkl'
-#def_robert = "/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v2"
-#data_dpm_directories = [def_robert]
-#from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
-#
+# Data ReminiAOD
+data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v5_data.pkl'
+def_robert = "/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v5"
+data_dpm_directories = [def_robert]
+from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
+
 # Private signal MC
 signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_Summer16_1l_v1.pkl'
 robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v6']

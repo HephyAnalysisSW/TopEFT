@@ -11,7 +11,14 @@ mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
     #"looseLeptonVeto":   "Sum$(lep_pt>15&&lep_relIso03<0.4)==2",
-    "trilep":            "nlep==3&&Z_mass>0",
+    "dilep":             "nlep==2",
+    "SSdilep":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])>0",
+#    "lepSelTTW":         "lep_pt[1]>25&&(
+
+    "trilep":            "nlep==3",
+    "Zcand":             "Z_mass>0",
+    "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
+
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "onZ":               "abs(Z_mass-91.2)<10",
 

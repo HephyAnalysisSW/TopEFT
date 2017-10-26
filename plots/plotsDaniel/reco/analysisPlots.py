@@ -25,8 +25,8 @@ argParser.add_argument('--signal',             action='store',      default=None
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v4')
-argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p-onZ')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
+argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
@@ -46,7 +46,7 @@ if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v4/trilep/"
+postProcessing_directory = "TopEFT_PP_v5/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 if args.signal == "ewkDM":
@@ -208,7 +208,7 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZtoLLNuNu ]
     else:
-        mc             = [ TTZtoLLNuNu , TTX, WZ, rare ]#, nonprompt ]
+        mc             = [ TTZtoLLNuNu , TTW, TZQ, TTX, WZ, rare, nonprompt ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
