@@ -140,7 +140,7 @@ logger.info( "Using proxy %s"%proxy )
 
 
 # Moriond MC
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v5.pkl'
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v6.pkl'
 #robert_v5 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v5']
 #subdirs by hand ... skipping DY until it's complete
 robert_v5 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v5/%s' % s for s in [\
