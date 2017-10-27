@@ -42,7 +42,7 @@ genSearch = GenSearch()
 targetLumi = 1000 #pb-1 Which lumi to normalize to
 
 logChoices      = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET']
-triggerChoices  = ['mumu', 'ee']
+triggerChoices  = ['mumu', 'ee', 'mue', 'mu', 'e']
 
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -53,7 +53,7 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu_amcatnlo'],      help="List of samples to be post-processed, given as CMG component name")
-    # argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
+    argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
@@ -122,15 +122,27 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-#if isData and options.triggerSelection is not None:
-#    if options.triggerSelection == 'mumu':
-#        skimConds.append( "(HLT_mumuIso||HLT_mumuNoiso)" )
-#    else:
-#        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
-#    sample_name_postFix = "_Trig_"+options.triggerSelection
-#    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
-#else:
-#    sample_name_postFix = ""
+diMuTriggers        = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"," HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"]
+diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
+EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
+
+if isData and options.triggerSelection is not None:
+    if options.triggerSelection == 'mu':
+        skimConds.append( "(HLT_SingleMuTTZ)" )
+    elif options.triggerSelection == 'e':
+        skimConds.append( "(HLT_SingleEleTTZ)" )
+    elif options.triggerSelection == 'ee':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+    elif options.triggerSelection == 'mue':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+    elif options.triggerSelection == 'mumu':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+    else:
+        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
+    sample_name_postFix = "_Trig_"+options.triggerSelection
+    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
+else:
+    sample_name_postFix = ""
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -142,6 +154,7 @@ if len(samples)>1:
         sample.clear()
 elif len(samples)==1:
     sample = samples[0]
+    sample.name+=sample_name_postFix
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
