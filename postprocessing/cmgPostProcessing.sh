@@ -40,9 +40,17 @@
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  --overwrite
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  --overwrite
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000  --overwrite
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000  --overwrite
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll  --overwrite
+
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_0p050000
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_0p100000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_0p200000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_0p300000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_m0p150000  
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v5 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_m0p250000
 
 #
 ### For fake rate studies?

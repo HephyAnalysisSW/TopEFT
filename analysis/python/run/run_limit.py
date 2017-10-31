@@ -34,17 +34,8 @@ setup.channels  = ['all']
 setup.regions   = regionsA
 
 # Define fake samples (yields from illia)
-Data    = Sample("Data",    "Events", ["dummy.root"])
-ttZ     = Sample("ttZ",     "Events", ["dummy.root"])
-fake    = Sample("fake",    "Events", ["dummy.root"])
-WZ      = Sample("WZ",      "Events", ["dummy.root"])
-ttH     = Sample("ttH",     "Events", ["dummy.root"])
-ttW     = Sample("ttW",     "Events", ["dummy.root"])
-ttX     = Sample("ttX",     "Events", ["dummy.root"])
-ZZ      = Sample("ZZ",      "Events", ["dummy.root"])
-rare    = Sample("rare",    "Events", ["dummy.root"])
-
-processes = [ fake, WZ, ttH, ttW, ttX, ZZ, rare ]
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+processes = [ WZ, TTX, TTW, TZQ, rare, nonprompt ]
 
 setups = [setup]
 
@@ -82,6 +73,8 @@ def wrapper(s):
         c.addUncertainty('ZZ_xsec',     'lnN')
         c.addUncertainty('rare',        'lnN')
         c.addUncertainty('ttX',         'lnN')
+        c.addUncertainty('tZq',         'lnN')
+
 
         for setup in setups:
             for r in setup.regions:
@@ -107,9 +100,10 @@ def wrapper(s):
 
                             if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20)
                             if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.20)
-                            if name.count('fake'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
+                            if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('ttX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
+                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.15)
 
 
                             #MC bkg stat (some condition to neglect the smaller ones?)
@@ -117,7 +111,7 @@ def wrapper(s):
                             c.addUncertainty(uname, 'lnN')
                             c.specifyUncertainty(uname, binname, name, 1+expected.sigma/expected.val )
 
-                    c.specifyObservation(binname, int(getEstimate(Data, r, channel).val))
+                    c.specifyObservation(binname, int(round((getEstimate(pseudoDataPriv, r, channel).val))))
 
                     #signalSetup = setup.sysClone()
                     signal = getEstimate(s, r, channel)#resultsCache.get({"process":s.name, "region":r, "lumi":35.9, "presel":"nLep==3&&isTTZ&&nJetGodd>2&&nBTag>0", "weightString":"weight", "channel":channel})
@@ -203,7 +197,7 @@ def wrapper(s):
 from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import allSignals
 
 jobs = allSignals
-jobs.append(ttZ)
+jobs.append(TTZtoLLNuNu)
 
 allJobs = [j.name for j in jobs]
 #print "I have imported these signals:"

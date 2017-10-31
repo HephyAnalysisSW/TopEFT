@@ -42,7 +42,7 @@ genSearch = GenSearch()
 targetLumi = 1000 #pb-1 Which lumi to normalize to
 
 logChoices      = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET']
-triggerChoices  = ['mumu', 'ee', 'mue', 'mu', 'e']
+triggerChoices  = ['mumu', 'ee', 'mue', 'mu', 'e', 'e_for_mu']
 
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -131,6 +131,8 @@ if isData and options.triggerSelection is not None:
         skimConds.append( "(HLT_SingleMuTTZ)" )
     elif options.triggerSelection == 'e':
         skimConds.append( "(HLT_SingleEleTTZ)" )
+    elif options.triggerSelection == 'e_for_mu':
+        skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
     elif options.triggerSelection == 'ee':
         skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
     elif options.triggerSelection == 'mue':

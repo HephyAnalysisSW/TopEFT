@@ -50,6 +50,7 @@ if args.normalize: args.plot_directory += "_normalize"
 #
 postProcessing_directory = "TopEFT_PP_v5/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ewkDM":
     postProcessing_directory = "TopEFT_PP_v5/trilep/"
@@ -69,6 +70,13 @@ if args.signal == "ewkDM":
     ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
     ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
 
+    ewkDM_20    = ewkDM_ttZ_ll_noH
+    ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
+    ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
+    ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
+    ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
+    ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
+    ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
 
     ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
     ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
@@ -87,12 +95,23 @@ if args.signal == "ewkDM":
     ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
     ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
+    ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
+    ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+
 
 
     #signals = [ewkDM_0,ewkDM_1]
     #signals = [ewkDM_1]
-    signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
+    #signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
     #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
+    #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
+    signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
+
 else:
     signals = []
 
@@ -177,18 +196,18 @@ def getTopCands( event, sample ):
     if p1.M() > p2.M(): print "Whaaaat?!"
     event.minMLepB = p1.M()
 
-    aTop1 = p1 + met
-    aTop2 = p2 + met
-    event.mt_1 = aTop1.Mt()
-    event.mt_2 = aTop2.Mt()
+    top1 = p1 + met
+    top2 = p2 + met
+    event.mt_1 = top1.Mt()
+    event.mt_2 = top2.Mt()
 
-    W    = lepton + met
-    top1 = W + b1
-    top2 = W + b2
+    #W    = lepton + met
+    #top1 = W + b1
+    #top2 = W + b2
 
-    ## order top candidates in terms of mass closest to the top mass
-    if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
-    #if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
+    ### order top candidates in terms of mass closest to the top mass
+    #if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
+    ##if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
 
     event.top1_mass = top1.M()
     event.top1_pt   = top1.Pt()
@@ -222,14 +241,22 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-      if   mode=="mumu": data_sample = DoubleMuon_Run2016_backup
-      if   mode=="mumu": data_sample.texName = "data (2 #mu)"
+        if mode == "mumumu":
+            data_sample = SingleMuon_Run2016
+            data_sample.texName = "data (3#mu)"
+        elif mode == "eee":
+            data_sample = SingleElectron_Run2016
+            data_sample.texName = "data (3e)"
+        else:
+            data_sample = SingleEleMu_Run2016
+        if   mode=="mumue": data_sample.texName = "data (2#mu, 1e)"
+        if   mode=="muee": data_sample.texName = "data (1#mu, 2e)"
 
-      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
-      data_sample.name           = "data"
-      data_sample.read_variables = ["evt/I","run/I"]
-      data_sample.style          = styles.errorStyle(ROOT.kBlack)
-      lumi_scale                 = data_sample.lumi/1000
+        data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+        data_sample.name           = "data"
+        data_sample.read_variables = ["evt/I","run/I"]
+        data_sample.style          = styles.errorStyle(ROOT.kBlack)
+        lumi_scale                 = data_sample.lumi/1000
 
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
@@ -516,7 +543,7 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = "minMLepB", texX = 'min M(l, b-jet) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.minMLepB,
-        binning=[30,0,300],
+        binning=[15,0,300],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)

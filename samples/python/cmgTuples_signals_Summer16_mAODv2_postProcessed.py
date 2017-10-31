@@ -41,7 +41,13 @@ dirs['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25']     = ["ewkDM_ttZ_ll_DC1A_0
 dirs['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25']      = ["ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000"]
 dirs['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25']     = ["ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000"]
 
-
+dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_0p05']  = ["ewkDM_ttZ_ll_noH_DC2V_0p050000"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_0p10']  = ["ewkDM_ttZ_ll_noH_DC2V_0p100000"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_0p20']  = ["ewkDM_ttZ_ll_noH_DC2V_0p200000"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_0p30']  = ["ewkDM_ttZ_ll_noH_DC2V_0p300000"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_m0p15'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p150000"]
+dirs['ewkDM_ttZ_ll_noH_DC2V_m0p25'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p250000"]
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
@@ -61,6 +67,14 @@ ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25 = Sample.fromDirectory(name="ewkDM_
 ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25  = Sample.fromDirectory(name="ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25", treeName="Events", isData=False, color=1, texName="C_{1A/V}=0, C_{2A}=0, C_{2V}=0.25",    directory=directories['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25'])
 ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25 = Sample.fromDirectory(name="ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25", treeName="Events", isData=False, color=1, texName="C_{1A/V}=0, C_{2A}=-0.25, C_{2V}=0",    directory=directories['ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25'])
 
+ewkDM_ttZ_ll_noH            = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH",                 treeName="Events", isData=False, color=1, texName="#DeltaC_{1,2;V,A}=0",                directory=directories['ewkDM_ttZ_ll_noH'])
+ewkDM_ttZ_ll_noH_DC2V_0p05  = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_0p05",   treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=0.05",     directory=directories['ewkDM_ttZ_ll_noH_DC2V_0p05']) 
+ewkDM_ttZ_ll_noH_DC2V_0p10  = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_0p10",   treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=0.10",     directory=directories['ewkDM_ttZ_ll_noH_DC2V_0p10'])
+ewkDM_ttZ_ll_noH_DC2V_0p20  = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_0p20",   treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=0.20",     directory=directories['ewkDM_ttZ_ll_noH_DC2V_0p20'])
+ewkDM_ttZ_ll_noH_DC2V_0p30  = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_0p30",   treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=0.30",     directory=directories['ewkDM_ttZ_ll_noH_DC2V_0p30'])
+ewkDM_ttZ_ll_noH_DC2V_m0p15 = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_m0p15",  treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=-0.15",    directory=directories['ewkDM_ttZ_ll_noH_DC2V_m0p15'])
+ewkDM_ttZ_ll_noH_DC2V_m0p25 = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_m0p25",  treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=-0.25",    directory=directories['ewkDM_ttZ_ll_noH_DC2V_m0p25'])
+
 
 allSignals = [\
     ewkDM_ttZ_ll,
@@ -74,5 +88,12 @@ allSignals = [\
     ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25,
     ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25,
     ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25,
-    ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25,
+    ewkDM_ttZ_ll_noH,
+    ewkDM_ttZ_ll_noH_DC2V_0p05,
+    ewkDM_ttZ_ll_noH_DC2V_0p10,
+    ewkDM_ttZ_ll_noH_DC2V_0p20,
+    ewkDM_ttZ_ll_noH_DC2V_0p30,
+    ewkDM_ttZ_ll_noH_DC2V_m0p15,
+    ewkDM_ttZ_ll_noH_DC2V_m0p25,
     ]
