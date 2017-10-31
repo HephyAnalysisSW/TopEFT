@@ -1,6 +1,12 @@
 import os
 import subprocess
 
+'''
+Read events from allEvents.txt file.
+Each line of the file has to be of the structure:
+run:lumi:event
+'''
+
 eventList = []
 with open("allEvents.txt","r") as f:
     while True:
