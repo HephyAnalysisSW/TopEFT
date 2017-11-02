@@ -140,40 +140,40 @@ logger.info( "Using proxy %s"%proxy )
 
 
 # Moriond MC
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v6.pkl'
-#robert_v5 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v5']
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v9.pkl'
 #subdirs by hand ... skipping DY until it's complete
-robert_v5 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v5/%s' % s for s in [\
-      'GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8',
-      'ST_tWll_5f_LO_13TeV-MadGraph-pythia8',
-      'TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8',
-      'THQ_Hincl_13TeV-madgraph-pythia8_TuneCUETP8M1',
-      'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-      'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'TTTT_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
-      'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-      'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'TTZToLL_M-1to10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
-      'WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-      'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
-      'WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-      'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'WpWpJJ_EWK-QCD_TuneCUETP8M1_13TeV-madgraph-pythia8',
-      'ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-      'ZZTo4L_13TeV_powheg_pythia8',
-      'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-      'tZq_ll_4f_13TeV-amcatnlo-pythia8',
-      'ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
+robert_v9 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v9/%s' % s for s in [\
+  'GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8',
+  'ST_tWll_5f_LO_13TeV-MadGraph-pythia8',
+  'TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8',
+  'THQ_Hincl_13TeV-madgraph-pythia8_TuneCUETP8M1',
+  'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
+  'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'TTTT_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
+  'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
+  'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'TTZToLL_M-1to10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
+  'WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+  'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
+  'WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+  'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'WpWpJJ_EWK-QCD_TuneCUETP8M1_13TeV-madgraph-pythia8',
+  'ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+  'ZZTo4L_13TeV_powheg_pythia8',
+  'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+  'tZq_ll_4f_13TeV-amcatnlo-pythia8',
+  'ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
+  'ttZJets_13TeV_madgraphMLM',
     ] ]
 
-mc_Moriond_dpm_directories = robert_v5
+mc_Moriond_dpm_directories = robert_v9
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
 
@@ -185,16 +185,16 @@ mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directo
 #mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
 #
 
-# Data ReminiAOD
-data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v5_data.pkl'
-def_robert = "/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v5"
-data_dpm_directories = [def_robert]
-from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
+## Data ReminiAOD
+#data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v5_data.pkl'
+#def_robert = "/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v5"
+#data_dpm_directories = [def_robert]
+#from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
 
 # Private signal MC
-signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v6.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v6']
+signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v10.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
 signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
