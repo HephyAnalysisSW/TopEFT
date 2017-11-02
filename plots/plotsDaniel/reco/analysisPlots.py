@@ -28,6 +28,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
+argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields to 1" )
 args = argParser.parse_args()
 
 #
@@ -43,14 +44,16 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.normalize: args.plot_directory += "_normalize"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
 postProcessing_directory = "TopEFT_PP_v5/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v4/trilep/"
+    postProcessing_directory = "TopEFT_PP_v5/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
     ewkDM_0     = ewkDM_ttZ_ll
     ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
@@ -62,24 +65,53 @@ if args.signal == "ewkDM":
     ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
     ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
     ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
 
+    ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
+    ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
 
-    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
-    ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
+    ewkDM_20    = ewkDM_ttZ_ll_noH
+    ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
+    ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
+    ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
+    ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
+    ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
+    ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
+
+    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
+
+    ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
+    ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
+
 
     ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
     ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_4.style = styles.lineStyle( ROOT.kMagenta, width=3, dashed=True)
+    ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
 
     ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
     ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
     ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
     ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
+    ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
+    ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+
+
 
     #signals = [ewkDM_0,ewkDM_1]
     #signals = [ewkDM_1]
-    signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8]
+    #signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
+    #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
+    #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
+    signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
+
 else:
     signals = []
 
@@ -113,7 +145,8 @@ def drawPlots(plots, mode, dataMCScale):
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale )
+	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
+        normalize = True if args.normalize else False
       )
 
 #
@@ -153,13 +186,28 @@ def getTopCands( event, sample ):
     b1.SetPtEtaPhiM(event.jets_sortbtag[0]['pt'], event.jets_sortbtag[0]['eta'], event.jets_sortbtag[0]['phi'], 0. )
     b2.SetPtEtaPhiM(event.jets_sortbtag[1]['pt'], event.jets_sortbtag[1]['eta'], event.jets_sortbtag[1]['phi'], 0. )
 
-    W    = lepton + met
-    top1 = W + b1
-    top2 = W + b2
+    
 
-    ## order top candidates in terms of mass closest to the top mass
-    if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
-    #if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
+    p1 = lepton + b1
+    p2 = lepton + b2
+
+    if p1.M() > p2.M(): p1, p2 = p2, p1 # get the (l,b-jet) pair with minimum invariant mass
+
+    if p1.M() > p2.M(): print "Whaaaat?!"
+    event.minMLepB = p1.M()
+
+    top1 = p1 + met
+    top2 = p2 + met
+    event.mt_1 = top1.Mt()
+    event.mt_2 = top2.Mt()
+
+    #W    = lepton + met
+    #top1 = W + b1
+    #top2 = W + b2
+
+    ### order top candidates in terms of mass closest to the top mass
+    #if abs(top1.M()-mt) > abs(top2.M()-mt): top1, top2 = top2, top1
+    ##if top1.Pt() < top2.Pt(): top1, top2 = top2, top1
 
     event.top1_mass = top1.M()
     event.top1_pt   = top1.Pt()
@@ -193,14 +241,22 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-      if   mode=="mumu": data_sample = DoubleMuon_Run2016_backup
-      if   mode=="mumu": data_sample.texName = "data (2 #mu)"
+        if mode == "mumumu":
+            data_sample = SingleMuon_Run2016
+            data_sample.texName = "data (3#mu)"
+        elif mode == "eee":
+            data_sample = SingleElectron_Run2016
+            data_sample.texName = "data (3e)"
+        else:
+            data_sample = SingleEleMu_Run2016
+        if   mode=="mumue": data_sample.texName = "data (2#mu, 1e)"
+        if   mode=="muee": data_sample.texName = "data (1#mu, 2e)"
 
-      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
-      data_sample.name           = "data"
-      data_sample.read_variables = ["evt/I","run/I"]
-      data_sample.style          = styles.errorStyle(ROOT.kBlack)
-      lumi_scale                 = data_sample.lumi/1000
+        data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+        data_sample.name           = "data"
+        data_sample.read_variables = ["evt/I","run/I"]
+        data_sample.style          = styles.errorStyle(ROOT.kBlack)
+        lumi_scale                 = data_sample.lumi/1000
 
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
@@ -273,7 +329,7 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = 'Z_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[3,0,800],
+        binning=[3,0,600],
     ))
     
     plots.append(Plot(
@@ -334,6 +390,13 @@ for index, mode in enumerate(allModes):
         texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
         binning=[30,0,300],
+    ))
+
+    plots.append(Plot(
+        name = 'lnonZ1_pt_coarse',
+        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 60 GeV',
+        attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+        binning=[3,0,180],
     ))
 
     plots.append(Plot(
@@ -434,6 +497,12 @@ for index, mode in enumerate(allModes):
         attribute = lambda event, sample:event.top2_pt,
         binning=[20,0,600],
     ))
+    
+    plots.append(Plot(
+        name = "top_cand2_pt_coarse", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 200 GeV',
+        attribute = lambda event, sample:event.top2_pt,
+        binning=[3,0,600],
+    ))
 
     plots.append(Plot(
         name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
@@ -445,6 +514,36 @@ for index, mode in enumerate(allModes):
         name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
         attribute = lambda event, sample:event.top2_phi,
         binning=[10,-pi,pi],
+    ))
+
+    plots.append(Plot(
+        name = "mt_1", texX = 'M_{T}(var 1) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample:event.mt_1,
+        binning=[20,50,450],
+    ))
+
+    plots.append(Plot(
+        name = "mt_1_coarse", texX = 'M_{T}(var 1) (GeV)', texY = 'Number of Events / 100 GeV',
+        attribute = lambda event, sample:event.mt_1,
+        binning=[5,50,550],
+    ))
+
+    plots.append(Plot(
+        name = "mt_2", texX = 'M_{T}(var 2) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample:event.mt_2,
+        binning=[20,50,450],
+    ))
+
+    plots.append(Plot(
+        name = "mt_2_coarse", texX = 'M_{T}(var 2) (GeV)', texY = 'Number of Events / 100 GeV',
+        attribute = lambda event, sample:event.mt_2,
+        binning=[5,50,550],
+    ))
+
+    plots.append(Plot(
+        name = "minMLepB", texX = 'min M(l, b-jet) (GeV)', texY = 'Number of Events / 10 GeV',
+        attribute = lambda event, sample:event.minMLepB,
+        binning=[15,0,300],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)

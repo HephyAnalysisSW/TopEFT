@@ -321,7 +321,9 @@ class cardFileWriter:
         print nll["nll0"], nll2["nll0"]
 
         print nll
-
+        
+        shutil.rmtree(uniqueDirname)
+        
         return nll
 
     def calcSignif(self, fname="", options=""):
