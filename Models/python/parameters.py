@@ -11,13 +11,24 @@ ewkDM = { 'ewkDM': [
     ['DC2A', 0.],
 ]}
 
-ewkDM2 = { 'ewkDM2': [
+ewkDM2 = { 'ewkDM2': [ #Test model that implements L_SM+BSM with partial integration
 
     ['DC1V', 0.],
     ['DC1A', 0.],
     ['DC2V', 0.],
     ['DC2A', 0.],
 ]}
+
+ewkDMGZ = { 'ewkDMGZ': [
+
+    ['DC1V', 0.],
+    ['DC1A', 0.],
+    ['DC2V', 0.],
+    ['DC2A', 0.],
+    ['DVG', 0.],
+    ['DAG', 0.],
+]}
+
 
 HEL_UFO = { 'newcoup': [\
     ['cH', 0.],
