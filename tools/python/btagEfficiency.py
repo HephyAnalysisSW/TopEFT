@@ -14,6 +14,7 @@ ptBorders = [30, 50, 70, 100, 140, 200, 300, 600, 1000]
 
 ptBins = []
 etaBins = [[0,0.8], [0.8,1.6], [ 1.6, 2.4]]
+#etaBins = [[0, 2.4]]
 for i in range(len(ptBorders)-1):
     ptBins.append([ptBorders[i], ptBorders[i+1]])
 

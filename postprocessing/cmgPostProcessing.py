@@ -99,7 +99,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_relIso03<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_relIso03<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
-elif isSingleLep:
+if isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
 if isInclusive:
     skimConds = []
