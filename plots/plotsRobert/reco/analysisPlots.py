@@ -21,13 +21,13 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM"], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM_dipoleEllipsis", 'ewkDM_currentEllipsis'], help="Add signal to plot")
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v4')
-argParser.add_argument('--selection',          action='store',      default='lepSel-njet3p-btag1p-onZ')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
+argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
@@ -48,40 +48,46 @@ if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v4/trilep/"
+postProcessing_directory = "TopEFT_PP_v5/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v4/trilep/"
+if args.signal .startswith( "ewkDM" ):
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
     ewkDM_0     = ewkDM_ttZ_ll
     ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
 
-    ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-    ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-    ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-    ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-    ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-    ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-    ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    ewkDM_dipole_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
+    ewkDM_dipole_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
+    ewkDM_dipole_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
+    ewkDM_dipole_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
+    ewkDM_dipole_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
+    ewkDM_dipole_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
+    ewkDM_dipole_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
 
 
     ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
     ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
 
-    ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_4.style = styles.lineStyle( ROOT.kMagenta, width=3, dashed=True)
+    ewkDM_dipole_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    ewkDM_dipole_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    ewkDM_dipole_4.style = styles.lineStyle( ROOT.kMagenta, width=3, dashed=True)
 
-    ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-    ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-    ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
+    ewkDM_dipole_5.style = styles.lineStyle( ROOT.kBlue, width=3)
+    ewkDM_dipole_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+    ewkDM_dipole_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
+    ewkDM_dipole_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
+    ewkDM_current_0 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
+    ewkDM_current_1 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
+    ewkDM_current_0.style = styles.lineStyle( ROOT.kBlue)
+    ewkDM_current_1.style = styles.lineStyle( ROOT.kGreen+2)
 
-    #signals = [ewkDM_0,ewkDM_1]
-    #signals = [ewkDM_1]
-    signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8]
+    if args.signal == 'ewkDM_dipoleEllipsis':
+        signals = [ewkDM_dipole_2,ewkDM_dipole_3,ewkDM_dipole_4,ewkDM_dipole_5,ewkDM_dipole_6,ewkDM_dipole_7,ewkDM_dipole_8]
+    elif args.signal == 'ewkDM_currentEllipsis':
+        signals = [ewkDM_current_0, ewkDM_current_1]
+    else:
+        raise ValueError
 else:
     signals = []
 
@@ -97,7 +103,7 @@ def getLeptonSelection( mode ):
 if args.onlyTTZ:
     mc = [ TTZtoLLNuNu ]
 else:
-    mc             = [ TTZtoLLNuNu , TTX, WZ, rare ]#, nonprompt ]
+    mc             = [ TTZtoLLNuNu , TTX, WZ, TTW, TZQ, rare ]#, nonprompt ]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 

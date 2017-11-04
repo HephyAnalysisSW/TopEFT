@@ -24,7 +24,7 @@ import TopEFT.tools.user as user
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ
 from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
-from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, isBJet, getGoodPhotons, getGenPartsAll, getAllJets
+from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, isBJetDeepCSV, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
 #from TopEFT.tools.triggerEfficiency          import triggerEfficiency
@@ -42,7 +42,7 @@ genSearch = GenSearch()
 targetLumi = 1000 #pb-1 Which lumi to normalize to
 
 logChoices      = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET']
-triggerChoices  = ['mumu', 'ee']
+triggerChoices  = ['mumu', 'ee', 'mue', 'mu', 'e', 'e_for_mu']
 
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -53,7 +53,7 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu_amcatnlo'],      help="List of samples to be post-processed, given as CMG component name")
-    # argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
+    argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
@@ -122,15 +122,29 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-#if isData and options.triggerSelection is not None:
-#    if options.triggerSelection == 'mumu':
-#        skimConds.append( "(HLT_mumuIso||HLT_mumuNoiso)" )
-#    else:
-#        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
-#    sample_name_postFix = "_Trig_"+options.triggerSelection
-#    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
-#else:
-#    sample_name_postFix = ""
+diMuTriggers        = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"," HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"]
+diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
+EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
+
+if isData and options.triggerSelection is not None:
+    if options.triggerSelection == 'mu':
+        skimConds.append( "(HLT_SingleMuTTZ)" )
+    elif options.triggerSelection == 'e':
+        skimConds.append( "(HLT_SingleEleTTZ)" )
+    elif options.triggerSelection == 'e_for_mu':
+        skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
+    elif options.triggerSelection == 'ee':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+    elif options.triggerSelection == 'mue':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+    elif options.triggerSelection == 'mumu':
+        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+    else:
+        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
+    sample_name_postFix = "_Trig_"+options.triggerSelection
+    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
+else:
+    sample_name_postFix = ""
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -142,6 +156,7 @@ if len(samples)>1:
         sample.clear()
 elif len(samples)==1:
     sample = samples[0]
+    sample.name+=sample_name_postFix
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
@@ -291,7 +306,7 @@ else:
     lumiScaleFactor = xSection*targetLumi/float(sample.normalization) if xSection is not None else None
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
-jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'area/F'] + jetCorrInfo + jetMCInfo
+jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -341,7 +356,7 @@ read_variables += [\
 ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
-new_variables.extend( ['nBTag/I', 'ht/F', 'metSig/F'] )
+new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F'] )
 
 if options.leptonConvinience:
     lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
@@ -506,6 +521,7 @@ def filler( event ):
 
     # Don't change analysis jets even if we keep all jets, hence, apply abs eta cut
     bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4, selected_jets)
+    bJetsDeepCSV = filter(lambda j:isBJetDeepCSV(j) and abs(j['eta'])<=2.4, selected_jets)
     nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
@@ -524,6 +540,7 @@ def filler( event ):
     event.ht         = sum([j['pt'] for j in selected_jets])
     event.metSig     = event.met_pt/sqrt(event.ht) if event.ht>0 else float('nan')
     event.nBTag      = len(bJets)
+    event.nBTagDeepCSV = len(bJetsDeepCSV)
 
     # Systematics
     jets_sys      = {}

@@ -9,7 +9,7 @@ class color():
 color.data           = ROOT.kBlack
 color.DY             = 8
 color.TTJets         = 7
-color.nonprompt      = 7
+color.nonprompt      = ROOT.kBlue-9
 color.singleTop      = 40
 color.TTX            = ROOT.kRed
 color.TTXNoZ         = ROOT.kRed
