@@ -16,7 +16,7 @@ config.section_("Data")
 config.Data.splitting = 'EventBased'
 
 config.Data.unitsPerJob = 200
-config.Data.totalUnits  = 50000 
+config.Data.totalUnits  = 500000 
 config.Data.publication = True
 config.Data.publishDBS = 'phys03'
 
@@ -40,12 +40,14 @@ if __name__ == '__main__':
 
     for gridpack in [
         #'ewkDM_ttZ_ll_noH.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_-0.150000.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_-0.250000.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_0.050000.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_0.100000.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_0.200000.tar.xz',
-        'ewkDM_ttZ_ll_noH_DC2V_0.300000.tar.xz'
+        #'ewkDM_ttZ_ll_noH_DC2V_-0.150000.tar.xz',
+        #'ewkDM_ttZ_ll_noH_DC2V_-0.250000.tar.xz',
+        #'ewkDM_ttZ_ll_noH_DC2V_0.050000.tar.xz',
+        #'ewkDM_ttZ_ll_noH_DC2V_0.100000.tar.xz',
+        #'ewkDM_ttZ_ll_noH_DC2V_0.200000.tar.xz',
+        #'ewkDM_ttZ_ll_noH_DC2V_0.300000.tar.xz',
+        'ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        'ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz'
     ]:
         config.JobType.inputFiles = [os.path.join(gridpack_dir, gridpack)]
         config.General.requestName = gridpack.rstrip('.tar.xz').replace('-','m').replace('.','p')
