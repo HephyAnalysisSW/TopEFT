@@ -36,13 +36,15 @@ config.section_("User")
 if __name__ == '__main__':
     from CRABAPI.RawCommand import crabCommand
     for input_dataset in [
-    '/ewkDM_ttZ_ll_noH/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_0p050000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_0p100000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_0p200000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_0p300000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_m0p150000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_ttZ_ll_noH_DC2V_m0p250000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    '/ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    '/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_0p050000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_0p100000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_0p200000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_0p300000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_m0p150000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_ttZ_ll_noH_DC2V_m0p250000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
     #'/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
     #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
     #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
