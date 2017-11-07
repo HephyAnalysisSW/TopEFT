@@ -4,7 +4,7 @@ config = Configuration()
 
 config.section_("General")
 config.General.requestName = "tmp"
-config.General.workArea = 'crab_ewkDM'
+config.General.workArea = 'crab_ewkDM_2'
 config.General.transferLogs = True
 
 config.section_("JobType")
