@@ -192,7 +192,16 @@ addSystematicVariations = (not isData) and (not options.skipSystematicVariations
 if addSystematicVariations:
     # B tagging SF
     from TopEFT.tools.btagEfficiency import btagEfficiency
-    btagEff = btagEfficiency( fastSim = False )
+    
+    # CSVv2
+    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+    btagEff_CSVv2   = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
+
+    # DeepCSV
+    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
+    btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
 if options.LHEHTCut>0:
@@ -390,9 +399,13 @@ if addSystematicVariations:
         new_variables.extend( ['met_pt_'+var+'/F', 'met_phi_'+var+'/F', 'metSig_'+var+'/F'] )
         if options.keepPhotons: new_variables.extend( ['met_pt_photonEstimated_'+var+'/F', 'met_phi_photonEstimated_'+var+'/F', 'metSig_photonEstimated_'+var+'/F'] )
     # Btag weights Method 1a
-    for var in btagEff.btagWeightNames:
+    for var in btagEff_CSVv2.btagWeightNames:
         if var!='MC':
-            new_variables.append('reweightBTag_'+var+'/F')
+            new_variables.append('reweightBTagCSVv2_'+var+'/F')
+    for var in btagEff_DeepCSV.btagWeightNames:
+        if var!='MC':
+            new_variables.append('reweightBTagDeepCSV_'+var+'/F')
+
 
 
 # Define a reader
@@ -523,6 +536,7 @@ def filler( event ):
     bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4, selected_jets)
     bJetsDeepCSV = filter(lambda j:isBJetDeepCSV(j) and abs(j['eta'])<=2.4, selected_jets)
     nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), selected_jets)
+    nonBJetsDeepCSV  = filter(lambda j:not ( isBJetDeepCSV(j) and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
     event.nJetSelected   = len(selected_jets)
@@ -602,12 +616,22 @@ def filler( event ):
                 setattr(event, "metSig" +i+"_"+var, getattr(event, "met_pt"+i+"_"+var)/sqrt( ht ) if ht>0 else float('nan') )
 
     if addSystematicVariations:
-        # B tagging weights method 1a
+
+        # B tagging weights method 1a, first for CSVv2
         for j in selected_jets:
-            btagEff.addBTagEffToJet(j)
-        for var in btagEff.btagWeightNames:
+            btagEff_CSVv2.addBTagEffToJet(j)
+        #print "CSVv2", selected_jets[0]['beff']['SF'], selected_jets[0]['pt']
+        for var in btagEff_CSVv2.btagWeightNames:
             if var!='MC':
-                setattr(event, 'reweightBTag_'+var, btagEff.getBTagSF_1a( var, bJets, filter( lambda j: abs(j['eta'])<2.4, nonBJets ) ) )
+                setattr(event, 'reweightBTagCSVv2_'+var, btagEff_CSVv2.getBTagSF_1a( var, bJets, filter( lambda j: abs(j['eta'])<2.4, nonBJets ) ) )
+
+        # B tagging weights method 1a, now for DeepCSV
+        for j in selected_jets:
+            btagEff_DeepCSV.addBTagEffToJet(j)
+        #print "DeepCSV", selected_jets[0]['beff']['SF'], selected_jets[0]['pt']
+        for var in btagEff_DeepCSV.btagWeightNames:
+            if var!='MC':
+                setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
 
     # gen information on extra leptons
     if isMC and not options.skipGenLepMatching:

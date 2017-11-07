@@ -19,24 +19,25 @@ def chunks(l, n):
     n = max(1, n)
     return [l[i:i+n] for i in xrange(0, len(l), n)]
 
-model_name = "ewkDM"
+model_name = "ewkDMGZ"
 
 # for 4D scans
-nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
+#nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
 #dc1v = [ i*1.3/4 for i in range(-4,3) ]
 #dc1a = [ i*1.3/4 for i in range(-2,5) ]
 #dc2v = [ i*0.30/6 for i in range(-5,7) ]
 #dc2a = [ i*0.30/6 for i in range(-5,7) ]
 #couplingValues = [dc1v,dc1a,dc2v,dc2a]
 
-dc1v = [ i*1./2 for i in range(-2,3) ]
-couplingValues = [ dc1v, dc1v, dc1v, dc1v ]
+#dc1v = [ i*1./2 for i in range(-2,3) ]
+#couplingValues = [ dc1v, dc1v, dc1v, dc1v ]
 
-## for 2D scans
+# for 2D scans
 #nonZeroCouplings = ("DC2V","DC2A")
-#dc2v = [ i*0.25/5 for i in range(-5,6) ]
-#dc2a = [ i*0.25/5 for i in range(-5,6) ]
-#couplingValues = [dc2v,dc2a]
+nonZeroCouplings = ("DVG","DAG")
+dc2v = [ i*1.25/5 for i in range(-5,6) ]
+dc2a = [ i*1.25/5 for i in range(-5,6) ]
+couplingValues = [dc2v,dc2a]
 
 
 nDim = len(nonZeroCouplings)
@@ -50,15 +51,16 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 
-processes = ['tZq_4f']#, 'ttZ','ttW','ttH']
-#submitCMD = "submitBatch.py"
-submitCMD = "echo"
+#processes = ['tZq_4f', 'ttZ','ttW','ttH']
+processes = ['ttgamma', 'ttZ']
+submitCMD = "submitBatch.py"
+#submitCMD = "echo"
 
 nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 30)
+combinationChunks = chunks(allCombinationsFlat, 150)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
@@ -67,7 +69,7 @@ for p in processes[:1]:
                 strBase = "{} {} "*nDim
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
-        #if i < 7: continue
+        if i == 2 or i == 8: continue
         os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt --calcXSec'"%(p,i))
         if "echo" not in submitCMD:
             time.sleep(6)

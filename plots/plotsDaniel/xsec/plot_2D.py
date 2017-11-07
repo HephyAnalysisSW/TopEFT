@@ -7,8 +7,8 @@ import os
 import ctypes
 
 # TopEFT imports
-from TopEFT.gencode.Configuration import *
-from TopEFT.gencode.Process import *
+from TopEFT.Generation.Configuration import *
+from TopEFT.Generation.Process import *
 from TopEFT.tools.user import plot_directory, results_directory
 from TopEFT.tools.niceColorPalette import niceColorPalette
 import itertools
@@ -18,19 +18,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Plot style
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/gencode/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 
 #model_name = 'HEL_UFO'
 #model_name = 'TopEffTh'
-model_name = 'ewkDM'
+#model_name = 'ewkDM'
+model_name = 'ewkDMGZ'
 
 #nonZeroCouplings = ("cuW", "cuB")
 #nonZeroCouplings = ("IC3phiq", "ICtW")
-nonZeroCouplings = ("DC2V","DC2A")
-dc2v = [ i*0.25/5 for i in range(-5,6) ]
-dc2a = [ i*0.25/5 for i in range(-5,6) ]
+#nonZeroCouplings = ("DC2V","DC2A")
+nonZeroCouplings = ("DVG","DAG")
+
+dc2v = [ i*1.25/5 for i in range(-5,6) ]
+dc2a = [ i*1.25/5 for i in range(-5,6) ]
 couplingValues = [dc2v,dc2a]
 
 # prepare the grid with all points
@@ -42,8 +45,10 @@ allCombinationsFlat = []
 for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
-processes = [ "ttZ", "ttH", "ttW" ]
-contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67]}
+#processes = [ "ttZ", "ttH", "ttW" ]
+contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67], 'ttgamma':[0.33,0.67,1.33,1.67]}
+
+processes = [ "ttgamma" ]
 
 
 drawContours = True
@@ -77,9 +82,9 @@ def toGraph2D(name,title,length,x,y,z):
 for proc in processes[:1]:
     
     logger.info("Starting with process %s", proc)
-    config = Configuration( model_name = model_name, modified_couplings = {} )
+    config = Configuration( model_name = model_name )
     p = Process(process = proc, nEvents = 50000, config = config)
-    SM_xsec[proc] = p.xsec()
+    SM_xsec[proc] = p.xsec(modified_couplings = {})
 
     x = []
     y = []
@@ -90,11 +95,11 @@ for proc in processes[:1]:
         coupling_values = map(float,coup[1::2])
 
         modified_couplings = {c:v for c,v in zip( coupling_names, coupling_values ) }
-
-        config = Configuration( model_name = model_name, modified_couplings = modified_couplings )
+        
+        config = Configuration( model_name = model_name )
         p = Process(process = proc, nEvents = 50000, config = config)
 
-        ratio = p.xsec()/SM_xsec[proc]
+        ratio = p.xsec(modified_couplings = modified_couplings)/SM_xsec[proc]
         
         x.append(coupling_values[0])
         y.append(coupling_values[1])
@@ -142,7 +147,7 @@ for proc in processes[:1]:
     pads[-1].Draw()
     pads[-1].cd()
     
-    hists[-1].SetMaximum(1.95)
+    hists[-1].SetMaximum(2.95) #1.95
     hists[-1].SetMinimum(0.95)
 
     hists[-1].Draw("colz")

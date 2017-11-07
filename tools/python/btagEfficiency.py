@@ -26,10 +26,10 @@ def toFlavourKey(pdgId):
     return ROOT.BTagEntry.FLAV_UDSG
 
 #Method 1ab
-effFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l.pkl'
-
-sfFile           = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
-sfFile_FastSim   = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/fastsim_csvv2_ttbar_26_1_2017.csv'
+#effFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+#
+#sfFile           = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+#sfFile_FastSim   = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/fastsim_csvv2_ttbar_26_1_2017.csv'
 
 class btagEfficiency:
 
@@ -71,7 +71,7 @@ class btagEfficiency:
                   return 1
 
 
-    def __init__(self,  WP = ROOT.BTagEntry.OP_MEDIUM, fastSim = False):
+    def __init__(self,  WP = ROOT.BTagEntry.OP_MEDIUM, sfFile = '', effFile = '', sfFile_FastSim = '', fastSim = False):
 
         # Whether or not FS SF are to be used
         self.fastSim=fastSim
@@ -82,9 +82,15 @@ class btagEfficiency:
             self.btagWeightNames += [ 'SF_FS_Up', 'SF_FS_Down']
 
         # Input files
+        if not (sfFile and effFile):
+            raise NotImplementedError("MC truth efficiency and/or SF files not defined!")
+        print sfFile
+        print effFile
         self.scaleFactorFile = sfFile
-        self.scaleFactorFileFS = sfFile_FastSim
         self.mcEfficiencyFile = effFile
+
+        if fastSim:
+            self.scaleFactorFileFS = sfFile_FastSim
 
         logger.info ( "Loading scale factors from %s", os.path.expandvars(self.scaleFactorFile) )
         ROOT.gSystem.Load('libCondFormatsBTauObjects') 
@@ -152,12 +158,12 @@ class btagEfficiency:
             sf      = sf_fs*self.reader.eval_auto_bounds('central',  flavKey, eta, pt)
             sf_b_d  = sf_fs*self.reader.eval_auto_bounds('down',     flavKey, eta, pt)
             sf_b_u  = sf_fs*self.reader.eval_auto_bounds('up',       flavKey, eta, pt)
-            sf_l_d  = 1.
-            sf_l_u  = 1.
+            sf_l_d  = sf
+            sf_l_u  = sf
         else: #SF for light flavours
             sf      = sf_fs*self.reader.eval_auto_bounds('central',  flavKey, eta, pt)
-            sf_b_d  = 1.
-            sf_b_u  = 1.
+            sf_b_d  = sf
+            sf_b_u  = sf
             sf_l_d  = sf_fs*self.reader.eval_auto_bounds('down',     flavKey, eta, pt)
             sf_l_u  = sf_fs*self.reader.eval_auto_bounds('up',       flavKey, eta, pt)
 

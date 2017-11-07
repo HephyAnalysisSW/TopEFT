@@ -216,8 +216,8 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as hep
 data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
 
 # Private signal MC
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v10.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10']
+signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v10.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v10']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
 signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
