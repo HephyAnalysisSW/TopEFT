@@ -37,8 +37,8 @@ if __name__ == '__main__':
     from CRABAPI.RawCommand import crabCommand
 
     for input_dataset in [
-    '/ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM-de33e6d030babdb8784c544854106c2a/USER',
-    '/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM-d4dc49de2846bdb851acfdce8195b7da/USER',
+    '/ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM-06aa535f68469ac8100aff47e2ef0002/USER',
+    #'/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM-d4dc49de2846bdb851acfdce8195b7da/USER',
     #'/ewkDM_ttZ_ll_noH/dspitzba-ewkDM-52afd654c61a975e4b53cde7a5371fa9/USER',
     #'/ewkDM_ttZ_ll_noH_DC2V_0p050000/dspitzba-ewkDM-0e585b03a9312ab15ca2a978feedd6d4/USER',
     #'/ewkDM_ttZ_ll_noH_DC2V_0p100000/dspitzba-ewkDM-9d363c39f4bb953f8b04fce6d97dd705/USER',
