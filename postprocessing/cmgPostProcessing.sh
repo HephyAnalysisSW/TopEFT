@@ -28,29 +28,35 @@
 #python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample WWDoubleTo2L #SPLIT10
 #python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample WpWpJJ #SPLIT10
 
+python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample TTZ_LO #SPLIT10
 
 ## signals
 
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000  --overwrite
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000  --overwrite
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --sample ewkDM_ttZ_ll  --overwrite
+#
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p050000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p100000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p200000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p300000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p150000  
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p250000
 
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p050000
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p100000
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p200000
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_0p300000
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p150000  
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p250000
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_01j_LO
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2
+
+
 
 #
 ### For fake rate studies?

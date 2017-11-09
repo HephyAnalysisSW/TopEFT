@@ -25,6 +25,7 @@ argParser.add_argument('--signal',             action='store',      default=None
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
@@ -44,6 +45,7 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
 if args.normalize: args.plot_directory += "_normalize"
 #
 # Make samples, will be searched for in the postProcessing directory
@@ -228,7 +230,7 @@ def getTopCands( event, sample ):
     event.b2_pt     = b2.Pt()
     event.b2_phi    = b2.Phi()
 
-
+#sequence = []
 sequence = [getDPhiZLep, getDPhiZJet,getJets,getTopCands ]
 
 
@@ -267,10 +269,15 @@ for index, mode in enumerate(allModes):
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
 
-    if args.onlyTTZ:
-        mc = [ TTZtoLLNuNu ]
+    if args.TTZ_LO:
+        TTZ_mc = TTZ_LO
     else:
-        mc             = [ TTZtoLLNuNu , TTW, TZQ, TTX, WZ, rare, nonprompt ]
+        TTZ_mc = TTZtoLLNuNu
+
+    if args.onlyTTZ:
+        mc = [ TTZ_mc ]
+    else:
+        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare, nonprompt ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

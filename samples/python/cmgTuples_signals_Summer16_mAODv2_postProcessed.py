@@ -49,8 +49,8 @@ dirs['ewkDM_ttZ_ll_noH_DC2V_0p30']  = ["ewkDM_ttZ_ll_noH_DC2V_0p300000"]
 dirs['ewkDM_ttZ_ll_noH_DC2V_m0p15'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p150000"]
 dirs['ewkDM_ttZ_ll_noH_DC2V_m0p25'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p250000"]
 
-dirs['ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2']    = ['ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2']
-dirs['ewkDM_TTZToLL_LO']                    = ['ewkDM_TTZToLL_LO']
+dirs['ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2']    = ['ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2']
+dirs['ewkDM_TTZToLL_LO']                    = ['ewkDM_TTZToLL_01j_LO']
 
 
 

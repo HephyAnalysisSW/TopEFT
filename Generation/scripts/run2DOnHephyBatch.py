@@ -19,7 +19,8 @@ def chunks(l, n):
     n = max(1, n)
     return [l[i:i+n] for i in xrange(0, len(l), n)]
 
-model_name = "ewkDMGZ"
+#model_name = "ewkDMGZ"
+model_name = "HEL_UFO"
 
 # for 4D scans
 #nonZeroCouplings = ("DC1V","DC1A","DC2V","DC2A")
@@ -34,9 +35,10 @@ model_name = "ewkDMGZ"
 
 # for 2D scans
 #nonZeroCouplings = ("DC2V","DC2A")
-nonZeroCouplings = ("DVG","DAG")
-dc2v = [ i*1.25/5 for i in range(-5,6) ]
-dc2a = [ i*1.25/5 for i in range(-5,6) ]
+#nonZeroCouplings = ("DVG","DAG")
+nonZeroCouplings = ("cuW", "cuB")
+dc2v = [ i*0.05/5 for i in range(-5,6) ]
+dc2a = [ i*0.15/5 for i in range(-5,6) ]
 couplingValues = [dc2v,dc2a]
 
 
@@ -52,15 +54,16 @@ for comb in allCombinations:
 
 
 #processes = ['tZq_4f', 'ttZ','ttW','ttH']
-processes = ['ttgamma', 'ttZ']
-submitCMD = "submitBatch.py"
-#submitCMD = "echo"
+#processes = ['ttgamma', 'ttZ']
+processes = ['ttZ']
+#submitCMD = "submitBatch.py"
+submitCMD = "echo"
 
 nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 150)
+combinationChunks = chunks(allCombinationsFlat, 140)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
@@ -69,7 +72,7 @@ for p in processes[:1]:
                 strBase = "{} {} "*nDim
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
-        if i == 2 or i == 8: continue
+        #if i == 2 or i == 8: continue
         os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt --calcXSec'"%(p,i))
         if "echo" not in submitCMD:
-            time.sleep(6)
+            time.sleep(30)
