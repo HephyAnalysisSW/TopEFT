@@ -73,9 +73,12 @@ def fromHeppySample(sample, data_path, module = None, maxN = None):
 
             if module is not None:
                 module_ = module
-            if "Run2016" in sample:
+            if "Run2016" in sample and "MET" not in sample:
                 from TopEFT.samples.heppy_dpm_samples import data_03Feb2017_heppy_mapper as data_heppy_mapper
                 return data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "Run2016" in sample and "MET" in sample:
+                from TopEFT.samples.heppy_dpm_samples import MET_data_03Feb2017_heppy_mapper as MET_data_heppy_mapper
+                return MET_data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ewkDM" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_heppy_mapper
                 return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
