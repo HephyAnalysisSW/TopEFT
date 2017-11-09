@@ -46,8 +46,8 @@ if __name__ == '__main__':
         #'ewkDM_ttZ_ll_noH_DC2V_0.100000.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_0.200000.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_0.300000.tar.xz',
-        'ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
-        'ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz'
+        #'ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        'ewkDM_TTZToLL_01j_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz'
     ]:
         config.JobType.inputFiles = [os.path.join(gridpack_dir, gridpack)]
         config.General.requestName = gridpack.rstrip('.tar.xz').replace('-','m').replace('.','p')
