@@ -28,7 +28,7 @@
 #python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample WWDoubleTo2L #SPLIT10
 #python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample WpWpJJ #SPLIT10
 
-python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample TTZ_LO #SPLIT10
+#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample TTZ_LO #SPLIT10
 
 ## signals
 
@@ -64,3 +64,12 @@ python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEF
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTJets  --overwrite # SPLIT20
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample   --overwrite # SPLIT10
 
+# Data
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v3 #SPLIT10
