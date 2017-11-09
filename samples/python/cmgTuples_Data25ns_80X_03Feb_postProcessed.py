@@ -12,7 +12,7 @@ except: from TopEFT.tools.user import data_directory
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_v5/trilep'
+except: postProcessing_directory = 'TopEFT_PP_v10/trilep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -46,6 +46,7 @@ SingleMuon_Run2016              = getSample('SingleMuon',       'Run2016',      
 SingleEleMu_Run2016             = getSample('SingleEleMu',      'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 
 allSamples_Data25ns = []
+#allSamples_Data25ns += [SingleElectron_Run2016]
 allSamples_Data25ns += [SingleMuon_Run2016, SingleElectron_Run2016, SingleEleMu_Run2016]
 
 for s in allSamples_Data25ns:

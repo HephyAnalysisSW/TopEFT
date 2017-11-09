@@ -24,7 +24,7 @@ ROOT.setTDRStyle()
 def calcAMS(s, b):
     return sqrt(2*((s+b)*log(1+s/b)-s))
 
-postProcessing_directory = "TopEFT_PP_v5/trilep/"
+postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 signal  = [ TTZtoLLNuNu ]
@@ -35,8 +35,13 @@ presel = "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0&&abs(Z_mas
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'all':'(1)'}
 
-btag = "nBTagDeepCSV"
-#btag = "nBTag"
+
+#btag = "nBTagDeepCSV"
+#weight = "weight*35.9*reweightDeepCSV_SF"
+
+btag = "nBTag"
+weight = "weight*35.9*reweightBTagCSVv2_SF_b_Up"
+
 
 regions = [\
             "njet==2&&%s==0"%btag,
@@ -76,7 +81,7 @@ for c in channels:
     for i, sample in enumerate(signal + bkg):
         print sample.name
         for j, r in enumerate(regions):
-            val = sample.getYieldFromDraw('&&'.join([presel,channels[c],r]), "weight*35.9")
+            val = sample.getYieldFromDraw('&&'.join([presel,channels[c],r]), weight)
             print j, val
             sample.hist.SetBinContent(j+1, val["val"])
             sample.hist.SetBinError(j+1, val["sigma"])
@@ -160,4 +165,4 @@ for c in channels:
     plot_dir = os.path.join(plot_directory, "regionPlot", "ttZ", "btagging", c)
     if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
     for f in ['.png','.pdf','.root']:
-        can.Print(plot_dir+"/regions_%s"%btag+f)
+        can.Print(plot_dir+"/regions_%s_reweightBTag_b_Up"%btag+f)

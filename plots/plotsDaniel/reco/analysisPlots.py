@@ -25,6 +25,7 @@ argParser.add_argument('--signal',             action='store',      default=None
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
@@ -44,16 +45,18 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
 if args.normalize: args.plot_directory += "_normalize"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v5/trilep/"
+postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v5/trilep/"
+    postProcessing_directory = "TopEFT_PP_v10/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
     ewkDM_0     = ewkDM_ttZ_ll
     ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
@@ -77,6 +80,9 @@ if args.signal == "ewkDM":
     ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
     ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
     ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
+
+    ewkDM_30    = ewkDM_TTZToLL_LO
+    ewkDM_31    = ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2
 
     ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
     ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
@@ -103,14 +109,16 @@ if args.signal == "ewkDM":
     ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
     ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
 
-
+    ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3)
 
     #signals = [ewkDM_0,ewkDM_1]
     #signals = [ewkDM_1]
     #signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
     #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
-    signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
+    #signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
+    signals = [ewkDM_30, ewkDM_31]
 
 else:
     signals = []
@@ -222,7 +230,7 @@ def getTopCands( event, sample ):
     event.b2_pt     = b2.Pt()
     event.b2_phi    = b2.Phi()
 
-
+#sequence = []
 sequence = [getDPhiZLep, getDPhiZJet,getJets,getTopCands ]
 
 
@@ -261,10 +269,15 @@ for index, mode in enumerate(allModes):
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
 
-    if args.onlyTTZ:
-        mc = [ TTZtoLLNuNu ]
+    if args.TTZ_LO:
+        TTZ_mc = TTZ_LO
     else:
-        mc             = [ TTZtoLLNuNu , TTW, TZQ, TTX, WZ, rare, nonprompt ]
+        TTZ_mc = TTZtoLLNuNu
+
+    if args.onlyTTZ:
+        mc = [ TTZ_mc ]
+    else:
+        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare, nonprompt ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -272,6 +285,8 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
+      sample.read_variables = ['reweightBTagCSVv2_SF/F']
+      sample.weight         = lambda event, sample: event.reweightBTagCSVv2_SF
       sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
 
     if not args.noData:

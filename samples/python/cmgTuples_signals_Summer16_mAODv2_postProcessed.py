@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v5/trilep/"
+  postProcessing_directory = "TopEFT_PP_v10/trilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -49,6 +49,11 @@ dirs['ewkDM_ttZ_ll_noH_DC2V_0p30']  = ["ewkDM_ttZ_ll_noH_DC2V_0p300000"]
 dirs['ewkDM_ttZ_ll_noH_DC2V_m0p15'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p150000"]
 dirs['ewkDM_ttZ_ll_noH_DC2V_m0p25'] = ["ewkDM_ttZ_ll_noH_DC2V_m0p250000"]
 
+dirs['ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2']    = ['ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2']
+dirs['ewkDM_TTZToLL_LO']                    = ['ewkDM_TTZToLL_01j_LO']
+
+
+
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
 ewkDM_ttZ_ll = Sample.fromDirectory(name="ewkDM_ttZ_ll",        treeName="Events", isData=False, color=ROOT.kMagenta+2,       texName="#DeltaC_{1,2;V,A}=0",    directory=directories['ewkDM_ttZ_ll'])
@@ -74,6 +79,8 @@ ewkDM_ttZ_ll_noH_DC2V_0p30  = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_0
 ewkDM_ttZ_ll_noH_DC2V_m0p15 = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_m0p15",  treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=-0.15",    directory=directories['ewkDM_ttZ_ll_noH_DC2V_m0p15'])
 ewkDM_ttZ_ll_noH_DC2V_m0p25 = Sample.fromDirectory(name="ewkDM_ttZ_ll_noH_DC2V_m0p25",  treeName="Events", isData=False, color=1, texName="#DeltaC_{1;V,A}=0, C_{2V}=-0.25",    directory=directories['ewkDM_ttZ_ll_noH_DC2V_m0p25'])
 
+ewkDM_TTZToLL_LO                    = Sample.fromDirectory(name="ewkDM_TTZToLL_LO",                 treeName="Events", isData=False, color=1, texName="#DeltaC_{1,2;V,A}=0",        directory=directories['ewkDM_TTZToLL_LO'])
+ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2    = Sample.fromDirectory(name="ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2", treeName="Events", isData=False, color=1, texName="C_{2A}=0.2, C_{2V}=0.2",     directory=directories['ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2'])
 
 allSignals = [\
     ewkDM_ttZ_ll,
@@ -95,4 +102,6 @@ allSignals = [\
     ewkDM_ttZ_ll_noH_DC2V_0p30,
     ewkDM_ttZ_ll_noH_DC2V_m0p15,
     ewkDM_ttZ_ll_noH_DC2V_m0p25,
+    ewkDM_TTZToLL_LO,
+    ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2,
     ]

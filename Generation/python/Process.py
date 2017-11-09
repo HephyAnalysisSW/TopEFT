@@ -92,14 +92,17 @@ class Process:
         out.close()
         logger.info( "Written process card to %s", self.tmpProcessCard )
 
-    def xsec(self, modified_couplings = None, overwrite=False):
+    def xsec(self, modified_couplings = None, overwrite=False, skip=False):
 
         key = self.getKey( modified_couplings )
         # Do we have the x-sec?
         if self.xsecDB.contains(key) and not overwrite:
             logger.debug( "Found x-sec %s for key %r. Do nothing.", self.xsecDB.get(key), key )
             return self.xsecDB.get(key)
+        elif skip:
+            return u_float(0)
         else:
+            print "Trying to get xsec"
             self.__initialize( modified_couplings ) 
             logger.info( "Calculating x-sec" )
             # rerun MG to obtain the correct x-sec (with more events)

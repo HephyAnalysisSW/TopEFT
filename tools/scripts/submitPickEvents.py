@@ -26,7 +26,7 @@ runsAndEras = {\
     }
 
 
-for i,ev in enumerate(eventList):
+for i,ev in enumerate(sorted(eventList)):
     run_str = ev.replace(':','_')
     run = int(ev.split(':')[0])
     dataset = False

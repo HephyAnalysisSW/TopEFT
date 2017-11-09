@@ -13,8 +13,8 @@ from TopEFT.tools.user            import plot_directory
 import TopEFT.tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW'],     help="Which process?")
-argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW', 'ttH', 'ttgamma'],     help="Which process?")
+argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh', 'ewkDMGZ'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--overwrite',   action='store_true',    help="Overwrite exisiting x-sec calculation and gridpack")
 argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
@@ -41,8 +41,9 @@ logger.info("Couplings:    %s", ", ".join( [ "%s=%5.4f" % c for c in modified_co
 # Create configuration class
 config = Configuration( model_name = args.model)
 
-p = Process(process = args.process, nEvents = 1, config = config, modified_couplings = modified_couplings )
-xsec_val = p.diagrams(plot_dir=plot_directory)
+#p = Process(process = args.process, nEvents = 1, config = config, modified_couplings = modified_couplings )
+p = Process(process = args.process, nEvents = 1, config = config)
+xsec_val = p.diagrams(plot_dir=plot_directory, modified_couplings=modified_couplings)
 
 config.cleanup()
 

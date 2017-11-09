@@ -19,7 +19,7 @@ processes    = [os.path.splitext(f)[0] for f in os.listdir(process_path) if os.p
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--process',     action='store',         default='ttZ',      choices=processes,     help="Which process?")
-argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh'], help="Which madgraph model?")
+argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh', 'ewkDMGZ'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--nEvents',     action='store',         default = 50000,    type=int, help="Number of Events" )
 argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
