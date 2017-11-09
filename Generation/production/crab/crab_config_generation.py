@@ -53,7 +53,7 @@ if __name__ == '__main__':
         config.General.requestName = gridpack.rstrip('.tar.xz').replace('-','m').replace('.','p')
         config.Data.outputPrimaryDataset = config.General.requestName # dataset name
         
-        config.JobType.pyCfgParams = ['gridpack=../'+gridpack]
+        config.JobType.pyCfgParams = ['gridpack=../'+gridpack, 'nJetMax=1']
 
         #crabCommand('submit', '--dryrun', config = config)
         crabCommand('submit', config = config)
