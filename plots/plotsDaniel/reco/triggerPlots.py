@@ -22,11 +22,11 @@ from TopEFT.tools.user            import plot_directory
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
-postProcessing_directory = "TopEFT_PP_v5/trilep/"
+postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-signal  = [ TTZtoLLNuNu ]
-bkg     = [ TTW, WZ, TTX, rare, nonprompt, TZQ ]
+signal  = [ TTZ_LO ]
+bkg     = [ ]#TTW, WZ, TTX, rare, nonprompt, TZQ ]
 
 presel = "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0&&abs(Z_mass-91.2)<10"
 
@@ -140,4 +140,4 @@ for trigger in triggers:
         plot_dir = os.path.join(plot_directory, "regionPlot", "ttZ", "trigger", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
-            can.Print(plot_dir+"/regions_%s"%trigger+f)
+            can.Print(plot_dir+"/regions_TTZ_LO_%s"%trigger+f)
