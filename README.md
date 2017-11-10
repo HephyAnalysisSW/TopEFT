@@ -11,7 +11,7 @@ git cms-init
 git clone https://github.com/danbarto/TopEFT
 cd TopEFT
 git checkout -b 92X_dev origin/92X_dev
-cd $CMSSW_BASE
+cd $CMSSW_BASE/src
 ./TopEFT/setup92X.sh
 ```
 

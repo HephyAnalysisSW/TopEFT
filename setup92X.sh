@@ -19,16 +19,16 @@ cp $CMSSW_BASE/src/TopEFT/.sparse-checkout $CMSSW_BASE/src/.git/info/sparse-chec
 git checkout -b heppy_92X_dev cmg-central/heppy_92X_dev
 
 # add your mirror, and push the 92X branch to it
-git remote add origin git@github.com:GhentAnalysis/cmg-cmssw.git
-git push -u ghent-cmg-cmssw 92X_dev_StopsDileptonn
+#git remote add origin git@github.com:GhentAnalysis/cmg-cmssw.git
+#git checkout -b 92X_dev_StopsDilepton cmg-central/92X_dev_StopsDilepton
+#git push -u origin 92X_dev_StopsDilepton
 
 # now get the CMGTools subsystem from the cmgtools-lite repository
 git clone -o cmg-central https://github.com/CERN-PH-CMG/cmgtools-lite.git -b 92X_dev CMGTools
 cd CMGTools 
 
 # add your fork, and push the 92X branch to it
-git remote add origin git@github.com:GhentAnalysis/cmgtools-lite.git 
-git fetch origin
+git remote add origin git@github.com:GhentAnalysis/cmgtools-lite.git -f -t 92X_dev_StopsDilepton 
 git checkout -b 92X_dev_StopsDilepton origin/92X_dev_StopsDilepton
 
 #cd $CMSSW_BASE/src
