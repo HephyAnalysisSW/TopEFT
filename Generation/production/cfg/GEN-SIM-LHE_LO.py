@@ -2,10 +2,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
 options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
+options.register('nJetMax',1,               VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,     "JetMatching:nJetMax")
 options.maxEvents=10 # maxEvents is a registered option. 
 
 if not 'ipython' in VarParsing.sys.argv[0]:
   options.parseArguments()
+  print "cmsRun cfg arguments: GT %s njetMax %i gridpack %s" % ( options.GT, options.nJetMax, options.gridpack )
 else:
   print "No parsing of arguments!"
 
@@ -122,7 +124,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
             'JetMatching:slowJetPower = 1',
             'JetMatching:qCut = 60.',
             'JetMatching:nQmatch = 5',
-            'JetMatching:nJetMax = 0',
+            'JetMatching:nJetMax = %i'%options.nJetMax,
             'JetMatching:doShowerKt = off'),
         parameterSets = cms.vstring('pythia8CommonSettings',
             'pythia8CUEP8M1Settings',
