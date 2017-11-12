@@ -112,13 +112,15 @@ if args.signal == "ewkDM":
     ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3 )
     ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3)
 
+    TTZ_LO.style = styles.lineStyle ( ROOT.kBlack, width=3 )
     #signals = [ewkDM_0,ewkDM_1]
     #signals = [ewkDM_1]
     #signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
     #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
-    signals = [ewkDM_30, ewkDM_31]
+    #signals = [ewkDM_30, ewkDM_31]
+    signals = [TTZ_LO]
 
 else:
     signals = []
