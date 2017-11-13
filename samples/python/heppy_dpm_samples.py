@@ -139,7 +139,7 @@ proxy = renew_proxy( proxy_path )
 logger.info( "Using proxy %s"%proxy )
 
 # Moriond MC
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v9+v10.pkl'
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v9+v10+WJets1l.pkl'
 #subdirs by hand ... skipping DY until it's complete
 robert_v9 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v9/%s' % s for s in [\
   'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
@@ -195,18 +195,10 @@ robert_v10 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10/%
   'DYJetsToLL_M-5to50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10',
   'DYJetsToLL_M-5to50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10', 
     ]]
-
-mc_Moriond_dpm_directories = robert_v9 + robert_v10
+daniel_v10 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_v10']
+mc_Moriond_dpm_directories = robert_v9 + robert_v10 + daniel_v10
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
-
-## Moriond MC
-#mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v2.pkl'
-#daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v2']
-#mc_Moriond_dpm_directories = daniel
-#from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-#mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
-#
 
 # Data ReminiAOD
 data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v6_data.pkl'
@@ -216,8 +208,8 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as hep
 data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
 
 # Data ReminiAOD
-MET_data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v10_MET_data.pkl'
-def_robert = ["/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10/MET"]
+MET_data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_1l_v10_MET_data.pkl'
+def_robert = ["/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v10/MET"]
 data_dpm_directories = def_robert
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
 MET_data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, MET_data_cache_file)
