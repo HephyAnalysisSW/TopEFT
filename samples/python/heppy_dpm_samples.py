@@ -198,7 +198,7 @@ robert_v10 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10/%
 daniel_v10 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_v10']
 mc_Moriond_dpm_directories = robert_v9 + robert_v10 + daniel_v10
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
+#mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
 
 # Data ReminiAOD
 data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v6_data.pkl'
