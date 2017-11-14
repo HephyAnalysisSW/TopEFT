@@ -2,6 +2,9 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
+
+tag = '09Nov17-GS-3-PREPROD'
+
 config.section_("General")
 config.General.requestName = "tmp"
 config.General.workArea = 'crab_ewkDM_mAOD'
@@ -22,7 +25,7 @@ config.Data.publication = True
 config.Data.inputDBS = 'phys03'
 config.Data.publishDBS = 'phys03'
 
-config.Data.outputDatasetTag = 'ewkDM_mAOD'
+config.Data.outputDatasetTag = '%s_mAOD' % tag
 config.Data.ignoreLocality = True
 #config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 
@@ -36,27 +39,12 @@ config.section_("User")
 if __name__ == '__main__':
     from CRABAPI.RawCommand import crabCommand
     for input_dataset in [
-    '/ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    '/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_0p050000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_0p100000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_0p200000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_0p300000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_m0p150000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_noH_DC2V_m0p250000/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
-    #'/ewkDM_ttZ_ll/schoef-ewkDM-19898e58c9c00509372f15bcc801ecbe/USER',
+    '/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
+    '/ewkDM_ttZ_ll/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
+    '/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
+
+    #'/ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
+    #'/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
     ]:
         config.Data.inputDataset = input_dataset
         config.General.requestName = input_dataset.split('/')[1] 
