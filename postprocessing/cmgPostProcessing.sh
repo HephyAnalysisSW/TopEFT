@@ -53,10 +53,8 @@
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p150000  
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p250000
 
-#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_01j_LO
-#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2
-
-
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO #SPLIT4
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT4
 
 #
 ### For fake rate studies?
@@ -64,12 +62,19 @@
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTJets  --overwrite # SPLIT20
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample   --overwrite # SPLIT10
 
-# Data
-python cmgPostProcessing.py  --overwrite --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016B_03Feb2017_v2 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016C_03Feb2017 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016D_03Feb2017 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016E_03Feb2017 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016F_03Feb2017 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016G_03Feb2017 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v2 #SPLIT10
-python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v3 #SPLIT10
+## Data
+#python cmgPostProcessing.py  --overwrite --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016B_03Feb2017_v2 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016C_03Feb2017 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016D_03Feb2017 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016E_03Feb2017 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016F_03Feb2017 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016G_03Feb2017 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v2 #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample MET_Run2016H_03Feb2017_v3 #SPLIT10
+
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample WJetsToLNu #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim singlelep --processingEra TopEFT_PP_v10 --sample WJetsToLNu_LO #SPLIT10
+#python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v10 --sample WJetsToLNu
+#python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v10 --sample WJetsToLNu_LO
+
+
