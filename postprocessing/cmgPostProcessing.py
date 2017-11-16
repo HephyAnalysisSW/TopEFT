@@ -24,7 +24,7 @@ import TopEFT.tools.user as user
 from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ
 from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
-from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, isBJetDeepCSV, getGoodPhotons, getGenPartsAll, getAllJets
+from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
 #from TopEFT.tools.triggerEfficiency          import triggerEfficiency
@@ -533,10 +533,10 @@ def filler( event ):
                 other_jets.append( j )
 
     # Don't change analysis jets even if we keep all jets, hence, apply abs eta cut
-    bJets        = filter(lambda j:isBJet(j) and abs(j['eta'])<=2.4, selected_jets)
-    bJetsDeepCSV = filter(lambda j:isBJetDeepCSV(j) and abs(j['eta'])<=2.4, selected_jets)
-    nonBJets     = filter(lambda j:not ( isBJet(j) and abs(j['eta'])<=2.4 ), selected_jets)
-    nonBJetsDeepCSV  = filter(lambda j:not ( isBJetDeepCSV(j) and abs(j['eta'])<=2.4 ), selected_jets)
+    bJets        = filter(lambda j:isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, selected_jets)
+    bJetsDeepCSV = filter(lambda j:isBJet(j, tagger = 'DeepCSV') and abs(j['eta'])<=2.4, selected_jets)
+    nonBJets     = filter(lambda j:not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), selected_jets)
+    nonBJetsDeepCSV  = filter(lambda j:not ( isBJet(j, tagger = 'DeepCSV') and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
     event.nJetSelected   = len(selected_jets)
