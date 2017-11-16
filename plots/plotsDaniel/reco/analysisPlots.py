@@ -56,7 +56,7 @@ postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v10/trilep/"
+    postProcessing_directory = "TopEFT_PP_v11/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
     #ewkDM_0     = ewkDM_ttZ_ll
     #ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
