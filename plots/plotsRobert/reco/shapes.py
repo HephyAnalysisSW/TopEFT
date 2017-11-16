@@ -116,7 +116,7 @@ else:
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # reweighting 
-if args. reweightPtZToSM:
+if args.reweightPtZToSM:
     sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
     TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
     TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
@@ -159,26 +159,26 @@ def extra_observables( event, sample ):
     l3_phi = event.lep_phi[event.nonZ_l1_index] 
     l3_eta = event.lep_eta[event.nonZ_l1_index] 
 
-    Z_2D   = ROOT.TVector2( Z_3D[0],  Z_3D[1]  )
-    n_Z_2D = ROOT.TVector2( cos(event.Z_phi), sin(event.Z_phi) )
+    Z_2D        = ROOT.TVector2( Z_3D[0],  Z_3D[1]  )
+    n_Z_2D      = ROOT.TVector2( cos(event.Z_phi), sin(event.Z_phi) )
     n_orth_Z_2D = ROOT.TVector2( -sin(event.Z_phi), cos(event.Z_phi) )
-    l3_2D  = ROOT.TVector2( l3_3D[0], l3_3D[1] )
+    l3_2D       = ROOT.TVector2( l3_3D[0], l3_3D[1] )
 
     # me_x,y
     met_2D = ROOT.TVector2( event.met_pt*cos(event.met_phi), event.met_pt*sin(event.met_phi) )
 
     # get jets
     jetVars     = ['eta','pt','phi','btagCSV']
-    jets  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    jets        = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
     jets.sort( key = lambda l:-l['pt'] )
 
-    bJets        = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets)
-    nonBJets     = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
+    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets)
+    nonBJets    = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
 
     # take highest-pT b-jet, supplement by non-bjets if there are less than two
     bj0, bj1 = (bJets+nonBJets)[:2]
-    bj0_3D = ROOT.TVector3(bj0['pt']*cos(bj0['phi']), bj0['pt']*sin(bj0['phi']), bj0['pt']*sinh(bj0['eta']) )
-    bj1_3D = ROOT.TVector3(bj1['pt']*cos(bj1['phi']), bj1['pt']*sin(bj1['phi']), bj1['pt']*sinh(bj1['eta']) )
+    bj0_3D = ROOT.TVector3( bj0['pt']*cos(bj0['phi']), bj0['pt']*sin(bj0['phi']), bj0['pt']*sinh(bj0['eta']) )
+    bj1_3D = ROOT.TVector3( bj1['pt']*cos(bj1['phi']), bj1['pt']*sin(bj1['phi']), bj1['pt']*sinh(bj1['eta']) )
     bj0_2D = ROOT.TVector2( bj0_3D[0], bj0_3D[1] )
     bj1_2D = ROOT.TVector2( bj1_3D[0], bj1_3D[1] )
 
@@ -229,9 +229,9 @@ def extra_observables( event, sample ):
         [ 'dRZ',    lambda vec: ROOT.TVector3.DeltaR( vec, Z_3D )],
         ]:
         for vname, v in [
-            [ "l3",  l3_3D],
-            [ "blep",  blep_3D],
-            [ "l3_blep",  l3_3D+blep_3D],
+            [ "l3",         l3_3D],
+            [ "blep",       blep_3D],
+            [ "l3_blep",    l3_3D+blep_3D],
             ]:
                 #varname = "%s_%s"%( fname, vname )
                 setattr( event, "%s_%s"%( fname, vname ), f(v) )
@@ -465,9 +465,9 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-      name = 'St', texX = 'S_{t} (GeV)', texY = 'Number of Events / 20 GeV',
+      name = 'St', texX = 'S_{t} (GeV)', texY = 'Number of Events / 30 GeV',
       attribute = lambda event, sample: event.St,
-      binning=[30, 0, 600],
+      binning=[30, 0, 900],
     ))
 
     for fname, ftex, binning in [\
