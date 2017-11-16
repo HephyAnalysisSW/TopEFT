@@ -58,56 +58,56 @@ from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 if args.signal == "ewkDM":
     postProcessing_directory = "TopEFT_PP_v10/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-    ewkDM_0     = ewkDM_ttZ_ll
-    ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
+    #ewkDM_0     = ewkDM_ttZ_ll
+    #ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
 
-    ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-    ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-    ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-    ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-    ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-    ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-    ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
-    ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
+    #ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
+    #ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
+    #ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
+    #ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
+    #ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
+    #ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
+    #ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    #ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
 
-    ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
-    ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
+    #ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
+    #ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
 
-    ewkDM_20    = ewkDM_ttZ_ll_noH
-    ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
-    ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
-    ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
-    ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
-    ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
-    ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
+    #ewkDM_20    = ewkDM_ttZ_ll_noH
+    #ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
+    #ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
+    #ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
+    #ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
+    #ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
+    #ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
 
     ewkDM_30    = ewkDM_TTZToLL_LO
     ewkDM_31    = ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2
 
-    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
+    #ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    #ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
 
-    ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
-    ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
+    #ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
+    #ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
 
 
-    ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    #ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    #ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    #ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    #ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
 
-    ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-    ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-    ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
+    #ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
+    #ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+    #ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
+    #ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
-    ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
-    ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+    #ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    #ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    #ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    #ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    #ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    #ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
+    #ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
 
     ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3 )
     ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3)
@@ -119,8 +119,8 @@ if args.signal == "ewkDM":
     #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
-    #signals = [ewkDM_30, ewkDM_31]
-    signals = [TTZ_LO]
+    signals = [ewkDM_30, ewkDM_31]
+    #signals = [TTZ_LO]
 
 else:
     signals = []
