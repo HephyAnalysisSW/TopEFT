@@ -29,7 +29,7 @@ argParser.add_argument('--TTZ_LO',                                   action='sto
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
-argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields to 1" )
+argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 args = argParser.parse_args()
 
 #
@@ -150,13 +150,12 @@ def drawPlots(plots, mode, dataMCScale):
 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
-	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+	    ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {},
+	    scaling = {0:1} if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
-        normalize = True if args.normalize else False
       )
 
 #
@@ -338,9 +337,9 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 40 GeV',
+        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[20,0,800],
+        binning=[16,0,800],
     ))
     
     plots.append(Plot(
@@ -404,9 +403,9 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         name = 'lnonZ1_pt',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[30,0,300],
+        binning=[15,0,300],
     ))
 
     plots.append(Plot(
@@ -418,9 +417,9 @@ for index, mode in enumerate(allModes):
 
     plots.append(Plot(
         name = 'lnonZ1_pt_ext',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 30 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[12,0,180],
+        binning=[6,0,180],
     ))
     
     
