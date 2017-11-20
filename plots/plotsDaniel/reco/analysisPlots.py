@@ -8,7 +8,7 @@ import ROOT, os
 ROOT.gROOT.SetBatch(True)
 import itertools
 
-from math                         import sqrt, cos, sin, pi
+from math                         import sqrt, cos, sin, pi, acos
 from RootTools.core.standard      import *
 from TopEFT.tools.user            import plot_directory
 from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue
@@ -109,8 +109,8 @@ if args.signal == "ewkDM":
     #ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
     #ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
 
-    ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3, errors = True )
+    ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3, errors = True )
 
     TTZ_LO.style = styles.lineStyle ( ROOT.kBlack, width=3 )
     #signals = [ewkDM_0,ewkDM_1]
@@ -250,6 +250,8 @@ def getL( event, sample):
     # calculate Lp
     event.Lp = ( W.Px()*lepton.Px() + W.Py()*lepton.Py() ) / (W.Px()**2 + W.Py()**2 )
 
+    event.deltaPhi_Wl = acos( ( W.Px()*lepton.Px() + W.Py()*lepton.Py() ) / sqrt( (W.Px()**2 + W.Py()**2 ) * ( lepton.Px()**2 + lepton.Py()**2 ) ) )
+
     ## Roberts implementation of Lp for Z bosons
     ## Lp generalization for Z's. Doesn't work, because Z couples to L and R
     #pxZ = event.Z_pt*cos(event.Z_phi)
@@ -281,6 +283,7 @@ def getL( event, sample):
     #pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
     #pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
     #event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+
 
 sequence.append( getL )
 
@@ -613,9 +616,9 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = "LP_superCoarse", texX = 'L_{P}', texY = 'Number of Events / 0.5',
+        name = "LP_superCoarse", texX = 'L_{P}', texY = 'Number of Events / 0.6',
         attribute = lambda event, sample:event.Lp,
-        binning=[4,-1,1],
+        binning=[3,-0.6,1.2],
     ))
     
     plots.append(Plot(
@@ -628,6 +631,24 @@ for index, mode in enumerate(allModes):
         name = "LP", texX = 'L_{P}', texY = 'Number of Events / 0.1',
         attribute = lambda event, sample:event.Lp,
         binning=[20,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "LP_wide", texX = 'L_{P}', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.Lp,
+        binning=[25,-2,3],
+    ))
+
+    plots.append(Plot(
+        name = "deltaPhi_Wl", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.deltaPhi_Wl,
+        binning=[16,0,3.2],
+    ))
+
+    plots.append(Plot(
+        name = "deltaPhi_Wl_coarse", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.8',
+        attribute = lambda event, sample:event.deltaPhi_Wl,
+        binning=[4,0,3.2],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)

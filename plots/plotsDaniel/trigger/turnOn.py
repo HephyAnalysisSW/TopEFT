@@ -56,12 +56,18 @@ from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
 postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v6/dilep/"
+from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_1e import *
 
 presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
 
+# presel for measuring efficiencies in single lep datasets
+presel = "nlep==2&&nGoodElectrons==1&&nGoodMuons==1&&lep_pdgId[0]*lep_pdgId[1]<0"
+
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
-
+channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
 #channels = {'all':'(1)'}
 
 # singleMu
@@ -98,6 +104,11 @@ triggers_2016 = {
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
 }
 
+triggers_2016_MS = {
+    "IsoMu22":"HLT_IsoMu22",
+    "SingleMu":"(%s)"%"||".join(singleMuTriggers)
+}
+
 mu_17           = ["HLT_mu"]
 mu_nonIso_17    = ["HLT_mu_nonIso"]
 ele_17          = ["HLT_ele"]
@@ -119,170 +130,179 @@ triggers_2017 = {
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
 }
 
-triggers = triggers_2016
+triggers = triggers_2016_MS
 
-colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1}
-markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23}
+colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1}
+markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23}
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
-sample = MET_Run2016
+#sample = MET_Run2016
+sample = SingleElectron_Run2016
 
-for c in channels:
-    print c
-    h_total = {}
-    h_trigg = {}
-    tEff = {}
+leptons = ["lep_pt[0]", "lep_pt[1]"]
 
-    for trigger in triggers.keys():
+for lep in leptons:
+    for c in channels:
+        print c
+        h_total = {}
+        h_trigg = {}
+        tEff = {}
     
-        #h_total     = ROOT.TH1F("total", "", *binning)
-        #h_trigg     = ROOT.TH1F("trigger", "", *binning)
+        for trigger in triggers.keys():
         
-        baseline = '&&'.join([presel,channels[c]])
-        trigger_sel = '&&'.join([presel,channels[c],triggers[trigger]])
+            #h_total     = ROOT.TH1F("total", "", *binning)
+            #h_trigg     = ROOT.TH1F("trigger", "", *binning)
+            
+            baseline = '&&'.join([presel,channels[c]])
+            trigger_sel = '&&'.join([presel,channels[c],triggers[trigger]])
+            
+            print baseline
+            print trigger_sel
+    
+            h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+    
+            #sample.chain.Draw("lep_pt>>total", baseline)
+            #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
+    
+            h_ratio = h_trigg[trigger].Clone()
+            h_ratio.Divide(h_total[trigger])
+    
+            tEff[trigger] = ROOT.TEfficiency(h_trigg[trigger],h_total[trigger])
+            tEff[trigger].Draw()
+    
+            h_eff = h_total[trigger].Clone()
+            h_eff.SetMaximum(1.05)
+            h_eff.SetMinimum(0.0)
         
-        print baseline
-        print trigger_sel
-
-        h_total[trigger] = sample.get1DHistoFromDraw("lep_pt[0]", binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-        h_trigg[trigger] = sample.get1DHistoFromDraw("lep_pt[0]", binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-
-        #sample.chain.Draw("lep_pt>>total", baseline)
-        #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
-
-        h_ratio = h_trigg[trigger].Clone()
-        h_ratio.Divide(h_total[trigger])
-
-        tEff[trigger] = ROOT.TEfficiency(h_trigg[trigger],h_total[trigger])
-        tEff[trigger].Draw()
-
-        h_eff = h_total[trigger].Clone()
+            xmin = h_ratio.GetXaxis().GetXmin()
+            xmax = h_ratio.GetXaxis().GetXmax()
+    
+            fturn = ROOT.TF1("turnon",turnon_func,xmin,xmax,3)
+            fturn.SetParNames('halfpoint','width','plateau')
+            fturn.SetParLimits(0,0,10000)
+            fturn.SetParLimits(1,0.1,10000)
+            fturn.SetParLimits(2,0,1)
+    
+            color = colors[trigger] if trigger in colors.keys() else ROOT.kOrange+1
+            fturn.SetLineColor(color)
+            fturn.SetLineWidth(2)
+    
+            gEff = tEff[trigger].GetPaintedGraph()
+    
+            expPlateau = min(h_ratio.GetMaximum(),0.99)
+            expHalfP = max(h_ratio.GetBinCenter(h_ratio.FindFirstBinAbove(0.5)),0)
+            expWidth = ROOT.TMath.Sqrt(expHalfP)
+    
+            #fturn.SetParameters(300,100,1)
+            fturn.SetParameters(expHalfP,expWidth,expPlateau)
+    
+            ## do fit
+            fitr = tEff[trigger].Fit(fturn,'S Q E EX0')#EX0
+            
+    
+            #halfpoint = fitr.Value(0)
+            #width = fitr.Value(1)
+            #plateau = fitr.Value(2)
+    
+            #print 'Expected values: halfpoint = %5.2f, width = %5.2f, plateau = %5.2f' % (expHalfP, expWidth, expPlateau)
+            #print 'Fit result: halfpoint = %5.2f, width = %5.2f, plateau = %5.2f' % (halfpoint, width, plateau)
+    
+        h_eff = h_total[triggers.keys()[0]].Clone()
         h_eff.SetMaximum(1.05)
         h_eff.SetMinimum(0.0)
+        h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
+        h_eff.GetYaxis().SetTitle("Efficiency")
     
-        xmin = h_ratio.GetXaxis().GetXmin()
-        xmax = h_ratio.GetXaxis().GetXmax()
-
-        fturn = ROOT.TF1("turnon",turnon_func,xmin,xmax,3)
-        fturn.SetParNames('halfpoint','width','plateau')
-        fturn.SetParLimits(0,0,10000)
-        fturn.SetParLimits(1,0.1,10000)
-        fturn.SetParLimits(2,0,1)
-
-        fturn.SetLineColor(colors[trigger])
-        fturn.SetLineWidth(2)
-
-        gEff = tEff[trigger].GetPaintedGraph()
-
-        expPlateau = min(h_ratio.GetMaximum(),0.99)
-        expHalfP = max(h_ratio.GetBinCenter(h_ratio.FindFirstBinAbove(0.5)),0)
-        expWidth = ROOT.TMath.Sqrt(expHalfP)
-
-        #fturn.SetParameters(300,100,1)
-        fturn.SetParameters(expHalfP,expWidth,expPlateau)
-
-        ## do fit
-        fitr = tEff[trigger].Fit(fturn,'S Q E EX0')#EX0
-        
-
-        #halfpoint = fitr.Value(0)
-        #width = fitr.Value(1)
-        #plateau = fitr.Value(2)
-
-        #print 'Expected values: halfpoint = %5.2f, width = %5.2f, plateau = %5.2f' % (expHalfP, expWidth, expPlateau)
-        #print 'Fit result: halfpoint = %5.2f, width = %5.2f, plateau = %5.2f' % (halfpoint, width, plateau)
-
-    h_eff = h_total[triggers.keys()[0]].Clone()
-    h_eff.SetMaximum(1.05)
-    h_eff.SetMinimum(0.0)
-    h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
-    h_eff.GetYaxis().SetTitle("Efficiency")
-
-    h_eff.GetXaxis().SetTitleSize(0.045)
-    h_eff.GetXaxis().SetLabelSize(0.045)
-    h_eff.GetXaxis().SetTitleOffset(1.3)
-#    h_eff.GetXaxis().SetLabelOffset(0.04)
-
-    h_eff.GetYaxis().SetTitleSize(0.045)
-    h_eff.GetYaxis().SetLabelSize(0.045)
-#    h_eff.GetYaxis().SetTitleOffset(0.14)
-
-
-    can = ROOT.TCanvas("can","can", 700,700)
+        h_eff.GetXaxis().SetTitleSize(0.045)
+        h_eff.GetXaxis().SetLabelSize(0.045)
+        h_eff.GetXaxis().SetTitleOffset(1.3)
+    #    h_eff.GetXaxis().SetLabelOffset(0.04)
     
-    h_eff.Draw()
-
-    extraText = "Preliminary"
-    latex1 = ROOT.TLatex()
-    latex1.SetNDC()
-    latex1.SetTextSize(0.04)
-    latex1.SetTextAlign(11) # align right
-    latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-    latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+        h_eff.GetYaxis().SetTitleSize(0.045)
+        h_eff.GetYaxis().SetLabelSize(0.045)
+    #    h_eff.GetYaxis().SetTitleOffset(0.14)
     
-    leg2 = ROOT.TLegend(0.50,0.45-0.04*len(triggers.keys()),0.90,0.45)
-    leg2.SetFillColor(ROOT.kWhite)
-    leg2.SetShadowColor(ROOT.kWhite)
-    leg2.SetBorderSize(0)
-    leg2.SetTextSize(0.035)
-
-
-    for trigger in sorted(triggers.keys()):
-        tEff[trigger].SetFillColor(0)
-        tEff[trigger].SetMarkerColor(colors[trigger])
-        tEff[trigger].SetLineColor(colors[trigger])
-        tEff[trigger].SetMarkerStyle(markers[trigger])
-        tEff[trigger].Draw("same")   
-        
-        niceName = "#bf{%s}"%trigger.replace("_"," ").replace("add","+ ").replace("singleLep","1l")
-        
-        leg2.AddEntry(tEff[trigger], niceName) 
     
-    leg2.Draw()   
+        can = ROOT.TCanvas("can","can", 700,700)
         
-    plot_dir = os.path.join(plot_directory, "trigger", "Run2016_MET_2l", "turnOn", c)
-    if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
-    for f in ['.png','.pdf','.root']:
-        can.Print(plot_dir+"/%s_lep_pt_comp"%sample.name+f)
-
-
-    h_eff.SetMaximum(1.0)
-    h_eff.SetMinimum(0.8)
-    h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
-    h_eff.GetYaxis().SetTitle("Efficiency")
-
-    h_eff.GetXaxis().SetTitleSize(0.045)
-    h_eff.GetXaxis().SetLabelSize(0.045)
-    h_eff.GetXaxis().SetTitleOffset(1.3)
-
-    h_eff.GetYaxis().SetTitleSize(0.045)
-    h_eff.GetYaxis().SetLabelSize(0.045)
-
-    can = ROOT.TCanvas("can","can", 700,700)
-
-    h_eff.Draw()
-
-    extraText = "Preliminary"
-    latex1 = ROOT.TLatex()
-    latex1.SetNDC()
-    latex1.SetTextSize(0.04)
-    latex1.SetTextAlign(11) # align right
-    latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-    latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
-
-    for trigger in sorted(triggers.keys()):
-        tEff[trigger].SetFillColor(0)
-        tEff[trigger].SetMarkerColor(colors[trigger])
-        tEff[trigger].SetLineColor(colors[trigger])
-        tEff[trigger].SetMarkerStyle(markers[trigger])
-        tEff[trigger].Draw("same")
-
-        niceName = "#bf{%s}"%trigger.replace("_"," ").replace("add","+ ").replace("singleLep","1l")
-
-    leg2.Draw()
-
-    for f in ['.png','.pdf','.root']:
-        can.Print(plot_dir+"/%s_lep_pt_comp_zoom"%sample.name+f)
+        h_eff.Draw()
+    
+        extraText = "Preliminary"
+        latex1 = ROOT.TLatex()
+        latex1.SetNDC()
+        latex1.SetTextSize(0.04)
+        latex1.SetTextAlign(11) # align right
+        latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
+        latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+        
+        leg2 = ROOT.TLegend(0.50,0.45-0.04*len(triggers.keys()),0.90,0.45)
+        leg2.SetFillColor(ROOT.kWhite)
+        leg2.SetShadowColor(ROOT.kWhite)
+        leg2.SetBorderSize(0)
+        leg2.SetTextSize(0.035)
+    
+    
+        for trigger in sorted(triggers.keys()):
+            color = colors[trigger] if trigger in colors.keys() else ROOT.kOrange+1
+            marker = markers[trigger] if trigger in markers.keys() else 20
+            tEff[trigger].SetFillColor(0)
+            tEff[trigger].SetMarkerColor(color)
+            tEff[trigger].SetLineColor(color)
+            tEff[trigger].SetMarkerStyle(marker)
+            tEff[trigger].Draw("same")   
+            
+            niceName = "#bf{%s}"%trigger.replace("_"," ").replace("add","+ ").replace("singleLep","1l")
+            
+            leg2.AddEntry(tEff[trigger], niceName) 
+        
+        leg2.Draw()   
+            
+        plot_dir = os.path.join(plot_directory, "trigger", "Run2016_SingleEle_2l", "turnOn", c)
+        if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
+        for f in ['.png','.pdf','.root']:
+            can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)
+    
+    
+        h_eff.SetMaximum(1.0)
+        h_eff.SetMinimum(0.8)
+        h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
+        h_eff.GetYaxis().SetTitle("Efficiency")
+    
+        h_eff.GetXaxis().SetTitleSize(0.045)
+        h_eff.GetXaxis().SetLabelSize(0.045)
+        h_eff.GetXaxis().SetTitleOffset(1.3)
+    
+        h_eff.GetYaxis().SetTitleSize(0.045)
+        h_eff.GetYaxis().SetLabelSize(0.045)
+    
+        can = ROOT.TCanvas("can","can", 700,700)
+    
+        h_eff.Draw()
+    
+        extraText = "Preliminary"
+        latex1 = ROOT.TLatex()
+        latex1.SetNDC()
+        latex1.SetTextSize(0.04)
+        latex1.SetTextAlign(11) # align right
+        latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
+        latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+    
+        for trigger in sorted(triggers.keys()):
+            color = colors[trigger] if trigger in colors.keys() else ROOT.kOrange+1
+            marker = markers[trigger] if trigger in markers.keys() else 20
+            tEff[trigger].SetFillColor(0)
+            tEff[trigger].SetMarkerColor(color)
+            tEff[trigger].SetLineColor(color)
+            tEff[trigger].SetMarkerStyle(marker)
+            tEff[trigger].Draw("same")
+    
+            niceName = "#bf{%s}"%trigger.replace("_"," ").replace("add","+ ").replace("singleLep","1l")
+    
+        leg2.Draw()
+    
+        for f in ['.png','.pdf','.root']:
+            can.Print(plot_dir+"/%s_%s_comp_zoom"%(lep,sample.name)+f)
 
 
