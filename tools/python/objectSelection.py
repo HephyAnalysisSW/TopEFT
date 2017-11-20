@@ -34,14 +34,14 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
 def isBJet(j):
     return j['btagCSV']>0.8484
 
-def isBJetDeepCSV(j):
-    return j['DFbb'] + j['DFb'] > 0.6324
+def isBJet(j, tagger = 'CSVv2'):
+    if tagger == 'CSVv2':
+        return j['btagCSV']>0.8484
+    elif tagger == 'DeepCSV':
+        return j['DFbb'] + j['DFb'] > 0.6324
 
-def getGoodBJets(c):
-    return filter(lambda j:isBJet(j), getGoodJets(c))
-
-def getGoodBJets(c):
-    return filter(lambda j:isBJetDeepCSV(j), getGoodJets(c))
+def getGoodBJets(c, tagger = 'CSVv2'):
+    return filter(lambda j:isBJet(j, tagger = tagger), getGoodJets(c))
 
 def getGenLeps(c):
     return [getObjDict(c, 'genLep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId'], i) for i in range(int(getVarValue(c, 'ngenLep')))]

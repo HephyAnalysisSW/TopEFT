@@ -29,7 +29,7 @@ argParser.add_argument('--TTZ_LO',                                   action='sto
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
-argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields to 1" )
+argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 args = argParser.parse_args()
 
 #
@@ -56,58 +56,58 @@ postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ewkDM":
-    postProcessing_directory = "TopEFT_PP_v10/trilep/"
+    postProcessing_directory = "TopEFT_PP_v11/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-    ewkDM_0     = ewkDM_ttZ_ll
-    ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
+    #ewkDM_0     = ewkDM_ttZ_ll
+    #ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
 
-    ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-    ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-    ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-    ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-    ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-    ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-    ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
-    ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
+    #ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
+    #ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
+    #ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
+    #ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
+    #ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
+    #ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
+    #ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    #ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
 
-    ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
-    ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
+    #ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
+    #ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
 
-    ewkDM_20    = ewkDM_ttZ_ll_noH
-    ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
-    ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
-    ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
-    ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
-    ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
-    ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
+    #ewkDM_20    = ewkDM_ttZ_ll_noH
+    #ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
+    #ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
+    #ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
+    #ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
+    #ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
+    #ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
 
     ewkDM_30    = ewkDM_TTZToLL_LO
     ewkDM_31    = ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2
 
-    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
+    #ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    #ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
 
-    ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
-    ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
+    #ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
+    #ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
 
 
-    ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    #ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    #ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    #ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    #ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
 
-    ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-    ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-    ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
+    #ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
+    #ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+    #ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
+    #ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
 
-    ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
-    ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
+    #ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
+    #ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
+    #ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
+    #ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
+    #ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
+    #ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
+    #ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
 
     ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3 )
     ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3)
@@ -119,8 +119,8 @@ if args.signal == "ewkDM":
     #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
     #signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
-    #signals = [ewkDM_30, ewkDM_31]
-    signals = [TTZ_LO]
+    signals = [ewkDM_30, ewkDM_31]
+    #signals = [TTZ_LO]
 
 else:
     signals = []
@@ -139,6 +139,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
+scaling = { i+1:0 for i in range(len(signals)) }
+
 def drawPlots(plots, mode, dataMCScale):
   for log in [False, True]:
     plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
@@ -150,13 +152,12 @@ def drawPlots(plots, mode, dataMCScale):
 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
-	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+	    ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {},
+	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
-        normalize = True if args.normalize else False
       )
 
 #
@@ -234,6 +235,54 @@ def getTopCands( event, sample ):
 
 #sequence = []
 sequence = [getDPhiZLep, getDPhiZJet,getJets,getTopCands ]
+
+def getL( event, sample):
+
+    # get the lepton and met
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+
+    # get the W boson candidate
+    W   = lepton + met
+    
+    # calculate Lp
+    event.Lp = ( W.Px()*lepton.Px() + W.Py()*lepton.Py() ) / (W.Px()**2 + W.Py()**2 )
+
+    ## Roberts implementation of Lp for Z bosons
+    ## Lp generalization for Z's. Doesn't work, because Z couples to L and R
+    #pxZ = event.Z_pt*cos(event.Z_phi)
+    #pyZ = event.Z_pt*sin(event.Z_phi)
+    #pxZl1 = event.lep_pt[event.Z_l1_index]*cos(event.lep_phi[event.Z_l1_index])
+    #pyZl1 = event.lep_pt[event.Z_l1_index]*sin(event.lep_phi[event.Z_l1_index])
+
+    #event.LZp  = (pxZ*pxZl1+pyZ*pyZl1)/event.Z_pt**2
+
+    ## 3D generalization of the above 
+    #if  event.lep_pdgId[event.Z_l1_index]>0:
+    #    Z_lp_index, Z_lm_index = event.Z_l1_index, event.Z_l2_index
+    #else:
+    #    Z_lm_index, Z_lp_index = event.Z_l1_index, event.Z_l2_index
+
+    #lp  = ROOT.TVector3()
+    #lp.SetPtEtaPhi(event.lep_pt[Z_lp_index], event.lep_eta[Z_lp_index], event.lep_phi[Z_lp_index])
+    #lm  = ROOT.TVector3()
+    #lm.SetPtEtaPhi(event.lep_pt[Z_lm_index], event.lep_eta[Z_lm_index], event.lep_phi[Z_lm_index])
+    #Z = lp+lm
+    #event.LZp3D = lp*Z/(Z*Z)
+
+    #event.LZp = 1-event.lep_pt[Z_lp_index]/event.Z_pt*cos(event.lep_phi[Z_lp_index] - event.Z_phi)
+    #event.LZm = 1-event.lep_pt[Z_lm_index]/event.Z_pt*cos(event.lep_phi[Z_lm_index] - event.Z_phi)
+
+    ## Lp for the W
+    #pxNonZl1 = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index])
+    #pyNonZl1 = event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+    #pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
+    #pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
+    #event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+
+sequence.append( getL )
 
 
 def getLeptonSelection( mode ):
@@ -338,9 +387,9 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 40 GeV',
+        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[20,0,800],
+        binning=[16,0,800],
     ))
     
     plots.append(Plot(
@@ -404,9 +453,9 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         name = 'lnonZ1_pt',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[30,0,300],
+        binning=[15,0,300],
     ))
 
     plots.append(Plot(
@@ -418,9 +467,9 @@ for index, mode in enumerate(allModes):
 
     plots.append(Plot(
         name = 'lnonZ1_pt_ext',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 30 GeV',
         attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[12,0,180],
+        binning=[6,0,180],
     ))
     
     
@@ -561,6 +610,24 @@ for index, mode in enumerate(allModes):
         name = "minMLepB", texX = 'min M(l, b-jet) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.minMLepB,
         binning=[15,0,300],
+    ))
+    
+    plots.append(Plot(
+        name = "LP_superCoarse", texX = 'L_{P}', texY = 'Number of Events / 0.5',
+        attribute = lambda event, sample:event.Lp,
+        binning=[4,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "LP_coarse", texX = 'L_{P}', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.Lp,
+        binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "LP", texX = 'L_{P}', texY = 'Number of Events / 0.1',
+        attribute = lambda event, sample:event.Lp,
+        binning=[20,-1,1],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
