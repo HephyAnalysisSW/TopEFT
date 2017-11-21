@@ -139,6 +139,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
+scaling = { i+1:0 for i in range(len(signals)) }
+
 def drawPlots(plots, mode, dataMCScale):
   for log in [False, True]:
     plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
@@ -153,7 +155,7 @@ def drawPlots(plots, mode, dataMCScale):
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {0:1} if args.normalize else {},
+	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
       )
@@ -233,6 +235,54 @@ def getTopCands( event, sample ):
 
 #sequence = []
 sequence = [getDPhiZLep, getDPhiZJet,getJets,getTopCands ]
+
+def getL( event, sample):
+
+    # get the lepton and met
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+
+    # get the W boson candidate
+    W   = lepton + met
+    
+    # calculate Lp
+    event.Lp = ( W.Px()*lepton.Px() + W.Py()*lepton.Py() ) / (W.Px()**2 + W.Py()**2 )
+
+    ## Roberts implementation of Lp for Z bosons
+    ## Lp generalization for Z's. Doesn't work, because Z couples to L and R
+    #pxZ = event.Z_pt*cos(event.Z_phi)
+    #pyZ = event.Z_pt*sin(event.Z_phi)
+    #pxZl1 = event.lep_pt[event.Z_l1_index]*cos(event.lep_phi[event.Z_l1_index])
+    #pyZl1 = event.lep_pt[event.Z_l1_index]*sin(event.lep_phi[event.Z_l1_index])
+
+    #event.LZp  = (pxZ*pxZl1+pyZ*pyZl1)/event.Z_pt**2
+
+    ## 3D generalization of the above 
+    #if  event.lep_pdgId[event.Z_l1_index]>0:
+    #    Z_lp_index, Z_lm_index = event.Z_l1_index, event.Z_l2_index
+    #else:
+    #    Z_lm_index, Z_lp_index = event.Z_l1_index, event.Z_l2_index
+
+    #lp  = ROOT.TVector3()
+    #lp.SetPtEtaPhi(event.lep_pt[Z_lp_index], event.lep_eta[Z_lp_index], event.lep_phi[Z_lp_index])
+    #lm  = ROOT.TVector3()
+    #lm.SetPtEtaPhi(event.lep_pt[Z_lm_index], event.lep_eta[Z_lm_index], event.lep_phi[Z_lm_index])
+    #Z = lp+lm
+    #event.LZp3D = lp*Z/(Z*Z)
+
+    #event.LZp = 1-event.lep_pt[Z_lp_index]/event.Z_pt*cos(event.lep_phi[Z_lp_index] - event.Z_phi)
+    #event.LZm = 1-event.lep_pt[Z_lm_index]/event.Z_pt*cos(event.lep_phi[Z_lm_index] - event.Z_phi)
+
+    ## Lp for the W
+    #pxNonZl1 = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index])
+    #pyNonZl1 = event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+    #pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
+    #pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
+    #event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+
+sequence.append( getL )
 
 
 def getLeptonSelection( mode ):
@@ -560,6 +610,24 @@ for index, mode in enumerate(allModes):
         name = "minMLepB", texX = 'min M(l, b-jet) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.minMLepB,
         binning=[15,0,300],
+    ))
+    
+    plots.append(Plot(
+        name = "LP_superCoarse", texX = 'L_{P}', texY = 'Number of Events / 0.5',
+        attribute = lambda event, sample:event.Lp,
+        binning=[4,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "LP_coarse", texX = 'L_{P}', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.Lp,
+        binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "LP", texX = 'L_{P}', texY = 'Number of Events / 0.1',
+        attribute = lambda event, sample:event.Lp,
+        binning=[20,-1,1],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
