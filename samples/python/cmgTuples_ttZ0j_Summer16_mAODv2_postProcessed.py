@@ -12,8 +12,8 @@ from TopEFT.samples.color import color
 try:
     data_directory = sys.modules['__main__'].data_directory
 except:
-    from TopEFT.tools.user import data_directory as user_data_directory
-    data_directory = user_data_directory 
+    #from TopEFT.tools.user import data_directory as user_data_directory
+    data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/' 
 
 # Take post processing directory if defined in main module
 try:
@@ -42,6 +42,7 @@ dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700'] = ['t
 dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700'] = ['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700']
 dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000'] = ['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000']
 dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000'] = ['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000']
+dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'] = ['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000']
 dirs['ttZ0j_ll_DC1A_1p000000'] = ['ttZ0j_ll_DC1A_1p000000']
 dirs['ttZ0j_ll_DC2A_0p200000_DC2V_0p200000'] = ['ttZ0j_ll_DC2A_0p200000_DC2V_0p200000']
 
@@ -78,7 +79,7 @@ ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  = Sample.fro
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.176, C_{2,A}=-0.176", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0, C_{2,A}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000'])
-
+ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'])
 allSignals = [\
     # default
     ttZ0j_ll,
@@ -106,4 +107,5 @@ allSignals = [\
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700,
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000,
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000,
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000,
     ]
