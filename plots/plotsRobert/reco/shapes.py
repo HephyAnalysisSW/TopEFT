@@ -76,7 +76,7 @@ elif args.signal == "dipoleEllipsis":
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700.style   = styles.lineStyle( ROOT.kCyan, width=2, dotted=False, dashed=False )
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000.style                  = styles.lineStyle( ROOT.kAzure, width=2, dotted=False, dashed=False )
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000.style                  = styles.lineStyle( ROOT.kGreen+2, width=2, dotted=False, dashed=False )
-
+    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000]
 elif args.signal == 'cuW':
 
     ttZ0j_ll.style               = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
