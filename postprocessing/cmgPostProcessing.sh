@@ -53,8 +53,8 @@
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p150000  
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v10 --keepLHEWeights --overwrite --sample ewkDM_ttZ_ll_noH_DC2V_m0p250000
 
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO #SPLIT4
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT4
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO #SPLIT4
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v11 --keepLHEWeights --overwrite --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT4
 
 #
 ### For fake rate studies?

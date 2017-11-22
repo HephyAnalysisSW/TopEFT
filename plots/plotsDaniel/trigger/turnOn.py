@@ -106,7 +106,8 @@ triggers_2016 = {
 
 triggers_2016_MS = {
     "IsoMu22":"HLT_IsoMu22",
-    "SingleMu":"(%s)"%"||".join(singleMuTriggers)
+    "SingleMu":"(%s)"%"||".join(singleMuTriggers),
+    "SingleMuTTZ": "HLT_SingleMuTTZ"
 }
 
 mu_17           = ["HLT_mu"]
@@ -132,8 +133,8 @@ triggers_2017 = {
 
 triggers = triggers_2016_MS
 
-colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1}
-markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23}
+colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1}
+markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22}
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
