@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/user/schoef/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700/ewkDM_09Nov17/171110_055553/0000/TOP-RunIISummer15wmLHEGS-00013_1.root'),
+    fileNames = cms.untracked.vstring('root://hephyse.oeaw.ac.at//dpm/oeaw.ac.at/home/cms/store/user/schoef/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/ewkDM_09Nov17/171110_055432/0000/TOP-RunIISummer15wmLHEGS-00013_1.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_genParticles_*_*', 
         'drop *_genParticlesForJets_*_*', 

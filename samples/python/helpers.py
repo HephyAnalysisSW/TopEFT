@@ -39,6 +39,8 @@ def fromHeppySample(sample, data_path, module = None, maxN = None):
         module_ = module
     elif "Run2016" in sample:
         module_ = 'CMGTools.RootTools.samples.samples_13TeV_DATA2016'
+    elif "ttZ0j_ll" in sample:
+        module_ = 'CMGTools.StopsDilepton.ttZ0j_5f_MLM_signals_RunIISummer16MiniAODv2'
     elif "ewkDM" in sample:
         module_ = 'CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2'
     else: 
@@ -79,6 +81,9 @@ def fromHeppySample(sample, data_path, module = None, maxN = None):
             elif "Run2016" in sample and "MET" in sample:
                 from TopEFT.samples.heppy_dpm_samples import MET_data_03Feb2017_heppy_mapper as MET_data_heppy_mapper
                 return MET_data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "ttZ0j_ll" in sample:
+                from TopEFT.samples.heppy_dpm_samples import signal_0j_heppy_mapper
+                return signal_0j_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ewkDM" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_heppy_mapper
                 return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
