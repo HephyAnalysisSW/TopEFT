@@ -21,7 +21,7 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM"], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM", "ttZ01j"], help="Add signal to plot")
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
@@ -57,72 +57,35 @@ from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
-if args.signal == "ewkDM":
+if args.signal == "ttZ01j":
     postProcessing_directory = "TopEFT_PP_v11/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-    #ewkDM_0     = ewkDM_ttZ_ll
-    #ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
-
-    #ewkDM_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-    #ewkDM_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-    #ewkDM_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-    #ewkDM_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-    #ewkDM_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-    #ewkDM_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-    #ewkDM_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
-    #ewkDM_9     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_0p1767
-
-    #ewkDM_10    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
-    #ewkDM_11    = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
-
-    #ewkDM_20    = ewkDM_ttZ_ll_noH
-    #ewkDM_21    = ewkDM_ttZ_ll_noH_DC2V_0p05
-    #ewkDM_22    = ewkDM_ttZ_ll_noH_DC2V_0p10
-    #ewkDM_23    = ewkDM_ttZ_ll_noH_DC2V_0p20
-    #ewkDM_24    = ewkDM_ttZ_ll_noH_DC2V_0p30
-    #ewkDM_25    = ewkDM_ttZ_ll_noH_DC2V_m0p15
-    #ewkDM_26    = ewkDM_ttZ_ll_noH_DC2V_m0p25
 
     ewkDM_30    = ewkDM_TTZToLL_LO
     ewkDM_31    = ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2
 
-    #ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    #ewkDM_1.style = styles.lineStyle( ROOT.kGreen+2, width=3 )
-
-    #ewkDM_10.style = styles.lineStyle( ROOT.kMagenta, width=3 )
-    #ewkDM_11.style = styles.lineStyle( ROOT.kCyan+1, width=3 )
-
-
-    #ewkDM_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    #ewkDM_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    #ewkDM_4.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    #ewkDM_9.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
-
-    #ewkDM_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-    #ewkDM_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-    #ewkDM_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-    #ewkDM_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
-
-    #ewkDM_20.style = styles.lineStyle( ROOT.kBlack, width=3 )
-    #ewkDM_21.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    #ewkDM_22.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    #ewkDM_23.style = styles.lineStyle( ROOT.kCyan+1, width=3)
-    #ewkDM_24.style = styles.lineStyle( ROOT.kCyan+1, width=3, dotted=True)
-    #ewkDM_25.style = styles.lineStyle( ROOT.kBlue, width=3)
-    #ewkDM_26.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-
     ewkDM_30.style = styles.lineStyle( ROOT.kBlack, width=3, errors = True )
     ewkDM_31.style = styles.lineStyle( ROOT.kMagenta, width=3, errors = True )
 
-    TTZ_LO.style = styles.lineStyle ( ROOT.kBlack, width=3 )
-    #signals = [ewkDM_0,ewkDM_1]
-    #signals = [ewkDM_1]
-    #signals = [ewkDM_0, ewkDM_10, ewkDM_11, ewkDM_1]
-    #signals = [ewkDM_2,ewkDM_3,ewkDM_4,ewkDM_5,ewkDM_6,ewkDM_7,ewkDM_8, ewkDM_9]
-    #signals = [ ewkDM_20, ewkDM_21, ewkDM_22, ewkDM_23, ewkDM_24, ewkDM_25, ewkDM_26 ]
-    #signals = [ ewkDM_20, ewkDM_21, ewkDM_23]
     signals = [ewkDM_30, ewkDM_31]
-    #signals = [TTZ_LO]
+
+elif args.signal == "ewkDM":
+    data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+    postProcessing_directory = "TopEFT_PP_v11/trilep/"
+    from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
+    
+    SM          = ttZ0j_ll
+    
+    current1    = ttZ0j_ll_DC1A_1p000000
+    current2    = ttZ0j_ll_DC1A_0p500000_DC1V_0p500000
+    current3    = ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000
+    
+    SM.style       = styles.lineStyle( ROOT.kBlack, width=3, errors = True )
+    current1.style = styles.lineStyle( ROOT.kMagenta, width=3, errors = True )
+    current2.style = styles.lineStyle( ROOT.kBlue, width=3, errors = True )
+    current3.style = styles.lineStyle( ROOT.kGreen+1, width=3, errors = True )
+    
+    signals = [SM, current1, current2, current3]
 
 else:
     signals = []
@@ -398,23 +361,57 @@ def getZPol( event, sample ):
     event.dPhi_Zl2 = deltaPhi( event.lep_phi[event.Z_l2_index], event.Z_phi )
     event.dEta_Zl2 = abs( event.lep_eta[event.Z_l2_index] - event.Z_eta )
     
-    Z_l1 = ROOT.TLorentzVector()
-    Z_l2 = ROOT.TLorentzVector()
-    Z    = ROOT.TLorentzVector()
-    lminus = ROOT.TLorentzVector()
+    # define the vectors
+    Z_l1    = ROOT.TLorentzVector()
+    Z_l2    = ROOT.TLorentzVector()
+    Z       = ROOT.TLorentzVector()
+    lminus  = ROOT.TLorentzVector()
+    lplus   = ROOT.TLorentzVector()
     
     lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+    lp_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] < 0 else event.Z_l2_index
 
+    # set the vectors    
     lminus.SetPtEtaPhiM(event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index], 0)
+    lplus.SetPtEtaPhiM(event.lep_pt[lp_index], event.lep_eta[lp_index], event.lep_phi[lp_index], 0)
     Z_l1.SetPtEtaPhiM(event.lep_pt[event.Z_l1_index], event.lep_eta[event.Z_l1_index], event.lep_phi[event.Z_l1_index], 0)
     Z_l2.SetPtEtaPhiM(event.lep_pt[event.Z_l2_index], event.lep_eta[event.Z_l2_index], event.lep_phi[event.Z_l2_index], 0)
-    Z.SetPtEtaPhiM(event.Z_pt, event.Z_eta, event.Z_phi, 91.2)
-    Z_l1.Boost(-Z.BoostVector())
-    Z_l2.Boost(-Z.BoostVector())
-    event.cosTS_l1 = cos( Z_l1.Theta() )
-    event.cosTS_l2 = cos( Z_l2.Theta() )
-    event.cosTS = cos( lminus.Theta() )
+    Z.SetPtEtaPhiM(event.Z_pt, event.Z_eta, event.Z_phi, event.Z_mass)
 
+    boost = -Z.BoostVector()
+
+    Z_l1.Boost(boost)
+    Z_l2.Boost(boost)
+    lminus.Boost(boost)
+    lplus.Boost(boost)
+
+    event.lZp_pt        = event.lep_pt[lp_index]
+    event.lZm_pt        = event.lep_pt[lm_index]
+
+    #print
+    #print Z.Theta(), Z.Pt(), Z.Phi(), Z.Eta()
+    #Z.Boost(boost)
+    
+    event.cosTS_l1      = cos( Z_l1.Theta() )
+    event.cosTS_l2      = cos( Z_l2.Theta() )
+    event.cosTS         = cos( lminus.Theta() )
+    event.cosTSplus     = cos( lplus.Theta() )
+
+    event.absPS_l1      = abs( Z_l1.Phi() )
+    event.absPS_l2      = abs( Z_l2.Phi() )
+    event.absPS         = abs( lminus.Phi() )
+    event.absPSplus     = abs( lplus.Phi() )
+
+    event.lZ1_pt_RF     = Z_l1.Pt()
+    event.lZ2_pt_RF     = Z_l2.Pt()
+
+    #print
+    #print Z.Px(), Z.Py(), Z.Pz(), Z.Pt(), Z.Phi(), Z.Eta(), Z.Theta()
+    #Z.Boost(boost)
+    #print Z.Px(), Z.Py(), Z.Pz(), Z.Pt(), Z.Phi(), Z.Eta(), Z.Theta()
+
+    #print Z.Theta(), Z.Pt(), Z.Phi(), Z.Eta()
+    #print Z_l1.Theta(), Z_l2.Theta()
 #    event.dPhi_Zl2 
 
 sequence.append( getZPol )
@@ -618,6 +615,18 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
+        name = 'lZ1_pt_RF', texX = 'p_{T}(l_{1,Z}) Z RF (GeV)', texY = 'Number of Events / 5 GeV',
+        attribute = lambda event, sample:event.lZ1_pt_RF,
+        binning=[10,0,50],
+    ))
+    
+    plots.append(Plot(
+        name = 'lZ2_pt_RF', texX = 'p_{T}(l_{2,Z}) Z RF (GeV)', texY = 'Number of Events / 2 GeV',
+        attribute = lambda event, sample:event.lZ2_pt_RF,
+        binning=[25,00,50],
+    ))
+    
+    plots.append(Plot(
         name = "lZ2_pt",
         texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
@@ -694,6 +703,18 @@ for index, mode in enumerate(allModes):
       texX = 'p_{T}(trailing l) (GeV)', texY = 'Number of Events / 10 GeV',
       name = 'lep3_pt', attribute = lambda event, sample: event.lep_pt[2],
       binning=[150/10,0,150],
+    ))
+    
+    plots.append(Plot(
+      texX = 'p_{T}(Z l+) (GeV)', texY = 'Number of Events / 10 GeV',
+      name = 'lZp_pt', attribute = lambda event, sample: event.lZp_pt,
+      binning=[20,0,200],
+    ))
+    
+    plots.append(Plot(
+      texX = 'p_{T}(Z l-) (GeV)', texY = 'Number of Events / 10 GeV',
+      name = 'lZm_pt', attribute = lambda event, sample: event.lZm_pt,
+      binning=[20,0,200],
     ))
     
     plots.append(Plot(
@@ -919,15 +940,45 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
+        name = "cosTS_l1_coarse", texX = 'cos#theta_{l1}', texY = 'Number of Events / 0.4',
+        attribute = lambda event, sample:event.cosTS_l1,
+        binning=[5,-1,1],
+    ))
+    
+    plots.append(Plot(
         name = "cosTS_l2", texX = 'cos#theta_{l2}', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.cosTS_l2,
         binning=[10,-1,1],
     ))
     
     plots.append(Plot(
-        name = "cosTS", texX = 'cos#theta', texY = 'Number of Events / 0.2',
+        name = "cosTS", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.cosTS,
         binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "cosTS_coarse", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.4',
+        attribute = lambda event, sample:event.cosTS,
+        binning=[5,-1,1],
+    ))
+
+    plots.append(Plot(
+        name = "cosTSplus", texX = 'cos#theta(l+)', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.cosTSplus,
+        binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "absPS_l1", texX = '|#phi(l1)|', texY = 'Number of Events / 0.4',
+        attribute = lambda event, sample:event.absPS_l1,
+        binning=[8,0,3.2],
+    ))
+
+    plots.append(Plot(
+        name = "absPS_l2", texX = '|#phi(l2)|', texY = 'Number of Events / 0.4',
+        attribute = lambda event, sample:event.absPS_l2,
+        binning=[8,0,3.2],
     ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)

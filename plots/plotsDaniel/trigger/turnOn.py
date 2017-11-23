@@ -57,17 +57,19 @@ postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v6/dilep/"
+postProcessing_directory = "TopEFT_PP_v10/dilep/"
 from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_1e import *
 
 presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
 
 # presel for measuring efficiencies in single lep datasets
 presel = "nlep==2&&nGoodElectrons==1&&nGoodMuons==1&&lep_pdgId[0]*lep_pdgId[1]<0"
+presel = "nlep==1"
 
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
+channels = {'1e':'nGoodElectrons==1'}
 #channels = {'all':'(1)'}
 
 # singleMu
@@ -104,11 +106,18 @@ triggers_2016 = {
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
 }
 
-triggers_2016_MS = {
+triggers_2016_mu = {
     "IsoMu22":"HLT_IsoMu22",
     "SingleMu":"(%s)"%"||".join(singleMuTriggers),
     "SingleMuTTZ": "HLT_SingleMuTTZ"
 }
+
+triggers_2016_ele = {
+    "Ele27_WPTight_Gsf":"HLT_Ele27_WPTight_Gsf",
+    "SingleEle":"(%s)"%"||".join(singleEleTriggers),
+    "SingleEleTTZ": "HLT_SingleEleTTZ"
+}
+
 
 mu_17           = ["HLT_mu"]
 mu_nonIso_17    = ["HLT_mu_nonIso"]
@@ -131,15 +140,20 @@ triggers_2017 = {
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
 }
 
-triggers = triggers_2016_MS
 
-colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1}
-markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22}
+
+triggers = triggers_2016_ele
+
+
+
+colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
+markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22, "SingleEle":23, "SingleEleTTZ":22}
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
-#sample = MET_Run2016
-sample = SingleElectron_Run2016
+sample = MET_Run2016
+#sample = SingleMuon_Run2016
+#sample = SingleElectron_Run2016
 
 leptons = ["lep_pt[0]", "lep_pt[1]"]
 
@@ -160,7 +174,8 @@ for lep in leptons:
             
             print baseline
             print trigger_sel
-    
+
+            
             h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
             h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
     
@@ -260,7 +275,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", "Run2016_SingleEle_2l", "turnOn", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)
@@ -304,6 +319,6 @@ for lep in leptons:
         leg2.Draw()
     
         for f in ['.png','.pdf','.root']:
-            can.Print(plot_dir+"/%s_%s_comp_zoom"%(lep,sample.name)+f)
+            can.Print(plot_dir+"/%s_comp_zoom"%(lep)+f)
 
 

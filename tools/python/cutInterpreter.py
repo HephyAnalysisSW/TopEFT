@@ -18,7 +18,6 @@ special_cuts = {
     "trilep":            "nlep==3",
     "Zcand":             "Z_mass>0",
     "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
-
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "onZ":               "abs(Z_mass-91.2)<10",
 
