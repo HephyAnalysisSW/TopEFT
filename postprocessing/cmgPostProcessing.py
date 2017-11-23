@@ -365,7 +365,7 @@ read_variables += [\
 ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
-new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F'] )
+new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
 
 if options.leptonConvinience:
     lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
