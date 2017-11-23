@@ -44,15 +44,15 @@ weight = "weight*35.9*reweightBTagCSVv2_SF_b_Up"
 
 
 regions = [\
-            "njet==2&&%s==0"%btag,
-            "njet==3&&%s==0"%btag,
-            "njet>=4&&%s==0"%btag,
-            "njet==2&&%s==1"%btag,
-            "njet==3&&%s==1"%btag,
-            "njet>=4&&%s==1"%btag,
-            "njet==2&&%s>=2"%btag,
-            "njet==3&&%s>=2"%btag,
-            "njet>=4&&%s>=2"%btag,
+            "nJetSelected==2&&%s==0"%btag,
+            "nJetSelected==3&&%s==0"%btag,
+            "nJetSelected>=4&&%s==0"%btag,
+            "nJetSelected==2&&%s==1"%btag,
+            "nJetSelected==3&&%s==1"%btag,
+            "nJetSelected>=4&&%s==1"%btag,
+            "nJetSelected==2&&%s>=2"%btag,
+            "nJetSelected==3&&%s>=2"%btag,
+            "nJetSelected>=4&&%s>=2"%btag,
             ]
 
 nReg = len(regions)

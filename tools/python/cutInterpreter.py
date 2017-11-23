@@ -24,7 +24,7 @@ special_cuts = {
   }
 
 continous_variables = [ ("metSig", "metSig"), ("mll", "dl_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt") ]
-discrete_variables  = [ ("njet", "njet"), ("btag", "nBTag") , ("nlep","nlep") ]
+discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]
 
 class cutInterpreter:
     ''' Translate var100to200-var2p etc.

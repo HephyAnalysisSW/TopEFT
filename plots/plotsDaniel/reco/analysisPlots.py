@@ -163,7 +163,7 @@ if args.reweightPtZToSM:
 # Read variables and sequences
 #
 read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I","nJetSelected/I",
                     "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
@@ -176,11 +176,11 @@ def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
 
 def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan')
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.nJetSelected>0 and event.Z_mass>0 else float('nan')
 
 def getJets( event, sample ):
     jetVars     = ['eta','pt','phi','btagCSV']
-    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'nJetSelected')))]
     event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
 
 mt = 172.5
@@ -683,7 +683,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
-      attribute = TreeVariable.fromString( "njet/I" ),
+      attribute = TreeVariable.fromString( "nJetSelected/I" ),
       binning=[5,2.5,7.5],
     ))
     
