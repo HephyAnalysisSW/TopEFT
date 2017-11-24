@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v10/trilep/"
+  postProcessing_directory = "TopEFT_PP_v12/dilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -40,11 +40,11 @@ dirs['nonprompt']       = ['TTLep_pow'] #only ttjets for now
 
 dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
 
-dirs['WJets_LO']        = ['WJetsToLNu_LO']
-dirs['WJets']           = ['WJetsToLNu']
+#dirs['WJets_LO']        = ['WJetsToLNu_LO']
+#dirs['WJets']           = ['WJetsToLNu']
 
 dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
-dirs['pseudoDataPriv']  = dirs['ewkDM_ttZ_ll_noH'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
+#dirs['pseudoDataPriv']  = dirs['ewkDM_ttZ_ll_noH'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
 
 dirs['background']      = dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare']
 
@@ -53,12 +53,12 @@ dirs['background']      = dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] +
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
 pseudoData      = Sample.fromDirectory(name="pseudoData",       treeName="Events", isData=False, color=ROOT.kBlack,            texName="pseudo-data",                          directory=directories['pseudoData'])
-pseudoDataPriv  = Sample.fromDirectory(name="pseudoDataPriv",   treeName="Events", isData=False, color=ROOT.kBlack,            texName="pseudo-data",                          directory=directories['pseudoDataPriv'])
+#pseudoDataPriv  = Sample.fromDirectory(name="pseudoDataPriv",   treeName="Events", isData=False, color=ROOT.kBlack,            texName="pseudo-data",                          directory=directories['pseudoDataPriv'])
 TTZtoLLNuNu     = Sample.fromDirectory(name="TTZtoLLNuNu",      treeName="Events", isData=False, color=color.TTZtoLLNuNu,       texName="t#bar{t}Z (l#bar{l}/#nu#bar{#nu})",    directory=directories['TTZtoLLNuNu'])
 TTZ_LO          = Sample.fromDirectory(name="TTZ_LO",           treeName="Events", isData=False, color=color.TTZtoLLNuNu+1,            texName="t#bar{t}Z (LO)",                       directory=directories['TTZ_LO'])
 WZ              = Sample.fromDirectory(name="WZ",               treeName="Events", isData=False, color=color.WZ,                texName="WZ",                                   directory=directories['WZ'])
-WJets_LO        = Sample.fromDirectory(name="WJets_LO",         treeName="Events", isData=False, color=color.WJetsToLNu,                texName="W+jets (LO)",            directory=directories['WJets_LO'])
-WJets           = Sample.fromDirectory(name="WJets",            treeName="Events", isData=False, color=color.WJetsToLNu+2,               texName="W+jets (NLO)",            directory=directories['WJets'])
+#WJets_LO        = Sample.fromDirectory(name="WJets_LO",         treeName="Events", isData=False, color=color.WJetsToLNu,                texName="W+jets (LO)",            directory=directories['WJets_LO'])
+#WJets           = Sample.fromDirectory(name="WJets",            treeName="Events", isData=False, color=color.WJetsToLNu+2,               texName="W+jets (NLO)",            directory=directories['WJets'])
 TTX             = Sample.fromDirectory(name="TTX",              treeName="Events", isData=False, color=ROOT.kRed-10,               texName="t(t)X",                                directory=directories['TTX'])
 TTW             = Sample.fromDirectory(name="TTW",              treeName="Events", isData=False, color=color.TTX,               texName="t#bar{t}W",                                directory=directories['TTW'])
 TZQ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,               texName="tZq",                                directory=directories['TZQ'])
