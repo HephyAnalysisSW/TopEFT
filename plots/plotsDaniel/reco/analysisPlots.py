@@ -8,7 +8,7 @@ import ROOT, os
 ROOT.gROOT.SetBatch(True)
 import itertools
 
-from math                         import sqrt, cos, sin, pi, acos
+from math                         import sqrt, cos, sin, pi, acos, cosh
 from RootTools.core.standard      import *
 from TopEFT.tools.user            import plot_directory
 from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue, deltaR, deltaR2
@@ -84,8 +84,24 @@ elif args.signal == "ewkDM":
     current1.style = styles.lineStyle( ROOT.kMagenta, width=3, errors = True )
     current2.style = styles.lineStyle( ROOT.kBlue, width=3, errors = True )
     current3.style = styles.lineStyle( ROOT.kGreen+1, width=3, errors = True )
+ 
+    dipole1     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
+    dipole2     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700
+    dipole3     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700
+    dipole4     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700
+    dipole5     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000
+    dipole6     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000
+    dipole7     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
+    dipole8     = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000
     
-    signals = [SM, current1, current2, current3]
+    dipoles = [ dipole1, dipole2, dipole3, dipole4, dipole5, dipole6, dipole7, dipole8 ]
+    
+    colors = [ ROOT.kMagenta+1, ROOT.kOrange, ROOT.kBlue, ROOT.kCyan+1, ROOT.kGreen+1, ROOT.kRed, ROOT.kViolet, ROOT.kYellow+2 ]
+    for i, dipole in enumerate(dipoles):
+        dipole.style = styles.lineStyle( colors[i], width=3 )
+    
+    #signals = [SM, current1, current2, current3]
+    signals = [SM] + dipoles 
 
 else:
     signals = []
@@ -163,7 +179,7 @@ if args.reweightPtZToSM:
 # Read variables and sequences
 #
 read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I","nJetSelected/I",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",#"nJetSelected/I",
                     "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
@@ -176,11 +192,11 @@ def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
 
 def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.nJetSelected>0 and event.Z_mass>0 else float('nan')
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan') #nJetSelected
 
 def getJets( event, sample ):
     jetVars     = ['eta','pt','phi','btagCSV']
-    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'nJetSelected')))]
+    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] #nJetSelected
     event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
 
 mt = 172.5
@@ -416,6 +432,30 @@ def getZPol( event, sample ):
 
 sequence.append( getZPol )
 
+def getCosThetaStar( event, sample ):
+    # get the negative-charge lepton from Z
+    lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+    
+    # get the Z and lepton vectors
+    Z   = ROOT.TVector3()
+    l   = ROOT.TVector3()
+
+    # set the values
+    Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
+    l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
+
+    # get cos(theta)
+    cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
+    
+    # get beta and gamma
+    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+    beta    = sqrt( 1 - 1/gamma**2 )
+    
+    cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
+    event.cosThetaStar = cosThetaStar
+
+sequence.append( getCosThetaStar )
+
 def getLeptonicTop( event, sample ):
     lepton  = ROOT.TLorentzVector()
     met     = ROOT.TLorentzVector()
@@ -568,6 +608,12 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
+        name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
+        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        binning=[4,0,400],
+    ))
+    
+    plots.append(Plot(
         texX = '#Delta#phi(ll)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_lldPhi/F" ),
         binning=[10,0,pi],
@@ -683,7 +729,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
-      attribute = TreeVariable.fromString( "nJetSelected/I" ),
+      attribute = TreeVariable.fromString( "njet/I" ), #nJetSelected
       binning=[5,2.5,7.5],
     ))
     
@@ -955,6 +1001,18 @@ for index, mode in enumerate(allModes):
         name = "cosTS", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.cosTS,
         binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "cosThetaStar", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.cosThetaStar,
+        binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "cosThetaStar_coarse", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.4',
+        attribute = lambda event, sample:event.cosThetaStar,
+        binning=[5,-1,1],
     ))
     
     plots.append(Plot(

@@ -12,7 +12,7 @@ import shutil
 
 from array import array
 from operator import mul
-from math import sqrt, atan2, sin, cos
+from math import sqrt, atan2, sin, cos, cosh
 
 # RootTools
 from RootTools.core.standard import *
@@ -379,7 +379,7 @@ new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
-new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F'] )
+new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F'] )
 
 if options.keepPhotons: 
     new_variables.extend( ['nPhotonGood/I','photon_pt/F','photon_eta/F','photon_phi/F','photon_idCutBased/I'] )
@@ -521,6 +521,21 @@ def filler( event ):
         event.Z_phi  = Z.Phi()
         event.Z_lldPhi = deltaPhi(leptons[event.Z_l1_index]['phi'], leptons[event.Z_l2_index]['phi'])
         event.Z_lldR   = deltaR(leptons[event.Z_l1_index], leptons[event.Z_l2_index])
+        
+        ## get the information for cos(theta*)
+        # get the Z and lepton (negative charge) vectors
+        lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+        Z   = ROOT.TVector3()
+        l   = ROOT.TVector3()
+        Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
+        l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
+        
+        # get cos(theta) and the lorentz factor, calculate cos(theta*)
+        cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
+        gamma   = sqrt( 1 + event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+        beta    = sqrt( 1 - 1/gamma**2 )
+        event.cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
+
 
     # Jets and lepton jet cross-cleaning    
     allJets      = getAllJets(r, leptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
