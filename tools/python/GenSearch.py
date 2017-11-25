@@ -53,30 +53,28 @@ class GenSearch:
         for d in self.daughters( self.descend( p ) ):
             self.print_decay( d, prefix = prefix+'--')
 
-#    def __ancestry(self, l, stop_at_pdgId):
-#        ''' Returns indices of all genParticles in the ancestry of l
-#        '''
-#        # print "Looking at %s, nMothers %i, already self.__found: %s"% ( pdgToName(l['pdgId']), l['nMothers'], ",".join(str(x) for x in self.__found) )
-#        for i in range(min(2,l['nMothers'])):
-#            midx = l['motherIndex'+str(i+1)]
-#            m = self.genParticles[midx]
-#            if abs(m['pdgId']) in stop_at_pdgId or m['nMothers']==0:
-#                # print "Done."
-#                return self.__found
-#            else:
-#                self.__found.add( midx )
-#                self.__found.union( self.__ancestry( m , stop_at_pdgId = stop_at_pdgId ) )
-#        # print "Done alltogether."
-#        return self.__found
+    def __ancestry(self, p, stop_at_pdgId):
+        ''' Returns indices of all genParticles in the ancestry of l
+        '''
+        # print "Looking at %s, nMothers %i, already self.__found: %s"% ( pdgToName(l['pdgId']), l['nMothers'], ",".join(str(x) for x in self.__found) )
+        for m in self.mothers(p):
+            if abs(m.pdgId()) in stop_at_pdgId or m.numberOfMothers()==0:
+                # print "Done."
+                return self.__found
+            else:
+                self.__found.add( m )
+                self.__found.union( self.__ancestry( m , stop_at_pdgId = stop_at_pdgId ) )
+        # print "Done alltogether."
+        return self.__found
             
 
-#D_mesons = set([ 411, -411, 421, -421, 413, -413, 423, -423, 10411, -10411, 10421, -10421, 10413, -10413, 10423, -10423, 415, -415, 425, -425, 20413, -20413, 20423, -20423, 431, -431, 433, -433, 10431, -10431, 10433, -10433, 435, -435, 20433, -20433])
-#B_mesons = set([ 511, -511, 521, -521, 513, -513, 523, -523, 10511, -10511, 10521, -10521, 10513, -10513, 10523, -10523, 515, -515, 525, -525, 20513, -20513, 20523, -20523, 531, -531, 533, -533, 10531, -10531, 10533, -10533, 535, -535, 20533, -20533, 541, -541, 543, -543, 10541, -10541, 10543, -10543, 545, -545, 20543, -20543])
-#massive_vector_bosons = set([23, 24, -24])
-#
-#D_mesons_abs = set(abs(x) for x in D_mesons)
-#B_mesons_abs = set(abs(x) for x in B_mesons)
-#massive_vector_bosons_abs = set([23, 24])
+D_mesons = set([ 411, -411, 421, -421, 413, -413, 423, -423, 10411, -10411, 10421, -10421, 10413, -10413, 10423, -10423, 415, -415, 425, -425, 20413, -20413, 20423, -20423, 431, -431, 433, -433, 10431, -10431, 10433, -10433, 435, -435, 20433, -20433])
+B_mesons = set([ 511, -511, 521, -521, 513, -513, 523, -523, 10511, -10511, 10521, -10521, 10513, -10513, 10523, -10523, 515, -515, 525, -525, 20513, -20513, 20523, -20523, 531, -531, 533, -533, 10531, -10531, 10533, -10533, 535, -535, 20533, -20533, 541, -541, 543, -543, 10541, -10541, 10543, -10543, 545, -545, 20543, -20543])
+massive_vector_bosons = set([23, 24, -24])
+
+D_mesons_abs = set(abs(x) for x in D_mesons)
+B_mesons_abs = set(abs(x) for x in B_mesons)
+massive_vector_bosons_abs = set([23, 24])
 #
 pdgToName_ =\
 {1:"d",

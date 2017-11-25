@@ -21,7 +21,7 @@ from RootTools.core.standard import *
 import TopEFT.tools.user as user
 
 # Tools for systematics
-from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ
+from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar
 from TopEFT.tools.addJERScaling              import addJERScaling
 from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
 from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
@@ -35,7 +35,7 @@ from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
 #leptonTrackingSF        = leptonTrackingEfficiency()
 
 #MC tools
-from TopEFT.tools.mcTools import pdgToName, GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
+from TopEFT.tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
 genSearch = GenSearch()
 
 # central configuration
@@ -66,7 +66,7 @@ def get_parser():
     argParser.add_argument('--keepAllJets',                 action='store_true',                                                                                        help="Keep all jets?")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
-    argParser.add_argument('--skipGenLepMatching',          action='store_true',                                                                                        help="skip matched genleps??")
+    argParser.add_argument('--skipGenMatching',          action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
@@ -348,9 +348,10 @@ if isMC:
 
     new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
 
-    if not options.skipGenLepMatching:
+    if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
         new_variables.append( 'GenLep[%s]'% ( ','.join(genLepVars) ) )
+        new_variables.extend(['genZ_pt/F', 'genZ_mass/F', 'genZ_eta/F', 'genZ_phi/F', 'genZ_cosThetaStar/F' ])
 
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
@@ -525,17 +526,7 @@ def filler( event ):
         ## get the information for cos(theta*)
         # get the Z and lepton (negative charge) vectors
         lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
-        Z   = ROOT.TVector3()
-        l   = ROOT.TVector3()
-        Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
-        l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
-        
-        # get cos(theta) and the lorentz factor, calculate cos(theta*)
-        cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
-        gamma   = sqrt( 1 + event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
-        beta    = sqrt( 1 - 1/gamma**2 )
-        event.cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
-
+        event.cosThetaStar = cosThetaStar(event.Z_mass, event.Z_pt, event.Z_eta, event.Z_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
     # Jets and lepton jet cross-cleaning    
     allJets      = getAllJets(r, leptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
@@ -649,7 +640,7 @@ def filler( event ):
                 setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
 
     # gen information on extra leptons
-    if isMC and not options.skipGenLepMatching:
+    if isMC and not options.skipGenMatching:
         genSearch.init( gPart )
         # Start with status 1 gen leptons in acceptance
         gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1 and p['pt']>20 and abs(p['eta'])<2.5, gPart )
@@ -665,12 +656,26 @@ def filler( event ):
                 l["lepGood2MatchIndex"] = matched_lep['index']
             else:
                 l["lepGood2MatchIndex"] = -1
-
+        # store genleps
         event.nGenLep   = len(gLep)
         for iLep, lep in enumerate(gLep):
             for b in genLepVarNames:
                 getattr(event, "GenLep_"+b)[iLep] = lep[b]
 
+        # gen Z
+        genZs = filter( lambda p: (abs(p['pdgId'])==23 and genSearch.isLast(p)), gPart )
+        genZs.sort( key = lambda p: -p['pt'] )
+        if len( genZs )>0:
+            genZ = genZs[0]
+            event.genZ_pt  = genZ['pt'] 
+            event.genZ_mass= genZ['mass']
+            event.genZ_eta = genZ['eta']
+            event.genZ_phi = genZ['phi']
+
+            lep_m = filter( lambda p: p['pdgId'] in [11, 13, 15], genSearch.daughters( genZ ) )
+            if len( lep_m ) == 1:
+                event.genZ_cosThetaStar = cosThetaStar( event.genZ_mass, event.genZ_pt, event.genZ_eta, event.genZ_phi, lep_m[0]['pt'], lep_m[0]['eta'], lep_m[0]['phi'] )
+    
 # Create a maker. Maker class will be compiled. This instance will be used as a parent in the loop
 treeMaker_parent = TreeMaker(
     sequence  = [ filler ],
