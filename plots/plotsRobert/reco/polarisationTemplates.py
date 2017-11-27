@@ -8,24 +8,35 @@ from RootTools.core.standard import *
 from TopEFT.tools.cutInterpreter import cutInterpreter
 from TopEFT.tools.user import results_directory, plot_directory 
 
+small = True
+maxN = 1000 if small else -1
+
+#
+# Arguments
+# 
+import argparse
+argParser = argparse.ArgumentParser(description = "Argument parser")
+argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--overwrite',          action='store_true', help='overwrite?', )
+args = argParser.parse_args()
+
 # Logger
 if __name__ == "__main__":
     import TopEFT.tools.logger as logger
     import RootTools.core.logger as logger_rt
-    logger    = logger.get_logger(   'INFO', logFile = None)
-    logger_rt = logger_rt.get_logger('INFO', logFile = None)
+    logger    = logger.get_logger(   args.logLevel, logFile = None)
+    logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 else:
     import logging
     logger = logging.getLogger(__name__)
 
 # polarisation bins
-genZ_pt_bins  = [ (0, 100)]#, (100, 200), (200, -1) ]
-genZ_eta_bins = [ (0, 1.3)]#, (1.3, -1) ]
-
+genZ_pt_bins  = [ (0, -1), (0, 100), (100, -1), (100, 200), (200, -1) ]
+genZ_eta_bins = [ (0, -1), (0, 1.3), (1.3, -1) ]
 
 # polarisation histos from sample
 template_pkl = os.path.join( results_directory, 'ZPolarisationTemplates/templates.pkl' )
-if not os.path.exists( template_pkl ):
+if not os.path.exists( template_pkl ) or args.overwrite:
     logger.info("pkl file %s not found. Making templates", template_pkl)
 
     # sample
@@ -35,10 +46,6 @@ if not os.path.exists( template_pkl ):
 
     # kinematic preselection
     cut_string = cutInterpreter.cutString('njet3p-btag1p')
-
-    r = sample.treeReader( \
-            variables = map( TreeVariable.fromString, ['genZ_cosThetaStar/F', 'cosThetaStar/F', 'weight/F', 'genZ_pt/F', 'genZ_eta/F']),
-            selectionString = cut_string )
 
     # make pure polarisation histograms
     polarisations = ["p", "m", "L"]
@@ -74,25 +81,26 @@ if not os.path.exists( template_pkl ):
             name = "h_Z_pol_%i_%i"%( i_genZ_pt_bin, i_genZ_eta_bin )
             templates[genZ_pt_bin][genZ_eta_bin] = { p : ROOT.TH1F(name+'_'+p, name+'_'+p, 20, -1, 1 ) for p in polarisations }
 
-    r.start()
-    while r.run():
-        for i_genZ_pt_bin, genZ_pt_bin in enumerate(genZ_pt_bins):
-            if r.event.genZ_pt>=genZ_pt_bin[0] and (r.event.genZ_pt<genZ_pt_bin[1] or genZ_pt_bin[1]<0):
-                for i_genZ_eta_bin, genZ_eta_bin in enumerate(genZ_eta_bins):
-                    if abs(r.event.genZ_eta)>=genZ_eta_bin[0] and (abs(r.event.genZ_eta)<genZ_eta_bin[1] or genZ_eta_bin[1]<0):
-                        for p in polarisations:
+            r = sample.treeReader( \
+                    variables = map( TreeVariable.fromString, ['genZ_cosThetaStar/F', 'cosThetaStar/F', 'weight/F']),
+                    selectionString = selectionString )
 
-                            w = r.event.weight*f_Z_pol[p].Eval(r.event.genZ_cosThetaStar)
-                            h = sample_genZ_cosThetaStar[genZ_pt_bin][genZ_eta_bin]
-                            sw = h.GetBinContent(h.FindBin(r.event.genZ_cosThetaStar))
-                            if sw>0:
-                                w/=sw
-                            else:
-                                w=0
+            r.start()
+            while r.run():
+                for p in polarisations:
 
-                            templates[genZ_pt_bin][genZ_eta_bin][p].Fill( r.event.cosThetaStar, w )
-                    #print r.event.weight, f_Z_pol[p].Eval(r.event.genZ_cosThetaStar), sample_genZ_cosThetaStar.GetBinContent(sample_genZ_cosThetaStar.FindBin(r.event.genZ_cosThetaStar))
+                    if not r.event.genZ_cosThetaStar<float('inf'): continue
+                    w = r.event.weight*f_Z_pol[p].Eval(r.event.genZ_cosThetaStar)
+                    h = sample_genZ_cosThetaStar[genZ_pt_bin][genZ_eta_bin]
+                    sw = h.GetBinContent(h.FindBin(r.event.genZ_cosThetaStar))
+                    if sw>0:
+                        w/=sw
+                    else:
+                        w=0
 
+                    templates[genZ_pt_bin][genZ_eta_bin][p].Fill( r.event.cosThetaStar, w )
+                    #print r.event.weight, f_Z_pol[p].Eval(r.event.genZ_cosThetaStar), h.GetBinContent(h.FindBin(r.event.genZ_cosThetaStar))
+            sample.chain.SetBranchStatus( "*", 1 )
     # Normalisation
     for i_genZ_pt_bin, genZ_pt_bin in enumerate(genZ_pt_bins):
         for i_genZ_eta_bin, genZ_eta_bin in enumerate(genZ_eta_bins):
@@ -106,6 +114,7 @@ if not os.path.exists( template_pkl ):
         os.makedirs(os.path.dirname( template_pkl ))
 
     pickle.dump( templates, file( template_pkl, 'w') )
+    logger.info( "Written %s", template_pkl )
 else:
     logger.info("pkl file %s found. Loading templates.", template_pkl)
     templates = pickle.load( file( template_pkl ) )
@@ -121,5 +130,5 @@ if __name__ == "__main__":
             templates[genZ_pt_bin][genZ_eta_bin]['L'].style = styles.lineStyle( ROOT.kBlue )
 
             histos = [ [templates[genZ_pt_bin][genZ_eta_bin]['p']], [templates[genZ_pt_bin][genZ_eta_bin]['m']], [templates[genZ_pt_bin][genZ_eta_bin]['L']] ]
-            plot = Plot.fromHisto( "pt_%i_%i"%genZ_pt_bin + '_eta_%3.2f_%3.2f'%genZ_eta_bin, texX = '#cos#theta^{#ast} (reco)' , histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'TopEFT/polPlots' ), logY = False) 
+            plot = Plot.fromHisto( "pt_%i_%i"%genZ_pt_bin + '_eta_%3.2f_%3.2f'%genZ_eta_bin, texX = 'cos#theta^{*} (reco)' , histos = histos)
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'polPlots' ), logY = False) 

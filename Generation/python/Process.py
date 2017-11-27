@@ -133,7 +133,7 @@ class Process:
         gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ) )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
-            logger.debug( "Found gridpack %s. Do nothing", gridpack )
+            logger.info( "Found gridpack %s. Do nothing", gridpack )
             return
         else:
             self.__initialize( modified_couplings ) 
