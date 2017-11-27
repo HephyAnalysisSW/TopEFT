@@ -16,6 +16,7 @@
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TTGJets TTGJets_ext # SPLIT20
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TTTT # SPLIT10
 #
+
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TTLep_pow #SPLIT30
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample GGHZZ4L #SPLIT10
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TGJets TGJets_ext #SPLIT10
@@ -23,8 +24,7 @@
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample VHToNonbb #SPLIT10
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample WWDoubleTo2L #SPLIT10
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample WpWpJJ #SPLIT10
-#
-#python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TTZ_LO #SPLIT10
+#python cmgPostProcessing.py --skim inclusive --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v12 --sample TTZ_LO #SPLIT10
 
 ## optional
 #python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_v10 --sample TTJets_DiLepton TTJets_DiLepton_ext #SPLIT30
