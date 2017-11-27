@@ -26,7 +26,7 @@ argParser.add_argument('--onlyTTZ',            action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v12')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
@@ -49,10 +49,9 @@ if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
-postProcessing_directory = "TopEFT_PP_v11/trilep/"
+postProcessing_directory = "TopEFT_PP_v12/trilep/"
 data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
 if args.signal ==  "C2VA0p2":
@@ -156,8 +155,21 @@ sequence = []
 
 def extra_observables( event, sample ):
 
+    # get the negative-charge lepton from Z
+    l_m_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+    
+    # beta and gamma from Z
+    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+    beta    = sqrt( 1 - 1/gamma**2 )
+    
     # Z boson and l3 (convinience)
     Z_3D   = ROOT.TVector3( event.Z_pt*cos(event.Z_phi), event.Z_pt*sin(event.Z_phi), event.Z_pt*sinh(event.Z_eta) )
+    l_m_3D =  ROOT.TVector3(event.lep_pt[l_m_index]*cos(event.lep_phi[l_m_index]), event.lep_pt[l_m_index]*sin(event.lep_phi[l_m_index]), event.lep_pt[l_m_index]*sinh(event.lep_eta[l_m_index]))
+
+    # cos(theta)  ... cos(Z, l^-) in lab frame
+    cosTheta = Z_3D*l_m_3D / (sqrt(Z_3D*Z_3D) * sqrt(l_m_3D*l_m_3D))
+    event.cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta) 
+
     l3_3D  = ROOT.TVector3( event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index]), event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index]), event.lep_pt[event.nonZ_l1_index]*sinh(event.lep_eta[event.nonZ_l1_index]) )
     l3_pt  = event.lep_pt[event.nonZ_l1_index] 
     l3_phi = event.lep_phi[event.nonZ_l1_index] 
@@ -357,7 +369,13 @@ for index, mode in enumerate(allModes):
         attribute = TreeVariable.fromString( "Z_eta/F" ),
         binning=[30,-3,3],
     ))
-    
+
+    plots.append(Plot(
+        name = 'cosThetaStar', texX = '#cos(#theta^{\ast}) Z', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[20,-1,1],
+    ))
+   
     plots.append(Plot(
         texX = '#Delta#phi(ll)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_lldPhi/F" ),
@@ -432,7 +450,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
-      attribute = TreeVariable.fromString( "njet/I" ),
+      attribute = TreeVariable.fromString( "nJetSelected/I" ),
       binning=[5,2.5,7.5],
     ))
     
