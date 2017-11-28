@@ -1,5 +1,5 @@
-allowedVars = ["Z_pt"]
-texString  = { "Z_pt":"p_{T}(Z)" }
+allowedVars = ["Z_pt", "cosThetaStar", "abs(cosThetaStar)", "lep_pt[2]", "lep_pt[Z_l2_index]"]
+texString  = { "Z_pt":"p_{T}(Z)", "cosThetaStar":"cos(#theta^{*})", "abs(cosThetaStar)":"|cos(#theta^{*})|" }
 
 class Region:
 
@@ -7,7 +7,7 @@ class Region:
         assert type(val)==type(()) and len(val)==2, "Don't know how to make region with this val argument: %r."%val
 #    assert type(var)==type(""), "Argument 'var' must be string"
         assert var in allowedVars, "Use only these variables: %r"%allowedVars
-        assert val[0]>=0, "Need nonzero lower threshold."
+#        assert val[0]>=0, "Need nonzero lower threshold."
         self.vals = {var:val}
 
     def variables(self):
@@ -35,7 +35,7 @@ class Region:
         for var in self.variables():
             svar = var
             s1=svar+">="+str(self.vals[var][0])
-            if self.vals[var][1]>0: s1+="&&"+svar+"<"+str(self.vals[var][1])
+            if self.vals[var][1]>-1: s1+="&&"+svar+"<"+str(self.vals[var][1])
             res.append(s1)
         return "&&".join(res)
 
