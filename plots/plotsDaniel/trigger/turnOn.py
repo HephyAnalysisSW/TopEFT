@@ -52,12 +52,14 @@ def turnon_func(x, par):
 #postProcessing_directory = "TopEFT_PP_v10/trilep/"
 #from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
+postProcessing_directory = "TopEFT_PP_v12/dilep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
+
 postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v10/dilep/"
+postProcessing_directory = "TopEFT_PP_v12/dilep/"
 from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_1e import *
 
 presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"

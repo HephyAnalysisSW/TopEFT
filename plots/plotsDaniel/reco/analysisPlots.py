@@ -27,7 +27,7 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM', action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_v12')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
@@ -71,7 +71,7 @@ if args.signal == "ttZ01j":
 
 elif args.signal == "ewkDM":
     data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-    postProcessing_directory = "TopEFT_PP_v11/trilep/"
+    postProcessing_directory = "TopEFT_PP_v12/trilep/"
     from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
     
     SM          = ttZ0j_ll
@@ -130,9 +130,11 @@ def drawPlots(plots, mode, dataMCScale):
       if not args.noData: 
         if mode == "all": plot.histos[1][0].legendText = "Data"
         if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
+      extensions_ = ["pdf", "png", "root"] if mode == 'all' else ['png']
 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
+        extensions = extensions_,
 	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),

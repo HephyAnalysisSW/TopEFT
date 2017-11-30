@@ -22,7 +22,7 @@ import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 from TopEFT.analysis.Setup              import Setup
-from TopEFT.analysis.regions            import regionsA
+from TopEFT.analysis.regions            import regionsA, regionsB
 from TopEFT.tools.resultsDB             import resultsDB
 from TopEFT.analysis.getEstimates       import getEstimate
 from TopEFT.tools.u_float               import u_float
@@ -31,10 +31,13 @@ from copy                               import deepcopy
 
 setup = Setup()
 setup.channels  = ['all']
-setup.regions   = regionsA
+#setup.regions   = Setup.regions
 
 # Define fake samples (yields from illia)
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v12/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
 processes = [ WZ, TTX, TTW, TZQ, rare, nonprompt ]
 
 setups = [setup]
@@ -48,7 +51,7 @@ from TopEFT.analysis.getResults  import getResult, addResult
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
-limitDir    = os.path.join(baseDir, 'cardFiles', args.signal + args.extension)
+limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, args.signal + args.extension)
 overWrite   = (args.only is not None) or args.overwrite
 
 def wrapper(s):
@@ -111,7 +114,7 @@ def wrapper(s):
                             c.addUncertainty(uname, 'lnN')
                             c.specifyUncertainty(uname, binname, name, 1+expected.sigma/expected.val )
 
-                    c.specifyObservation(binname, int(round((getEstimate(pseudoDataPriv, r, channel).val))))
+                    c.specifyObservation(binname, int(round((getEstimate(pseudoData, r, channel).val)))) #can also be pseudoDataPriv
 
                     #signalSetup = setup.sysClone()
                     signal = getEstimate(s, r, channel)#resultsCache.get({"process":s.name, "region":r, "lumi":35.9, "presel":"nLep==3&&isTTZ&&nJetGodd>2&&nBTag>0", "weightString":"weight", "channel":channel})
@@ -194,7 +197,10 @@ def wrapper(s):
     #        print "Problem with limit: %r" + str(res)
     #        return None
 
-from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import allSignals
+data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v12/trilep/"
+from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
+#from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import allSignals
 
 jobs = allSignals
 jobs.append(TTZtoLLNuNu)
