@@ -48,21 +48,21 @@ make
 
 #### command line parameters
 
-NLOparam=1 alphaS 1-loop running, LO PDF
-NLOparam=2 alphaS 2-loop running, NLO PDF
+  * NLOparam=1 alphaS 1-loop running, LO PDF
+  * NLOparam=2 alphaS 2-loop running, NLO PDF
 
-TopDK - specify top decay
-TopDK=0 no top decay
-TopDK=1 2l decay
-TopDK=2 fully hadronic
-TopDK=3 semi leptonic
-TopDK=4 semi leptonic (3 and 4 give the same answer, i.e. multiply by 2)
+##### TopDK - specify top decay
+  * TopDK=0 no top decay
+  * TopDK=1 2l decay
+  * TopDK=2 fully hadronic
+  * TopDK=3 semi leptonic
+  * TopDK=4 semi leptonic (3 and 4 give the same answer, i.e. multiply by 2)
 
-ZDK - specify Z decays
-ZDK=0   stable
-ZDK=1   2l (one lepton generation), i.e. multiply by three
+##### ZDK - specify Z decays
+  * ZDK=0   stable
+  * ZDK=1   2l (one lepton generation), i.e. multiply by three
 
-ObsSet - Specify cuts & histograms in `mod_Kinematics.f90`
-ObsSet=52 2l stop decays
-ObsSet=53 1l stop decays
+##### ObsSet - Specify cuts & histograms in `mod_Kinematics.f90`
+  * ObsSet=52 2l stop decays
+  * ObsSet=53 1l stop decays
  
