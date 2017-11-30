@@ -70,3 +70,11 @@ make
   * Process=71 gg-->ttb+Z
   * Process=72 qqb-->ttb+Z
 
+##### BSM parameters
+  * RelDelF1V=0.00  C_{1,V}^Z = C_{1,V}^{Z,SM} * (1 + RelDelF1V)
+  * RelDelF1A=0.00  C_{1,A}^Z = C_{1,A}^{Z,SM} * (1 + RelDelF1A)
+  * RelDelF2V=0.00  C_{2,V}^Z = RelDelF2V
+  * RelDelF2A=0.00  C_{2,A}^Z = RelDelF2A
+
+##### Interface
+  * HistoFile=<filename>
