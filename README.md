@@ -22,3 +22,22 @@ Usage
 run.py --model ewkDM --process ttZ --couplings DC1V 0.5 DC1A 0.5 --makeGridpack --calcXSec
 ```
 The argument to `--couplings` can be a file name with a list of model points.
+
+## TOPAZ
+For ifort on lxplus, add these two lines to `.profile`:
+```
+source /afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2016/compilers_and_libraries_2016.1.150/linux/bin/ifortvars.sh intel64
+source /afs/cern.ch/sw/IntelSoftware/linux/setup.sh
+```
+
+```
+cd $CMSSW_BASE/src
+git clone -b master git@github.com:schoef/TOPAZ
+cd $CMSSW_BASE/src/TOPAZ/QCDLoop-1.9/ql
+make
+cd $CMSSW_BASE/src/TOPAZ/QCDLoop-1.9/ff
+make
+cd $CMSSW_BASE/src/TOPAZ
+make
+```
+
