@@ -42,8 +42,8 @@ make
 ```
 ### TOPAZ usage
 ```
-./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=1 ZDK=1 ObsSet=53 Process=71 VegasNc0=50000 VegasNc1=500000
-./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=1 ZDK=1 ObsSet=53 Process=72 VegasNc0=50000 VegasNc1=500000
+./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=4 ZDK=1 ObsSet=53 Process=71 VegasNc0=50000 VegasNc1=500000
+./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=4 ZDK=1 ObsSet=53 Process=72 VegasNc0=50000 VegasNc1=500000
 ```
 
 #### command line parameters
@@ -66,3 +66,15 @@ make
   * ObsSet=52 2l stop decays
   * ObsSet=53 1l stop decays
  
+##### Process - Specify the process
+  * Process=71 gg-->ttb+Z
+  * Process=72 qqb-->ttb+Z
+
+##### BSM parameters
+  * RelDelF1V=0.00  C1VZ = C1VZSM * (1 + RelDelF1V) with C1VZSM =  0.24364
+  * RelDelF1A=0.00  C1AZ = C1AZSM * (1 + RelDelF1A) with C1AZSM =  0.60069
+  * RelDelF2V=0.00  C2VZ = RelDelF2V
+  * RelDelF2A=0.00  C2AZ = RelDelF2A
+
+##### Interface
+  * HistoFile=filename
