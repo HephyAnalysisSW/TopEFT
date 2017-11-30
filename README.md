@@ -71,10 +71,10 @@ make
   * Process=72 qqb-->ttb+Z
 
 ##### BSM parameters
-  * RelDelF1V=0.00  C_{1,V}^Z = C1VZSM * (1 + RelDelF1V) with C1VZSM =  0.24364
-  * RelDelF1A=0.00  C_{1,A}^Z = C1AZSM * (1 + RelDelF1A) with C1AZSM =  0.60069
-  * RelDelF2V=0.00  C_{2,V}^Z = RelDelF2V
-  * RelDelF2A=0.00  C_{2,A}^Z = RelDelF2A
+  * RelDelF1V=0.00  C1VZ = C1VZSM * (1 + RelDelF1V) with C1VZSM =  0.24364
+  * RelDelF1A=0.00  C1AZ = C1AZSM * (1 + RelDelF1A) with C1AZSM =  0.60069
+  * RelDelF2V=0.00  C2VZ = RelDelF2V
+  * RelDelF2A=0.00  C2AZ = RelDelF2A
 
 ##### Interface
   * HistoFile=filename
