@@ -11,16 +11,17 @@ from TopEFT.tools.ZPolarisation.ZPolarisationFit import ZPolarisationFit
 from TopEFT.tools.cutInterpreter import cutInterpreter
 from TopEFT.tools.user import results_directory
 
+postfix = "ptZ0To100"
 s     = Sample.fromDirectory( 'TTZ_LO', directory = ['/afs/hephy.at/data/rschoefbeck02/cmgTuples/TopEFT_PP_v12/inclusive/TTZ_LO'] )
 s_BSM = Sample.fromDirectory( 'ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700', directory = ['/afs/hephy.at/data/rschoefbeck02/cmgTuples/TopEFT_PP_v12/inclusive/ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700'])
 
 h_TTZ_LO = s.get1DHistoFromDraw( 'genZ_cosThetaStar', [20, -1, 1 ], 
-        selectionString = cutInterpreter.cutString('njet3p-btag1p')+'&&genZ_pt>200', 
+        selectionString = cutInterpreter.cutString('njet3p-btag1p')+'&&genZ_pt<100&&nGenLep>=3', 
         #selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&genZ_pt>0', 
         weightString = 'weight*100' )
 
 h_BSM = s_BSM.get1DHistoFromDraw( 'genZ_cosThetaStar', [20, -1, 1 ], 
-        selectionString = cutInterpreter.cutString('njet3p-btag1p')+'&&genZ_pt>200', 
+        selectionString = cutInterpreter.cutString('njet3p-btag1p')+'&&genZ_pt<100&&nGenLep>=3', 
         #selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&genZ_pt>0', 
         weightString = 'weight*100' )
 
@@ -28,14 +29,14 @@ h_BSM.Scale( h_TTZ_LO.Integral()/h_BSM.Integral() )
 
 ZPolarisationFit( h_TTZ_LO,
     fit_plot_directory  = '/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/polFits', 
-    fit_filename    = 'gen_'+s.name,
+    fit_filename    = 'gen_'+postfix+s.name,
     sumW2Error = False, 
     #sumW2Error = True, 
     )
 
 ZPolarisationFit( h_BSM,
     fit_plot_directory  = '/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/polFits', 
-    fit_filename    = 'gen_'+s_BSM.name,
+    fit_filename    = 'gen_'+postfix+s_BSM.name,
     sumW2Error = False, 
     #sumW2Error = True, 
     )
@@ -48,11 +49,11 @@ s     = Sample.fromDirectory( 'TTZ_LO', directory = ['/afs/hephy.at/data/rschoef
 s_BSM = Sample.fromDirectory( 'ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700', directory = ['/afs/hephy.at/data/rschoefbeck02/cmgTuples/TopEFT_PP_v12/inclusive/ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700'])
 
 h_TTZ_LO = s.get1DHistoFromDraw( 'cosThetaStar', [20, -1, 1 ], 
-        selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&Z_pt>100&&Z_pt<200', 
+        selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&Z_pt>100', 
         weightString = 'weight*100' )
 
 h_BSM = s_BSM.get1DHistoFromDraw( 'cosThetaStar', [20, -1, 1 ], 
-        selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&Z_pt>100&&Z_pt<200', 
+        selectionString = cutInterpreter.cutString('lepSelTTZ-njet3p-btag1p-onZ')+'&&Z_pt>100', 
         weightString = 'weight*100' )
 
 h_BSM.Scale( h_TTZ_LO.Integral()/h_BSM.Integral() )

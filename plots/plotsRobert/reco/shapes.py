@@ -21,7 +21,7 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default='C2VA0p2',       nargs='?', choices=["dipoleEllipsis", 'currentEllipsis', 'C2VA0p2', 'cuW'], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,       nargs='?', choices=[None, 'dipoleEllipsis', 'currentEllipsis', 'C2VA0p2', 'cuW'], help='Add signal to plot')
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
@@ -41,7 +41,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
-if args.signal:                       args.plot_directory += "_signal_"+args.signal
+if args.signal and args.signal is not None: args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
@@ -54,7 +54,9 @@ data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
-if args.signal ==  "C2VA0p2":
+if args.signal is None:
+    signals = []
+elif args.signal ==  "C2VA0p2":
     signals = [ttZ0j_ll, ttZ0j_ll_DC2A_0p200000_DC2V_0p200000]
     ttZ0j_ll.style = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
     ttZ0j_ll_DC2A_0p200000_DC2V_0p200000.style = styles.lineStyle( ROOT.kBlue,   width=2, dotted=False )
@@ -371,9 +373,21 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        name = 'cosThetaStar', texX = '#cos(#theta^{\ast}) Z', texY = 'Number of Events',
+        name = 'cosThetaStar', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[20,-1,1],
+    ))
+   
+    plots.append(Plot(
+        name = 'cosThetaStar_coarse', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[10,-1,1],
+    ))
+   
+    plots.append(Plot(
+        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[5,-1,1],
     ))
    
     plots.append(Plot(
@@ -434,6 +448,12 @@ for index, mode in enumerate(allModes):
         binning=[12,0,180],
     ))
     
+    plots.append(Plot(
+        name = "l3_pt",
+        texX = 'p_{T}(l_{3}) (GeV)', texY = 'Number of Events / 5 GeV',
+        attribute = lambda event, sample:event.lep_pt[2],
+        binning=[20,0,100],
+    ))
     
     plots.append(Plot(
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',

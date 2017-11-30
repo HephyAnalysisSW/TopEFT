@@ -10,7 +10,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     plot_directory      = "/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/"
     data_directory      = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
     #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-    postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 
     runOnGentT2 = False
 

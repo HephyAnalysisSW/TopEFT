@@ -31,7 +31,7 @@ else:
     logger = logging.getLogger(__name__)
 
 # polarisation bins
-genZ_pt_bins  = [ (0, -1), (0, 100), (100, -1), (100, 200), (200, -1) ]
+genZ_pt_bins  = [ (0,25), (0, -1), (0, 100), (100, -1), (100, 200), (200, -1) ]
 genZ_eta_bins = [ (0, -1), (0, 1.3), (1.3, -1) ]
 
 # polarisation histos from sample
