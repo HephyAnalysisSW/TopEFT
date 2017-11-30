@@ -66,3 +66,7 @@ make
   * ObsSet=52 2l stop decays
   * ObsSet=53 1l stop decays
  
+##### Process - Specify the process
+  * Process=71 gg-->ttb+Z
+  * Process=72 qqb-->ttb+Z
+
