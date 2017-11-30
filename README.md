@@ -42,8 +42,8 @@ make
 ```
 ### TOPAZ usage
 ```
-./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=1 ZDK=1 ObsSet=53 Process=71 VegasNc0=50000 VegasNc1=500000
-./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=1 ZDK=1 ObsSet=53 Process=72 VegasNc0=50000 VegasNc1=500000
+./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=4 ZDK=1 ObsSet=53 Process=71 VegasNc0=50000 VegasNc1=500000
+./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=4 ZDK=1 ObsSet=53 Process=72 VegasNc0=50000 VegasNc1=500000
 ```
 
 #### command line parameters
