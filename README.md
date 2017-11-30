@@ -46,7 +46,7 @@ make
 ./TOPAZ Collider=13 Correction=0 NLOParam=1 TopDK=1 ZDK=1 ObsSet=53 Process=72 VegasNc0=50000 VegasNc1=500000
 ```
 
-#### command line parameters:
+#### command line parameters
 
 NLOparam=1 alphaS 1-loop running, LO PDF
 NLOparam=2 alphaS 2-loop running, NLO PDF
