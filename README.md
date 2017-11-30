@@ -77,4 +77,4 @@ make
   * RelDelF2A=0.00  C_{2,A}^Z = RelDelF2A
 
 ##### Interface
-  * HistoFile=<<filename>>
+  * HistoFile=filename
