@@ -29,7 +29,7 @@ For ifort on lxplus, add these two lines to `.profile`:
 source /afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2016/compilers_and_libraries_2016.1.150/linux/bin/ifortvars.sh intel64
 source /afs/cern.ch/sw/IntelSoftware/linux/setup.sh
 ```
-
+Compile on lxplus
 ```
 cd $CMSSW_BASE/src
 git clone -b master git@github.com:schoef/TOPAZ
