@@ -21,7 +21,7 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
-from TopEFT.analysis.Setup              import Setup
+from TopEFT.analysis.reducedSetup              import Setup
 from TopEFT.analysis.regions            import regionsA, regionsB
 from TopEFT.tools.resultsDB             import resultsDB
 from TopEFT.analysis.getEstimates       import getEstimate

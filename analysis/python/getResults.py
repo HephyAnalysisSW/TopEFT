@@ -8,7 +8,7 @@ from RootTools.core.Sample import Sample
 from TopEFT.tools.resultsDB     import resultsDB
 from TopEFT.tools.user          import combineReleaseLocation, analysis_results, results_directory, plot_directory
 
-from TopEFT.analysis.Setup      import Setup
+from TopEFT.analysis.reducedSetup      import Setup
 
 setup = Setup()
 
