@@ -46,7 +46,7 @@ class SystematicEstimator:
           return self.helperCache.get(s)
         else:
           yieldFromDraw = u_float(**setup.sample[sample][c].getYieldFromDraw(selectionString, weightString))
-          if self.helperCache: self.helperCache.add(s, yieldFromDraw, save=True)
+          if self.helperCache: self.helperCache.add(s, yieldFromDraw )
           return yieldFromDraw
 
     def uniqueKey(self, region, channel, setup):
@@ -69,7 +69,7 @@ class SystematicEstimator:
         elif self.cache:
             logger.info( "Calculating %s result for %r"%(self.name, key) )
             estimate = self._estimate( region, channel, setup)
-            res = self.cache.add( key, estimate, save=save)
+            res = self.cache.add( key, estimate )
             logger.debug( "Adding cached %s result for %r : %r" %(self.name, key, estimate) )
         else:
             res = self._estimate( region, channel, setup)

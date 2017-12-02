@@ -156,7 +156,7 @@ class resultsDB:
                 self.database.commit()
                 logger.info("Added value %s to database",value)
                 self.close()
-                return
+                return value
 
             except sqlite3.OperationalError as e:
                 logger.info( "Database locked, waiting." )

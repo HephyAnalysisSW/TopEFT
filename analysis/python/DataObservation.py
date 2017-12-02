@@ -41,7 +41,7 @@ class DataObservation():
             return res
         elif self.cache:
             logger.info( "Adding cached %s result for %r"%(self.name, key) )
-            return self.cache.add( key, self.observation( region, channel, setup), save=save)
+            return self.cache.add( key, self.observation( region, channel, setup) )
         else:
             return self.observation( region, channel, setup)
 
