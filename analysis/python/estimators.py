@@ -1,7 +1,7 @@
 from TopEFT.analysis.MCBasedEstimate              import MCBasedEstimate
 
 from SetupHelpers import channels 
-from Setup import Setup, otherEWKComponents
+from Setup import Setup
 from TopEFT.analysis.Region import Region
 setup = Setup()
 
@@ -11,7 +11,7 @@ estimators = {}
 # non so far
 
 ## main MC based estimators
-for mc in ['TTZtoLLNuNu', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt']:
+for mc in ['TTZ', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt']:
     estimators[mc] = [MCBasedEstimate(name=mc, sample=setup.sample[mc])]
 
 # check if all estimators have unique name

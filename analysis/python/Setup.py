@@ -30,11 +30,11 @@ rareSample      = rare
 nonpromptSample = nonprompt
 
 from TopEFT.analysis.SystematicEstimator import jmeVariations, metVariations
-from TopEFT.analysis.SetupHelpers import getZCut, channels, allChannels, trilepChannels, allTrilepChannels
+from TopEFT.analysis.SetupHelpers import getZCut, channels, allChannels
 from TopEFT.tools.objectSelection import getFilterCut
 
 #to run on data
-dataLumi2016 = {'EMu': MuonEG_Run2016_backup.lumi, 'MuMu':DoubleMuon_Run2016_backup.lumi, 'EE':DoubleEG_Run2016_backup.lumi, '3mu':DoubleMuon_Run2016_backup.lumi, '3e':DoubleEG_Run2016_backup.lumi, '2mu1e':MuonEG_Run2016_backup.lumi, '2e1mu':MuonEG_Run2016_backup.lumi}
+dataLumi2016 = {'3mu':SingleMuon_Run2016.lumi, '3e':SingleElectron_Run2016.lumi, '2mu1e':SingleMuon_Run2016.lumi, '2e1mu':SingleElectron_Run2016.lumi}
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
 lumi = dataLumi2016
@@ -63,9 +63,9 @@ class Setup:
             'nBTags':        default_nBTags,
         }
 
-        self.sys = {'weight':'weight', 'reweight':['reweightPU36fb','reweightDilepTriggerBackup','reweightLeptonSF','reweightBTag_SF','reweightLeptonTrackingSF'], 'selectionModifier':None}
+        self.sys = {'weight':'weight', 'reweight':['reweightPU36fb'], 'selectionModifier':None}
         self.lumi     = lumi
-        self.dataLumi = dataLumi
+        self.dataLumi = dataLumi2016
 
         self.sample = {
         'TTZ':          {c:TTZSample        for c in channels},
@@ -75,13 +75,10 @@ class Setup:
         'TZQ' :         {c:TZQSample        for c in channels},
         'rare':         {c:rareSample       for c in channels},
         'nonprompt':    {c:nonpromptSample  for c in channels},
-        'Data'   :    {'MuMu':  DoubleMuon_Run2016_backup,
-                       'EE':    DoubleEG_Run2016_backup,
-                       'EMu':   MuonEG_Run2016_backup,
-                       '3mu':   DoubleMuon_Run2016_backup,
-                       '3e':    DoubleEG_Run2016_backup,
-                       '2mu1e': MuonEG_Run2016_backup,
-                       '2e1mu': MuonEG_Run2016_backup},
+        'Data'   :    {'3mu':   SingleMuon_Run2016, #FIXME This needs to be fixed when we have a decent trigger/backup trigger strategy
+                       '3e':    SingleElectron_Run2016,
+                       '2mu1e': SingleMuon_Run2016,
+                       '2e1mu': SingleElectron_Run2016},
         }
         
     def prefix(self):
@@ -136,8 +133,8 @@ class Setup:
         return self.selection(dataMC, channel = channel, isFastSim = isFastSim, hadronicSelection = False, **self.parameters)
 
     def selection(self, dataMC,
-                        mllMin, metMin, metSigMin, zWindow, dPhi, dPhiInv,
-                        nJets, nBTags, leptonCharges,
+                        mllMin, metMin, zWindow,
+                        nJets, nBTags,
                         channel = 'all', hadronicSelection = False,  isFastSim = False):
         '''Define full selection
            dataMC: 'Data' or 'MC'
@@ -150,7 +147,6 @@ class Setup:
         if self.sys['selectionModifier']:
           assert self.sys['selectionModifier'] in jmeVariations+metVariations+['genMet'] or 'nVert' in self.sys['selectionModifier'], "Don't know about systematic variation %r, take one of %s"%(self.sys['selectionModifier'], ",".join(jmeVariations + ['genMet']))
         assert dataMC in ['Data','MC'],                                                   "dataMC = Data or MC, got %r."%dataMC
-        assert not leptonCharges or leptonCharges in ["isOS", "isSS"],                    "Don't understand leptonCharges %r. Should take isOS or isSS."%leptonCharges
 
         #Postfix for variables (only for MC and if we have a jme variation)
         sysStr = ""
@@ -160,13 +156,9 @@ class Setup:
 
         res={'cuts':[], 'prefixes':[]}
 
-        if leptonCharges and not hadronicSelection:
-            res['cuts'].append(leptonCharges)
-            res['prefixes'].append(leptonCharges)
-
         if nJets and not (nJets[0]==0 and nJets[1]<0):
             assert nJets[0]>=0 and (nJets[1]>=nJets[0] or nJets[1]<0), "Not a good nJets selection: %r"%nJets
-            njetsstr = "nJetGood"+sysStr+">="+str(nJets[0])
+            njetsstr = "nJetSelected"+sysStr+">="+str(nJets[0])
             prefix   = "nJets"+str(nJets[0])
             if nJets[1]>=0:
                 njetsstr+= "&&"+"nJetSelected"+sysStr+"<="+str(nJets[1])
@@ -194,7 +186,7 @@ class Setup:
 
         if not hadronicSelection:
             if mllMin and mllMin>0:
-              res['cuts'].append('dl_mass>='+str(mllMin))
+              res['cuts'].append('Z_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
               

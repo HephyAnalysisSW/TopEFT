@@ -18,7 +18,7 @@ class DataObservation():
     def initCache(self, cacheDir):
         if cacheDir:
             self.cacheDir=cacheDir
-            cacheFileName = os.path.join(cacheDir, self.name+'.pkl')
+            cacheFileName = os.path.join(cacheDir, self.name+'.sq')
             if not os.path.exists(os.path.dirname(cacheFileName)):
                 os.makedirs(os.path.dirname(cacheFileName))
             self.cache = Cache(cacheFileName, verbosity=1)

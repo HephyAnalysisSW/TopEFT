@@ -30,8 +30,8 @@ class SystematicEstimator:
             try:    os.makedirs(cacheDir)
             except: pass
 
-            cacheFileName       = os.path.join(cacheDir, self.name+'.pkl')
-            helperCacheFileName = os.path.join(cacheDir, self.name+'_helper.pkl')
+            cacheFileName       = os.path.join(cacheDir, self.name+'.sq')
+            helperCacheFileName = os.path.join(cacheDir, self.name+'_helper.sq')
 
             self.cache       = Cache(cacheFileName,       verbosity=1)
             self.helperCache = Cache(helperCacheFileName, verbosity=1) if self.name.count('DD') else None

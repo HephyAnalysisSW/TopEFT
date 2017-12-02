@@ -5,7 +5,7 @@ allChannels       = ['all'] + channels
 
 from TopEFT.tools.helpers import mZ
 def getZCut(mode, zMassRange=15):
-    zstr = "abs(dl_mass - "+str(mZ)+")"
+    zstr = "abs(Z_mass - "+str(mZ)+")"
     if mode.lower()=="onz": return zstr+"<="+str(zMassRange)
     if mode.lower()=="offz": return zstr+">"+str(zMassRange)
     return "(1)"
