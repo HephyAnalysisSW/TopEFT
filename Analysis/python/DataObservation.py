@@ -5,7 +5,7 @@ import json
 logger = logging.getLogger(__name__)
 
 from TopEFT.Analysis.Region import Region
-from TopEFT.tools.u_float import u_float
+from TopEFT.Tools.u_float import u_float
 from TopEFT.Analysis.Cache import Cache
 from TopEFT.Analysis.SetupHelpers import channels
 

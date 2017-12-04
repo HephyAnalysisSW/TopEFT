@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from TopEFT.Analysis.Region import Region
-from TopEFT.tools.u_float import u_float
+from TopEFT.Tools.u_float import u_float
 from TopEFT.Analysis.SystematicEstimator import SystematicEstimator
 from TopEFT.Analysis.SetupHelpers import channels
 

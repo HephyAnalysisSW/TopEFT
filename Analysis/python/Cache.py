@@ -5,7 +5,7 @@ import errno
 import logging
 logger = logging.getLogger(__name__)
 
-from TopEFT.tools.resultsDB import resultsDB
+from TopEFT.Tools.resultsDB import resultsDB
 
 class Cache:
     def __init__(self, filename=None, verbosity=0, overwrite=False):

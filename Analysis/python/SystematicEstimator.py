@@ -9,7 +9,7 @@ import json
 
 # TopEFT
 from TopEFT.Analysis.Cache import Cache
-from TopEFT.tools.u_float import u_float
+from TopEFT.Tools.u_float import u_float
 from TopEFT.Analysis.SetupHelpers import channels
 
 # Logging
@@ -82,184 +82,163 @@ class SystematicEstimator:
 
     def PUSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightPU36fbUp']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightPU36fbDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightPU36fbUp']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightPU36fbDown']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up,down)
 
     def topPtSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'remove':['reweightTopPt']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'remove':['reweightTopPt']}))
         return abs(0.5*(up-ref)/ref) if ref > 0 else up
 
     def JERSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'JERUp'}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'JERDown'}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'JERUp'}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'JERDown'}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def JECSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'JECUp'}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'JECDown'}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'JECUp'}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'JECDown'}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def unclusteredSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnUp'}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnDown'}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'UnclusteredEnUp'}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'UnclusteredEnDown'}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
-    def leptonFSSystematic(self, region, channel, setup):
-        ref  = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightLeptonFastSimSF']}))
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightLeptonFastSimSFUp']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightLeptonFastSimSFDown']}))
-        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+    #def leptonFSSystematic(self, region, channel, setup):
+    #    ref  = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSF']}))
+    #    up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFUp']}))
+    #    down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFDown']}))
+    #    return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFbSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Up']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFlSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Up']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFFSSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_FS_Up']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightBTag_SF_FS_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_FS_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_FS_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def leptonSFSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightLeptonSFUp']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightLeptonSFDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def triggerSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupUp']}))
-        down = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupUp']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupDown']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
-    def fastSimMETSystematic(self, region, channel, setup):
-        ref  = self.cachedEstimate(region, channel, setup)
-        gen  = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'genMet'}))
-        assert ref+gen > 0, "denominator > 0 not fulfilled, this is odd and should not happen!"
-        return abs(ref-gen)/(ref+gen)
+    #def fastSimMETSystematic(self, region, channel, setup):
+    #    ref  = self.cachedEstimate(region, channel, setup)
+    #    gen  = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'genMet'}))
+    #    assert ref+gen > 0, "denominator > 0 not fulfilled, this is odd and should not happen!"
+    #    return abs(ref-gen)/(ref+gen)
 
-    def fastSimPUSystematic(self, region, channel, setup):
-        ''' implemented based on the official SUSY recommendation https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSRecommendationsMoriond17#Pileup_lumi
-        '''
-        incl        = self.cachedEstimate(region, channel, setup.sysClone())
-        incl_nvert  = self.cachedEstimate(region, channel, setup.sysClone({'reweight':['nVert']}))
-        if incl.val > 0:
-            exp_nvert = int(incl_nvert.val/incl.val)
-            incl_nvert = incl_nvert/incl
-        else:
-            return u_float(1) # Use 100% uncertainty until we have a better idea
-        hiPU        = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'nVert>='+str(exp_nvert)}))
-        hiPU_nvert  = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'nVert>='+str(exp_nvert), 'reweight':['nVert']}))
-        loPU        = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'nVert<'+str(exp_nvert)}))
-        loPU_nvert  = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'nVert<'+str(exp_nvert), 'reweight':['nVert']}))
-        if loPU.val > 0 and hiPU.val > 0:
-            loPU_nvert = loPU_nvert/loPU
-            hiPU_nvert = hiPU_nvert/hiPU
-        else:
-            return u_float(1) # Use 100% uncertainty until we have a better idea
+    #def fastSimPUSystematic(self, region, channel, setup):
+    #    ''' implemented based on the official SUSY recommendation https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSRecommendationsMoriond17#Pileup_lumi
+    #    '''
+    #    incl        = self.cachedEstimate(region, channel, setup.systematicClone())
+    #    incl_nvert  = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['nVert']}))
+    #    if incl.val > 0:
+    #        exp_nvert = int(incl_nvert.val/incl.val)
+    #        incl_nvert = incl_nvert/incl
+    #    else:
+    #        return u_float(1) # Use 100% uncertainty until we have a better idea
+    #    hiPU        = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'nVert>='+str(exp_nvert)}))
+    #    hiPU_nvert  = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'nVert>='+str(exp_nvert), 'reweight':['nVert']}))
+    #    loPU        = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'nVert<'+str(exp_nvert)}))
+    #    loPU_nvert  = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'nVert<'+str(exp_nvert), 'reweight':['nVert']}))
+    #    if loPU.val > 0 and hiPU.val > 0:
+    #        loPU_nvert = loPU_nvert/loPU
+    #        hiPU_nvert = hiPU_nvert/hiPU
+    #    else:
+    #        return u_float(1) # Use 100% uncertainty until we have a better idea
 
-        k_central   = (loPU.val - hiPU.val)/(loPU_nvert.val - hiPU_nvert.val)
-        k_loUp      = ((loPU.val + loPU.sigma) - (hiPU.val - hiPU.sigma))/(loPU_nvert.val - hiPU_nvert.val)
-        k_loDown    = ((loPU.val - loPU.sigma) - (hiPU.val + hiPU.sigma))/(loPU_nvert.val - hiPU_nvert.val)
-        
-        d_central   = loPU.val - k_central*(loPU_nvert.val - incl_nvert.val)
-        d_loUp      = loPU.val + loPU.sigma - k_loUp*(loPU_nvert.val - incl_nvert.val)
-        d_loDown    = loPU.val - loPU.sigma - k_loDown*(loPU_nvert.val - incl_nvert.val)
-        
-        data_PU = setup.dataPUHistForSignal
-        fold_loUp   = 0.
-        fold_loDown = 0.
-        for i in range(1,data_PU.GetNbinsX()+1):
-            fold = (k_loUp*(i - incl_nvert.val) + d_loUp) * data_PU.GetBinContent(i)
-            if fold > 0:
-                fold_loUp += fold
-            fold = (k_loDown*(i - incl_nvert.val) + d_loDown) * data_PU.GetBinContent(i)
-            if fold > 0:
-                fold_loDown += fold
-        ref  = self.cachedEstimate(region, channel, setup)
-        gen  = self.cachedEstimate(region, channel, setup.sysClone({'selectionModifier':'genMet'}))
-        unc = min([abs(fold_loDown - fold_loUp)/(0.5*(ref.val+gen.val)), 1.])
-        return u_float(unc)
+    #    k_central   = (loPU.val - hiPU.val)/(loPU_nvert.val - hiPU_nvert.val)
+    #    k_loUp      = ((loPU.val + loPU.sigma) - (hiPU.val - hiPU.sigma))/(loPU_nvert.val - hiPU_nvert.val)
+    #    k_loDown    = ((loPU.val - loPU.sigma) - (hiPU.val + hiPU.sigma))/(loPU_nvert.val - hiPU_nvert.val)
+    #    
+    #    d_central   = loPU.val - k_central*(loPU_nvert.val - incl_nvert.val)
+    #    d_loUp      = loPU.val + loPU.sigma - k_loUp*(loPU_nvert.val - incl_nvert.val)
+    #    d_loDown    = loPU.val - loPU.sigma - k_loDown*(loPU_nvert.val - incl_nvert.val)
+    #    
+    #    data_PU = setup.dataPUHistForSignal
+    #    fold_loUp   = 0.
+    #    fold_loDown = 0.
+    #    for i in range(1,data_PU.GetNbinsX()+1):
+    #        fold = (k_loUp*(i - incl_nvert.val) + d_loUp) * data_PU.GetBinContent(i)
+    #        if fold > 0:
+    #            fold_loUp += fold
+    #        fold = (k_loDown*(i - incl_nvert.val) + d_loDown) * data_PU.GetBinContent(i)
+    #        if fold > 0:
+    #            fold_loDown += fold
+    #    ref  = self.cachedEstimate(region, channel, setup)
+    #    gen  = self.cachedEstimate(region, channel, setup.systematicClone({'selectionModifier':'genMet'}))
+    #    unc = min([abs(fold_loDown - fold_loUp)/(0.5*(ref.val+gen.val)), 1.])
+    #    return u_float(unc)
 
     def getBkgSysJobs(self, region, channel, setup):
         l = [
-            (region, channel, setup.sysClone({'reweight':['reweightPU36fbUp']})),
-            (region, channel, setup.sysClone({'reweight':['reweightPU36fbDown']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightPU36fbUp']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightPU36fbDown']})),
 
-            (region, channel, setup.sysClone({'remove':['reweightTopPt']})),
+            (region, channel, setup.systematicClone({'remove':['reweightTopPt']})),
 
-            (region, channel, setup.sysClone({'selectionModifier':'JERUp'})),
-            (region, channel, setup.sysClone({'selectionModifier':'JERDown'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'JERUp'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'JERDown'})),
 
-            (region, channel, setup.sysClone({'selectionModifier':'JECUp'})),
-            (region, channel, setup.sysClone({'selectionModifier':'JECDown'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'JECUp'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'JECDown'})),
 
-            (region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnUp'})),
-            (region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnDown'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'UnclusteredEnUp'})),
+            (region, channel, setup.systematicClone({'selectionModifier':'UnclusteredEnDown'})),
 
-            (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Up']})),
-            (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Down']})),
-            (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Up']})),
-            (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Down']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Up']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Down']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Up']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Down']})),
 
-            (region, channel, setup.sysClone({'reweight':['reweightLeptonSFDown']})),
-            (region, channel, setup.sysClone({'reweight':['reweightLeptonSFUp']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp']})),
 
-            (region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupDown']})),
-            (region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupUp']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupDown']})),
+            (region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupUp']})),
         ]
         return l
 
-    def getSigSysJobs(self, region, channel, setup, isFastSim = False):
-        if isFastSim:
-            l = [
-                (region, channel, setup.sysClone({'remove':['reweightTopPt']})),
+    def getSigSysJobs(self, region, channel, setup):
+        l = self.getBkgSysJobs(region = region, channel = channel, setup = setup)
 
-                (region, channel, setup.sysClone({'selectionModifier':'JERUp'})),
-                (region, channel, setup.sysClone({'selectionModifier':'JERDown'})),
+        # no extra signal uncertainties
+        #if isFastSim:
+        #    l.extend( [\
+        #        (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_FS_Up']})),
+        #        (region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_FS_Down']})),
+        #        (region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFUp']})),
+        #        (region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFDown']})),
+        #        (region, channel, setup.systematicClone({'selectionModifier':'genMet'})),
+        #        (region, channel, setup.systematicClone({'selectionModifier':'highPU'})),
+        #        (region, channel, setup.systematicClone({'selectionModifier':'lowPU'})),
 
-                (region, channel, setup.sysClone({'selectionModifier':'JECUp'})),
-                (region, channel, setup.sysClone({'selectionModifier':'JECDown'})),
+        #    ] )
 
-                (region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnUp'})),
-                (region, channel, setup.sysClone({'selectionModifier':'UnclusteredEnDown'})),
-
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Up']})),
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_b_Down']})),
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Up']})),
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_l_Down']})),
-
-                (region, channel, setup.sysClone({'reweight':['reweightLeptonSFDown']})),
-                (region, channel, setup.sysClone({'reweight':['reweightLeptonSFUp']})),
-
-                (region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupDown']})),
-                (region, channel, setup.sysClone({'reweight':['reweightDilepTriggerBackupUp']})),
-            ]
-            l.extend( [\
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_FS_Up']})),
-                (region, channel, setup.sysClone({'reweight':['reweightBTag_SF_FS_Down']})),
-                (region, channel, setup.sysClone({'reweight':['reweightLeptonFastSimSFUp']})),
-                (region, channel, setup.sysClone({'reweight':['reweightLeptonFastSimSFDown']})),
-                (region, channel, setup.sysClone({'selectionModifier':'genMet'})),
-                (region, channel, setup.sysClone({'selectionModifier':'highPU'})),
-                (region, channel, setup.sysClone({'selectionModifier':'lowPU'})),
-
-            ] )
-        else:
-            l = self.getBkgSysJobs(region = region, channel = channel, setup = setup)
         return l
 
     def getTexName(self, channel, rootTex=True):

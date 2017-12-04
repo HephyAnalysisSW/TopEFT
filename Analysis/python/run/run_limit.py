@@ -21,10 +21,10 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
-from TopEFT.analysis.reducedSetup              import Setup
-from TopEFT.analysis.regions            import regionsA, regionsB
+from TopEFT.Analysis.reducedSetup              import Setup
+from TopEFT.Analysis.regions            import regionsA, regionsB
 from TopEFT.Tools.resultsDB             import resultsDB
-from TopEFT.analysis.getEstimates       import getEstimate
+from TopEFT.Analysis.getEstimates       import getEstimate
 from TopEFT.Tools.u_float               import u_float
 from math                               import sqrt
 from copy                               import deepcopy
@@ -45,7 +45,7 @@ setups = [setup]
 ##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
 from TopEFT.Tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
 from TopEFT.Tools.cardFileWriter import cardFileWriter
-from TopEFT.analysis.getResults  import getResult, addResult
+from TopEFT.Analysis.getResults  import getResult, addResult
 
 
 subDir = ''

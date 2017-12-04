@@ -9,8 +9,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 #user specific
-from TopEFT.tools.user import analysis_results
-from TopEFT.tools.helpers import getObjFromFile
+from TopEFT.Tools.user import analysis_results
+from TopEFT.Tools.helpers import getObjFromFile
 
 #define samples
 
@@ -31,7 +31,7 @@ nonpromptSample = nonprompt
 
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
 from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
-from TopEFT.tools.objectSelection import getFilterCut
+from TopEFT.Tools.objectSelection import getFilterCut
 
 #to run on data
 dataLumi2016 = {'3mu':SingleMuon_Run2016.lumi, '3e':SingleElectron_Run2016.lumi, '2mu1e':SingleMuon_Run2016.lumi, '2e1mu':SingleElectron_Run2016.lumi}
@@ -88,7 +88,7 @@ class Setup:
         return os.path.join(self.analysis_results, self.prefix(), 'cacheFiles')
 
     #Clone the setup and optinally modify the systematic variation
-    def sysClone(self, sys=None, parameters=None):
+    def systematicClone(self, sys=None, parameters=None):
         '''Clone setup and change systematic if provided'''
 
         res            = copy.copy(self)
@@ -145,7 +145,7 @@ class Setup:
         '''
         #Consistency checks
         if self.sys['selectionModifier']:
-          assert self.sys['selectionModifier'] in jmeVariations+metVariations+['genMet'] or 'nVert' in self.sys['selectionModifier'], "Don't know about systematic variation %r, take one of %s"%(self.sys['selectionModifier'], ",".join(jmeVariations + ['genMet']))
+          assert self.sys['selectionModifier'] in jmeVariations+metVariations+['genMet'], "Don't know about systematic variation %r, take one of %s"%(self.sys['selectionModifier'], ",".join(jmeVariations + ['genMet']))
         assert dataMC in ['Data','MC'],                                                   "dataMC = Data or MC, got %r."%dataMC
 
         #Postfix for variables (only for MC and if we have a jme variation)
@@ -219,9 +219,5 @@ class Setup:
 
         res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), badMuonFilters='Moriond2017Official', isFastSim=isFastSim))
         res['cuts'].extend(self.externalCuts)
-        
-        if self.sys['selectionModifier']:
-            if "nVert" in self.sys['selectionModifier']:
-                res['cuts'].append(self.sys['selectionModifier'])
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': self.weightString()}

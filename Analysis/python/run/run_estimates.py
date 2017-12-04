@@ -1,4 +1,4 @@
-from TopEFT.analysis.getEstimates import getEstimate
+from TopEFT.Analysis.getEstimates import getEstimate
 #from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
@@ -10,7 +10,7 @@ postProcessing_directory = "TopEFT_PP_v12/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 
-from TopEFT.analysis.regions import *
+from TopEFT.Analysis.regions import *
 
 myRegions = regionsH
 
