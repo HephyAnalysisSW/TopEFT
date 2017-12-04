@@ -3,8 +3,6 @@ from TopEFT.Tools.resultsDB import resultsDB
 from TopEFT.Tools.user import results_directory, tmp_directory
 from TopEFT.Tools.u_float import u_float
 
-
-
 # should get lumi, presel, weightString? from setup
 lumi            = 35.9
 columns         = ["process", "region", "channel", "presel", "lumi", "weightString"]

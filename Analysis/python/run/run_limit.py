@@ -24,7 +24,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 from TopEFT.Analysis.reducedSetup              import Setup
 from TopEFT.Analysis.regions            import regionsA, regionsB
 from TopEFT.Tools.resultsDB             import resultsDB
-from TopEFT.Analysis.getEstimates       import getEstimate
+from TopEFT.Analysis.run.getEstimates   import getEstimate
 from TopEFT.Tools.u_float               import u_float
 from math                               import sqrt
 from copy                               import deepcopy
@@ -45,7 +45,7 @@ setups = [setup]
 ##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
 from TopEFT.Tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
 from TopEFT.Tools.cardFileWriter import cardFileWriter
-from TopEFT.Analysis.getResults  import getResult, addResult
+from TopEFT.Analysis.run.getResults  import getResult, addResult
 
 
 subDir = ''
@@ -116,7 +116,7 @@ def wrapper(s):
 
                     c.specifyObservation(binname, int(round((getEstimate(pseudoData, r, channel).val)))) #can also be pseudoDataPriv
 
-                    #signalSetup = setup.sysClone()
+                    #signalSetup = setup.systematicClone()
                     signal = getEstimate(s, r, channel)#resultsCache.get({"process":s.name, "region":r, "lumi":35.9, "presel":"nLep==3&&isTTZ&&nJetGodd>2&&nBTag>0", "weightString":"weight", "channel":channel})
                     c.specifyExpectation(binname, 'signal', signal.val*xSecScale )
                     

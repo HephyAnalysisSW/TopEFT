@@ -1,4 +1,4 @@
-from TopEFT.Analysis.getEstimates import getEstimate
+from TopEFT.Analysis.run.getEstimates import getEstimate
 #from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'

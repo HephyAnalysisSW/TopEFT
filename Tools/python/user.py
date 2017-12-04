@@ -11,6 +11,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     data_directory      = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
     #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+    analysis_results    = results_directory
 
     runOnGentT2 = False
 
@@ -25,9 +26,9 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
 
     dpm_directory = '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/'
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    #data_directory     = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    analysis_results = results_directory
+    analysis_results    = results_directory
     
     runOnGentT2 = False
 

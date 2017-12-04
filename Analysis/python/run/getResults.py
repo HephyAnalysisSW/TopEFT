@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+''' Somewhat obscure 
+'''
 import ROOT
 import os
 import argparse

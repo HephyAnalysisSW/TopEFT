@@ -13,11 +13,7 @@ from TopEFT.Tools.user import analysis_results
 from TopEFT.Tools.helpers import getObjFromFile
 
 #define samples
-
-postProcessing_directory = "TopEFT_PP_v12/dilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
-postProcessing_directory = "TopEFT_PP_v10/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 ## Choices for specific samples
