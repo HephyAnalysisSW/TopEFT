@@ -1,12 +1,12 @@
 import ROOT
-from TopEFT.tools.helpers import getObjFromFile
+from TopEFT.Tools.helpers import getObjFromFile
 import os
 
-#ee_trigger_SF   = '$CMSSW_BASE/src/StopsDilepton/tools/data/triggerEff/HLT_ee_DZ_None_measuredInMET_minLeadLepPt0.root'
-#mue_trigger_SF  = '$CMSSW_BASE/src/StopsDilepton/tools/data/triggerEff/HLT_mue_None_measuredInMET_minLeadLepPt0.root'
-#mumu_trigger_SF = '$CMSSW_BASE/src/StopsDilepton/tools/data/triggerEff/HLT_mumuIso_None_measuredInMET_minLeadLepPt0.root'
+#ee_trigger_SF   = '$CMSSW_BASE/src/StopsDilepton/Tools/data/triggerEff/HLT_ee_DZ_None_measuredInMET_minLeadLepPt0.root'
+#mue_trigger_SF  = '$CMSSW_BASE/src/StopsDilepton/Tools/data/triggerEff/HLT_mue_None_measuredInMET_minLeadLepPt0.root'
+#mumu_trigger_SF = '$CMSSW_BASE/src/StopsDilepton/Tools/data/triggerEff/HLT_mumuIso_None_measuredInMET_minLeadLepPt0.root'
 
-basedir = "$CMSSW_BASE/src/StopsDilepton/tools/data/triggerEff/"
+basedir = "$CMSSW_BASE/src/StopsDilepton/Tools/data/triggerEff/"
 
 #OR of all backput triggers
 #FIXME new efficiencies are there, but use old ones for consistency

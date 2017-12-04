@@ -255,7 +255,7 @@ class cardFileWriter:
         uniqueDirname = os.path.join(self.releaseLocation, ustr)
         print "Creating %s"%uniqueDirname
         os.makedirs(uniqueDirname)
-        shutil.copyfile(os.path.join(os.environ['CMSSW_BASE'], 'src', 'TopEFT', 'tools', 'python', 'cardFileWriter', 'diffNuisances.py'), os.path.join(uniqueDirname, 'diffNuisances.py'))
+        shutil.copyfile(os.path.join(os.environ['CMSSW_BASE'], 'src', 'TopEFT', 'Tools', 'python', 'cardFileWriter', 'diffNuisances.py'), os.path.join(uniqueDirname, 'diffNuisances.py'))
 
         if fname is not None:  # Assume card is already written when fname is not none
           filename = os.path.abspath(fname)

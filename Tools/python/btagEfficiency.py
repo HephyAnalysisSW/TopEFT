@@ -26,10 +26,10 @@ def toFlavourKey(pdgId):
     return ROOT.BTagEntry.FLAV_UDSG
 
 #Method 1ab
-#effFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+#effFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
 #
-#sfFile           = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
-#sfFile_FastSim   = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/fastsim_csvv2_ttbar_26_1_2017.csv'
+#sfFile           = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+#sfFile_FastSim   = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/fastsim_csvv2_ttbar_26_1_2017.csv'
 
 class btagEfficiency:
 
@@ -183,7 +183,7 @@ class btagEfficiency:
 #Method 1d
 #https://twiki.cern.ch/twiki/bin/view/CMS/BTagShapeCalibration
 #https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
-sfFile_1d = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/ttH_BTV_CSVv2_13TeV_2015D_20151120.csv'
+sfFile_1d = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/ttH_BTV_CSVv2_13TeV_2015D_20151120.csv'
 flavourSys_1d = {
     5:{'central', 'up_jes', 'down_jes', 'up_lf', 'down_lf', 'up_hfstats1', 'down_hfstats1', 'up_hfstats2', 'down_hfstats2'},
     4:{'central', 'up_cferr1', 'down_cferr1', 'up_cferr2', 'down_cferr2'},

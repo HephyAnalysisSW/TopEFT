@@ -8,10 +8,10 @@ import argparse
 # TopEFT imports
 from TopEFT.Generation.Configuration import Configuration
 from TopEFT.Generation.Process       import Process
-from TopEFT.tools.u_float         import u_float
+from TopEFT.Tools.u_float         import u_float
 
 # plotting imports
-from TopEFT.tools.user import plot_directory
+from TopEFT.Tools.user import plot_directory
 from wilsonScale import lambdaSqInv
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -27,12 +27,12 @@ if not int(args.points)%2==0:
     logger.error("Need an even number of points. Got %r", args.points )
 
 # Logger
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 
 logger = logger.get_logger(args.logLevel,logFile=None)
 
 
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
 n = int(args.points)/2

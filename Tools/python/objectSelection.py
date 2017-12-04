@@ -1,4 +1,4 @@
-from TopEFT.tools.helpers import mZ, getVarValue, getObjDict, deltaR
+from TopEFT.Tools.helpers import mZ, getVarValue, getObjDict, deltaR
 from math import *
 import numbers
 

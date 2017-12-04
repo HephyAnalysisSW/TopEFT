@@ -1,14 +1,14 @@
 import ROOT
-from TopEFT.tools.helpers import getObjFromFile
+from TopEFT.Tools.helpers import getObjFromFile
 import os, math
 
 # Logging
 import logging
 logger = logging.getLogger(__name__)
 
-e_file   = '$CMSSW_BASE/src/StopsDilepton/tools/data/leptonSFData/egammaEffi.txt_EGM2D.root'
+e_file   = '$CMSSW_BASE/src/StopsDilepton/Tools/data/leptonSFData/egammaEffi.txt_EGM2D.root'
 e_key    = "EGamma_SF2D"
-m_file   = '$CMSSW_BASE/src/StopsDilepton/tools/data/leptonSFData/Tracking_EfficienciesAndSF_BCDEFGH.root'
+m_file   = '$CMSSW_BASE/src/StopsDilepton/Tools/data/leptonSFData/Tracking_EfficienciesAndSF_BCDEFGH.root'
 m_key    = "ratio_eff_eta3_dr030e030_corr"
 
 class leptonTrackingEfficiency:

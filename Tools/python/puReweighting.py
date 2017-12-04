@@ -4,7 +4,7 @@
 import ROOT
 
 # helpers
-from TopEFT.tools.helpers import getObjFromFile
+from TopEFT.Tools.helpers import getObjFromFile
 
 # Logging
 import logging
@@ -26,7 +26,7 @@ def extendHistoTo(h, hc):
 def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15"):
 
     # Data
-    fileNameData = "$CMSSW_BASE/src/TopEFT/tools/data/puReweightingData/%s.root" % data
+    fileNameData = "$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/%s.root" % data
 
     histoData = getObjFromFile(fileNameData, 'pileup')
     histoData.Scale(1./histoData.Integral())
@@ -34,14 +34,14 @@ def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15"):
 
     # MC
     #if mc=='Spring15':
-    #    from TopEFT.tools.puProfiles import spring15 as mcProfile
+    #    from TopEFT.Tools.puProfiles import spring15 as mcProfile
     #    logger.info("Loaded Spring15 MC Profile" )
     #elif mc=="Fall15":
-    #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/tools/data/puReweightingData/MCProfile_Fall15.root", 'MC'), histoData)
+    #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Fall15.root", 'MC'), histoData)
     #elif mc=='Spring16':
-    #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/tools/data/puReweightingData/MCProfile_Spring16.root", 'MC'), histoData)
+    #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Spring16.root", 'MC'), histoData)
     if mc=='Summer16':
-        mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/tools/data/puReweightingData/MCProfile_Summer16.root", 'pileup'), histoData)
+        mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Summer16.root", 'pileup'), histoData)
     else:
         raise ValueError( "Don't know about MC PU profile %s" %mc )
 
@@ -64,7 +64,7 @@ def getNVTXReweightingFunction(key, filename = "dilepton_allZ_isOS_4000pb4000_80
 
     # 2016 PU reweighting with sigma(QCD) uncertainty
     import pickle, os
-    data = pickle.load( file(os.path.expandvars("$CMSSW_BASE/src/TopEFT/tools/data/puReweightingData/%s" % filename)) )
+    data = pickle.load( file(os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/%s" % filename)) )
     h = data[key]
     def reweightingFunc( nvtx ):
         ib = h.FindBin( nvtx )

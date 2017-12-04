@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # TopEFT
-from TopEFT.tools.u_float import u_float
+from TopEFT.Tools.u_float import u_float
 
 class TopazReader:
 

@@ -3,7 +3,7 @@ import pickle, os, time
 import errno
 
 # TopEFT 
-from TopEFT.tools.lock import waitForLock, removeLock
+from TopEFT.Tools.lock import waitForLock, removeLock
 
 # Logger
 import logging

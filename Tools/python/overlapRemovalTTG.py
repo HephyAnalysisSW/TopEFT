@@ -1,5 +1,5 @@
-from TopEFT.tools.objectSelection import getGenPartsAll
-from TopEFT.tools.helpers import deltaR
+from TopEFT.Tools.objectSelection import getGenPartsAll
+from TopEFT.Tools.helpers import deltaR
 
 
 def isIsolatedPhoton(g, genparts, coneSize):

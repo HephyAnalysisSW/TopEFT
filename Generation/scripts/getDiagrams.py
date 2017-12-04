@@ -6,11 +6,11 @@ import argparse
 # TopEFT imports
 from TopEFT.Generation.Configuration import Configuration
 from TopEFT.Generation.Process       import Process
-from TopEFT.tools.u_float         import u_float
-from TopEFT.tools.user            import plot_directory
+from TopEFT.Tools.u_float         import u_float
+from TopEFT.Tools.user            import plot_directory
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW', 'ttH', 'ttgamma'],     help="Which process?")

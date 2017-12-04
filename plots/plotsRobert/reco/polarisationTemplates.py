@@ -5,8 +5,8 @@ import pickle
 
 # RootTools & TopEFT
 from RootTools.core.standard import *
-from TopEFT.tools.cutInterpreter import cutInterpreter
-from TopEFT.tools.user import results_directory, plot_directory 
+from TopEFT.Tools.cutInterpreter import cutInterpreter
+from TopEFT.Tools.user import results_directory, plot_directory 
 
 small = True
 maxN = 1000 if small else -1
@@ -22,7 +22,7 @@ args = argParser.parse_args()
 
 # Logger
 if __name__ == "__main__":
-    import TopEFT.tools.logger as logger
+    import TopEFT.Tools.logger as logger
     import RootTools.core.logger as logger_rt
     logger    = logger.get_logger(   args.logLevel, logFile = None)
     logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)

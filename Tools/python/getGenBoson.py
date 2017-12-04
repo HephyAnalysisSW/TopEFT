@@ -1,4 +1,4 @@
-from TopEFT.tools.objectSelection import getGenPartsAll
+from TopEFT.Tools.objectSelection import getGenPartsAll
 
 def getGenZ(genparts):
   for g in genparts:

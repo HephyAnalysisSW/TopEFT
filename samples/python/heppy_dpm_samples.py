@@ -19,7 +19,7 @@ if __name__ == '__main__':
     options = get_parser().parse_args()
 
     # Logging
-    import TopEFT.tools.logger as logger_
+    import TopEFT.Tools.logger as logger_
     logger = logger_.get_logger(options.logLevel, logFile = None )
 
     overwrite = options.overwrite

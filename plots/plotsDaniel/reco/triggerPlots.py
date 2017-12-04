@@ -10,16 +10,16 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut
-from TopEFT.tools.cutInterpreter  import cutInterpreter
-from TopEFT.tools.u_float         import u_float
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue
+from TopEFT.Tools.objectSelection import getFilterCut
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.u_float         import u_float
 
-from TopEFT.tools.user            import plot_directory
+from TopEFT.Tools.user            import plot_directory
 
 #ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
 postProcessing_directory = "TopEFT_PP_v10/trilep/"

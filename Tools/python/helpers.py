@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 #scripts
-ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C")
+ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C")
 ROOT.setTDRStyle()
 #mZ=91.1876
 mZ = 91.2

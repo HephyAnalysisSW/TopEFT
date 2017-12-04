@@ -1,6 +1,6 @@
 import ROOT, pickle, os
-from TopEFT.tools.btagEfficiency import *
-from TopEFT.tools.user import *
+from TopEFT.Tools.btagEfficiency import *
+from TopEFT.Tools.user import *
 
 import time, hashlib
 
@@ -101,5 +101,5 @@ res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVa
 print "Efficiencies:"
 print res
 pickle.dump(res, \
-    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'), 'w')
+    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'), 'w')
 )

@@ -84,7 +84,7 @@ if __name__=='__main__':
 
     from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import * 
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-    from TopEFT.tools.cutInterpreter  import cutInterpreter
+    from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
     selection = "nGoodMuons+nGoodElectrons==3&&"+cutInterpreter.cutString("lepSelTTZ-njet3p-btag1p-onZ")
     #weightString = "(1)"

@@ -10,10 +10,10 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi, atan2, cosh, sinh
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut, isBJet
-from TopEFT.tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
+from TopEFT.Tools.objectSelection import getFilterCut, isBJet
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
 # Arguments
@@ -34,7 +34,7 @@ args = argParser.parse_args()
 #
 # Logger
 #
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)

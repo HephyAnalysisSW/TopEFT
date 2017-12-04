@@ -7,9 +7,9 @@ import pickle
 from RootTools.core.standard import *
 
 # TopEFT
-from TopEFT.tools.ZPolarisation.ZPolarisationFit import ZPolarisationFit
-from TopEFT.tools.cutInterpreter import cutInterpreter
-from TopEFT.tools.user import results_directory
+from TopEFT.Tools.ZPolarisation.ZPolarisationFit import ZPolarisationFit
+from TopEFT.Tools.cutInterpreter import cutInterpreter
+from TopEFT.Tools.user import results_directory
 
 postfix = "ptZ0To100"
 s     = Sample.fromDirectory( 'TTZ_LO', directory = ['/afs/hephy.at/data/rschoefbeck02/cmgTuples/TopEFT_PP_v12/inclusive/TTZ_LO'] )

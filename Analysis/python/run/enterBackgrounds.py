@@ -7,14 +7,14 @@ import copy
 import imp 
 
 # TopEFT
-from TopEFT.tools.resultsDB import resultsDB
-from TopEFT.tools.user import results_directory, tmp_directory
-from TopEFT.tools.u_float import u_float as u
+from TopEFT.Tools.resultsDB import resultsDB
+from TopEFT.Tools.user import results_directory, tmp_directory
+from TopEFT.Tools.u_float import u_float as u
 
 from TopEFT.analysis.regions import regionsA
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 
 logger = logger.get_logger("INFO", logFile = None)
 

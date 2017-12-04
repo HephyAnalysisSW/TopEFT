@@ -16,16 +16,16 @@ args = argParser.parse_args()
 
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 from TopEFT.analysis.reducedSetup              import Setup
 from TopEFT.analysis.regions            import regionsA, regionsB
-from TopEFT.tools.resultsDB             import resultsDB
+from TopEFT.Tools.resultsDB             import resultsDB
 from TopEFT.analysis.getEstimates       import getEstimate
-from TopEFT.tools.u_float               import u_float
+from TopEFT.Tools.u_float               import u_float
 from math                               import sqrt
 from copy                               import deepcopy
 
@@ -43,8 +43,8 @@ processes = [ WZ, TTX, TTW, TZQ, rare, nonprompt ]
 setups = [setup]
 
 ##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
-from TopEFT.tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
-from TopEFT.tools.cardFileWriter import cardFileWriter
+from TopEFT.Tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
+from TopEFT.Tools.cardFileWriter import cardFileWriter
 from TopEFT.analysis.getResults  import getResult, addResult
 
 
