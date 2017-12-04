@@ -10,10 +10,10 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi, atan2, cosh, sinh
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut, isBJet
-from TopEFT.tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
+from TopEFT.Tools.objectSelection import getFilterCut, isBJet
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
 # Arguments
@@ -34,7 +34,7 @@ args = argParser.parse_args()
 #
 # Logger
 #
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
@@ -256,6 +256,17 @@ def extra_observables( event, sample ):
 
 sequence.append( extra_observables )
 
+def Wpol( event, sample):
+
+    # Lp for the W
+    pxNonZl1 = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index])
+    pyNonZl1 = event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+    pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
+    pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
+    event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+
+sequence.append( Wpol )
+
 #
 # Text on the plots
 #
@@ -271,21 +282,31 @@ def drawObjects( lumi_scale ):
     return [tex.DrawLatex(*l) for l in lines] 
 
 def drawPlots(plots, mode):
-  for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
-      if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
-      
-      plotting.draw(plot,
-	    plot_directory = plot_directory_,
-	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = True,
-	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
-	    legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( lumi_scale ),
-        copyIndexPHP = True
-      )
+        if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+        for log in [False, True]:
+            plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
+            if isinstance( plot, Plot2D):
+                plotting.draw2D(plot,
+                  plot_directory = plot_directory_,
+                  #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+                  logX = False, logY = False, logZ=log, 
+                  #scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
+                  #legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  drawObjects = drawObjects( lumi_scale ),
+                  copyIndexPHP = True
+                )
+            else:
+                plotting.draw(plot,
+                  plot_directory = plot_directory_,
+                  #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+                  logX = False, logY = log, sorting = True,
+                  yRange = (0.03, "auto") if log else (0.001, "auto"),
+                  scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
+                  legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  drawObjects = drawObjects( lumi_scale ),
+                  copyIndexPHP = True
+                )
 
 #
 # Loop over channels
@@ -314,7 +335,8 @@ for index, mode in enumerate(allModes):
             sample.reduceFiles( to = 1 )
 
     # Use some defaults
-    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot.  setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot2D.setDefaults(               weight = weight_, selectionString = cutInterpreter.cutString(args.selection))
 
     plots = []
     
@@ -373,21 +395,39 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        name = 'cosThetaStar', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
+        name = 'cosThetaStar', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[20,-1,1],
     ))
    
     plots.append(Plot(
-        name = 'cosThetaStar_coarse', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
+        name = 'cosThetaStar_coarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[10,-1,1],
     ))
    
     plots.append(Plot(
-        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta^{*}) Z', texY = 'Number of Events',
+        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[5,-1,1],
+    ))
+
+    plots.append(Plot(
+        name = 'Lp', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[20,-1.5,1.5],
+    ))
+   
+    plots.append(Plot(
+        name = 'Lp_coarse', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[10,-1.5,1.5],
+    ))
+   
+    plots.append(Plot(
+        name = 'Lp_veryCoarse', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[5,-1.5,1.5],
     ))
    
     plots.append(Plot(
@@ -401,6 +441,7 @@ for index, mode in enumerate(allModes):
         attribute = TreeVariable.fromString( "Z_lldR/F" ),
         binning=[10,0,4],
     ))
+
     plots.append(Plot(
         name = "Z_lldEta",
         texX = '#Delta #eta(ll)', texY = 'Number of Events',
@@ -510,6 +551,13 @@ for index, mode in enumerate(allModes):
       name = 'St', texX = 'S_{t} (GeV)', texY = 'Number of Events / 30 GeV',
       attribute = lambda event, sample: event.St,
       binning=[30, 0, 900],
+    ))
+
+    plots.append(Plot2D(
+      name = 'TTZ', stack = Stack(TTZtoLLNuNu), texX = 'cos#theta^{*}(Z)', texY = 'L_{p}(W)',
+      attribute = [ lambda event, sample: event.cosThetaStar,
+                    lambda event, sample: event.Lp  ],
+      binning=[20,-1,1,30,-1.5,1.5],
     ))
 
     for fname, ftex, binning in [\

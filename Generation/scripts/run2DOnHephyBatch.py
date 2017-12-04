@@ -6,7 +6,7 @@ import time
 import itertools
 import argparse
 
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )

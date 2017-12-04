@@ -10,15 +10,15 @@ import ctypes
 # TopEFT imports
 from TopEFT.Generation.Configuration import Configuration
 from TopEFT.Generation.Process       import Process
-from TopEFT.tools.u_float         import u_float
-from TopEFT.tools.user            import plot_directory
+from TopEFT.Tools.u_float         import u_float
+from TopEFT.Tools.user            import plot_directory
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 logger = logger.get_logger("CRITICAL", logFile = None)
 
 # Plot style
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 

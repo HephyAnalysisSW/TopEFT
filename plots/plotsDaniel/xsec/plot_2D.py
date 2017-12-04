@@ -9,8 +9,8 @@ import ctypes
 # TopEFT imports
 from TopEFT.Generation.Configuration import *
 from TopEFT.Generation.Process import *
-from TopEFT.tools.user import plot_directory, results_directory
-from TopEFT.tools.niceColorPalette import niceColorPalette
+from TopEFT.Tools.user import plot_directory, results_directory
+from TopEFT.Tools.niceColorPalette import niceColorPalette
 import itertools
 
 # Logger
@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Plot style
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 

@@ -12,7 +12,7 @@ from TopEFT.samples.color import color
 try:
     data_directory = sys.modules['__main__'].data_directory
 except:
-    from TopEFT.tools.user import data_directory as user_data_directory
+    from TopEFT.Tools.user import data_directory as user_data_directory
     data_directory = user_data_directory 
 
 # Take post processing directory if defined in main module
@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v12/dilep/"
+  postProcessing_directory = "TopEFT_PP_v14/dilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 

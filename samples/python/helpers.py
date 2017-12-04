@@ -61,7 +61,7 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
         raise ValueError( "Not a good dataset name: '%s'"%heppy_sample.dataset )
 
     path = os.path.join( data_path, subDir )
-    from TopEFT.tools.user import runOnGentT2
+    from TopEFT.Tools.user import runOnGentT2
     if runOnGentT2: 
         sample = Sample.fromCMGCrabDirectory(
             heppy_sample.name, 

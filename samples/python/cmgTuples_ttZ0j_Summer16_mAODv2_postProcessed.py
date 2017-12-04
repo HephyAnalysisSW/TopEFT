@@ -12,7 +12,7 @@ from TopEFT.samples.color import color
 try:
     data_directory = sys.modules['__main__'].data_directory
 except:
-    #from TopEFT.tools.user import data_directory as user_data_directory
+    #from TopEFT.Tools.user import data_directory as user_data_directory
     data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/' 
 
 # Take post processing directory if defined in main module

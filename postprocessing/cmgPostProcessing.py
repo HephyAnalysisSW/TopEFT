@@ -18,24 +18,24 @@ from math import sqrt, atan2, sin, cos, cosh
 from RootTools.core.standard import *
 
 # User specific
-import TopEFT.tools.user as user
+import TopEFT.Tools.user as user
 
 # Tools for systematics
-from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar
-from TopEFT.tools.addJERScaling              import addJERScaling
-from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
-from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
-from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
-from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
-#from TopEFT.tools.triggerEfficiency          import triggerEfficiency
-#from TopEFT.tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
+from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar
+from TopEFT.Tools.addJERScaling              import addJERScaling
+from TopEFT.Tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
+from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
+from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
+from TopEFT.Tools.getGenBoson                import getGenZ, getGenPhoton
+#from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
+#from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 
 #triggerEff_withBackup   = triggerEfficiency(with_backup_triggers = True)
 #triggerEff              = triggerEfficiency(with_backup_triggers = False)
 #leptonTrackingSF        = leptonTrackingEfficiency()
 
 #MC tools
-from TopEFT.tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
+from TopEFT.Tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
 genSearch = GenSearch()
 
 # central configuration
@@ -78,7 +78,7 @@ def get_parser():
 options = get_parser().parse_args()
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job[0]))
 logger  = logger.get_logger(options.logLevel, logFile = logFile)
 
@@ -164,7 +164,7 @@ else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
 if isMC:
-    from TopEFT.tools.puReweighting import getReweightingFunction
+    from TopEFT.Tools.puReweighting import getReweightingFunction
     mcProfile = "Summer16"
     # nTrueIntReweighting
     nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
@@ -177,7 +177,7 @@ isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sa
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
 
-    from TopEFT.tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
+    from TopEFT.Tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
 
     logger.info( "Sample will have top pt reweighting." )
     topPtReweightingFunc = getUnscaledTopPairPtReweightungFunction(selection = "dilep")
@@ -194,16 +194,16 @@ else:
 addSystematicVariations = (not isData) and (not options.skipSystematicVariations)
 if addSystematicVariations:
     # B tagging SF
-    from TopEFT.tools.btagEfficiency import btagEfficiency
+    from TopEFT.Tools.btagEfficiency import btagEfficiency
     
     # CSVv2
-    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
     btagEff_CSVv2   = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
     # DeepCSV
-    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
+    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
     btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
@@ -219,7 +219,7 @@ if writeToDPM:
     directory = os.path.join('/tmp/%s'%os.environ['USER'], str(uuid.uuid4()), options.processingEra)
     if not os.path.exists( directory ):
         os.makedirs( directory )
-    from TopEFT.tools.user import dpm_directory as user_dpm_directory
+    from TopEFT.Tools.user import dpm_directory as user_dpm_directory
 else:
     directory  = os.path.join(options.targetDir, options.processingEra) 
 
