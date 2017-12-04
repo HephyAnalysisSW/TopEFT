@@ -30,7 +30,7 @@ def getSubDir(dataset, path):
     else :                             
       return m.group(1)+"_"+m.group(2)
 
-def fromHeppySample(sample, data_path, module = None, maxN = None):
+def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration = "Summer16"):
     ''' Load CMG tuple from local directory
     '''
 
@@ -39,12 +39,17 @@ def fromHeppySample(sample, data_path, module = None, maxN = None):
         module_ = module
     elif "Run2016" in sample:
         module_ = 'CMGTools.RootTools.samples.samples_13TeV_DATA2016'
+    elif "Run2017" in sample:
+        module_ = 'CMGTools.RootTools.samples.samples_13TeV_DATA2017'
     elif "ttZ0j_ll" in sample:
         module_ = 'CMGTools.StopsDilepton.ttZ0j_5f_MLM_signals_RunIISummer16MiniAODv2'
     elif "ewkDM" in sample:
         module_ = 'CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2'
     else: 
-        module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2'
+        if MCgeneration == "Summer17":
+            module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2'
+        else:
+            module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2'
 
     try:
         heppy_sample = getattr(importlib.import_module( module_ ), sample)
@@ -78,6 +83,12 @@ def fromHeppySample(sample, data_path, module = None, maxN = None):
             if "Run2016" in sample:
                 from TopEFT.samples.heppy_dpm_samples import data_03Feb2017_heppy_mapper as data_heppy_mapper
                 return data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "Run2017" in sample:
+                from TopEFT.samples.heppy_dpm_samples import data_Run2017_heppy_mapper as data_Run2017_heppy_mapper
+                return data_Run2017_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "Summer17" in heppy_sample.dataset:
+                from TopEFT.samples.heppy_dpm_samples import Summer17_heppy_mapper
+                return Summer17_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ttZ0j_ll" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_0j_heppy_mapper
                 return signal_0j_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)

@@ -66,11 +66,12 @@ def get_parser():
     argParser.add_argument('--keepAllJets',                 action='store_true',                                                                                        help="Keep all jets?")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
-    argParser.add_argument('--skipGenMatching',          action='store_true',                                                                                        help="skip matched genleps??")
+    argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
+    argParser.add_argument('--Run2017',                     action='store_true',                                                                                        help="Run on 2017 data")
 
     return argParser
 
@@ -106,7 +107,9 @@ if isInclusive:
 
 maxN = 2 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
-samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN) for s in options.samples ]
+if options.Run2017: MCgeneration = "Summer17"
+else:               MCgeneration = "Summer16"
+samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
 logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
 if len(samples)==0:
@@ -309,8 +312,8 @@ if sample.isData:
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
     sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
-    #if is2017:
-    #    sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306126_13TeV_PromptReco_Collisions17_JSON.txt'
+    if options.Run2017:
+        sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
     lumiList = LumiList(os.path.expandvars(sample.heppy.json))
     logger.info( "Loaded json %s", sample.heppy.json )
 else:
