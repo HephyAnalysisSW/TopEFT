@@ -309,6 +309,8 @@ if sample.isData:
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
     sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
+    #if is2017:
+    #    sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306126_13TeV_PromptReco_Collisions17_JSON.txt'
     lumiList = LumiList(os.path.expandvars(sample.heppy.json))
     logger.info( "Loaded json %s", sample.heppy.json )
 else:

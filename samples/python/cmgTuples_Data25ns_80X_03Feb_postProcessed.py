@@ -19,9 +19,9 @@ logger.info("Loading data samples from directory %s", os.path.join(data_director
 dirs = {}
 for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
     runTag = 'Run2016' + run + '_03Feb2017' + version
-    dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
-    dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
-    dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
+    dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag]
+    dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag]
+    dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
