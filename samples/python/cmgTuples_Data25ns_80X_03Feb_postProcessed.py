@@ -21,7 +21,7 @@ for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),
     runTag = 'Run2016' + run + '_03Feb2017' + version
     dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag]
     dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag]
-    dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag ]
+    dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
