@@ -138,7 +138,8 @@ class Topaz:
 
         other_args= filter( lambda arg: not arg.startswith('Process='), args)
 
-        default_args        = ( 'Collider=13', 'VegasNc0=50000', 'VegasNc1=500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
+        #default_args        = ( 'Collider=13', 'VegasNc0=50000', 'VegasNc1=500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
+        default_args        = ( 'Collider=13', 'VegasNc0=150000', 'VegasNc1=1500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
 
         self.args = list(other_args)
 
