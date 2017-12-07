@@ -12,7 +12,7 @@ from math                         import sqrt, cos, sin, pi, atan2, cosh, sinh
 from RootTools.core.standard      import *
 from TopEFT.Tools.user            import plot_directory
 from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.Tools.objectSelection import getFilterCut, isBJet
+from TopEFT.Tools.objectSelection import getFilterCut, isBJet, isAnalysisJet
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
@@ -24,9 +24,10 @@ argParser.add_argument('--logLevel',           action='store',      default='INF
 argParser.add_argument('--signal',             action='store',      default=None,       nargs='?', choices=[None, 'dipoleEllipsis', 'currentEllipsis', 'C2VA0p2', 'cuW'], help='Add signal to plot')
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+#argParser.add_argument('--Run2017',                                 action='store_true',     help='2017 data & MC?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v12')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v14')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
@@ -49,9 +50,12 @@ if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
+
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 postProcessing_directory = "TopEFT_PP_v12/trilep/"
 data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
 if args.signal is None:
@@ -147,7 +151,7 @@ if args.reweightPtZToSM:
 # Read variables and sequences
 #
 read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I]", "njet/I","nJetSelected/I",
                     "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
@@ -186,11 +190,11 @@ def extra_observables( event, sample ):
     met_2D = ROOT.TVector2( event.met_pt*cos(event.met_phi), event.met_pt*sin(event.met_phi) )
 
     # get jets
-    jetVars     = ['eta','pt','phi','btagCSV']
-    jets        = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    jetVars     = ['eta','pt','phi','btagCSV','id']
+    jets        = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
     jets.sort( key = lambda l:-l['pt'] )
 
-    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets)
+    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets )
     nonBJets    = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
 
     # take highest-pT b-jet, supplement by non-bjets if there are less than two

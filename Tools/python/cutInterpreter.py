@@ -14,15 +14,17 @@ special_cuts = {
     "dilep":             "nlep==2",
     "SSdilep":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])>0",
 #    "lepSelTTW":         "lep_pt[1]>25&&(
-    "dilepOF":           "nGoodElectrons==1&&nGoodMuons==1&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
+    "dilepOFOS":         "nGoodElectrons==1&&nGoodMuons==1&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
+    "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "trilep":            "nlep==3",
     "Zcand":             "Z_mass>0",
     "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "onZ":               "abs(Z_mass-91.2)<10",
+    "offZ":              "abs(Z_mass-91.2)>10",
   }
 
-continous_variables = [ ("metSig", "metSig"), ("mll", "dl_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt") ]
+continous_variables = [ ("metSig", "metSig"), ("mll", "Z_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt") ]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]
 
 class cutInterpreter:
