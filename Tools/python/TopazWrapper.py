@@ -146,7 +146,7 @@ class Topaz:
                 other_args.append( 'RelDelF1V=%7.5f' % ( float(arg.split('=')[1])/C1VZSM  ) )
             elif arg.lstrip().startswith('DC1AZ=') or arg.lstrip().startswith('DC1A='):
                 C1AZSM = 0.60069
-                other_args.append( 'RelDelF1A=%7.5f' % ( - float(arg.split('=')[1])/C1AZSM ) )
+                other_args.append( 'RelDelF1A=%7.5f' % ( -float(arg.split('=')[1])/C1AZSM ) )
             elif arg.lstrip().startswith('DC2VZ=') or arg.lstrip().startswith('DC2V='):
                 other_args.append( 'RelDelF2V=%7.5f' % ( float(arg.split('=')[1])) )
             elif arg.lstrip().startswith('DC2AZ=') or arg.lstrip().startswith('DC2A='):
@@ -174,6 +174,7 @@ class Topaz:
             origWD = os.getcwd() 
             os.chdir(os.path.expandvars('$CMSSW_BASE/src/TOPAZ'))
             run_args = [ os.path.expandvars('$CMSSW_BASE/src/TOPAZ/TOPAZ'), process, 'HistoFile=%s'%output_filename] + self.args
+            logger.debug( "Running %s", " ".join(run_args) )
             subprocess.call( run_args )
             os.chdir( origWD )
 
