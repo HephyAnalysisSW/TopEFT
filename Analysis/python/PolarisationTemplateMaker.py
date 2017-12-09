@@ -100,7 +100,6 @@ class PolarisationTemplateMaker:
                     w/=sw
                 else:
                     w=0
-
                 if r.event.cosThetaStar<float('inf'):
                     templates[p].Fill( r.event.cosThetaStar, w )
                 #print r.event.weight, f_Z_pol[p].Eval(r.event.genZ_cosThetaStar), h.GetBinContent(h.FindBin(r.event.genZ_cosThetaStar))
@@ -115,7 +114,6 @@ class PolarisationTemplateMaker:
                 h.Scale( 1./s )
 
         return templates
-
 
 if __name__ == "__main__":
 
