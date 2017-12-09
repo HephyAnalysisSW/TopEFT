@@ -81,6 +81,17 @@ def getFileList(dir, histname='histo', maxN=-1):
         filelist = filelist[:maxN]
     return filelist
 
+def sum_histos( histos ):
+
+    res = histos[0].Clone()
+
+    for histo in histos[1:]:
+        if not histo.GetNbinsX() == res.GetNbinsX():
+            raise ValueError("Inconsistent binning!")
+        res.Add( histo )
+
+    return res 
+
 # Returns (closest mass, index1, index2)
 def closestOSDLMassToMZ(leptons):
     inds = range(len(leptons))

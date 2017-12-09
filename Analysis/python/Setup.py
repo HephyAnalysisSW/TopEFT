@@ -43,6 +43,15 @@ default_nJets       = (3, -1)   # written as (min, max)
 default_nBTags      = (1, -1)
 default_metMin      = 0
 
+default_sys = {'weight':'weight', 'reweight':['reweightPU36fb'], 'selectionModifier':None}
+default_parameters   = {
+            'mllMin':        default_mllMin,
+            'metMin':        default_metMin,
+            'zWindow':       default_zWindow,
+            'nJets':         default_nJets,
+            'nBTags':        default_nBTags,
+        }
+
 class Setup:
     def __init__(self):
         self.analysis_results = analysis_results
@@ -51,19 +60,12 @@ class Setup:
         self.externalCuts     = []
 
         #Default cuts and requirements. Those three things below are used to determine the key in the cache!
-        self.parameters   = {
-            'mllMin':        default_mllMin,
-            'metMin':        default_metMin,
-            'zWindow':       default_zWindow,
-            'nJets':         default_nJets,
-            'nBTags':        default_nBTags,
-        }
+        self.parameters   = default_parameters 
+        self.sys          = default_sys 
+        self.lumi         = lumi
+        self.dataLumi     = dataLumi2016
 
-        self.sys = {'weight':'weight', 'reweight':['reweightPU36fb'], 'selectionModifier':None}
-        self.lumi     = lumi
-        self.dataLumi = dataLumi2016
-
-        self.sample = {
+        self.samples = {
         'TTZ':          {c:TTZSample        for c in channels},
         'WZ' :          {c:WZSample         for c in channels},
         'TTX' :         {c:TTXSample        for c in channels},
@@ -82,6 +84,16 @@ class Setup:
 
     def defaultCacheDir(self):
         return os.path.join(self.analysis_results, self.prefix(), 'cacheFiles')
+
+    #Clone the setup and optinally modify the systematic variation
+    def defaultClone(self):
+        '''Clone setup and change systematics to default'''
+
+        res            = copy.copy(self)
+        res.sys        = copy.deepcopy(default_sys)
+        res.parameters = copy.deepcopy(default_parameters)
+
+        return res
 
     #Clone the setup and optinally modify the systematic variation
     def systematicClone(self, sys=None, parameters=None):
