@@ -10,24 +10,42 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut
-from TopEFT.tools.cutInterpreter  import cutInterpreter
-from TopEFT.tools.u_float         import u_float
-
-from TopEFT.tools.user            import plot_directory
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.objectSelection import getFilterCut
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.u_float         import u_float
+from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue, writeObjToFile
+from TopEFT.Tools.user            import plot_directory
 
 from array import array
 
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+def get_parser():
+    ''' Argument parser for post-processing module.
+    '''
+    import argparse
+    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
+
+    argParser.add_argument('--leg',                    action='store',         nargs='?',              choices=["E","M"],     default='E', help="electron or muon?")
+    argParser.add_argument('--data',                   action='store_true',          help="run on data?")
+    argParser.add_argument('--small',                  action='store_true',          help="small?")
+    argParser.add_argument('--Run2017',                action='store_true',          help="2017 data?")
+
+    return argParser
+
+options = get_parser().parse_args()
+
+
+
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
+
+ROOT.gStyle.SetPaintTextFormat("1.2f")
 
 ROOT.gStyle.SetOptFit(0)
 ROOT.gStyle.SetOptStat(0)
 
-channel = "E" # "M" or "E"
-small = True
+channel = options.leg # "M" or "E"
+small = options.small
 
 def turnon_func(x, par):
 
@@ -50,9 +68,6 @@ def turnon_func(x, par):
 
     return fitval
 
-
-
-
 #postProcessing_directory = "TopEFT_PP_v12/dilep/"
 #from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
@@ -64,6 +79,14 @@ data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/dilep/"
 from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v14/dilep/"
+from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
+postProcessing_directory = "TopEFT_PP_2017_v14/dilep/"
+from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+from TopEFT.samples.cmgTuples_Summer17_mAODv2_postProcessed import *
+
 # presel for measuring efficiencies in single lep datasets
 presel = "nlep==2&&nGoodElectrons==1&&nGoodMuons==1&&(lep_pdgId[0]*lep_pdgId[1])<0"
 
@@ -71,6 +94,10 @@ channels = {'all':'(1)'}
 
 trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_eta2p1_WPLoose_Gsf"]
 trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
+
+trigger_singleEle_2017 = ["HLT_Ele32_WPTight_Gsf", "HLT_Ele35_WPTight_Gsf", "HLT_Ele38_WPTight_Gsf", "HLT_Ele40_WPTight_Gsf"]
+trigger_singleMu_2017  = ["HLT_IsoMu27", "HLT_IsoMu30"]
+
 
 colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
 markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22, "SingleEle":23, "SingleEleTTZ":22}
@@ -80,46 +107,61 @@ binning = (len(binning)-1, array('d', binning))
 
 #sample = MET_Run2016
 
+if options.Run2017:
+    lumi = 38.7
+else:
+    lumi = 35.9
 
 if channel == "M":
     triggerLeg = "singleMuon"
     pdgId = 13
     #measure in singleEle data
-    sample = SingleElectron_Run2016
-    presel += "&&(%s)"%("||".join(trigger_singleEle))
-    binning2D = ([10,15,20,25,40,60,80,100,200],[0,1.2,2.1,2.4])
+    sample = ( SingleElectron_Run2016 if not options.Run2017 else SingleElectron_Run2017 ) if options.data else ( TTLep_pow if not options.Run2017 else TT_pow_17)
+    triggers = trigger_singleEle if not options.Run2017 else trigger_singleEle_2017
+    presel += "&&(%s)"%("||".join(triggers))
+    binning2D = ([10,15,20,25,40,60,80,100,200,500],[0,1.2,2.1,2.4])
 elif channel == "E":
     triggerLeg = "singleElectron"
     pdgId = 11
     #measure in singleMu data
-    sample = SingleMuon_Run2016
-    presel += "&&(%s)"%("||".join(trigger_singleMu))
-    binning2D = ([10,15,20,25,40,60,80,100,200],[0,1.479,2.5])
+    sample = ( SingleMuon_Run2016 if not options.Run2017 else SingleMuon_Run2017 ) if options.data else ( TTLep_pow if not options.Run2017 else TT_pow_17)
+    triggers = trigger_singleMu if not options.Run2017 else trigger_singleMu_2017
+    presel += "&&(%s)"%("||".join(triggers))
+    binning2D = ([10,15,20,25,40,60,80,100,200,500],[0,1.479,2.5])
 
 #sample = TTLep_pow
+
+print "Getting events"
 
 s = sample.chain
 s.Draw('>>eList',presel)
 elist = ROOT.gDirectory.Get("eList")
 number_events = elist.GetN()
 
-sample.hist     = ROOT.TH1F("%s"%(sample.name),"", *binning)
-sample.hist_ref = ROOT.TH1F("%s_%s"%(sample.name, "ref"),"", *binning)
+print "Preparing Histograms"
+
+sample.hist     = ROOT.TH1D("%s"%(sample.name),"", *binning)
+sample.hist_ref = ROOT.TH1D("%s_%s"%(sample.name, "ref"),"", *binning)
+
+print "Preparing 2D Histograms"
 
 #get dummy 2d histograms
 eta = "lep_eta[0]"
 pt  = "lep_pt[0]"
-sample.hist2D       = sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning2D, selectionString=presel+"&met_pt>1000", weightString=None, binningIsExplicit=True, isProfile=False)
-sample.hist2D_ref   = sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning2D, selectionString=presel+"&met_pt>1000", weightString=None, binningIsExplicit=True, isProfile=False)
+
+binningArgs = (len(binning2D[0])-1, array('d', binning2D[0]), len(binning2D[1])-1, array('d', binning2D[1]))
+
+sample.hist2D       = ROOT.TH2D("%s_2D"%(sample.name),"", *binningArgs) #sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning2D, selectionString=presel+"&met_pt>1000", weightString=None, binningIsExplicit=True, isProfile=False)
+sample.hist2D_ref   = ROOT.TH2D("%s_%s_2D"%(sample.name, "ref"),"", *binningArgs) #sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning2D, selectionString=presel+"&met_pt>1000", weightString=None, binningIsExplicit=True, isProfile=False)
 
 sample.hist2D.Reset()
 sample.hist2D_ref.Reset()
 
 if small:
-    number_events = 100 # for test
+    number_events = 10000 # for test
     triggerLeg += '_small'
 
-print "Gonna loop over %s events"%number_events
+print "Looping over %s events"%number_events
 
 passed = 0
 
@@ -145,15 +187,15 @@ for i in range(number_events):
     if channel == "M":
         if s.lep_matchedTrgObj1Mu[m_index]>0:
             sample.hist.Fill(lep_pt)
-            sample.hist2D.Fill(lep_eta, lep_pt)
+            sample.hist2D.Fill(lep_pt, lep_eta)
             passed += 1
     elif channel == "E":
         if s.lep_matchedTrgObj1El[m_index]>0:
             sample.hist.Fill(lep_pt)
-            sample.hist2D.Fill(lep_eta, lep_pt)
+            sample.hist2D.Fill(lep_pt, lep_eta)
             passed += 1
     sample.hist_ref.Fill(lep_pt)
-    sample.hist2D_ref.Fill(lep_eta, lep_pt)
+    sample.hist2D_ref.Fill(lep_pt, lep_eta)
 
 print float(passed)/number_events
 
@@ -193,7 +235,7 @@ latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11) # align right
 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+latex1.DrawLatex(0.72,0.96,"#bf{%sfb^{-1}} (13TeV)"%lumi)
 
 color  = ROOT.kOrange + 1
 marker = 20
@@ -259,7 +301,7 @@ latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11) # align right
 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+latex1.DrawLatex(0.72,0.96,"#bf{%sfb^{-1}} (13TeV)"%lumi)
 
 filename = "%s_lep_pt_vs_lep_eta"%(triggerLeg)
 

@@ -35,6 +35,7 @@ else:
 
 # TopEFT
 from TopEFT.samples.walk_dpm import walk_dpm
+from RootTools.core.helpers import checkRootFile
 
 # Standard imports
 import os
@@ -96,9 +97,18 @@ class heppy_mapper:
                             multithreading = not options.nomultithreading, 
                         )
                     logger.info( "Sample %s: Found a total of %i files with normalization %3.2f", heppy_sample.name, len(files), normalization)
+                    tmp_files = []
+                    for f in files:
+                        isGoodFile = False
+                        try:
+                            isGoodFile = checkRootFile("root://hephyse.oeaw.ac.at/" + os.path.join( f ))
+                            logger.debug("File %s got added", f)
+                        except IOError:
+                            logger.info("File %s is corrupted, skipping",f)
+                        if isGoodFile: tmp_files.append(f)
                     self.sample_map[heppy_sample] = Sample.fromFiles(
-                        heppy_sample.name, 
-                        files = ['root://hephyse.oeaw.ac.at/'+f for f in files],
+                        heppy_sample.name,
+                        files = ['root://hephyse.oeaw.ac.at/'+f for f in tmp_files],
                         normalization = normalization, 
                         treeName = 'tree', isData = heppy_sample.isData, maxN = maxN)
                     
