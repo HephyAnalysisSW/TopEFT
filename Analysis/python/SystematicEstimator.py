@@ -45,7 +45,7 @@ class SystematicEstimator:
         if self.helperCache and self.helperCache.contains(s):
           return self.helperCache.get(s)
         else:
-          yieldFromDraw = u_float(**setup.sample[sample][c].getYieldFromDraw(selectionString, weightString))
+          yieldFromDraw = u_float(**setup.samples[sample][c].getYieldFromDraw(selectionString, weightString))
           if self.helperCache: self.helperCache.add(s, yieldFromDraw )
           return yieldFromDraw
 

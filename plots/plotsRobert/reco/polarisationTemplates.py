@@ -101,6 +101,7 @@ if not os.path.exists( template_pkl ) or args.overwrite:
                     templates[genZ_pt_bin][genZ_eta_bin][p].Fill( r.event.cosThetaStar, w )
                     #print r.event.weight, f_Z_pol[p].Eval(r.event.genZ_cosThetaStar), h.GetBinContent(h.FindBin(r.event.genZ_cosThetaStar))
             sample.chain.SetBranchStatus( "*", 1 )
+
     # Normalisation
     for i_genZ_pt_bin, genZ_pt_bin in enumerate(genZ_pt_bins):
         for i_genZ_eta_bin, genZ_eta_bin in enumerate(genZ_eta_bins):

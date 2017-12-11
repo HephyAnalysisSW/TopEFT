@@ -7,7 +7,6 @@ import copy
 import imp 
 
 # TopEFT
-from TopEFT.Tools.Cache import Cache
 from TopEFT.Tools.resultsDB import resultsDB
 from TopEFT.Tools.user import results_directory, tmp_directory
 from TopEFT.Tools.u_float import u_float

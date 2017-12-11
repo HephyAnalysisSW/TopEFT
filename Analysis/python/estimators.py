@@ -13,7 +13,7 @@ estimators = {}
 
 ## main MC based estimators
 for mc in ['TTZ', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt']:
-    estimators[mc] = [MCBasedEstimate(name=mc, sample=setup.sample[mc])]
+    estimators[mc] = [MCBasedEstimate(name=mc, sample=setup.samples[mc])]
 
 # check if all estimators have unique name
 estimatorNames = [e.name for eList in estimators.values() for e in eList]

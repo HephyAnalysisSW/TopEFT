@@ -136,9 +136,26 @@ class Topaz:
         if self.processes == ():
             self.processes = ('Process=71', 'Process=72')
 
-        other_args= filter( lambda arg: not arg.startswith('Process='), args)
+        other_args_ = filter( lambda arg: not arg.startswith('Process='), args)
 
-        default_args        = ( 'Collider=13', 'VegasNc0=50000', 'VegasNc1=500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
+        # translate current and dipole couplings
+        other_args  = []
+        for arg in other_args_:
+            if arg.lstrip().startswith('DC1VZ=') or arg.lstrip().startswith('DC1V='):
+                C1VZSM = 0.24364
+                other_args.append( 'RelDelF1V=%7.5f' % ( float(arg.split('=')[1])/C1VZSM  ) )
+            elif arg.lstrip().startswith('DC1AZ=') or arg.lstrip().startswith('DC1A='):
+                C1AZSM = 0.60069
+                other_args.append( 'RelDelF1A=%7.5f' % ( -float(arg.split('=')[1])/C1AZSM ) )
+            elif arg.lstrip().startswith('DC2VZ=') or arg.lstrip().startswith('DC2V='):
+                other_args.append( 'RelDelF2V=%7.5f' % ( float(arg.split('=')[1])) )
+            elif arg.lstrip().startswith('DC2AZ=') or arg.lstrip().startswith('DC2A='):
+                other_args.append( 'RelDelF2A=%7.5f' % ( -float(arg.split('=')[1])) )
+            else:
+                other_args.append( arg )
+
+        #default_args        = ( 'Collider=13', 'VegasNc0=50000', 'VegasNc1=500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
+        default_args        = ( 'Collider=13', 'VegasNc0=150000', 'VegasNc1=1500000', 'TopDK=4', 'ZDK=1', 'ObsSet=53', 'Correction=0', 'NLOParam=1' )
 
         self.args = list(other_args)
 
@@ -157,6 +174,7 @@ class Topaz:
             origWD = os.getcwd() 
             os.chdir(os.path.expandvars('$CMSSW_BASE/src/TOPAZ'))
             run_args = [ os.path.expandvars('$CMSSW_BASE/src/TOPAZ/TOPAZ'), process, 'HistoFile=%s'%output_filename] + self.args
+            logger.debug( "Running %s", " ".join(run_args) )
             subprocess.call( run_args )
             os.chdir( origWD )
 

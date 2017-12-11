@@ -17,16 +17,19 @@ except: postProcessing_directory = 'TopEFT_PP_2017_v14/dilep'
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
+
 for (run, version) in [('B',''),('C','')]:
     runTag = 'Run2017' + run + '_12Sep2017' + version
-    dirs["SingleElectron_Run2017"   + run + version ]   = ["SingleElectron_"    + runTag]
-    dirs["SingleMuon_Run2017"       + run + version ]   = ["SingleMuon_"        + runTag]
+    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag]
+    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag]
+    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
     dirs["MET_Run2017"       + run + version ]          = ["MET_"        + runTag]
 
 for (run, version) in [('D',''),('E',''),('F','')]:
     runTag = 'Run2017' + run + version
-    dirs["SingleElectron_Run2017"   + run + version ]   = ["SingleElectron_"    + runTag]
-    dirs["SingleMuon_Run2017"       + run + version ]   = ["SingleMuon_"        + runTag]
+    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag]
+    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag]
+    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
     dirs["MET_Run2017"       + run + version ]          = ["MET_"        + runTag]
 
 
@@ -34,7 +37,7 @@ def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
-for pd in ['SingleElectron','SingleMuon', 'MET']:
+for pd in ['SingleElectron','SingleMuon','SingleEleMu','MET']:
     merge(pd, 'Run2017BCD',     ['Run2017B', 'Run2017C', 'Run2017D'])
     merge(pd, 'Run2017',        ['Run2017BCD', 'Run2017E', 'Run2017F'])
 
@@ -51,10 +54,9 @@ SingleElectron_Run2017          = getSample('SingleElectron',   'Run2017',      
 SingleMuon_Run2017              = getSample('SingleMuon',       'Run2017',       (1.)*1000)
 MET_Run2017                     = getSample('MET',       'Run2017',       (1.)*1000)
 
+allSamples_Data25ns_2017= []
+allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017, MET_Run2017]
 
-allSamples_2017_Data25ns = []
-allSamples_2017_Data25ns += [SingleMuon_Run2017, SingleElectron_Run2017, MET_Run2017]
-
-for s in allSamples_2017_Data25ns:
+for s in allSamples_Data25ns_2017:
   s.color   = ROOT.kBlack
   s.isData  = True

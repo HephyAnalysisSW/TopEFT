@@ -81,4 +81,4 @@ def ZPolarisationFit( shape, pol_histos=None, sumW2Error = True, fit_plot_direct
         c.SaveAs(os.path.join( fit_plot_directory, fit_filename+".png"))
         del c
 
-    return Z_pol_p_yield.getVal(), Z_mol_m_yield.getVal(), Z_mol_L_yield.getVal()  
+    return ( Z_pol_p_yield.getVal(), Z_pol_p_yield.getError()), ( Z_mol_m_yield.getVal(), Z_mol_m_yield.getError()) , ( Z_mol_L_yield.getVal(), Z_mol_L_yield.getError() )

@@ -41,9 +41,15 @@ class Region:
 
     def texStringForVar(self, var = None, useRootLatex = True):
         if var not in self.variables(): return None
-	s1=str(self.vals[var][0]) + (" #leq " if useRootLatex else " \\leq ") + texString[var]
-	if self.vals[var][1]>0: s1+=" < "+str(self.vals[var][1])
-	return s1
+        s1 = str(self.vals[var][0]) + (" #leq " if useRootLatex else " \\leq ") + texString[var]
+        if self.vals[var][1]>0: s1+=" < "+str(self.vals[var][1])
+        return s1
+
+    def simpleStringForVar(self, var = None):
+        if var not in self.variables(): return None
+        s1 = str(self.vals[var][0])
+        if self.vals[var][1]>0: s1+="To"+str(self.vals[var][1])
+        return var+s1
 
 
     def texString(self, useRootLatex = True):
@@ -54,7 +60,12 @@ class Region:
         return ", ".join(res)
 
     def __str__(self):
-        return self.cutString()
+        res=[]
+        for var in allowedVars: #Always keep the sequence in allowedVars
+            if var in self.variables():
+                res.append(self.simpleStringForVar(var))
+        return "_".join(res)
+        #return self.cutString()
 
     def __repr__(self):
         ''' Sorry.'''

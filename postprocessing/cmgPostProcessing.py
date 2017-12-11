@@ -356,7 +356,7 @@ if isMC:
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
         new_variables.append( 'GenLep[%s]'% ( ','.join(genLepVars) ) )
-        new_variables.extend(['genZ_pt/F', 'genZ_mass/F', 'genZ_eta/F', 'genZ_phi/F', 'genZ_cosThetaStar/F' ])
+        new_variables.extend(['genZ_pt/F', 'genZ_mass/F', 'genZ_eta/F', 'genZ_phi/F', 'genZ_cosThetaStar/F', 'genZ_daughter_flavor/I' ])
 
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
@@ -678,6 +678,7 @@ def filler( event ):
             event.genZ_phi = genZ['phi']
 
             lep_m = filter( lambda p: p['pdgId'] in [11, 13, 15], genSearch.daughters( genZ ) )
+            event.genZ_daughter_flavor = max([p['pdgId'] for p in genSearch.daughters( genZ )])
             if len( lep_m ) == 1:
                 event.genZ_cosThetaStar = cosThetaStar( event.genZ_mass, event.genZ_pt, event.genZ_eta, event.genZ_phi, lep_m[0]['pt'], lep_m[0]['eta'], lep_m[0]['phi'] )
     

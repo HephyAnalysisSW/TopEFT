@@ -9,7 +9,7 @@ from TopEFT.Tools.lock import waitForLock, removeLock
 import logging
 logger = logging.getLogger(__name__)
 
-class Cache:
+class PickleCache:
     def __init__(self, filename=None, overwrite=False):
         self.initCache(filename)
 
@@ -44,7 +44,7 @@ class Cache:
               self._cache.update(temp)
             removeLock(self.filename)
           except Exception as e:# (IOError, ValueError, EOFError):
-              logger.warning( "Cache file %s could not be reloaded", self.filename )
+              logger.warning( "PickleCache file %s could not be reloaded", self.filename )
               removeLock(self.filename)
 
     def contains (self, key):

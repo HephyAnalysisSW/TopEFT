@@ -235,17 +235,23 @@ def triggerEmulatorSelector(l):
     if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
     return True
 
-def getFilterCut(isData=False, isFastSim = False, badMuonFilters = "Summer2016"):
+def getFilterCut(isData=False, isFastSim = False, badMuonFilters = "Summer2016", year = 2016):
     if isFastSim:
         filterCut            = "Flag_goodVertices"
     else:
-        filterCut            = "Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_eeBadScFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter"
+        if year == 2017:
+            filterCut            = "Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_EcalDeadCellTriggerPrimitiveFilter"
+        else:
+            filterCut            = "Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_eeBadScFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter"
+
         if badMuonFilters == "Moriond2017":
             filterCut += "&&Flag_badChargedHadronSummer2016"
             if isData: filterCut += "&&Flag_badMuonMoriond2017&&Flag_badCloneMuonMoriond2017"
         elif badMuonFilters == "Moriond2017Official":
             filterCut += "&&Flag_badChargedHadronSummer2016"
             if isData: filterCut += "&&Flag_noBadMuons&&!Flag_duplicateMuons"
+        elif badMuonFilters == "Summer2017":
+            filterCut += "&&Flag_badMuonMoriond2017&&Flag_badCloneMuonMoriond2017"
         elif badMuonFilters == "Summer2016":
             filterCut += "&&Flag_badChargedHadronSummer2016&&Flag_badMuonSummer2016"
         elif badMuonFilters == "Summer2016_pt20":
