@@ -71,7 +71,7 @@ def get_parser():
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
-    argParser.add_argument('--Run2017',                     action='store_true',                                                                                        help="Run on 2017 data")
+    argParser.add_argument('--year',                        action='store',                     type=int,                           default=2016, choices=[2016,2017],  help="Which year?")
 
     return argParser
 
@@ -107,7 +107,7 @@ if isInclusive:
 
 maxN = 2 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
-if options.Run2017: MCgeneration = "Summer17"
+if options.year==2017:      MCgeneration = "Summer17"
 else:               MCgeneration = "Summer16"
 samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
 logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
@@ -130,20 +130,37 @@ diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
 EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
 
 if isData and options.triggerSelection is not None:
-    if options.triggerSelection == 'mu':
-        skimConds.append( "(HLT_SingleMuTTZ)" )
-    elif options.triggerSelection == 'e':
-        skimConds.append( "(HLT_SingleEleTTZ)" )
-    elif options.triggerSelection == 'e_for_mu':
-        skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-    elif options.triggerSelection == 'ee':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-    elif options.triggerSelection == 'mue':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-    elif options.triggerSelection == 'mumu':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-    else:
-        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
+    if options.year == 2016:
+        if options.triggerSelection == 'mu':
+            skimConds.append( "(HLT_SingleMuTTZ)" )
+        elif options.triggerSelection == 'e':
+            skimConds.append( "(HLT_SingleEleTTZ)" )
+        elif options.triggerSelection == 'e_for_mu':
+            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
+        elif options.triggerSelection == 'ee':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+        elif options.triggerSelection == 'mue':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+        elif options.triggerSelection == 'mumu':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+        else:
+            raise ValueError( "Don't know about triggerSelection %s in %i "%(options.triggerSelection, options.year) )
+    elif options.year == 2017:
+        if options.triggerSelection == 'mu':
+            skimConds.append( "(HLT_IsoMu27||HLT_IsoMu30)" )
+        elif options.triggerSelection == 'e':
+            skimConds.append( "(HLT_Ele32_WPTight_Gsf||HLT_Ele35_WPTight_Gsf||HLT_Ele38_WPTight_Gsf||HLT_Ele40_WPTight_Gsf)" )
+        elif options.triggerSelection == 'e_for_mu':
+            skimConds.append( "((HLT_Ele32_WPTight_Gsf||HLT_Ele35_WPTight_Gsf||HLT_Ele38_WPTight_Gsf||HLT_Ele40_WPTight_Gsf)&& !(HLT_IsoMu27||HLT_IsoMu30))" )
+        #elif options.triggerSelection == 'ee':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+        #elif options.triggerSelection == 'mue':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+        #elif options.triggerSelection == 'mumu':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+        else:
+            raise ValueError( "Don't know about triggerSelection %s in %i"%(options.triggerSelection, options.year) )
+
     sample_name_postFix = "_Trig_"+options.triggerSelection
     logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
 else:
@@ -312,7 +329,7 @@ if sample.isData:
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
     sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
-    if options.Run2017:
+    if options.year==2017:
         sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
     lumiList = LumiList(os.path.expandvars(sample.heppy.json))
     logger.info( "Loaded json %s", sample.heppy.json )

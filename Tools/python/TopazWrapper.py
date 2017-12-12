@@ -148,9 +148,11 @@ class Topaz:
                 C1AZSM = 0.60069
                 other_args.append( 'RelDelF1A=%7.5f' % ( -float(arg.split('=')[1])/C1AZSM ) )
             elif arg.lstrip().startswith('DC2VZ=') or arg.lstrip().startswith('DC2V='):
-                other_args.append( 'RelDelF2V=%7.5f' % ( float(arg.split('=')[1])) )
+                MZ = 91.2
+                other_args.append( 'RelDelF2V=%7.5f' % ( MZ/100*float(arg.split('=')[1])) )
             elif arg.lstrip().startswith('DC2AZ=') or arg.lstrip().startswith('DC2A='):
-                other_args.append( 'RelDelF2A=%7.5f' % ( -float(arg.split('=')[1])) )
+                MZ = 91.2
+                other_args.append( 'RelDelF2A=%7.5f' % ( -MZ/100*float(arg.split('=')[1])) )
             else:
                 other_args.append( arg )
 

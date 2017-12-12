@@ -157,7 +157,7 @@ class PolarisationEstimate(SystematicEstimator):
         plot = Plot.fromHisto(name = "fit_plot_pseudoData_%s_%s_%s"%( self.usePseudoData,  channel, region), histos =  histos , texX = "cos#theta^{*}", texY = "Events" )  
         plotting.draw(plot, 
             plot_directory = os.path.join( plot_directory,  'polFits'), 
-            logX = False, logY = False, sorting = False,
+            logX = False, logY = False, sorting = True,
             legend      = ([0.15,0.7,0.90,0.90], 2)
             )
 
@@ -179,6 +179,6 @@ if __name__=='__main__':
 
     setup = Setup()
     estimator_mc = PolarisationEstimate( "polarisation_data", usePseudoData = True)
-    estimator_mc._estimate( Region("Z_pt", (0, -1)), 'all', setup )
+    estimator_mc._estimate( Region("Z_pt", (0, 100)), 'all', setup )
     estimator_data = PolarisationEstimate( "polarisation_data" )
-    estimator_data._estimate( Region("Z_pt", (0, -1)), 'all', setup )
+    estimator_data._estimate( Region("Z_pt", (0, 100)), 'all', setup )

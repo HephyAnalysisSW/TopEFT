@@ -17,18 +17,23 @@ except: postProcessing_directory = 'TopEFT_PP_2017_v14/dilep'
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
+#for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
+#    runTag = 'Run2016' + run + '_03Feb2017' + version
+#    dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
+#    dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
+#    dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
 
 for (run, version) in [('B',''),('C','')]:
     runTag = 'Run2017' + run + '_12Sep2017' + version
-    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag]
-    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag]
-    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
+    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
+    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
+    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
 
 for (run, version) in [('D',''),('E',''),('F','')]:
     runTag = 'Run2017' + run + version
-    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag]
-    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag]
-    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag, "SingleElectron_"        + runTag]
+    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
+    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
+    dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
 
 
 def merge(pd, totalRunName, listOfRuns):
