@@ -28,19 +28,21 @@ for (run, version) in [('B',''),('C','')]:
     dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
     dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
     dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
+    dirs["MET_Run2017"       + run + version ]          = ["MET_"        + runTag]
 
 for (run, version) in [('D',''),('E',''),('F','')]:
     runTag = 'Run2017' + run + version
     dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
     dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
     dirs["SingleEleMu_Run2017"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
+    dirs["MET_Run2017"       + run + version ]          = ["MET_"        + runTag]
 
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
-for pd in ['SingleElectron','SingleMuon','SingleEleMu']:
+for pd in ['SingleElectron','SingleMuon','SingleEleMu','MET']:
     merge(pd, 'Run2017BC',      ['Run2017B', 'Run2017C'])
     merge(pd, 'Run2017DEF',     ['Run2017D', 'Run2017E', 'Run2017F'])
     merge(pd, 'Run2017BCD',     ['Run2017B', 'Run2017C', 'Run2017D'])
@@ -67,8 +69,10 @@ SingleElectron_Run2017         = getSample('SingleElectron',   'Run2017',       
 SingleMuon_Run2017             = getSample('SingleMuon',       'Run2017',       (1.)*1000)
 SingleEleMu_Run2017            = getSample('SingleEleMu',      'Run2017',       (1.)*1000)
 
+#MET_Run2017                     = getSample('MET',       'Run2017',       (1.)*1000)
+
 allSamples_Data25ns_2017= []
-allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017]
+allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017]#, MET_Run2017]
 
 for s in allSamples_Data25ns_2017:
   s.color   = ROOT.kBlack

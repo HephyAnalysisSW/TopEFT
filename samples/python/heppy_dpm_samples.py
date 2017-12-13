@@ -35,6 +35,7 @@ else:
 
 # TopEFT
 from TopEFT.samples.walk_dpm import walk_dpm
+from RootTools.core.helpers import checkRootFile
 
 # Standard imports
 import os
@@ -96,9 +97,18 @@ class heppy_mapper:
                             multithreading = not options.nomultithreading, 
                         )
                     logger.info( "Sample %s: Found a total of %i files with normalization %3.2f", heppy_sample.name, len(files), normalization)
+                    tmp_files = []
+                    for f in files:
+                        isGoodFile = False
+                        try:
+                            isGoodFile = checkRootFile("root://hephyse.oeaw.ac.at/" + os.path.join( f ))
+                            logger.debug("File %s got added", f)
+                        except IOError:
+                            logger.info("File %s is corrupted, skipping",f)
+                        if isGoodFile: tmp_files.append(f)
                     self.sample_map[heppy_sample] = Sample.fromFiles(
-                        heppy_sample.name, 
-                        files = ['root://hephyse.oeaw.ac.at/'+f for f in files],
+                        heppy_sample.name,
+                        files = ['root://hephyse.oeaw.ac.at/'+f for f in tmp_files],
                         normalization = normalization, 
                         treeName = 'tree', isData = heppy_sample.isData, maxN = maxN)
                     
@@ -145,11 +155,11 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSa
 mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, robert_80X_1l_v14, mc_cache_file)
 
 # Summer17 MC
-Summer17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer17_92X_1l_v13.pkl'
-robert_92X_1l_v13 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v13', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/92X_1l_v13']
-mc_dpm_directories = robert_92X_1l_v13
+Summer17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer17_92X_1l_v15.pkl'
+robert_92X_1l_v15 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/92X_1l_v15']
+mc_dpm_directories = robert_92X_1l_v15
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2 import mcSamples as heppy_Summer17_samples
-Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v13, Summer17_cache_file)
+Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v15, Summer17_cache_file)
 
 # Data 2017
 data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v16.pkl'
