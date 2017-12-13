@@ -7,6 +7,7 @@
 import ROOT, os
 ROOT.gROOT.SetBatch(True)
 import itertools
+import copy
 
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
@@ -22,8 +23,8 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='data_to_data')
-argParser.add_argument('--selection',          action='store',      default='dilepOS')
+argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v14')
+argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
 #
@@ -34,7 +35,6 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
-
 if args.small:                        args.plot_directory += "_small"
 #
 # Make samples, will be searched for in the postProcessing directory
@@ -44,7 +44,7 @@ postProcessing_directory = "TopEFT_PP_2017_v14/dilep"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples"  
 from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_v14/dilep/"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
@@ -54,15 +54,6 @@ def getLeptonSelection( mode ):
   elif mode=="mue":  return "nGoodMuons==1&&nGoodElectrons==1"
   elif mode=="ee":   return "nGoodMuons==0&&nGoodElectrons==2"
   elif mode=='all':  return "nGoodMuons+nGoodElectrons==2"
-
-#logger.info( "PU reweighting for data %s", signal.name )
-#signal_nvtx = signal.get1DHistoFromDraw("nVtx", [20,0,100], selectionString = sel_string, weightString="weight")
-#signal_nvtx.Scale(1./signal_nvtx.Integral())
-#
-#signal.reweight_nvtx_histo = TTZ_nvtx.Clone()
-#signal.reweight_nvtx_histo.Divide(signal_nvtx)
-#
-#signal.weight = get_reweight( "Z_pt", signal.reweight_nvtx_histo )
 
 # Read variables and sequences
 #
@@ -91,22 +82,34 @@ def drawObjects( lumi_scale ):
 
 def drawPlots(plots, mode, lumi_scale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
+    plot_directory_ = os.path.join(plot_directory, 'data_to_data', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
-      #if mode == "all": plot.histos[1][0].legendText = "Data"
+      if mode == "all": 
+        for s in plot.stack:
+            s[0].texName = s[0].texName.replace('(2#mu)', '(all)')
+
       #if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
 
+      l  = len(plot.histos)
+      scaling = {i:i+l/2 for i in range(l/2)} 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
 	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    #scaling = {0:1} if args.normalizeToSM else {},
+	    scaling = scaling,
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( lumi_scale ),
         copyIndexPHP = True
       )
+
+def get_nVtx_reweight( histo ):
+    def get_histo_reweight( event, sample) :
+        return histo.GetBinContent(sample.nVert_histo.FindBin( event.nVert ))/sample.nVert_histo.GetBinContent(sample.nVert_histo.FindBin( event.nVert ) )
+    return get_histo_reweight
+
+colors = [ROOT.kBlue, ROOT.kMagenta, ROOT.kGreen, ]
 
 #
 # Loop over channels
@@ -119,37 +122,65 @@ for index, mode in enumerate(allModes):
     if mode == "mumu":
         data_2016_sample = SingleMuon_Run2016 
         data_2016_sample.texName = "data 2016 (2#mu)"
-        data_2017_sample = SingleMuon_Run2017 
-        data_2017_sample.texName = "data 2017 (2#mu)"
+        data_2017BC_sample = SingleMuon_Run2017BC 
+        data_2017BC_sample.texName = "data 2017BC (2#mu)"
+        data_2017DEF_sample = SingleMuon_Run2017DEF 
+        data_2017DEF_sample.texName = "data 2017DEF (2#mu)"
+        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
+        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == "ee":
         data_2016_sample = SingleElectron_Run2016
         data_2016_sample.texName = "data 2016 (2e)"
-        data_2017_sample = SingleElectron_Run2017
-        data_2017_sample.texName = "data 2017 (2e)"
+        data_2017BC_sample = SingleElectron_Run2017BC 
+        data_2017BC_sample.texName = "data 2017BC (2e)"
+        data_2017DEF_sample = SingleElectron_Run2017DEF 
+        data_2017DEF_sample.texName = "data 2017DEF (2e)"
+        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
+        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == 'mue':
         data_2016_sample = SingleEleMu_Run2016
         data_2016_sample.texName = "data 2016 (1#mu, 1e)"
-        data_2017_sample = SingleEleMu_Run2017
-        data_2017_sample.texName = "data 2017 (1#mu, 1e)"
+        data_2017BC_sample = SingleEleMu_Run2017BC 
+        data_2017BC_sample.texName = "data 2017BC (1#mu, 1e)"
+        data_2017DEF_sample = SingleEleMu_Run2017DEF 
+        data_2017DEF_sample.texName = "data 2017DEF (1#mu, 1e)"
+        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
+        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     else: raise ValueError    
 
-    data_2016_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2016", year=2016), getLeptonSelection(mode)])
-    data_2016_sample.read_variables = ["evt/I","run/I"]
-    data_2016_sample.style          = styles.errorStyle(ROOT.kBlack)
-    lumi_2016_scale                 = data_2016_sample.lumi/1000
+    for i_s, data_2017_sample in enumerate(data_2017_samples):
+        data_2017_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2017", year=2017), getLeptonSelection(mode)])
+        data_2017_sample.read_variables = ["evt/I","run/I"]
+        data_2017_sample.style          = styles.errorStyle(colors[i_s])
+        lumi_2017_scale                 = data_2017_sample.lumi/1000
 
-    data_2017_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2017", year=2017), getLeptonSelection(mode)])
-    data_2017_sample.read_variables = ["evt/I","run/I"]
-    data_2017_sample.style          = styles.errorStyle(ROOT.kBlack)
-    lumi_2017_scale                 = data_2017_sample.lumi/1000
+    for i_s, data_2016_sample in enumerate(data_2016_samples):
+        data_2016_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2016", year=2016), getLeptonSelection(mode)])
+        data_2016_sample.read_variables = ["evt/I","run/I"]
+        data_2016_sample.style          = styles.lineStyle(colors[i_s]+1, errors=True)
+        lumi_2016_scale                 = data_2016_sample.lumi/1000
+
 
     weight_ = lambda event, sample: event.weight
-
-    stack = Stack( data_2017_sample, data_2016_sample )
+    stack = Stack( *[ [s] for s in data_2016_samples + data_2017_samples ] )
 
     if args.small:
         for sample in stack.samples:
-            sample.reduceFiles( to = 1 )
+            sample.reduceFiles( to = 3 )
+
+    reweight_binning = [3*i for i in range(10)]+[30,40,100]
+    for i_s, data_2017_sample in enumerate(data_2017_samples):
+        logger.info('nVert Histo for %s', data_2017_sample.name)
+        data_2017_sample.nVert_histo     = data_2017_sample.get1DHistoFromDraw("nVert", reweight_binning, binningIsExplicit = True)
+        data_2017_sample.nVert_histo.Scale(1./data_2017_sample.nVert_histo.Integral())
+    
+        data_2016_sample = data_2016_samples[i_s]
+        logger.info('nVert Histo for %s', data_2016_sample.name)
+        data_2016_sample.nVert_histo     = data_2016_sample.get1DHistoFromDraw("nVert", reweight_binning, binningIsExplicit = True)
+        data_2016_sample.nVert_histo.Scale(1./data_2016_sample.nVert_histo.Integral())
+
+        #data_2016_sample.weight         = lambda event, sample: data_2017_samples[i_s].nVert_histo.GetBinContent(sample.nVert_histo.FindBin( event.nVert ))/sample.nVert_histo.GetBinContent(sample.nVert_histo.FindBin( event.nVert ) )
+        data_2016_sample.weight = get_nVtx_reweight(data_2017_samples[i_s].nVert_histo)
 
     # Use some defaults
     Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin=None)
@@ -163,7 +194,7 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-      name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
+      name = 'nVerts', texX = 'vertex multiplicity', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nVert/I" ),
       binning=[80,0,80],
       addOverFlowBin='upper',

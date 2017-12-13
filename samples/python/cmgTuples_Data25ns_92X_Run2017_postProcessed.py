@@ -41,6 +41,8 @@ def merge(pd, totalRunName, listOfRuns):
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
 for pd in ['SingleElectron','SingleMuon','SingleEleMu']:
+    merge(pd, 'Run2017BC',      ['Run2017B', 'Run2017C'])
+    merge(pd, 'Run2017DEF',     ['Run2017D', 'Run2017E', 'Run2017F'])
     merge(pd, 'Run2017BCD',     ['Run2017B', 'Run2017C', 'Run2017D'])
     merge(pd, 'Run2017',        ['Run2017BCD', 'Run2017E', 'Run2017F'])
 
@@ -53,9 +55,17 @@ def getSample(pd, runName, lumi):
     sample.lumi = lumi
     return sample
 
-SingleElectron_Run2017          = getSample('SingleElectron',   'Run2017',       (1.)*1000)
-SingleMuon_Run2017              = getSample('SingleMuon',       'Run2017',       (1.)*1000)
-SingleEleMu_Run2017             = getSample('SingleEleMu',      'Run2017',       (1.)*1000)
+SingleElectron_Run2017BC       = getSample('SingleElectron',   'Run2017BC',       (1.)*1000)
+SingleMuon_Run2017BC           = getSample('SingleMuon',       'Run2017BC',       (1.)*1000)
+SingleEleMu_Run2017BC          = getSample('SingleEleMu',      'Run2017BC',       (1.)*1000)
+
+SingleElectron_Run2017DEF      = getSample('SingleElectron',   'Run2017DEF',       (1.)*1000)
+SingleMuon_Run2017DEF          = getSample('SingleMuon',       'Run2017DEF',       (1.)*1000)
+SingleEleMu_Run2017DEF         = getSample('SingleEleMu',      'Run2017DEF',       (1.)*1000)
+
+SingleElectron_Run2017         = getSample('SingleElectron',   'Run2017',       (1.)*1000)
+SingleMuon_Run2017             = getSample('SingleMuon',       'Run2017',       (1.)*1000)
+SingleEleMu_Run2017            = getSample('SingleEleMu',      'Run2017',       (1.)*1000)
 
 allSamples_Data25ns_2017= []
 allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017]
