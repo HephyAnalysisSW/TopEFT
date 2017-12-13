@@ -1,5 +1,6 @@
 #!/bin/sh
-## backgrounds
+
+# 2016 backgrounds
 #
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v14 --sample TTZToLLNuNu_ext # SPLIT20
 #python cmgPostProcessing.py --skim dilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v14 --sample WZTo3LNu_amcatnlo # SPLIT10
@@ -31,7 +32,7 @@
 #python cmgPostProcessing.py --skim trilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v14 --sample TTJets_trileptonFromTbar TTJets_trileptonFromTbar_ext #SPLIT30
 #python cmgPostProcessing.py --skim trilep --keepAllJets --keepLHEWeights --processingEra TopEFT_PP_v14 --sample TTJets_LO #SPLIT10
 
-## signals
+# 2016 signals
 #
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
@@ -78,14 +79,14 @@
 #python cmgPostProcessing.py --skim inclusive --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p200000 #SPLIT10
 #python cmgPostProcessing.py --skim inclusive --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p300000 #SPLIT10
 #
-### For fake rate studies?
+# 2016 MC For fake rate studies?
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample DYJetsToLL_M50 # SPLIT20
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample DYJetsToLL_M10to50_LO # SPLIT20
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample DYJetsToLL_M50_LO_ext # SPLIT20
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample TTJets # SPLIT20
 ##python cmgPostProcessing.py --skim trilep --skipSystematicVariations --sample  # SPLIT10
 
-#### Data
+# 2016 data
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016B_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016C_03Feb2017 #SPLIT10
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016D_03Feb2017 #SPLIT10
@@ -113,6 +114,7 @@
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT10
 
+# 2017 dilepton data 
 
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016B_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016C_03Feb2017 #SPLIT10
@@ -140,6 +142,8 @@
 #python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  MuonEG_Run2016G_03Feb2017 #SPLIT10
 #python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  MuonEG_Run2016H_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  MuonEG_Run2016H_03Feb2017_v3 #SPLIT10
+
+# 2017 single lepton data
 
 python cmgPostProcessing.py  --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v15 --triggerSelection mu --sample SingleMuon_Run2017B_12Sep2017 #SPLIT10
 python cmgPostProcessing.py  --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v15 --triggerSelection mu --sample SingleMuon_Run2017C_12Sep2017 #SPLIT10
@@ -189,6 +193,8 @@ python cmgPostProcessing.py  --skim dilep --year 2017 --processingEra TopEFT_PP_
 python cmgPostProcessing.py  --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v15 --sample MET_Run2017D #SPLIT10
 python cmgPostProcessing.py  --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v15 --sample MET_Run2017E #SPLIT10
 python cmgPostProcessing.py  --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v15 --sample MET_Run2017F #SPLIT10
+
+# 2017 MC
 
 python cmgPostProcessing.py  --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v15 --sample TT_pow #SPLIT30
 python cmgPostProcessing.py  --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v15 --sample DYJetsToLL_M10to50_LO #SPLIT20
