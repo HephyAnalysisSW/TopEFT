@@ -782,7 +782,7 @@ logger.info( "Converted %i events of %i, cloned %i",  convertedEvents, reader.nE
 
 # Storing JSON file of processed events
 if isData:
-    jsonFile = filename+'.json'
+    jsonFile = filename+'_%s.json'%(0 if options.nJobs==1 else options.job[0])
     LumiList( runsAndLumis = outputLumiList ).writeJSON(jsonFile)
     logger.info( "Written JSON file %s",  jsonFile )
 
