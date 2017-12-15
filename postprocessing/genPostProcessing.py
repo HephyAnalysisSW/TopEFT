@@ -16,14 +16,14 @@ from RootTools.core.standard             import *
 #TopEFT
 from TopEFT.Tools.user                   import skim_output_directory
 from TopEFT.Tools.GenSearch              import GenSearch
-from TopEFT.Tools.helpers                import deltaR2
+from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
 
 #
 # Arguments
 # 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--logLevel',           action='store',      default='DEBUG',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v1')
 argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm')
@@ -47,7 +47,7 @@ if args.small:
     maxN = 500
     sample.files=sample.files[:2]
 
-output_directory = os.path.join(skim_output_directory, args.targetDir, sample.name) 
+output_directory = os.path.join(skim_output_directory, 'gen', args.targetDir, sample.name) 
 output_filename =  os.path.join(output_directory, sample.name + '.root') 
 if not os.path.exists( output_directory ): 
     os.makedirs( output_directory )
@@ -56,7 +56,7 @@ if not os.path.exists( output_directory ):
 products = {
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
     'genJets':{'type':'vector<reco::GenJet>', 'label':("ak4GenJets")},
-    'genMET':{'type':'vector<reco::GenMET>', 'label':("genMetTrue")},
+    'genMET':{'type':'vector<reco::GenMET>',  'label':("genMetTrue")},
 }
 
 reader = sample.fwliteReader( products = products )
@@ -64,14 +64,16 @@ reader = sample.fwliteReader( products = products )
 def varnames( vec_vars ):
     return [v.split('/')[0] for v in vec_vars.split(',')]
 
-# dtandard variables
+# standard variables
 variables  = ["run/I", "lumi/I", "evt/l"]
 # MET
 variables += ["GenMet_pt/F", "GenMet_phi/F"]
 # jet vector
-jet_vars       =  "pt/F,eta/F,phi/F"
-jet_varnames   =  varnames( jet_vars ) 
-variables     += ["GenJet[%s]"%jet_vars]
+jet_read_vars       =  "pt/F,eta/F,phi/F"
+jet_read_varnames   =  varnames( jet_read_vars )
+jet_write_vars      = jet_read_vars+',matchBParton/I' 
+jet_write_varnames  =  varnames( jet_write_vars )
+variables     += ["GenJet[%s]"%jet_write_vars]
 # lepton vector 
 lep_vars       =  "pt/F,eta/F,phi/F,pdgId/I"
 lep_extra_vars =  "motherPdgId/I"
@@ -83,9 +85,8 @@ top_vars       =  "pt/F,eta/F,phi/F"
 top_varnames   =  varnames( top_vars ) 
 variables     += ["top[%s]"%top_vars]
 # Z vector
-Z_vars         =  "pt/F,eta/F,phi/F"
-Z_varnames     =  varnames( Z_vars ) 
-variables     += ["Z[%s]"%Z_vars]
+Z_read_varnames= [ 'pt', 'phi', 'eta', 'mass']
+variables     += ["Z_pt/F", "Z_phi/F", "Z_eta/F", "Z_mass/F", "Z_cosThetaStar/F", "Z_daughterPdg/I"]
 
 def fill_vector( event, collection_name, collection_varnames, objects):
     setattr( event, "n"+collection_name, len(objects) )
@@ -111,13 +112,27 @@ def filler( event ):
     tops.sort( key = lambda p:-p['pt'] )
     fill_vector( event, "top", top_varnames, tops ) 
 
-    Zs   = map( lambda Z:{var: getattr(Z, var)() for var in Z_varnames},   filter( lambda p:abs(p.pdgId())==23 and search.isLast(p), gp) )
-    Zs.sort( key = lambda p:-p['pt'] )
-    fill_vector( event, "Z", Z_varnames, Zs ) 
-    #Ws   = filter( lambda p:abs(p.pdgId())==24 and search.isLast(p), gp)
+    gen_Zs = filter( lambda p:abs(p.pdgId())==23 and search.isLast(p), gp)
+    gen_Zs.sort( key = lambda p: -p.pt() )
+    if len(gen_Zs)>0: 
+        gen_Z = gen_Zs[0]
+        for var in Z_read_varnames:
+           setattr( event, "Z_"+var,  getattr(gen_Z, var)() )
+    else:
+        gen_Z = None
+    
+    if gen_Z is not None:
+
+        d1, d2 = gen_Z.daughter(0), gen_Z.daughter(1)
+        if d1.pdgId()>0: 
+            lm, lp = d1, d2
+        else:
+            lm, lp = d2, d1
+        event.Z_daughterPdg = lm.pdgId()
+        event.Z_cosThetaStar = cosThetaStar(gen_Z.mass(), gen_Z.pt(), gen_Z.eta(), gen_Z.phi(), lm.pt(), lm.eta(), lm.phi())
 
     # find all leptons 
-    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>25,  gp) ]
+    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>10,  gp) ]
     leps    = []
     for first, last in leptons:
         mother_pdgId = first.mother(0).pdgId() if first.numberOfMothers()>0 else -1
@@ -132,13 +147,19 @@ def filler( event ):
     event.GenMet_phi = reader.products['genMET'][0].phi()
 
     # jets
-    jets = map( lambda t:{var: getattr(t, var)() for var in jet_varnames}, filter( lambda j:j.pt()>30, reader.products['genJets']) )
+    jets = map( lambda t:{var: getattr(t, var)() for var in jet_read_varnames}, filter( lambda j:j.pt()>30, reader.products['genJets']) )
 
     # jet/lepton disambiguation
     jets = filter( lambda j: (min([999]+[deltaR2(j, l) for l in leps]) > 0.3**2 ), jets )
 
+    # find b's from tops:
+    b_partons = [ b for b in filter( lambda p:abs(p.pdgId())==5 and p.numberOfMothers()==1 and abs(p.mother(0).pdgId())==6,  gp) ]
+
+    for jet in jets:
+        jet['matchBParton'] = ( min([999]+[deltaR2(jet, {'eta':b.eta(), 'phi':b.phi()}) for b in b_partons]) < 0.2**2 )
+
     jets.sort( key = lambda p:-p['pt'] )
-    fill_vector( event, "GenJet", jet_varnames, jets)
+    fill_vector( event, "GenJet", jet_write_varnames, jets)
 
 tmp_dir     = ROOT.gDirectory
 output_file = ROOT.TFile( output_filename, 'recreate')
@@ -158,6 +179,9 @@ reader.start()
 maker.start()
 
 while reader.run( ):
+    #if abs(map( lambda p: p.daughter(0).pdgId(), filter( lambda p: p.pdgId()==23 and p.numberOfDaughters()==2, reader.products['gp']))[0])==13: 
+    #    maker.run()
+    #    break
     maker.run()
 
     counter += 1
