@@ -261,6 +261,24 @@ for index, mode in enumerate(allModes):
         binning=[10,81,101],
     ))
 
+    plots.append(Plot(name = "Z_mass_EE",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( abs(event.lep_eta[event.Z_l1_index])>1.479 and abs(event.lep_eta[event.Z_l2_index])>1.479) else float('nan'),
+        binning=[10,81,101],
+    ))
+
+    plots.append(Plot(name = "Z_mass_EB",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( ((abs(event.lep_eta[event.Z_l1_index])<1.479 and abs(event.lep_eta[event.Z_l2_index])>1.479) or (abs(event.lep_eta[event.Z_l1_index])>1.479 and abs(event.lep_eta[event.Z_l2_index])<1.479))) else float('nan'),
+        binning=[10,81,101],
+    ))
+
+    plots.append(Plot(name = "Z_mass_BB",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( abs(event.lep_eta[event.Z_l1_index])<1.479 and abs(event.lep_eta[event.Z_l2_index])<1.479) else float('nan'),
+        binning=[10,81,101],
+    ))
+
     plots.append(Plot(
         name = "Z_mass_wide",
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 2 GeV',
