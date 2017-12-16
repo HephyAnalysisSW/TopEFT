@@ -147,11 +147,17 @@ if isData and options.triggerSelection is not None:
             raise ValueError( "Don't know about triggerSelection %s in %i "%(options.triggerSelection, options.year) )
     elif options.year == 2017:
         if options.triggerSelection == 'mu':
-            skimConds.append( "HLT_IsoMu27" )
+            skimConds.append( "(HLT_SingleMuTTZ)" )
         elif options.triggerSelection == 'e':
-            skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)" )
+            skimConds.append( "(HLT_SingleEleTTZ)" )
         elif options.triggerSelection == 'e_for_mu':
-            skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)&(!HLT_IsoMu27)" )
+            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
+        #if options.triggerSelection == 'mu':
+        #    skimConds.append( "HLT_IsoMu27" )
+        #elif options.triggerSelection == 'e':
+        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)" )
+        #elif options.triggerSelection == 'e_for_mu':
+        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)&(!HLT_IsoMu27)" )
         #elif options.triggerSelection == 'ee':
         #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
         #elif options.triggerSelection == 'mue':

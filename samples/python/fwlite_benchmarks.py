@@ -45,7 +45,6 @@ daniel_fwlite_ttZ_ll_LO_DC2A_0p6_DC2V_0p6      = FWLiteSample.fromFiles( "ttZ_ll
 daniel_fwlite_ttZ_ll_LO_sm_ext1                     = FWLiteSample.fromFiles( "ttZ_ll_LO_SM_ext1", texName = "SM", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_SM_exp1/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p2_DC2V_0p2_ext1", texName = "DC2A_0p2_DC2V_0p2", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p2_DC2V_0p2_exp1/events.root"] )
 
-
 daniel_fwlite_ttZ_ll_LO_DC2A_0p216_DC2V_0p523   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p216_DC2V_0p523", texName = "DC2A_0p216_DC2V_0p523", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p216_DC2V_0p523/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p523_DC2V_0p216   = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p523_DC2V_0p216", texName = "DC2A_0p523_DC2V_0p216", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p523_DC2V_0p216/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC2A_0p57_DC2V_0p0      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC2A_0p57_DC2V_0p0", texName = "DC2A_0p57_DC2V_0p0", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC2A_0p57_DC2V_0p0/events.root"] )
@@ -71,7 +70,6 @@ daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p24_DC2V_0p155     = FWLiteSample.fromFiles
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p5 = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p5", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p5_DC2V_0p0/events.root"] )
 daniel_fwlite_ttZ_ll_LO_antiSM_DC2A_0p7 = FWLiteSample.fromFiles( "ttZ_ll_LO_antiSM_DC2A_0p7", texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_-0p24_DC2A_0p7_DC2V_0p0/events.root"] )
 
-
 # same as above, but using ttZ instead of ttZ_ll process cards, 25k events
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0       = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p28_DC2V_0p0", texName = "",    files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p28_DC2V_0p0/events.root"] )
 daniel_fwlite_ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3        = FWLiteSample.fromFiles( "ttZ_LO_antiSM_DC2A_0p0_DC2V_0p3", texName = "",     files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_DC1A_0p6_DC1V_-0p24_DC2A_0p0_DC2V_0p3/events.root"] )
@@ -85,3 +83,24 @@ daniel_fwlite_ttZ_ll_LO_DC1V_m0p24_DC2A_0p28    = FWLiteSample.fromFiles( "ttZ_l
 daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC2V_0p3       = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC2V_0p3",    texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_0p0_DC2A_0p0_DC2V_0p30/events.root"] )
 daniel_fwlite_ttZ_ll_LO_DC1A_0p6_DC2A_0p28      = FWLiteSample.fromFiles( "ttZ_ll_LO_DC1A_0p6_DC2A_0p28",   texName = "", files = ["/afs/hephy.at/data/dspitzbart01/TopEFT/samples/ttZ_ll_DC1A_0p6_DC1V_0p0_DC2A_0p28_DC2V_0p0/events.root"] )
 
+
+# Robert GENSIM 0j benchmarks 09Nov17 (used for analysis development)
+ewkDM_ttZ_ll_GS                                             = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS",                                              '/ewkDM_ttZ_ll/schoef-ewkDM_09Nov17-e77c441d012ee598545c0020859d9ab0/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_0p500000                 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_0p500000",                  '/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-ewkDM_09Nov17-f07f90363df434a06f0f034162e7cc3c/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_m1p000000                = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_m1p000000",                 '/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/schoef-ewkDM_09Nov17-382ba64850d333b8758cfbda64e154ee/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000",   '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000/schoef-ewkDM_09Nov17-bf639f7c0cf3b58622309ab38644e6ef/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000",  '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000/schoef-ewkDM_09Nov17-854a538c08c9889843c402e7c057267b/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000",   '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-ewkDM_09Nov17-93af3031bce01ac1431c3dea90315387/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000",  '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000/schoef-ewkDM_09Nov17-36a7133612c20cebff4a51e59aaf8364/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC2A_0p200000_DC2V_0p200000                 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC2A_0p200000_DC2V_0p200000",                  '/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-ewkDM_09Nov17-c0cc438e2ba1a4b23d2945ab2f261d2c/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_1p000000                               = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_1p000000",                                '/ewkDM_ttZ_ll_DC1A_1p000000/schoef-ewkDM_09Nov17-7f9958cc97b83149cf0fe0553bdfcaf2/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700   = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700",     '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700/schoef-ewkDM_09Nov17-ba4fabcbf8a5908d45414efd57aa8119/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700",    '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700/schoef-ewkDM_09Nov17-44a0b965bee64391722ee1ac626cec71/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700",    '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700/schoef-ewkDM_09Nov17-9cfb58347b5f3ab2740df554d66647b8/USER',"phys03", dbFile = dbFile)
+ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700",   '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700/schoef-ewkDM_09Nov17-9e4d723e7412ffedf3b8c0606b6c5e6d/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_0p100000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p100000",   '/HEL_UFO_ttZ_ll_cuW_0p100000/schoef-HEL_09Nov17-df62a4db47c06ad19258ed4ccbb31f31/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_0p200000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p200000",   '/HEL_UFO_ttZ_ll_cuW_0p200000/schoef-HEL_09Nov17-6a3c68b4249a638b0436b57c064ddea6/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_0p300000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p300000",   '/HEL_UFO_ttZ_ll_cuW_0p300000/schoef-HEL_09Nov17-a046fa0828dd90306ca134e402fb046d/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_m0p100000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p100000",  '/HEL_UFO_ttZ_ll_cuW_m0p100000/schoef-HEL_09Nov17-0fc0045464dd563d2392bedcaa76f810/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_m0p200000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p200000",  '/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_m0p300000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p300000",  '/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',"phys03", dbFile = dbFile)
