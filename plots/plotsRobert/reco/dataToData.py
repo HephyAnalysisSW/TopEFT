@@ -23,7 +23,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v14')
+argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v18')
 argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -40,7 +40,7 @@ if args.small:                        args.plot_directory += "_small"
 # Make samples, will be searched for in the postProcessing directory
 #
 
-postProcessing_directory = "TopEFT_PP_2017_v14/dilep"
+postProcessing_directory = "TopEFT_PP_2017_v18/dilep"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples"  
 from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 
@@ -92,10 +92,11 @@ def drawPlots(plots, mode, lumi_scale):
       #if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
 
       l  = len(plot.histos)
-      scaling = {i:i+l/2 for i in range(l/2)} 
+      scaling = {2*i+1:2*i for i in range(l/2)} 
+      ratio_histos = [ (2*i,2*i+1) for i in range(l/2) ] 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
-	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+	    ratio = {'yRange':(0.1,1.9), 'histos':ratio_histos},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling,
@@ -120,32 +121,38 @@ allModes   = ['mumu','mue','ee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if mode == "mumu":
-        data_2016_sample = SingleMuon_Run2016 
-        data_2016_sample.texName = "data 2016 (2#mu)"
-        data_2017BC_sample = SingleMuon_Run2017BC 
-        data_2017BC_sample.texName = "data 2017BC (2#mu)"
-        data_2017DEF_sample = SingleMuon_Run2017DEF 
-        data_2017DEF_sample.texName = "data 2017DEF (2#mu)"
-        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
-        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
+        data_2016_sample            = SingleMuon_Run2016 
+        data_2016_sample.texName    = "data 2016 (2#mu)"
+        data_2017BC_sample          = SingleMuon_Run2017BC 
+        data_2017BC_sample.texName  = "data 2017BC (2#mu)"
+        data_2017Cv2D_sample        = SingleMuon_Run2017Cv2D 
+        data_2017Cv2D_sample.texName= "data 2017Cv2D (2#mu)"
+        data_2017EF_sample          = SingleMuon_Run2017EF 
+        data_2017EF_sample.texName  = "data 2017EF (2#mu)"
+        data_2017_samples           = [data_2017BC_sample, SingleMuon_Run2017Cv2D, data_2017EF_sample]
+        data_2016_samples           = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == "ee":
-        data_2016_sample = SingleElectron_Run2016
-        data_2016_sample.texName = "data 2016 (2e)"
-        data_2017BC_sample = SingleElectron_Run2017BC 
-        data_2017BC_sample.texName = "data 2017BC (2e)"
-        data_2017DEF_sample = SingleElectron_Run2017DEF 
-        data_2017DEF_sample.texName = "data 2017DEF (2e)"
-        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
-        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
+        data_2016_sample            = SingleElectron_Run2016
+        data_2016_sample.texName    = "data 2016 (2e)"
+        data_2017BC_sample          = SingleElectron_Run2017BC 
+        data_2017BC_sample.texName  = "data 2017BC (2e)"
+        data_2017Cv2D_sample        = SingleElectron_Run2017Cv2D 
+        data_2017Cv2D_sample.texName= "data 2017Cv2D (2e)"
+        data_2017EF_sample          = SingleElectron_Run2017EF 
+        data_2017EF_sample.texName  = "data 2017EF (2e)"
+        data_2017_samples           = [data_2017BC_sample, data_2017Cv2D_sample, SingleElectron_Run2017EF]
+        data_2016_samples           = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == 'mue':
-        data_2016_sample = SingleEleMu_Run2016
-        data_2016_sample.texName = "data 2016 (1#mu, 1e)"
-        data_2017BC_sample = SingleEleMu_Run2017BC 
-        data_2017BC_sample.texName = "data 2017BC (1#mu, 1e)"
-        data_2017DEF_sample = SingleEleMu_Run2017DEF 
-        data_2017DEF_sample.texName = "data 2017DEF (1#mu, 1e)"
-        data_2017_samples = [data_2017BC_sample, data_2017DEF_sample]
-        data_2016_samples = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
+        data_2016_sample            = SingleEleMu_Run2016
+        data_2016_sample.texName    = "data 2016 (1#mu, 1e)"
+        data_2017BC_sample          = SingleEleMu_Run2017BC 
+        data_2017BC_sample.texName  = "data 2017BC (1#mu, 1e)"
+        data_2017Cv2D_sample        = SingleEleMu_Run2017EF 
+        data_2017Cv2D_sample.texName= "data 2017EF (1#mu, 1e)"
+        data_2017EF_sample          = SingleEleMu_Run2017EF 
+        data_2017EF_sample.texName  = "data 2017EF (1#mu, 1e)"
+        data_2017_samples           = [data_2017BC_sample, data_2017Cv2D_sample, data_2017EF_sample]
+        data_2016_samples           = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     else: raise ValueError    
 
     for i_s, data_2017_sample in enumerate(data_2017_samples):
@@ -162,13 +169,18 @@ for index, mode in enumerate(allModes):
 
 
     weight_ = lambda event, sample: event.weight
-    stack = Stack( *[ [s] for s in data_2016_samples + data_2017_samples ] )
+    stack_samples = []
+    for i in range(len(data_2017_samples)):
+        stack_samples.append( [data_2017_samples[i]] )
+        stack_samples.append( [data_2016_samples[i]] )
+
+    stack = Stack( *stack_samples )
 
     if args.small:
         for sample in stack.samples:
             sample.reduceFiles( to = 3 )
 
-    reweight_binning = [3*i for i in range(10)]+[30,40,100]
+    reweight_binning = [3*i for i in range(10)]+[30,35,40,50,100]
     for i_s, data_2017_sample in enumerate(data_2017_samples):
         logger.info('nVert Histo for %s', data_2017_sample.name)
         data_2017_sample.nVert_histo     = data_2017_sample.get1DHistoFromDraw("nVert", reweight_binning, binningIsExplicit = True)
@@ -258,6 +270,24 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_mass/F" ),
+        binning=[10,81,101],
+    ))
+
+    plots.append(Plot(name = "Z_mass_EE",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( abs(event.lep_eta[event.Z_l1_index])>1.479 and abs(event.lep_eta[event.Z_l2_index])>1.479) else float('nan'),
+        binning=[10,81,101],
+    ))
+
+    plots.append(Plot(name = "Z_mass_EB",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( ((abs(event.lep_eta[event.Z_l1_index])<1.479 and abs(event.lep_eta[event.Z_l2_index])>1.479) or (abs(event.lep_eta[event.Z_l1_index])>1.479 and abs(event.lep_eta[event.Z_l2_index])<1.479))) else float('nan'),
+        binning=[10,81,101],
+    ))
+
+    plots.append(Plot(name = "Z_mass_BB",
+        texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.Z_mass if ( abs(event.lep_eta[event.Z_l1_index])<1.479 and abs(event.lep_eta[event.Z_l2_index])<1.479) else float('nan'),
         binning=[10,81,101],
     ))
 
@@ -607,60 +637,6 @@ for index, mode in enumerate(allModes):
       binning = [10,-1,1],
     ))
     
-#    plots.append(Plot(
-#      texX = 'p_{T}(leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-#      name = 'bjet1_pt', attribute = lambda event, sample: event.b1_pt,
-#      binning=[20,0,400],
-#    ))
-#
-#    plots.append(Plot(
-#      texX = 'p_{T}(2nd leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-#      name = 'bjet2_pt', attribute = lambda event, sample: event.b2_pt,
-#      binning=[20,0,400],
-#    ))
-#    
-#    plots.append(Plot(
-#        name = "top_cand1_pt", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 30 GeV',
-#        attribute = lambda event, sample:event.top1_pt,
-#        binning=[20,0,600],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
-#        attribute = lambda event, sample:event.top1_pt,
-#        binning=[3,0,600],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
-#        attribute = lambda event, sample:event.top1_mass,
-#        binning=[20,0,300],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand1_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-#        attribute = lambda event, sample:event.top1_phi,
-#        binning=[10,-pi,pi],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand2_pt", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 30 GeV',
-#        attribute = lambda event, sample:event.top2_pt,
-#        binning=[20,0,600],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
-#        attribute = lambda event, sample:event.top2_mass,
-#        binning=[20,0,300],
-#    ))
-#
-#    plots.append(Plot(
-#        name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-#        attribute = lambda event, sample:event.top2_phi,
-#        binning=[10,-pi,pi],
-#    ))
-
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 
     # Get normalization yields from yield histogram
