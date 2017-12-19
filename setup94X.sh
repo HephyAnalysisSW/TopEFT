@@ -14,7 +14,7 @@ scram b -j9
 #
 # Setting up CMG
 #
-git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git -f -t heppy_92X_dev
+git remote add cmg-central https://github.com/CERN-PH-CMG/cmg-cmssw.git -f -t heppy_94X_dev
 cp $CMSSW_BASE/src/TopEFT/.sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout
 git checkout -b heppy_92X_dev cmg-central/heppy_92X_dev
 
