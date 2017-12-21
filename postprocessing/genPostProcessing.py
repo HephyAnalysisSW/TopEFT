@@ -25,7 +25,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
-argParser.add_argument('--targetDir',          action='store',      default='v1')
+argParser.add_argument('--targetDir',          action='store',      default='v2')
 argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm')
 argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,                          help="Maximum number of simultaneous jobs.")
 argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,                         help="Run only job i")
@@ -140,7 +140,7 @@ def filler( event ):
         event.Z_cosThetaStar = cosThetaStar(gen_Z.mass(), gen_Z.pt(), gen_Z.eta(), gen_Z.phi(), lm.pt(), lm.eta(), lm.phi())
 
     # find all leptons 
-    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>10,  gp) ]
+    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>=0,  gp) ]
     leps    = []
     for first, last in leptons:
         mother_pdgId = first.mother(0).pdgId() if first.numberOfMothers()>0 else -1
