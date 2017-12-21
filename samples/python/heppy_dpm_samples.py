@@ -162,9 +162,9 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2 import mcSa
 Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v15, Summer17_cache_file)
 
 # Data 2017
-data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v18.pkl'
-robert_92X_1l_v18 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v17', '/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v18']
-data_dpm_directories = robert_92X_1l_v18
+data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19.pkl'
+robert_92X_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19']
+data_dpm_directories = robert_92X_1l_v19
 from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
 data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017)
 
