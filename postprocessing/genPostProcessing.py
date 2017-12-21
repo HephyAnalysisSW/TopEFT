@@ -27,6 +27,8 @@ argParser.add_argument('--logLevel',           action='store',      default='DEB
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v1')
 argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm')
+argParser.add_argument('--nJobs',              action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
+argParser.add_argument('--job',                action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
 args = argParser.parse_args()
 
 #
@@ -47,8 +49,14 @@ if args.small:
     maxN = 500
     sample.files=sample.files[:2]
 
+# Run only job number "args.job" from total of "args.nJobs"
+if args.nJobs>1:
+    n_files_before = len(sample.files)
+    sample = sample.split(args.nJobs)[args.job]
+    n_files_after  = len(sample.files)
+    logger.info( "Running job %i/%i over %i files from a total of %i.", args.job, args.nJobs, n_files_after, n_files_before)
+
 output_directory = os.path.join(skim_output_directory, 'gen', args.targetDir, sample.name) 
-output_filename =  os.path.join(output_directory, sample.name + '.root') 
 if not os.path.exists( output_directory ): 
     os.makedirs( output_directory )
     logger.info( "Created output directory %s", output_directory )
@@ -58,8 +66,6 @@ products = {
     'genJets':{'type':'vector<reco::GenJet>', 'label':("ak4GenJets")},
     'genMET':{'type':'vector<reco::GenMET>',  'label':("genMetTrue")},
 }
-
-reader = sample.fwliteReader( products = products )
 
 def varnames( vec_vars ):
     return [v.split('/')[0] for v in vec_vars.split(',')]
@@ -93,6 +99,8 @@ def fill_vector( event, collection_name, collection_varnames, objects):
     for i_obj, obj in enumerate(objects):
         for var in collection_varnames:
             getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
+
+reader = sample.fwliteReader( products = products )
 
 def filler( event ):
 
@@ -162,9 +170,10 @@ def filler( event ):
     fill_vector( event, "GenJet", jet_write_varnames, jets)
 
 tmp_dir     = ROOT.gDirectory
+post_fix = '_%i'%args.job if args.nJobs > 1 else ''
+output_filename =  os.path.join(output_directory, sample.name + post_fix+'.root') 
 output_file = ROOT.TFile( output_filename, 'recreate')
 output_file.cd()
-#tree        = ROOT.TTree( "Events", "Events")
 maker = TreeMaker(
     sequence  = [ filler ],
     variables = [ TreeVariable.fromString(x) for x in variables ],
@@ -172,7 +181,6 @@ maker = TreeMaker(
     )
 
 tmp_dir.cd()
-#maker = maker_parent.cloneWithoutCompile( externalTree = tree )
 
 counter = 0
 reader.start()
