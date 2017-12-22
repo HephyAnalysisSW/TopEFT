@@ -132,7 +132,7 @@ def filler( event ):
         event.Z_cosThetaStar = cosThetaStar(gen_Z.mass(), gen_Z.pt(), gen_Z.eta(), gen_Z.phi(), lm.pt(), lm.eta(), lm.phi())
 
     # find all leptons 
-    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>10,  gp) ]
+    leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>0,  gp) ]
     leps    = []
     for first, last in leptons:
         mother_pdgId = first.mother(0).pdgId() if first.numberOfMothers()>0 else -1
@@ -150,7 +150,7 @@ def filler( event ):
     jets = map( lambda t:{var: getattr(t, var)() for var in jet_read_varnames}, filter( lambda j:j.pt()>30, reader.products['genJets']) )
 
     # jet/lepton disambiguation
-    jets = filter( lambda j: (min([999]+[deltaR2(j, l) for l in leps]) > 0.3**2 ), jets )
+    jets = filter( lambda j: (min([999]+[deltaR2(j, l) for l in leps if l['pt']>10]) > 0.3**2 ), jets )
 
     # find b's from tops:
     b_partons = [ b for b in filter( lambda p:abs(p.pdgId())==5 and p.numberOfMothers()==1 and abs(p.mother(0).pdgId())==6,  gp) ]

@@ -71,19 +71,20 @@ def turnon_func(x, par):
 #postProcessing_directory = "TopEFT_PP_v12/dilep/"
 #from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
-from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_v18/dilep/"
+from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v14/dilep/"
-from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+#data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_v14/dilep/"
+#from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+#
+#data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_v14/dilep/"
+#from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v14/dilep/"
-from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
-postProcessing_directory = "TopEFT_PP_2017_v14/dilep/"
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_v18/dilep/"
 from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer17_mAODv2_postProcessed import *
 
@@ -95,8 +96,9 @@ channels = {'all':'(1)'}
 trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_eta2p1_WPLoose_Gsf"]
 trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
 
-trigger_singleEle_2017 = ["HLT_Ele32_WPTight_Gsf", "HLT_Ele35_WPTight_Gsf", "HLT_Ele38_WPTight_Gsf", "HLT_Ele40_WPTight_Gsf"]
-trigger_singleMu_2017  = ["HLT_IsoMu27", "HLT_IsoMu30"]
+trigger_singleEle_2017 = ["HLT_Ele35_WPTight_Gsf"]
+#trigger_singleEle_2017 = ["HLT_ele"]
+trigger_singleMu_2017  = ["HLT_IsoMu27"]#, "HLT_IsoMu30"]
 
 
 colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
@@ -157,6 +159,8 @@ sample.hist2D_ref   = ROOT.TH2D("%s_%s_2D"%(sample.name, "ref"),"", *binningArgs
 sample.hist2D.Reset()
 sample.hist2D_ref.Reset()
 
+print "Found %s events after preslection"%number_events
+
 if small:
     number_events = 10000 # for test
     triggerLeg += '_small'
@@ -175,7 +179,7 @@ for i in range(number_events):
     if abs(s.lep_pdgId[0]) == pdgId: m_index = 0
     elif abs(s.lep_pdgId[1]) == pdgId: m_index = 1
     
-    #print m_index
+    #print m_index, abs(s.lep_pdgId[0]), abs(s.lep_pdgId[1])
     if m_index < 0: print "weird"
     
     muon = {}
