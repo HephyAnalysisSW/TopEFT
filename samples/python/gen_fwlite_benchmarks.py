@@ -10,7 +10,7 @@ from RootTools.core.standard import *
 from TopEFT.Tools.user import results_directory 
 
 # Robert GENSIM 0j benchmarks 09Nov17 (used for analysis development)
-gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v1/"
+gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 ewkDM_ttZ_ll_gen                                             = Sample.fromDirectory("ewkDM_ttZ_ll_gen",                                                                                directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll_GS/")])
 ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000                 = Sample.fromDirectory("ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000",                                                    directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_0p500000/")])
 ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_m1p000000                = Sample.fromDirectory("ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_m1p000000",                                                   directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_m1p000000/")])

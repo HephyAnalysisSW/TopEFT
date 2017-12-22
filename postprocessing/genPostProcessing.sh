@@ -40,23 +40,22 @@
 #python genPostProcessing.py --sample daniel_fwlite_ttZ_ll_LO_DC1A_0p4_DC1V_0p4
 #python genPostProcessing.py --sample daniel_fwlite_ttZ_ll_LO_DC1A_1p0_DC1V_1p0
 
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_0p500000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_m1p000000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC2A_0p200000_DC2V_0p200000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_1p000000
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700
-python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p100000
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p200000
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p300000
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p100000
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p200000
-python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p300000
-
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_0p500000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p500000_DC1V_m1p000000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC2A_0p200000_DC2V_0p200000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_1p000000 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700 #SPLIT20
+python genPostProcessing.py --sample ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p100000 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p200000 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_0p300000 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p100000 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p200000 #SPLIT20
+python genPostProcessing.py --sample HEL_UFO_ttZ_ll_GS_cuW_m0p300000 #SPLIT20
