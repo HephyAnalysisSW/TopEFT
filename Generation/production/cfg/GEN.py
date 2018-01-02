@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
-options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "which gridpack?")
+options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Which Gridpack?")
 options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
 options.register('outputDir','./',          VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Where to store the output root file?")
 options.maxEvents=100 # maxEvents is a registered option. 
