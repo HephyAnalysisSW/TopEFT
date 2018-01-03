@@ -52,13 +52,13 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v14/dilep/"
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v14/dilep/"
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 if args.signal == "ttZ01j":
-    postProcessing_directory = "TopEFT_PP_v11/trilep/"
+    postProcessing_directory = "TopEFT_PP_v14/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
 
     ewkDM_30    = ewkDM_TTZToLL_LO
@@ -100,8 +100,8 @@ elif args.signal == "ewkDM":
     for i, dipole in enumerate(dipoles):
         dipole.style = styles.lineStyle( colors[i], width=3 )
     
-    #signals = [SM, current1, current2, current3]
-    signals = [SM] + dipoles 
+    signals = [SM, current1, current2, current3]
+    #signals = [SM] + dipoles 
 
 else:
     signals = []
