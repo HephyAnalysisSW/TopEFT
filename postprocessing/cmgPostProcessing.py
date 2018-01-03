@@ -89,7 +89,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 isDiLep     =   options.skim.lower().startswith('dilep')
 isTriLep    =   options.skim.lower().startswith('trilep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
-isInclusive = options.skim.lower().count('inclusive') 
+isInclusive =   options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
 
 writeToDPM = options.targetDir == '/dpm/'
@@ -670,8 +670,11 @@ def filler( event ):
     # gen information on extra leptons
     if isMC and not options.skipGenMatching:
         genSearch.init( gPart )
-        # Start with status 1 gen leptons in acceptance
-        gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1 and p['pt']>20 and abs(p['eta'])<2.5, gPart )
+        # Start with status 1 gen leptons
+
+        # gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1 and p['pt']>10 and abs(p['eta'])<2.5, gPart )
+        # ... no acceptance cuts
+        gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1, gPart )
         for l in gLep:
             ancestry = [ gPart[x]['pdgId'] for x in genSearch.ancestry( l ) ]
             l["n_D"]   =  sum([ancestry.count(p) for p in D_mesons])
@@ -684,6 +687,7 @@ def filler( event ):
                 l["lepGood2MatchIndex"] = matched_lep['index']
             else:
                 l["lepGood2MatchIndex"] = -1
+
         # store genleps
         event.nGenLep   = len(gLep)
         for iLep, lep in enumerate(gLep):
