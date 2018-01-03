@@ -7,7 +7,7 @@ import imp
 import copy 
 
 # TopEFT
-from TopEFT.tools.user import results_directory
+from TopEFT.Tools.user import results_directory
 
 # Logger
 import logging
@@ -18,7 +18,7 @@ def makeUniquePath():
     ''' Create unique path in tmp directory
     '''
 
-    from TopEFT.tools.user import tmp_directory
+    from TopEFT.Tools.user import tmp_directory
     import uuid
 
     while True:

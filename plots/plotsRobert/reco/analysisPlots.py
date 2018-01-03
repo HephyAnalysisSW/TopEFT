@@ -10,10 +10,10 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut
-from TopEFT.tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
+from TopEFT.Tools.objectSelection import getFilterCut, isAnalysisJet
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
 # Arguments
@@ -21,12 +21,13 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM_dipoleEllipsis", 'ewkDM_currentEllipsis'], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "dipoleEllipsis", 'currentEllipsis', 'C2VA0p2', 'cuW'], help="Add signal to plot")
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
+argParser.add_argument('--year',               action='store',      default=2016,            choices = [2016, 2017], type=int, help='2016 or 2017?',)
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
+argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v14')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
@@ -34,12 +35,19 @@ args = argParser.parse_args()
 #
 # Logger
 #
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
+if args.year == 2017: 
+    args.signal  = None
+    args.onlyTTZ = False
+    args.reweightPtZToSM = False
+    args.badMuonFilters = 'Summer2017'
+
 if args.small:                        args.plot_directory += "_small"
+if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
 if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
@@ -48,48 +56,77 @@ if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v5/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-if args.signal .startswith( "ewkDM" ):
-    from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-    ewkDM_0     = ewkDM_ttZ_ll
-    ewkDM_1     = ewkDM_ttZ_ll_DC2A_0p20_DC2V_0p20
+if args.year == 2017:
+    postProcessing_directory = "TopEFT_PP_2017_v14/dilep"
+    data_directory           = "/afs/hephy.at/data/dspitzbart02/cmgTuples"  
+    from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+    from TopEFT.samples.cmgTuples_Summer17_92X_mAODv2_postProcessed import *
+    #from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
-    ewkDM_dipole_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-    ewkDM_dipole_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-    ewkDM_dipole_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-    ewkDM_dipole_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-    ewkDM_dipole_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-    ewkDM_dipole_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-    ewkDM_dipole_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
+    SingleElectron_data = SingleElectron_Run2017
+    SingleMuon_data     = SingleMuon_Run2017
+    SingleEleMu_data    = SingleEleMu_Run2017
 
-
-    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
-    ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
-
-    ewkDM_dipole_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-    ewkDM_dipole_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-    ewkDM_dipole_4.style = styles.lineStyle( ROOT.kMagenta, width=3, dashed=True)
-
-    ewkDM_dipole_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-    ewkDM_dipole_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-    ewkDM_dipole_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-    ewkDM_dipole_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
-
-    ewkDM_current_0 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
-    ewkDM_current_1 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
-    ewkDM_current_0.style = styles.lineStyle( ROOT.kBlue)
-    ewkDM_current_1.style = styles.lineStyle( ROOT.kGreen+2)
-
-    if args.signal == 'ewkDM_dipoleEllipsis':
-        signals = [ewkDM_dipole_2,ewkDM_dipole_3,ewkDM_dipole_4,ewkDM_dipole_5,ewkDM_dipole_6,ewkDM_dipole_7,ewkDM_dipole_8]
-    elif args.signal == 'ewkDM_currentEllipsis':
-        signals = [ewkDM_current_0, ewkDM_current_1]
-    else:
-        raise ValueError
 else:
+    postProcessing_directory = "TopEFT_PP_v12/trilep/"
+    data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+    from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
+    postProcessing_directory = "TopEFT_PP_v14/trilep/"
+    data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
+    from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+    from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+
+    SingleElectron_data = SingleElectron_Run2016
+    SingleMuon_data     = SingleMuon_Run2016
+    SingleEleMu_data    = SingleEleMu_Run2016
+
+if args.signal is None:
     signals = []
+elif args.signal ==  "C2VA0p2":
+    signals = [ttZ0j_ll, ttZ0j_ll_DC2A_0p200000_DC2V_0p200000]
+    ttZ0j_ll.style = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC2A_0p200000_DC2V_0p200000.style = styles.lineStyle( ROOT.kBlue,   width=2, dotted=False )
+
+elif args.signal == "currentEllipsis":
+    ttZ0j_ll.style                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p500000_DC1V_0p500000.style  = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000.style = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_1p000000.style                = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
+
+    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000, ttZ0j_ll_DC1A_1p000000]
+elif args.signal == "dipoleEllipsis":
+    ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700.style     = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700.style    = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000.style                   = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700.style    = styles.lineStyle( ROOT.kMagenta, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700.style   = styles.lineStyle( ROOT.kCyan, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000.style                  = styles.lineStyle( ROOT.kAzure, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000.style                  = styles.lineStyle( ROOT.kGreen+2, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000.style                   = styles.lineStyle( ROOT.kMagenta+2, width=2, dotted=False, dashed=False )
+    signals = [
+        ttZ0j_ll,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000
+    ]
+elif args.signal == 'cuW':
+
+    ttZ0j_ll.style               = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_0p100000.style  = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_0p200000.style  = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_0p300000.style  = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p100000.style = styles.lineStyle( ROOT.kMagenta, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p200000.style = styles.lineStyle( ROOT.kOrange, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p300000.style = styles.lineStyle( ROOT.kAzure, width=2, dotted=False, dashed=False )
+
+    signals = [ttZ0j_ll, ttZ0j_ll_cuW_0p100000, ttZ0j_ll_cuW_0p200000, ttZ0j_ll_cuW_0p300000, ttZ0j_ll_cuW_m0p100000, ttZ0j_ll_cuW_m0p200000, ttZ0j_ll_cuW_m0p300000]
 
 # define 3l selections
 def getLeptonSelection( mode ):
@@ -103,13 +140,16 @@ def getLeptonSelection( mode ):
 if args.onlyTTZ:
     mc = [ TTZtoLLNuNu ]
 else:
-    mc             = [ TTZtoLLNuNu , TTX, WZ, TTW, TZQ, rare ]#, nonprompt ]
+    if args.year == 2017:
+        mc             = [ TT_pow, DY_LO ]#, nonprompt ]
+    else:
+        mc             = [ TTZtoLLNuNu , TTX, WZ, TTW, TZQ, rare ]#, nonprompt ]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # reweighting 
 if args. reweightPtZToSM:
-    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
+    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
     TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
     TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
 
@@ -134,7 +174,7 @@ if args. reweightPtZToSM:
 # Read variables and sequences
 #
 read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I]", "njet/I", 'nJetSelected/I',
                     "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
@@ -151,15 +191,19 @@ def getDRZLep( event, sample ):
     event.dRZLep = deltaR({'phi':event.lep_phi[event.nonZ_l1_index],'eta':event.lep_eta[event.nonZ_l1_index]},{'phi': event.Z_phi, 'eta':event.Z_eta})
 sequence.append( getDRZLep )
 
-def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan')
-sequence.append( getDPhiZJet )
 
 def getJets( event, sample ):
-    jetVars     = ['eta','pt','phi','btagCSV']
-    event.jets_sortbtag  = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    jetVars     = ['eta','pt','phi','btagCSV','id']
+    event.jets  = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
+    event.jets_sortbtag = event.jets
     event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
+
 sequence.append( getJets )
+
+def getDPhiZJet( event, sample ):
+    event.dPhiZJet = deltaPhi(event.jets[0]['phi'], event.Z_phi) if len(event.jets)>0 and event.Z_mass>0 else float('nan')
+
+sequence.append( getDPhiZJet )
 
 #def getL( event, sample):
 #
@@ -272,7 +316,8 @@ def drawPlots(plots, mode, dataMCScale):
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale )
+	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
+        copyIndexPHP = True
       )
 
 #
@@ -284,10 +329,20 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-      if   mode=="mumu": data_sample = DoubleMuon_Run2016_backup
-      if   mode=="mumu": data_sample.texName = "data (2 #mu)"
+      if mode == "mumumu":
+          data_sample = SingleMuon_data
+          data_sample.texName = "data (3#mu)"
+      elif mode == "eee":
+          data_sample = SingleElectron_data
+          data_sample.texName = "data (3e)"
+      else:
+          data_sample = SingleEleMu_data
+      if   mode=="mumue": 
+          data_sample.texName = "data (2#mu, 1e)"
+      if   mode=="muee": 
+          data_sample.texName = "data (1#mu, 2e)"
 
-      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection(mode)])
       data_sample.name           = "data"
       data_sample.read_variables = ["evt/I","run/I"]
       data_sample.style          = styles.errorStyle(ROOT.kBlack)
@@ -300,7 +355,7 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection(mode)])
 
     if not args.noData:
       stack = Stack(mc, data_sample)
@@ -381,12 +436,6 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = '#DeltaR(ll)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_lldR/F" ),
-        binning=[10,0,4],
-    ))
-    plots.append(Plot(
-        name = "Z_lldEta",
-        texX = '#Delta #eta(ll)', texY = 'Number of Events',
-        attribute = lambda event, sample: abs(event.lep_eta[event.Z_l1_index] - event.lep_eta[event.Z_l2_index]),
         binning=[10,0,4],
     ))
 
@@ -478,47 +527,60 @@ for index, mode in enumerate(allModes):
         attribute = lambda event, sample:event.dPhiZJet,
         binning=[10,0,pi],
     ))
-    
-    plots.append(Plot(
-        name = "lZ1_pt",
-        texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
-        binning=[30,0,300],
-    ))
-    
-    plots.append(Plot(
-        name = 'lZ1_pt_ext', texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
-        binning=[20,40,440],
-    ))
-    
-    plots.append(Plot(
-        name = "lZ2_pt",
-        texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
-        binning=[30,0,300],
-    ))
-    
-    plots.append(Plot(
-        name = 'lZ2_pt_ext', texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
-        binning=[20,40,440],
-    ))
-    
-    plots.append(Plot(
-        name = 'lnonZ1_pt',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[30,0,300],
-    ))
+
+    #plots.append(Plot(
+    #    name = "Z_lldEta",
+    #    texX = '#Delta #eta(ll)', texY = 'Number of Events',
+    #    attribute = lambda event, sample: abs(event.lep_eta[event.Z_l1_index] - event.lep_eta[event.Z_l2_index]),
+    #    binning=[10,0,4],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "lZ1_pt",
+    #    texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
+    #    binning=[30,0,300],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = 'lZ1_pt_ext', texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
+    #    binning=[20,40,440],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "lZ2_pt",
+    #    texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
+    #    binning=[30,0,300],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = 'lZ2_pt_ext', texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
+    #    binning=[20,40,440],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = 'lnonZ1_pt',
+    #    texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+    #    binning=[30,0,300],
+    #))
+
+    #plots.append(Plot(
+    #    name = 'lnonZ1_pt_ext',
+    #    texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
+    #    attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+    #    binning=[12,0,180],
+    #))
 
     plots.append(Plot(
-        name = 'lnonZ1_pt_ext',
-        texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
-        binning=[12,0,180],
+        name = "l3_pt",
+        texX = 'p_{T}(l_{3}) (GeV)', texY = 'Number of Events / 5 GeV',
+        attribute = lambda event, sample:event.lep_pt[2],
+        binning=[20,0,100],
     ))
-    
     
     plots.append(Plot(
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
@@ -535,19 +597,19 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
-      attribute = TreeVariable.fromString( "njet/I" ),
+      attribute = TreeVariable.fromString( "nJetSelected/I" ),
       binning=[5,2.5,7.5],
     ))
     
     plots.append(Plot(
       texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-      name = 'jet1_pt', attribute = lambda event, sample: event.jet_pt[0],
+      name = 'jet1_pt', attribute = lambda event, sample: event.jets[0]['pt'] if len(event.jets)>0 else float('nan'),
       binning=[600/30,0,600],
     ))
     
     plots.append(Plot(
       texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-      name = 'jet2_pt', attribute = lambda event, sample: event.jet_pt[1],
+      name = 'jet2_pt', attribute = lambda event, sample: event.jets[1]['pt'] if len(event.jets)>1 else float('nan'),
       binning=[600/30,0,600],
     ))
     

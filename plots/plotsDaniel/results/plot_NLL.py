@@ -4,7 +4,7 @@ import shutil
 
 from RootTools.core.standard    import *
 from TopEFT.analysis.getResults import getResult
-from TopEFT.tools.user          import combineReleaseLocation, analysis_results, plot_directory
+from TopEFT.Tools.user          import combineReleaseLocation, analysis_results, plot_directory
 from functools import partial
 
 from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
@@ -77,7 +77,7 @@ hist.Fit(fun, "S")
 #fun.SetLineStyle(3)
 
 #ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
 # plot stuff, add vertical lines at 1, 2, 3 sigma

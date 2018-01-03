@@ -7,10 +7,10 @@ import os
 # TopEFT imports
 from TopEFT.Generation.Configuration import Configuration
 from TopEFT.Generation.Process       import Process
-from TopEFT.tools.u_float         import u_float
+from TopEFT.Tools.u_float         import u_float
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 
 #find all processes
 process_path = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Generation/data/processCards")

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     options = get_parser().parse_args()
 
     # Logging
-    import TopEFT.tools.logger as logger_
+    import TopEFT.Tools.logger as logger_
     logger = logger_.get_logger(options.logLevel, logFile = None )
 
     overwrite = options.overwrite
@@ -35,6 +35,7 @@ else:
 
 # TopEFT
 from TopEFT.samples.walk_dpm import walk_dpm
+from RootTools.core.helpers import checkRootFile
 
 # Standard imports
 import os
@@ -96,9 +97,18 @@ class heppy_mapper:
                             multithreading = not options.nomultithreading, 
                         )
                     logger.info( "Sample %s: Found a total of %i files with normalization %3.2f", heppy_sample.name, len(files), normalization)
+                    tmp_files = []
+                    for f in files:
+                        isGoodFile = False
+                        try:
+                            isGoodFile = checkRootFile("root://hephyse.oeaw.ac.at/" + os.path.join( f ))
+                            logger.debug("File %s got added", f)
+                        except IOError:
+                            logger.info("File %s is corrupted, skipping",f)
+                        if isGoodFile: tmp_files.append(f)
                     self.sample_map[heppy_sample] = Sample.fromFiles(
-                        heppy_sample.name, 
-                        files = ['root://hephyse.oeaw.ac.at/'+f for f in files],
+                        heppy_sample.name,
+                        files = ['root://hephyse.oeaw.ac.at/'+f for f in tmp_files],
                         normalization = normalization, 
                         treeName = 'tree', isData = heppy_sample.isData, maxN = maxN)
                     
@@ -138,93 +148,43 @@ proxy_path = os.path.expandvars('$HOME/private/.proxy')
 proxy = renew_proxy( proxy_path )
 logger.info( "Using proxy %s"%proxy )
 
-# Moriond MC
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v9+v10.pkl'
-#subdirs by hand ... skipping DY until it's complete
-robert_v9 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v9/%s' % s for s in [\
-  'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_HT-70to100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-  'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-5to50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'DYJetsToLL_M-5to50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'DYJetsToLL_M-5to50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'DYJetsToLL_M-5to50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_80X_2l_v9',
-  'GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8',
-  'ST_tWll_5f_LO_13TeV-MadGraph-pythia8',
-  'TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8',
-  'THQ_Hincl_13TeV-madgraph-pythia8_TuneCUETP8M1',
-  'TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-  'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'TTTT_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
-  'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
-  'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'TTZToLL_M-1to10_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'VHToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8',
-  'WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-  'WWTo2L2Nu_DoubleScattering_13TeV-pythia8',
-  'WWW_4F_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-  'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'WpWpJJ_EWK-QCD_TuneCUETP8M1_13TeV-madgraph-pythia8',
-  'ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-  'ZZTo4L_13TeV_powheg_pythia8',
-  'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-  'tZq_ll_4f_13TeV-amcatnlo-pythia8',
-  'ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
-  'ttZJets_13TeV_madgraphMLM',
-    ] ]
-
-robert_v10 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10/%s' % s for s in [\
-  'DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10',
-  'DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10',
-  'DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10',
-  'DYJetsToLL_M-5to50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10'
-  'DYJetsToLL_M-5to50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10',
-  'DYJetsToLL_M-5to50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_80X_2l_v10', 
-    ]]
-
-mc_Moriond_dpm_directories = robert_v9 + robert_v10
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_80X_1l_v14.pkl'
+robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
+mc_dpm_directories = robert_80X_1l_v14
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
+mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, robert_80X_1l_v14, mc_cache_file)
 
-## Moriond MC
-#mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2l_v2.pkl'
-#daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v2']
-#mc_Moriond_dpm_directories = daniel
-#from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-#mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_Moriond_dpm_directories, mc_cache_file)
-#
+# Summer17 MC
+Summer17_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer17_92X_1l_v19.pkl'
+robert_92X_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19']
+mc_dpm_directories = robert_92X_1l_v19
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2 import mcSamples as heppy_Summer17_samples
+Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v19, Summer17_cache_file)
+
+# Data 2017
+data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19.pkl'
+robert_92X_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19']
+data_dpm_directories = robert_92X_1l_v19
+from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
+data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017)
 
 # Data ReminiAOD
-data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v6_data.pkl'
-def_robert = ["/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v6"]
-data_dpm_directories = def_robert
+data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v14.pkl'
+robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
+data_dpm_directories = robert_80X_1l_v14
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, data_cache_file)
-
-# Data ReminiAOD
-MET_data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_2l_v10_MET_data.pkl'
-def_robert = ["/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10/MET"]
-data_dpm_directories = def_robert
-from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-MET_data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories, MET_data_cache_file)
+data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
 
 # Private signal MC
-signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v10.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2l_v10', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v10']
+signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v12.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v12']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
 signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
+
+# Private signal MC with 0 jets (LO)
+signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttZ0j_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v12']
+signal_dpm_directories = robert
+from CMGTools.StopsDilepton.ttZ0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttZ0j_signal_samples
+signal_0j_heppy_mapper = heppy_mapper( ttZ0j_signal_samples, signal_dpm_directories, signal_cache_file)

@@ -7,10 +7,9 @@ import copy
 import imp 
 
 # TopEFT
-from TopEFT.tools.Cache import Cache
-from TopEFT.tools.resultsDB import resultsDB
-from TopEFT.tools.user import results_directory, tmp_directory
-from TopEFT.tools.u_float import u_float
+from TopEFT.Tools.resultsDB import resultsDB
+from TopEFT.Tools.user import results_directory, tmp_directory
+from TopEFT.Tools.u_float import u_float
 
 # Logger
 import logging
@@ -133,7 +132,7 @@ class Process:
         gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ) )
         # Do we have the gridpack?
         if os.path.exists( gridpack ) and not  overwrite: 
-            logger.debug( "Found gridpack %s. Do nothing", gridpack )
+            logger.info( "Found gridpack %s. Do nothing", gridpack )
             return
         else:
             self.__initialize( modified_couplings ) 

@@ -218,7 +218,7 @@ if __name__ == "__main__":
     proxy = renew_proxy()
     logger.info( "Using proxy %s"%proxy )
 
-    import TopEFT.tools.logger as logger
+    import TopEFT.Tools.logger as logger
     logger = logger.get_logger('DEBUG')
 
     walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2/JetHT')
