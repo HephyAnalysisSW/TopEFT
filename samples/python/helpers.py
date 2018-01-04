@@ -90,8 +90,8 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
                 from TopEFT.samples.heppy_dpm_samples import Summer17_heppy_mapper
                 return Summer17_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ttZ0j_ll" in sample:
-                from TopEFT.samples.heppy_dpm_samples import signal_0j_heppy_mapper
-                return signal_0j_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+                from TopEFT.samples.heppy_dpm_samples import signal_0j_0l_heppy_mapper
+                return signal_0j_0l_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ewkDM" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_heppy_mapper
                 return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
