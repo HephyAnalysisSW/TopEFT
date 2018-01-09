@@ -35,12 +35,18 @@ presel = "nlep==3&&lep_pt[0]>40&&Z_mass>0"
 
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 
+trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_eta2p1_WPLoose_Gsf"]
+trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
+
+trigger_singleEle_2017 = ["HLT_ele", "HLT_ele_pre"]
+trigger_singleMu_2017  = ["HLT_mu"]#["HLT_IsoMu27"]#, "HLT_IsoMu30"]
+
 #channels = {'eee':'nGoodElectrons==3'}
 
 #triggers_2016 = ["singleLep","singleLep_addNonIso"]
 triggers_2017 = ["singleLep"]
 
-colors  = {"MET_Run2017": ROOT.kRed+1,  "MET_Run2016": ROOT.kOrange+1,  "WJets": ROOT.kBlue+1,  "WJets_LO": ROOT.kGreen+1,  "SL_Run2017": ROOT.kRed+1,  "tt_Summer17": ROOT.kBlue+1}
+colors  = {"MET_Run2017": ROOT.kRed+1,  "MET_Run2016": ROOT.kOrange+1,  "WJets": ROOT.kBlue+1,  "WJets_LO": ROOT.kGreen+1,  "SL_Run2017": ROOT.kBlue+1,  "tt_Summer17": ROOT.kRed+1}
 markers = {"MET_Run2017": 20,           "MET_Run2016": 21,              "WJets": 22,            "WJets_LO": 23,             "SL_Run2017": 20,           "tt_Summer17": 22}
 
 
@@ -81,14 +87,15 @@ def getEfficiency(pt, eta, pdgId, trigger, measurement):
 
     return eff_map.GetBinContent(eff_map.GetXaxis().FindBin(pt), eff_map.GetYaxis().FindBin(abs(eta)))
 
-binning = [10,15,20,25,40,60,80,100,200]
+binning = [0,10,20,30,40,50,60,80,100,120,150,200,500]
+#binning = [10,15,20,25,40,60,80,100,200]
 binning = (len(binning)-1, array('d', binning))
 
 for trigger in triggers:
     print "Working on trigger %s"%trigger
     for c in channels:
         print "... on channel %s"%c
-        for sample in [TTZtoLLNuNu]:
+        for sample in [TTZ_LO]:##toLLNuNu]:
             print "... on sample %s"%sample.name
             incl_cut    = '&&'.join([presel,channels[c]])
             
@@ -100,10 +107,14 @@ for trigger in triggers:
 
             sample.hists = {}
             sample.hist_ref = {}
+            sample.hist_direct = {}
+            sample.hist_shape = {}
+
             # Define hists for the different measurements
             for i in range(3):
-                sample.hists[i] = { m:ROOT.TH1F("%s_%s_%s_%s"%(sample.name, trigger, c, m),"", *binning) for m in ["SL_Run2017", "tt_Summer17"] }#["MET_Run2017", "MET_Run2016", "WJets"] }
-                sample.hist_ref[i] = ROOT.TH1F("%s_%s_%s"%(sample.name, "ref", c),"", *binning)
+                sample.hists[i] = { m:ROOT.TH1F("%s_%s_%s_%s_%s"%(sample.name, trigger, c, m, i),"", *binning) for m in ["SL_Run2017", "tt_Summer17"] }#["MET_Run2017", "MET_Run2016", "WJets"] }
+                sample.hist_ref[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "ref", c, i),"", *binning)
+                sample.hist_direct[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "direct", c, i),"", *binning)
 
             print "Gonna loop over %s events"%number_events
             if number_events > 1e5:
@@ -114,62 +125,98 @@ for trigger in triggers:
                     print "Done with",i
                 s.GetEntry(elist.GetEntry(i))
                 w = s.weight
+                sl_triggers = trigger_singleEle + trigger_singleMu
+                triggered = False
+                for x in sl_triggers:
+                    triggered = getattr(s, x)
+                    if triggered: break
                 
                 for m in ["SL_Run2017", "tt_Summer17"]:#["MET_Run2017", "MET_Run2016", "WJets"]:
                     effs = []
                     for l in range(3):
                         effs.append(getEfficiency(s.lep_pt[l], s.lep_eta[l], s.lep_pdgId[l], trigger, m))
-                        #print s.lep_pt[l], s.lep_eta[l], s.lep_pdgId[l], trigger, m
-                        #print getEfficiency(s.lep_pt[l], s.lep_eta[l], s.lep_pdgId[l], trigger, m)
                     eff = 1 - ( (1-effs[0]) * (1-effs[1]) * (1-effs[2]) )
-                    #eff = reduce(lambda x, y: x*y, effs)
+
                     for j in range(3):
-                    #print s.lep_pt[0], w, w*eff, eff
-                        pt = s.lep_pt[j] if s.lep_pt[j]<200 else 199.
+                        pt = s.lep_pt[j] if s.lep_pt[j]<500 else 499.
                         sample.hists[j][m].Fill(pt, w*eff)
 
                 for j in range(3):
-                    pt = s.lep_pt[j] if s.lep_pt[j]<200 else 199.
+                    pt = s.lep_pt[j] if s.lep_pt[j]<500 else 499.
                     sample.hist_ref[j].Fill(pt, w)
+                    if triggered:
+                        sample.hist_direct[j].Fill(pt, w)
             
             for j in range(3):
                 sample.teffs = {}
 
                 can = ROOT.TCanvas("can","can", 700,700)
+                can.SetLogx()
                 first = True
                 
-                leg2 = ROOT.TLegend(0.42,0.45-0.04*4,0.90,0.45)
-                leg2.SetFillColor(ROOT.kWhite)
-                leg2.SetShadowColor(ROOT.kWhite)
-                leg2.SetBorderSize(0)
-                leg2.SetTextSize(0.035)
+                # plot the frame
 
-                sample.hist_ref[j].SetMaximum(1.05)
+                sample.hist_ref[j].SetMaximum(1.03)
                 sample.hist_ref[j].SetMinimum(0.8)
                 sample.hist_ref[j].SetMarkerSize(0)
                 sample.hist_ref[j].SetLineWidth(0)
                 sample.hist_ref[j].GetXaxis().SetTitle("p_{T}(l_{%s}) [GeV]"%(j+1))
                 sample.hist_ref[j].GetYaxis().SetTitle("Efficiency")
-
+                sample.hist_ref[j].GetXaxis().SetMoreLogLabels()
+                sample.hist_ref[j].GetXaxis().SetNoExponent()
                 sample.hist_ref[j].Draw()
 
-                leg2.AddEntry(sample.hist_ref[j], "3l eff using 1l eff map from:")
-                for m in ["SL_Run2017", "tt_Summer17"]:#["MET_Run2017", "MET_Run2016", "WJets"]:
+                # plot the shape
+
+                sample.hist_shape[j] = sample.hist_ref[j].Clone()
+                sample.hist_shape[j].SetLineColor(ROOT.kBlack)
+                sample.hist_shape[j].SetLineWidth(1)
+                sample.hist_shape[j].Scale(4/sample.hist_shape[j].Integral(), "width")
+                sample.hist_shape[j].SetFillColorAlpha(ROOT.kGray,0.5)
+                for i in range(sample.hist_shape[j].GetNbinsX()):
+                    sample.hist_shape[j].SetBinContent(i+1, 0.8+sample.hist_shape[j].GetBinContent(i+1))
+                sample.hist_shape[j].Draw("hist same")
+
+                sample.teffs['direct'] = ROOT.TEfficiency(sample.hist_direct[j],sample.hist_ref[j])
+                sample.teffs['direct'].SetFillColor(0)
+                sample.teffs['direct'].SetMarkerColor(ROOT.kGreen+2)
+                sample.teffs['direct'].SetLineColor(ROOT.kGreen+2)
+                sample.teffs['direct'].SetMarkerStyle(21)
+                sample.teffs['direct'].Draw("same")
+
+                print "direct"
+                print sample.hist_ref[j].GetBinContent(1), sample.hist_ref[j].GetBinContent(5)
+                print sample.hist_direct[j].GetBinContent(1), sample.hist_direct[j].GetBinContent(5)
+
+                for m in ["tt_Summer17", "SL_Run2017"]:#["MET_Run2017", "MET_Run2016", "WJets"]:
                     sample.teffs[m] = ROOT.TEfficiency(sample.hists[j][m],sample.hist_ref[j])
                     sample.teffs[m].SetFillColor(0)
                     sample.teffs[m].SetMarkerColor(colors[m])
                     sample.teffs[m].SetLineColor(colors[m])
                     sample.teffs[m].SetMarkerStyle(markers[m])
 
-                    niceName = m.replace("_Run", " ").replace("Jets", "+jets (MC)")
-                    if "Single" in niceName: niceName += " (data)"
-                    leg2.AddEntry(sample.teffs[m], niceName)
+                    #niceName = m.replace("_Run", " ").replace("Jets", "+jets (MC)")
+                    #if "Single" in niceName: niceName += " (data)"
+                    #leg2.AddEntry(sample.teffs[m], niceName)
 
                     if first and False:
                         sample.teffs[m].Draw()
                         first = False
                     else:
                         sample.teffs[m].Draw("same")
+                
+                leg2 = ROOT.TLegend(0.47,0.58-0.035*5,0.90,0.58)
+                leg2.SetFillColor(ROOT.kWhite)
+                leg2.SetShadowColor(ROOT.kWhite)
+                leg2.SetBorderSize(0)
+                leg2.SetTextSize(0.03)
+                leg2.SetTextFont(42)
+                
+                leg2.AddEntry(sample.hist_ref[j], '3l efficiency based on:')
+                leg2.AddEntry(sample.teffs['tt_Summer17'], '1l meas. in t#bar{t} MC(2017)')
+                leg2.AddEntry(sample.teffs['SL_Run2017'], '1l meas. in singleLep PD(2017)')
+                leg2.AddEntry(sample.teffs['direct'], 'direct meas. in ttZ MC(2016)')
+                leg2.AddEntry(sample.hist_shape[j], 'ttZ distribution','f')
 
                 leg2.Draw()
 
