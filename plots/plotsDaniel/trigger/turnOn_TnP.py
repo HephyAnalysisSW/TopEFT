@@ -119,6 +119,7 @@ if channel == "M":
     pdgId = 13
     #measure in singleEle data
     sample = ( SingleElectron_Run2016 if not options.Run2017 else SingleElectron_Run2017 ) if options.data else ( TTLep_pow if not options.Run2017 else TT_pow_17)
+    #sample = WW_17
     triggers = trigger_singleEle if not options.Run2017 else trigger_singleEle_2017
     presel += "&&(%s)"%("||".join(triggers))
     binning2D = ([10,15,20,25,40,60,80,100,200,500],[0,1.2,2.1,2.4])
@@ -127,6 +128,7 @@ elif channel == "E":
     pdgId = 11
     #measure in singleMu data
     sample = ( SingleMuon_Run2016 if not options.Run2017 else SingleMuon_Run2017 ) if options.data else ( TTLep_pow if not options.Run2017 else TT_pow_17)
+    #sample = WW_17
     triggers = trigger_singleMu if not options.Run2017 else trigger_singleMu_2017
     presel += "&&(%s)"%("||".join(triggers))
     binning2D = ([10,15,20,25,40,60,80,100,200,500],[0,1.479,2.5])
