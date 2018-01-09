@@ -72,8 +72,8 @@ def turnon_func(x, par):
 #from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v18/dilep/"
-from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
+from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 
 #data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 #postProcessing_directory = "TopEFT_PP_v14/dilep/"
@@ -84,8 +84,8 @@ from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 #from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v18/dilep/"
-from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
+#from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer17_mAODv2_postProcessed import *
 
 # presel for measuring efficiencies in single lep datasets
@@ -96,9 +96,9 @@ channels = {'all':'(1)'}
 trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_eta2p1_WPLoose_Gsf"]
 trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
 
-trigger_singleEle_2017 = ["HLT_Ele35_WPTight_Gsf"]
-#trigger_singleEle_2017 = ["HLT_ele"]
-trigger_singleMu_2017  = ["HLT_IsoMu27"]#, "HLT_IsoMu30"]
+#trigger_singleEle_2017 = ["HLT_Ele35_WPTight_Gsf"]
+trigger_singleEle_2017 = ["HLT_ele", "HLT_ele_pre"]
+trigger_singleMu_2017  = ["HLT_mu"]#["HLT_IsoMu27"]#, "HLT_IsoMu30"]
 
 
 colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
@@ -134,6 +134,13 @@ elif channel == "E":
 #sample = TTLep_pow
 
 print "Getting events"
+
+print sample.name
+print triggers
+print presel
+
+if options.small:
+    sample.reduceFiles(to=1)
 
 s = sample.chain
 s.Draw('>>eList',presel)
@@ -250,7 +257,7 @@ tEff.SetLineColor(color)
 tEff.SetMarkerStyle(marker)
 tEff.Draw("same")   
 
-plot_dir = os.path.join(plot_directory, "trigger_TnP", sample.name)
+plot_dir = os.path.join(plot_directory, "trigger_TnP_2017", sample.name)
 if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
 for f in ['.png','.pdf','.root']:
     can.Print(plot_dir+"/%s_lep_pt"%triggerLeg+f)
