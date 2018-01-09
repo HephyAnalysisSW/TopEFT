@@ -72,7 +72,7 @@ nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 10)
+combinationChunks = chunks(allCombinationsFlat, 3)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):
@@ -82,6 +82,6 @@ for p in processes[:1]:
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
         #if i == 2 or i == 8: continue
-        os.system(submitCMD+" --title %s_%i 'python run.py --model "%(p,i)+model_name+" --process "+p+" --couplings %s_%i.txt --calcXSec --makeGridpack'"%(p,i))
+        os.system(submitCMD+" --title %s_%i 'python run.py --model "%("GP",i)+model_name+" --process "+p+" --couplings %s_%i.txt --makeGridpack'"%(p,i)) #--calcXSec
         if "echo" not in submitCMD:
             time.sleep(30)

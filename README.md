@@ -1,7 +1,7 @@
 # TopEFT
 Repository for work on top quark coupling measurements
 
-## Installation
+## Installation CMSSW_8_0_X
 
 ```
 cmsrel CMSSW_8_0_28
@@ -10,6 +10,19 @@ cmsenv
 git cms-init
 git clone https://github.com/danbarto/TopEFT
 ./TopEFT/setup80X.sh
+```
+## Installation CMSSW_9_4_X
+
+```
+cmsrel CMSSW_9_4_1
+cd CMSSW_9_4_1/src
+cmsenv
+git cms-init
+git clone https://github.com/danbarto/TopEFT
+cd TopEFT
+git checkout -b 94X_dev origin/94X_dev
+cd $CMSSW_BASE/src
+./TopEFT/setup94X.sh
 ```
 
 ## run.py
