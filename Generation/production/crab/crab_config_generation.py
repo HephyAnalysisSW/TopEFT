@@ -4,7 +4,7 @@ config = Configuration()
 
 config.section_("General")
 config.General.requestName = "tmp"
-config.General.workArea = 'crab_ewkDM_2'
+config.General.workArea = 'crab_ewkDM_v2'
 config.General.transferLogs = True
 
 config.section_("JobType")
@@ -45,6 +45,13 @@ if __name__ == '__main__':
         #'ewkDM_ttZ_ll_noH_DC2V_0.100000.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_0.200000.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_0.300000.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC1A_0p60_DC1V_m0p24_DC2A0p25_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC1A_0p50_DC1V_0p50_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC1A_0p50_DC1V_m1p00_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC1A_1p00_DC1V_0p00_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
+        #'ewkDM_TTZToLL_LO_DC1A_0p60_DC1V_m0p24_DC2V0p25_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
         #'ewkDM_TTZToLL_01j_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz',
         #'ewkDM_TTZToLL_01j_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball.tar.xz'
 

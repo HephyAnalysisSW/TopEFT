@@ -78,7 +78,7 @@ class SignalReweighting:
         elif self.cache:
             logger.info( "Obtain template for %s"%( key, ) )
             result = self.makeTemplate( selection = selection, weight = weight)
-            result = self.cache.add( key, result, save=save)
+            self.cache.add( key, result, save=save)
             #print "Adding template to cache for %s : %r" %( key, result)
             logger.debug( "Adding template to cache for %s : %r" %( key, result) )
         else:
@@ -111,11 +111,13 @@ if __name__ == "__main__":
     from TopEFT.Tools.user import results_directory, plot_directory
 
     # reweighting class
-    cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
+    #cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
+    cacheDir = None 
     signalReweighting = SignalReweighting( source_sample = ewkDM_ttZ_ll_gen, target_sample = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700, cacheDir = cacheDir)
 
     # reweighting selection
-    selection = "Sum$(GenJet_pt>40)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )&&Sum$(GenLep_pt>0&&{l_match})>=3".format(l_match="(abs(GenLep_motherPdgId)==23||abs(GenLep_motherPdgId)==24)")
+    #selection = "Sum$(GenJet_pt>40)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )&&Sum$(GenLep_pt>0&&{l_match})>=3".format(l_match="(abs(GenLep_motherPdgId)==23||abs(GenLep_motherPdgId)==24)")
+    selection = "(1)"#Sum$(GenJet_pt>40)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 )"
 
     # reweighting function
     f = signalReweighting.cachedReweightingFunc( selection )
