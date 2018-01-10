@@ -40,9 +40,27 @@ with open(args.outFile, 'w') as f:
         uniqueDir   = uuid.uuid4().hex
         uPath       = os.path.join(tmp_directory, uniqueDir)
         line        = "mkdir %s; cp %s %s; cd %s; cmsRun %s gridpack=%s/%s maxEvents=%s nJetMax=%s outputDir=%s/%s/; cd %s; rm -rf %s\n"%(uPath, cfg, uPath, uPath, args.cfg, args.gridpackDir, gp, args.maxEvents, args.nJetMax, args.outDir, gpName, baseDir, uPath)
-        print line
+        #print line
         f.write(line)
 
+print "Created submit file: %s"%args.outFile
+print "You can copy the content of 'forSamplesPY.txt' to your sample python file."
+print "Samples contained:"
 
+with open('forSamplesPY.txt', 'w') as f:
+    for gp in gridpacks:
+        gpName      = gp.replace(".tar.xz","").replace(".","p").replace("-","m")
+        niceName    = gpName.replace("0000", "")
+        line = '{:40}= FWLiteSample.fromFiles({:40} , texName="", files = ["{}/{}/events.root"])\n'.format(niceName, '"%s"'%niceName, args.outDir, gpName)
+        print niceName
+        f.write(line)
+
+with open('forPPSamplesPY.txt', 'w') as f:
+    for gp in gridpacks:
+        gpName      = gp.replace(".tar.xz","").replace(".","p").replace("-","m")
+        niceName    = gpName.replace("0000", "")
+        line = '{:40}= Sample.fromDirectory({:40}, directory = [os.path.join( gen_dir, "{}/")])\n'.format(niceName, '"%s"'%niceName, niceName)
+        #print niceName
+        f.write(line)
 
 
