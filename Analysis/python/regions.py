@@ -26,3 +26,4 @@ regionsF = getRegions2D("Z_pt", [0,100,200,400], "cosThetaStar", [-1,-0.6, 0.6, 
 regionsG = getRegions2D("Z_pt", [0,100,200,400,-1], "lep_pt[2]", [0,30, 60, -1])
 regionsH = getRegions2D("Z_pt", [0,100,200,400,-1], "lep_pt[Z_l2_index]", [0, 30, 60, -1])
 
+regionsReweight = getRegions2D("Z_pt", [0, 50, 100, 150, 200, 250, 300, 400, 500, 100000], "cosThetaStar", [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
