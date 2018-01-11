@@ -11,6 +11,7 @@ argParser.add_argument("--scale",          action='store', default=1.0, type=flo
 argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
 argParser.add_argument("--popFromSR",      default = False, action = "store", help="Remove one signal region?")
 argParser.add_argument("--extension",      default = '', action = "store", help="Extension to dir name?")
+argParser.add_argument("--useXSec",        action='store_true', help="Also use the x-sec information?")
 
 args = argParser.parse_args()
 
@@ -58,6 +59,20 @@ overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
 
+
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
+from TopEFT.Tools.u_float         import u_float
+
+config = Configuration( model_name = "dim6top_LO" )
+p = Process(process = "ttZ_ll", nEvents = 5000, config = config)
+modification_dict = {"process":"ttZ_ll"}
+
+modification_dict["ctZ"]    = 0.
+modification_dict["ctZi"]   = 0.
+
+xsec_central = p.xsecDB.get(modification_dict)
+
 def wrapper(s):
     
     logger.info("Now working on %s", s.name)
@@ -65,6 +80,11 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
+    modification_dict["ctZ"]    = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
+    modification_dict["ctZi"]   = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
+
+    xsec = p.xsecDB.get(modification_dict)
+    
     cardFileName = os.path.join(limitDir, s.name+'.txt')
     if not os.path.exists(cardFileName) or overWrite:
         counter=0
@@ -135,7 +155,13 @@ def wrapper(s):
                     f = signalReweighting.cachedReweightingFunc( setup.genSelection )
                     
                     sig = signal.reweight2D(r, channel, setup, f)
-                    c.specifyExpectation(binname, 'signal', sig.val*xSecScale )
+                    xSecMod = 1
+                    if args.useXSec:
+                        xSecMod = xsec.val/xsec_central.val
+                    
+                    print "x-sec is multiplied by %s"%xSecMod
+                    
+                    c.specifyExpectation(binname, 'signal', sig.val*xSecScale * xSecMod )
                     
                     if sig.val>0:
                         c.specifyUncertainty('PU',          binname, "signal", 1.01)

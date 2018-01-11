@@ -57,7 +57,7 @@ default_parameters   = {
 
 class Setup:
     def __init__(self):
-        self.name       = "regionsE"
+        self.name       = "regionsE_modXSec"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
