@@ -19,8 +19,8 @@ dbFile = os.path.join( results_directory, 'sample_cache', 'fwlite_benchmarks.db'
 
 # dipole moments = 0, approx SM LO x-sec
 fwlite_ttZ_ll_LO_sm                   = FWLiteSample.fromDAS("ttZ_ll_LO_sm", "/ewkDM_ttZ_ll/schoef-ewkDM-e1a069162e896efecc10f859afdda0d0/USER", "phys03", dbFile = dbFile)
-fwlite_ttZ_ll_LO_DC1V_0p5_DC1A_0p5    = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_0p5_DC1A_0p5", "/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-ewkDM-863d441c1e97429a518397b2b60fd1be/USER", "phys03", dbFile = dbFile)
-fwlite_ttZ_ll_LO_DC1V_m1_DC1A0p5      = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_m1_DC1A0p5", "/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/schoef-ewkDM-ff3cbbd709193316b9c63feda6313fd2/USER", "phys03", dbFile = dbFile)
+fwlite_ttZ_ll_LO_DC1V_0p5_DC1A_0p5    = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_0p5_DC1A_0p5", "/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000/schoef-ewkDM-863d441c1e97429a518397b2b60fd1be/USER", "phys03", dbFile = dbFile, overwrite=False)
+fwlite_ttZ_ll_LO_DC1V_m1_DC1A0p5      = FWLiteSample.fromDAS("ttZ_ll_LO_DC1V_m1_DC1A0p5", "/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/schoef-ewkDM-ff3cbbd709193316b9c63feda6313fd2/USER", "phys03", dbFile = dbFile, overwrite=False)
 
 # benchmark from https://arxiv.org/pdf/1501.05939.pdf
 fwlite_ttZ_ll_LO_C2VA_0p2 = FWLiteSample.fromDAS("ttZ_ll_LO_C2VA_0p2", "/ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000/schoef-ewkDM-d5ca1cdb139c8f92e34abf823fbeb652/USER", "phys03", dbFile = dbFile)
@@ -98,12 +98,12 @@ ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700   = FWL
 ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700",    '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700/schoef-ewkDM_09Nov17-44a0b965bee64391722ee1ac626cec71/USER',"phys03", dbFile = dbFile)
 ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700",    '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700/schoef-ewkDM_09Nov17-9cfb58347b5f3ab2740df554d66647b8/USER',"phys03", dbFile = dbFile)
 ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 = FWLiteSample.fromDAS("ewkDM_ttZ_ll_GS_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700",   '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700/schoef-ewkDM_09Nov17-9e4d723e7412ffedf3b8c0606b6c5e6d/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_0p100000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p100000",   '/HEL_UFO_ttZ_ll_cuW_0p100000/schoef-HEL_09Nov17-df62a4db47c06ad19258ed4ccbb31f31/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_0p200000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p200000",   '/HEL_UFO_ttZ_ll_cuW_0p200000/schoef-HEL_09Nov17-6a3c68b4249a638b0436b57c064ddea6/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_0p300000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p300000",   '/HEL_UFO_ttZ_ll_cuW_0p300000/schoef-HEL_09Nov17-a046fa0828dd90306ca134e402fb046d/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_m0p100000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p100000",  '/HEL_UFO_ttZ_ll_cuW_m0p100000/schoef-HEL_09Nov17-0fc0045464dd563d2392bedcaa76f810/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_m0p200000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p200000",  '/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',"phys03", dbFile = dbFile)
-HEL_UFO_ttZ_ll_GS_cuW_m0p300000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p300000",  '/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',"phys03", dbFile = dbFile)
+HEL_UFO_ttZ_ll_GS_cuW_0p100000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p100000",   '/HEL_UFO_ttZ_ll_cuW_0p100000/schoef-HEL_09Nov17-df62a4db47c06ad19258ed4ccbb31f31/USER',"phys03", dbFile = dbFile, overwrite=False)
+HEL_UFO_ttZ_ll_GS_cuW_0p200000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p200000",   '/HEL_UFO_ttZ_ll_cuW_0p200000/schoef-HEL_09Nov17-6a3c68b4249a638b0436b57c064ddea6/USER',"phys03", dbFile = dbFile, overwrite=False)
+HEL_UFO_ttZ_ll_GS_cuW_0p300000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p300000",   '/HEL_UFO_ttZ_ll_cuW_0p300000/schoef-HEL_09Nov17-a046fa0828dd90306ca134e402fb046d/USER',"phys03", dbFile = dbFile, overwrite=False)
+HEL_UFO_ttZ_ll_GS_cuW_m0p100000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p100000",  '/HEL_UFO_ttZ_ll_cuW_m0p100000/schoef-HEL_09Nov17-0fc0045464dd563d2392bedcaa76f810/USER',"phys03", dbFile = dbFile, overwrite=False)
+HEL_UFO_ttZ_ll_GS_cuW_m0p200000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p200000",  '/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',"phys03", dbFile = dbFile, overwrite=False)
+HEL_UFO_ttZ_ll_GS_cuW_m0p300000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p300000",  '/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',"phys03", dbFile = dbFile, overwrite=False)
 
 
 

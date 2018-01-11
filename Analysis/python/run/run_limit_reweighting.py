@@ -41,8 +41,6 @@ data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-#processes = [ WZ, TTX, TTW, TZQ, rare, nonprompt ]
-
 setups = [setup]
 
 ##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
@@ -88,6 +86,11 @@ def wrapper(s):
 
 
         for setup in setups:
+            signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
+            observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
+            #observation = DataObservation(name='Data', sample=setup.sample['pseudoData'], cacheDir=setup.defaultCacheDir())
+            for e in setup.estimators: e.initCache(setup.defaultCacheDir())
+
             for r in setup.regions:
                 for channel in setup.channels:
                     niceName = ' '.join([channel, r.__str__()])
@@ -98,9 +101,6 @@ def wrapper(s):
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
                         expected = e.cachedEstimate(r, channel, setup)
-                    #for p in processes:
-                    #    name = p.name
-                    #    expected = getEstimate(p, r, channel)#{"process":nam, "region":r, "lumi":35.9, "presel":"nLep==3&&isTTZ&&nJetGodd>2&&nBTag>0", "weightString":"weight", "channel":channel})
                         c.specifyExpectation(binname, name, expected.val)
 
                         if expected.val>0:
@@ -125,13 +125,9 @@ def wrapper(s):
                             c.addUncertainty(uname, 'lnN')
                             c.specifyUncertainty(uname, binname, name, 1+expected.sigma/expected.val )
 
-                    observation = MCBasedEstimate("observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
                     obs = observation.cachedEstimate(r, channel, setup)
-                    c.specifyObservation(binname, int(obs.val))
+                    c.specifyObservation(binname, int(round(obs.val,0)))
 
-                    #signalSetup = setup.systematicClone()
-
-                    signal = MCBasedEstimate("signal", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
                     source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
                     target_gen = s
 
@@ -141,7 +137,7 @@ def wrapper(s):
                     sig = signal.reweight2D(r, channel, setup, f)
                     c.specifyExpectation(binname, 'signal', sig.val*xSecScale )
                     
-                    if signal.val>0:
+                    if sig.val>0:
                         c.specifyUncertainty('PU',          binname, "signal", 1.01)
                         c.specifyUncertainty('JEC',         binname, "signal", 1.05)
                         c.specifyUncertainty('btag',        binname, "signal", 1.05)
@@ -152,32 +148,11 @@ def wrapper(s):
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
-                        c.specifyUncertainty(uname, binname, 'signal', 1 + signal.sigma/signal.val )
+                        c.specifyUncertainty(uname, binname, 'signal', 1 + sig.sigma/sig.val )
                     else:
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
                         c.specifyUncertainty(uname, binname, 'signal', 1 )
-
-                    ## alternative signal model
-                    #signal_ALT = getEstimate(s, r, channel)
-                    #c.specifyExpectation(binname, 'signal_ALT', signal_ALT.val*xSecScale )
-                    #
-                    #if signal_ALT.val>0:
-                    #    c.specifyUncertainty('PU',          binname, "signal_ALT", 1.01)
-                    #    c.specifyUncertainty('JEC',         binname, "signal_ALT", 1.05)
-                    #    c.specifyUncertainty('btag',        binname, "signal_ALT", 1.05)
-                    #    c.specifyUncertainty('trigger',     binname, "signal_ALT", 1.04)
-                    #    c.specifyUncertainty('leptonSF',    binname, "signal_ALT", 1.07)
-                    #    c.specifyUncertainty('scale_sig',   binname, "signal_ALT", 1.30)
-                    #    c.specifyUncertainty('PDF',         binname, "signal_ALT", 1.15)
-
-                    #    uname = 'Stat_'+binname+'_signal_ALT'
-                    #    c.addUncertainty(uname, 'lnN')
-                    #    c.specifyUncertainty(uname, binname, 'signal_ALT', 1 + signal_ALT.sigma/signal_ALT.val )
-                    #else:
-                    #    uname = 'Stat_'+binname+'_signal_ALT'
-                    #    c.addUncertainty(uname, 'lnN')
-                    #    c.specifyUncertainty(uname, binname, 'signal_ALT', 1 )
 
                     
         c.addUncertainty('Lumi', 'lnN')
