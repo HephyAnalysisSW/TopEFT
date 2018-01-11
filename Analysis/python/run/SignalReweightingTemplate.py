@@ -134,5 +134,12 @@ if __name__ == "__main__":
         
         matrixPlot = Plot2D.fromHisto( target_gen.name, texY = "p_{T}(Z)", texX = "cos(#Theta*)", histos = [[matrix]])
         matrixPlot.drawOption = "colz text"
-        plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = False, copyIndexPHP = True, zRange = [0.5, 5.], optimizeLogZ = True, textPrecision = "2.2f", extensions = ["png"])
+
+        def optimizeLogZ(histo):
+            histo.GetZaxis().SetMoreLogLabels()
+            histo.GetZaxis().SetNoExponent()
+
+        ROOT.gStyle.SetPaintTextFormat("2.2f")        
+         
+        plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = False, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])
     
