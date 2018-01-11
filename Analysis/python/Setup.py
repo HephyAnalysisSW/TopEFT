@@ -24,10 +24,13 @@ TTWSample       = TTW
 TZQSample       = TZQ
 rareSample      = rare
 nonpromptSample = nonprompt
+pseudoDataSample= pseudoData
 
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
 from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
 from TopEFT.Tools.objectSelection import getFilterCut
+from TopEFT.Analysis.regions import *
+
 
 #to run on data
 dataLumi2016 = {'3mu':SingleMuon_Run2016.lumi, '3e':SingleElectron_Run2016.lumi, '2mu1e':SingleMuon_Run2016.lumi, '2e1mu':SingleElectron_Run2016.lumi}
@@ -54,6 +57,11 @@ default_parameters   = {
 
 class Setup:
     def __init__(self):
+        self.name       = "regionsE"
+        self.channels   = ["all"]
+        self.regions    = regionsE
+        self.resultsFile= 'calculatedLimits_%s.db'%self.name
+
         self.analysis_results = analysis_results
         self.zMassRange       = zMassRange
         self.prefixes         = []
@@ -64,6 +72,8 @@ class Setup:
         self.sys          = default_sys 
         self.lumi         = lumi
         self.dataLumi     = dataLumi2016
+        
+        self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
 
         self.samples = {
         'TTZ':          {c:TTZSample        for c in channels},
@@ -73,6 +83,7 @@ class Setup:
         'TZQ' :         {c:TZQSample        for c in channels},
         'rare':         {c:rareSample       for c in channels},
         'nonprompt':    {c:nonpromptSample  for c in channels},
+        'pseudoData':   {c:pseudoDataSample for c in channels},
         'Data'   :    {'3mu':   SingleMuon_Run2016, #FIXME This needs to be fixed when we have a decent trigger/backup trigger strategy
                        '3e':    SingleElectron_Run2016,
                        '2mu1e': SingleMuon_Run2016,
@@ -149,7 +160,7 @@ class Setup:
            channel: all, EE, MuMu or EMu
            zWindow: offZ, onZ, or allZ
            hadronicSelection: whether to return only the hadronic selection
-       isFastSim: adjust filter cut etc. for fastsim
+           isFastSim: adjust filter cut etc. for fastsim
         '''
         #Consistency checks
         if self.sys['selectionModifier']:
@@ -225,7 +236,7 @@ class Setup:
             res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
-        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), badMuonFilters='Moriond2017Official', isFastSim=isFastSim))
+        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

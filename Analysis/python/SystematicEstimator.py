@@ -63,6 +63,7 @@ class SystematicEstimator:
 
     def cachedEstimate(self, region, channel, setup, save=True, overwrite=False):
         key =  self.uniqueKey(region, channel, setup)
+        logger.info( "Working on result for %s with key %r"%(self.name, key) )
         if (self.cache and self.cache.contains(key)) and not overwrite:
             res = self.cache.get(key)
             logger.debug( "Loading cached %s result for %r : %r"%(self.name, key, res) )
@@ -73,7 +74,7 @@ class SystematicEstimator:
             logger.debug( "Adding cached %s result for %r : %r" %(self.name, key, estimate) )
         else:
             res = self._estimate( region, channel, setup)
-        return res if res > 0 else u_float(0,0)
+        return res# if res > 0 else u_float(0,0)
 
     @abc.abstractmethod
     def _estimate(self, region, channel, setup):
@@ -144,6 +145,19 @@ class SystematicEstimator:
         up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupUp']}))
         down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupDown']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def reweight2D(self, region, channel, setup, f):
+        ref = 0
+        for r in setup.reweightRegions:
+            if r.vals['Z_pt'][0] >= region.vals['Z_pt'][0] and (r.vals['Z_pt'][1] <= region.vals['Z_pt'][1] or region.vals['Z_pt'][1] == -1) and r.vals['cosThetaStar'][0] >= region.vals['cosThetaStar'][0] and r.vals['cosThetaStar'][1] <= region.vals['cosThetaStar'][1]:
+                # This only works if the reweightRegions are aligned!!
+                #print "in", r
+                val     = self.cachedEstimate(r, channel, setup)
+                weight  = f(r.vals['Z_pt'][0], r.vals['cosThetaStar'][0])
+                ref += val*weight
+            #else:
+            #    print "out", r
+        return ref
 
     #def fastSimMETSystematic(self, region, channel, setup):
     #    ref  = self.cachedEstimate(region, channel, setup)

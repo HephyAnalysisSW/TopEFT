@@ -13,7 +13,7 @@ from TopEFT.Tools.user            import plot_directory
 import TopEFT.Tools.logger as logger
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW', 'ttH', 'ttgamma'],     help="Which process?")
+argParser.add_argument('--process',     action='store',         default='ttZ',      choices=['ttZ','ttH','ttW', 'ttH', 'ttgamma', 'ttgamma_ll', 'ttZ_ll'],     help="Which process?")
 argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'HEL_UFO', 'TopEffTh', 'ewkDMGZ'], help="Which madgraph model?")
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--overwrite',   action='store_true',    help="Overwrite exisiting x-sec calculation and gridpack")
