@@ -37,7 +37,6 @@ setup.estimators        = constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "ra
 setup.reweightRegions   = regionsReweight
 #setup.regions           = regionsE #already defined in Setup
 
-# Define fake samples (yields from illia)
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
