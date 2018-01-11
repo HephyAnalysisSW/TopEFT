@@ -116,6 +116,24 @@
 
 # 2016 dilepton data 
 
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016H_03Feb2017_v3 #SPLIT10
+
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  DoubleEG_Run2016H_03Feb2017_v3 #SPLIT10
+
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016B_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016C_03Feb2017 #SPLIT10
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample  DoubleMuon_Run2016D_03Feb2017 #SPLIT10
@@ -224,17 +242,17 @@
 
 
 # 2017 data 
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017C_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017D_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017E_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017F_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017F_17Nov2017 #SPLIT10
 
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017B_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017C_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017D_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT10
 
 ## 2017 MC
 #

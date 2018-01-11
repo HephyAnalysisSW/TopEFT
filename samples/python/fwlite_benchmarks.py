@@ -6,16 +6,22 @@ import os
 # RootTools
 from RootTools.core.standard import *
 
-#Top EFT
+# Top EFT
 from TopEFT.Tools.user import results_directory 
 
 dbFile = os.path.join( results_directory, 'sample_cache', 'fwlite_benchmarks.db')
+
+# Logging
+if __name__ == "__main__":
+    import TopEFT.Tools.logger as logger
+    logger = logger.get_logger('DEBUG')
+    import RootTools.core.logger as logger_rt
+    logger_rt = logger_rt.get_logger('DEBUG')
 
 # FWLite TTZ benchmarks, first shot with approx same x-Sec of 0.5pb
 #fwlite_ttZ_sm   = FWLiteSample.fromFiles( "SM", texName = "SM", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ.root"] , dbFile = dbFile)
 #fwlite_ttZ_bm1  = FWLiteSample.fromFiles( "C1Vm1p0_C1A0p5", texName = "C1V=-1.0 C1A=0.5", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ_DC1A_0.500000_DC1V_-1.000000.root"] , dbFile = dbFile)
 #fwlite_ttZ_bm2  = FWLiteSample.fromFiles( "C1V0p5_C1A0p5",  texName = "C1V=0.5 C1A=0.5", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ_DC1A_0.500000_DC1V_0.500000.root"] , dbFile = dbFile)
-
 
 # dipole moments = 0, approx SM LO x-sec
 fwlite_ttZ_ll_LO_sm                   = FWLiteSample.fromDAS("ttZ_ll_LO_sm", "/ewkDM_ttZ_ll/schoef-ewkDM-e1a069162e896efecc10f859afdda0d0/USER", "phys03", dbFile = dbFile)
@@ -104,3 +110,19 @@ HEL_UFO_ttZ_ll_GS_cuW_0p300000  = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_0p
 HEL_UFO_ttZ_ll_GS_cuW_m0p100000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p100000",  '/HEL_UFO_ttZ_ll_cuW_m0p100000/schoef-HEL_09Nov17-0fc0045464dd563d2392bedcaa76f810/USER',"phys03", dbFile = dbFile)
 HEL_UFO_ttZ_ll_GS_cuW_m0p200000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p200000",  '/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',"phys03", dbFile = dbFile)
 HEL_UFO_ttZ_ll_GS_cuW_m0p300000 = FWLiteSample.fromDAS("HEL_UFO_ttZ_ll_GS_cuW_m0p300000",  '/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',"phys03", dbFile = dbFile)
+
+# ttgamma GENSIM 10Jan18 (same as 09Nov17)
+ewkDMGZ_ttgamma_GS                             = FWLiteSample.fromDAS("ewkDMGZ_ttgamma",                               texName = "SM", dataset = "/ewkDMGZ_ttgamm/schoef-ewkDMGZ_10Jan18-aeaa22125d8feffb37fb4851b53b791f/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_0p176700_DVG_0p176700   = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_0p176700_DVG_0p176700",     texName = "DAG_0p176700_DVG_0p176700", dataset = "/ewkDMGZ_ttgamma_DAG_0p176700_DVG_0p176700/schoef-ewkDMGZ_10Jan18-e5df22259d40fbb93a1483f89a4f01c3/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_0p176700_DVG_m0p176700  = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_0p176700_DVG_m0p176700",    texName = "DAG_0p176700_DVG_m0p176700", dataset = "/ewkDMGZ_ttgamma_DAG_0p176700_DVG_m0p176700/schoef-ewkDMGZ_10Jan18-7bb1cdcd3a27eef5784fd8192a0d6d3c/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_0p250000                = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_0p250000",                  texName = "DAG_0p250000", dataset = "/ewkDMGZ_ttgamma_DAG_0p250000/schoef-ewkDMGZ_10Jan18-c114bf50343d4ea5001af086dc60663a/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_0p500000                = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_0p500000",                  texName = "DAG_0p500000", dataset = "/ewkDMGZ_ttgamma_DAG_0p500000/schoef-ewkDMGZ_10Jan18-53eb7ca41a36444347dbfa5d1eb8f146/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_m0p176700_DVG_0p176700  = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_m0p176700_DVG_0p176700",    texName = "DAG_m0p176700_DVG_0p176700", dataset = "/ewkDMGZ_ttgamma_DAG_m0p176700_DVG_0p176700/schoef-ewkDMGZ_10Jan18-d90c7701333b4a4d14abdd70c4cca05f/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_m0p176700_DVG_m0p176700 = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_m0p176700_DVG_m0p176700",   texName = "DAG_m0p176700_DVG_m0p176700", dataset = "/ewkDMGZ_ttgamma_DAG_m0p176700_DVG_m0p176700/schoef-ewkDMGZ_10Jan18-3b03f13e4eacfc5d3b18947c6d5041bd/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_m0p250000               = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_m0p250000",                 texName = "DAG_m0p250000", dataset = "/ewkDMGZ_ttgamma_DAG_m0p250000/schoef-ewkDMGZ_10Jan18-960f46f2a16cf6ec3c4df232263adfb9/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DAG_m0p500000               = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DAG_m0p500000",                 texName = "DAG_m0p500000", dataset = "/ewkDMGZ_ttgamma_DAG_m0p500000/schoef-ewkDMGZ_10Jan18-4bd8c7f48e5eb31e948fcd322bcb44d9/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DVG_0p250000                = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DVG_0p250000",                  texName = "DVG_0p250000", dataset = "/ewkDMGZ_ttgamma_DVG_0p250000/schoef-ewkDMGZ_10Jan18-1a8fd895cb71f34bbd3ce95bbb77ca2e/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DVG_0p500000                = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DVG_0p500000",                  texName = "DVG_0p500000", dataset = "/ewkDMGZ_ttgamma_DVG_0p500000/schoef-ewkDMGZ_10Jan18-0ab6a8eff6f0b7d43b7367bf908ac112/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DVG_m0p250000               = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DVG_m0p250000",                 texName = "DVG_m0p250000", dataset = "/ewkDMGZ_ttgamma_DVG_m0p250000/schoef-ewkDMGZ_10Jan18-d85a699ce5638264e73cf49aaa94d300/USER",instance="phys03", dbFile = dbFile)
+ewkDMGZ_ttgamma_GS_DVG_m0p500000               = FWLiteSample.fromDAS("ewkDMGZ_ttgamma_DVG_m0p500000",                 texName = "DVG_m0p500000", dataset = "/ewkDMGZ_ttgamma_DVG_m0p500000/schoef-ewkDMGZ_10Jan18-03c3d75a3e972ff3aa153d593f21023a/USER",instance="phys03", dbFile = dbFile)
+
