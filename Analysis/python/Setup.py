@@ -160,7 +160,7 @@ class Setup:
            channel: all, EE, MuMu or EMu
            zWindow: offZ, onZ, or allZ
            hadronicSelection: whether to return only the hadronic selection
-       isFastSim: adjust filter cut etc. for fastsim
+           isFastSim: adjust filter cut etc. for fastsim
         '''
         #Consistency checks
         if self.sys['selectionModifier']:
@@ -236,7 +236,7 @@ class Setup:
             res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
-        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), badMuonFilters='Moriond2017Official', isFastSim=isFastSim))
+        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

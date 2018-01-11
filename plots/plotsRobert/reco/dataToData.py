@@ -96,7 +96,7 @@ def drawPlots(plots, mode, lumi_scale):
       ratio_histos = [ (2*i,2*i+1) for i in range(l/2) ] 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
-	    ratio = {'yRange':(0.1,1.9), 'histos':ratio_histos},
+	    ratio = {'yRange':(0.1,1.9), 'histos':ratio_histos, 'texY': '2017 / 2016'},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling,
@@ -157,13 +157,13 @@ for index, mode in enumerate(allModes):
     else: raise ValueError    
 
     for i_s, data_2017_sample in enumerate(data_2017_samples):
-        data_2017_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2017", year=2017), getLeptonSelection(mode)])
+        data_2017_sample.setSelectionString([getFilterCut(isData=True, year=2017), getLeptonSelection(mode)])
         data_2017_sample.read_variables = ["evt/I","run/I"]
         data_2017_sample.style          = styles.errorStyle(colors[i_s])
         lumi_2017_scale                 = data_2017_sample.lumi/1000
 
     for i_s, data_2016_sample in enumerate(data_2016_samples):
-        data_2016_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = "Summer2016", year=2016), getLeptonSelection(mode)])
+        data_2016_sample.setSelectionString([getFilterCut(isData=True, year=2016), getLeptonSelection(mode)])
         data_2016_sample.read_variables = ["evt/I","run/I"]
         data_2016_sample.style          = styles.lineStyle(colors[i_s]+1, errors=True)
         lumi_2016_scale                 = data_2016_sample.lumi/1000

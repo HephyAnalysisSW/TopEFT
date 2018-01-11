@@ -29,7 +29,6 @@ argParser.add_argument('--reweightPtZToSM',                         action='stor
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v14')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
-argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
 #
@@ -41,7 +40,6 @@ logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
-if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal and args.signal is not None: args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
@@ -126,7 +124,7 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # reweighting 
 if args.reweightPtZToSM:
-    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
+    sel_string = "&&".join([getFilterCut(isData=False), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
     TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
     TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
 
@@ -328,7 +326,7 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
 
       stack = Stack(mc)
 

@@ -29,7 +29,6 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v14')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
-argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
 #
@@ -44,12 +43,10 @@ if args.year == 2017:
     args.signal  = None
     args.onlyTTZ = False
     args.reweightPtZToSM = False
-    args.badMuonFilters = 'Summer2017'
 
 if args.small:                        args.plot_directory += "_small"
 if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
-if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
@@ -149,7 +146,7 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # reweighting 
 if args. reweightPtZToSM:
-    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
+    sel_string = "&&".join([getFilterCut(isData=False, year=args.year), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
     TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
     TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
 
@@ -343,7 +340,7 @@ for index, mode in enumerate(allModes):
       if   mode=="muee": 
           data_sample.texName = "data (1#mu, 2e)"
 
-      data_sample.setSelectionString([getFilterCut(isData=True, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection(mode)])
+      data_sample.setSelectionString([getFilterCut(isData=True, year=args.year), getLeptonSelection(mode)])
       data_sample.name           = "data"
       data_sample.read_variables = ["evt/I","run/I"]
       data_sample.style          = styles.errorStyle(ROOT.kBlack)
@@ -356,7 +353,7 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters, year=args.year), getLeptonSelection(mode)])
+      sample.setSelectionString([getFilterCut(isData=False, year=args.year), getLeptonSelection(mode)])
 
     if not args.noData:
       stack = Stack(mc, data_sample)
