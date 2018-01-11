@@ -23,7 +23,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v18')
+argParser.add_argument('--plot_directory',     action='store',      default='TopEFT_PP_2017_v19')
 argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -40,15 +40,15 @@ if args.small:                        args.plot_directory += "_small"
 # Make samples, will be searched for in the postProcessing directory
 #
 
-postProcessing_directory = "TopEFT_PP_2017_v18/dilep"
+postProcessing_directory = "TopEFT_PP_2017_v19/dilep"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples"  
-from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 postProcessing_directory = "TopEFT_PP_v14/dilep/"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
-# define 3l selections
+# define 2l selections
 def getLeptonSelection( mode ):
   if   mode=="mumu": return "nGoodMuons==2&&nGoodElectrons==0"
   elif mode=="mue":  return "nGoodMuons==1&&nGoodElectrons==1"
@@ -117,38 +117,39 @@ colors = [ROOT.kBlue, ROOT.kMagenta, ROOT.kGreen, ]
 #
 yields     = {}
 allPlots   = {}
-allModes   = ['mumu','mue','ee']
+#allModes   = ['mumu','mue','ee']
+allModes   = ['mumu','ee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if mode == "mumu":
-        data_2016_sample            = SingleMuon_Run2016 
+        data_2016_sample            = DoubleMuon_Run2016 
         data_2016_sample.texName    = "data 2016 (2#mu)"
-        data_2017BC_sample          = SingleMuon_Run2017BC 
+        data_2017BC_sample          = DoubleMuon_Run2017BC 
         data_2017BC_sample.texName  = "data 2017BC (2#mu)"
-        data_2017Cv2D_sample        = SingleMuon_Run2017Cv2D 
-        data_2017Cv2D_sample.texName= "data 2017Cv2D (2#mu)"
-        data_2017EF_sample          = SingleMuon_Run2017EF 
+        data_2017D_sample           = DoubleMuon_Run2017D 
+        data_2017D_sample.texName   = "data 2017D (2#mu)"
+        data_2017EF_sample          = DoubleMuon_Run2017EF 
         data_2017EF_sample.texName  = "data 2017EF (2#mu)"
-        data_2017_samples           = [data_2017BC_sample, SingleMuon_Run2017Cv2D, data_2017EF_sample]
+        data_2017_samples           = [data_2017BC_sample, DoubleMuon_Run2017D, data_2017EF_sample]
         data_2016_samples           = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == "ee":
-        data_2016_sample            = SingleElectron_Run2016
+        data_2016_sample            = DoubleEG_Run2016
         data_2016_sample.texName    = "data 2016 (2e)"
-        data_2017BC_sample          = SingleElectron_Run2017BC 
+        data_2017BC_sample          = DoubleEG_Run2017BC 
         data_2017BC_sample.texName  = "data 2017BC (2e)"
-        data_2017Cv2D_sample        = SingleElectron_Run2017Cv2D 
-        data_2017Cv2D_sample.texName= "data 2017Cv2D (2e)"
-        data_2017EF_sample          = SingleElectron_Run2017EF 
+        data_2017D_sample           = DoubleEG_Run2017D 
+        data_2017D_sample.texName   = "data 2017D (2e)"
+        data_2017EF_sample          = DoubleEG_Run2017EF 
         data_2017EF_sample.texName  = "data 2017EF (2e)"
-        data_2017_samples           = [data_2017BC_sample, data_2017Cv2D_sample, SingleElectron_Run2017EF]
+        data_2017_samples           = [data_2017BC_sample, data_2017D_sample, DoubleEG_Run2017EF]
         data_2016_samples           = [copy.deepcopy(data_2016_sample) for x in data_2017_samples]
     elif mode == 'mue':
         data_2016_sample            = SingleEleMu_Run2016
         data_2016_sample.texName    = "data 2016 (1#mu, 1e)"
         data_2017BC_sample          = SingleEleMu_Run2017BC 
         data_2017BC_sample.texName  = "data 2017BC (1#mu, 1e)"
-        data_2017Cv2D_sample        = SingleEleMu_Run2017EF 
-        data_2017Cv2D_sample.texName= "data 2017EF (1#mu, 1e)"
+        data_2017D_sample           = SingleEleMu_Run2017EF 
+        data_2017D_sample.texName   = "data 2017EF (1#mu, 1e)"
         data_2017EF_sample          = SingleEleMu_Run2017EF 
         data_2017EF_sample.texName  = "data 2017EF (1#mu, 1e)"
         data_2017_samples           = [data_2017BC_sample, data_2017Cv2D_sample, data_2017EF_sample]
@@ -656,12 +657,12 @@ for index, mode in enumerate(allModes):
 for mode in ["comb1","comb2","all"]:
     yields[mode] = {}
     for y in yields[allModes[0]]:
-        try:    yields[mode][y] = sum(yields[c][y] for c in ['ee','mue', 'mumu'])
+        try:    yields[mode][y] = sum(yields[c][y] for c in allModes)
         except: yields[mode][y] = 0
     
     for plot in allPlots['mumu']:
         if mode=="comb1":
-            tmp = allPlots['mue']
+            tmp = allPlots['mue'] if 'mue' in allModes else []
         elif mode=="comb2":
             tmp = allPlots['ee']
         for plot2 in (p for p in tmp if p.name == plot.name):

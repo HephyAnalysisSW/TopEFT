@@ -93,6 +93,9 @@ variables     += ["top[%s]"%top_vars]
 # Z vector
 Z_read_varnames= [ 'pt', 'phi', 'eta', 'mass']
 variables     += ["Z_pt/F", "Z_phi/F", "Z_eta/F", "Z_mass/F", "Z_cosThetaStar/F", "Z_daughterPdg/I"]
+# gamma vector
+gamma_read_varnames= [ 'pt', 'phi', 'eta', 'mass']
+variables     += ["gamma_pt/F", "gamma_phi/F", "gamma_eta/F", "gamma_mass/F"]
 
 def fill_vector( event, collection_name, collection_varnames, objects):
     setattr( event, "n"+collection_name, len(objects) )
@@ -139,6 +142,15 @@ def filler( event ):
         event.Z_daughterPdg = lm.pdgId()
         event.Z_cosThetaStar = cosThetaStar(gen_Z.mass(), gen_Z.pt(), gen_Z.eta(), gen_Z.phi(), lm.pt(), lm.eta(), lm.phi())
 
+    gen_Gammas = filter( lambda p:abs(p.pdgId())==22 and search.isLast(p), gp)
+    gen_Gammas.sort( key = lambda p: -p.pt() )
+    if len(gen_Gammas)>0: 
+        gen_Gamma = gen_Gammas[0]
+        for var in gamma_read_varnames:
+           setattr( event, "gamma_"+var,  getattr(gen_Gamma, var)() )
+    else:
+        gen_Gamma = None
+    
     # find all leptons 
     leptons = [ (search.ascend(l), l) for l in filter( lambda p:abs(p.pdgId()) in [11, 13] and search.isLast(p) and p.pt()>=0,  gp) ]
     leps    = []
