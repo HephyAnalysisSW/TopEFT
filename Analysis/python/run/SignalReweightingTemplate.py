@@ -141,5 +141,5 @@ if __name__ == "__main__":
 
         ROOT.gStyle.SetPaintTextFormat("2.2f")        
          
-        plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = False, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])
+        plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = True, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])
     

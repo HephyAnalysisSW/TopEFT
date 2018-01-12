@@ -48,6 +48,8 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
     else: 
         if MCgeneration == "Summer17":
             module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2'
+        elif MCgeneration == "Fall17":
+            module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2'
         else:
             module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2'
 
@@ -89,6 +91,9 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
             elif "Summer17" in heppy_sample.dataset:
                 from TopEFT.samples.heppy_dpm_samples import Summer17_heppy_mapper
                 return Summer17_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "Fall17" in heppy_sample.dataset:
+                from TopEFT.samples.heppy_dpm_samples import Fall17_heppy_mapper
+                return Fall17_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ttZ0j_ll" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_0j_0l_heppy_mapper
                 return signal_0j_0l_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)

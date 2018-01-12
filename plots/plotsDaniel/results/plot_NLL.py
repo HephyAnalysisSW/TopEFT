@@ -37,6 +37,10 @@ signals = [ x for x in allSamples_dim6top if x.name.startswith("dim6top_LO_ttZ_l
 
 signals = [ dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m2p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p60, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p20, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p80, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p40, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p40, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p80, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p20, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p60, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_2p00 ]
 
+signals = [ dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p00 ]
+
+
+
 #signals = sorted(signals)
 #print signals
 
@@ -58,7 +62,8 @@ for s in signals:
     NLL_list.append(float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs )
 
 # Create histogram and function to fit
-hist = ROOT.TH1F("NLL","", 41,-1,1)
+#hist = ROOT.TH1F("NLL","", 41,-1,1)
+hist = ROOT.TH1F("NLL","", 41,-2.01,2.01)
 hist.SetStats(0)
 #hist = ROOT.TGraph()
 
@@ -69,7 +74,9 @@ fun.SetLineStyle(3)
 
 # this needs to be automatized
 
-x_values = [-0.25, -0.15, 0, 0.05, 0.10, 0.2, 0.3]
+#x_values = [-0.25, -0.15, 0, 0.05, 0.10, 0.2, 0.3]
+x_values = [2*i/5. for i in range(-5,6)] 
+print x_values
 for i, x in enumerate(x_values):
     print x, 2*NLL_list[i]
     if NLL_list[i]<0.001: NLL_list[i]=0.001
@@ -97,7 +104,10 @@ can = ROOT.TCanvas("can","",700,700)
 
 hist.SetMinimum(0)
 hist.SetMaximum(30)
-hist.GetXaxis().SetRangeUser(-0.3,0.3) 
+x_min = min(x_values)
+x_max = max(x_values)
+print x_min, x_max
+hist.GetXaxis().SetRangeUser(x_min, x_max) 
 hist.SetLineWidth(0)
 hist.SetMarkerStyle(10)
 #hist.GetYaxis().SetTitle("-2 log #frac{L(BSM)}{L(SM)}")
@@ -109,15 +119,15 @@ hist.Draw()
 #fun.Draw("same")
 
 
-one = ROOT.TF1("one","[0]",-1,1)
+one = ROOT.TF1("one","[0]",-10,10)
 one.SetParameter(0,1)
 one.SetLineColor(ROOT.kOrange)
 
-four = ROOT.TF1("four","[0]",-1,1)
+four = ROOT.TF1("four","[0]",-10,10)
 four.SetParameter(0,4)
 four.SetLineColor(ROOT.kOrange+10)
 
-nine = ROOT.TF1("nine","[0]",-1,1)
+nine = ROOT.TF1("nine","[0]",-10,10)
 nine.SetParameter(0,9)
 nine.SetLineColor(ROOT.kRed+1)
 
@@ -126,8 +136,8 @@ minus1  = ROOT.TLine(fun.GetX(1,-1,0),0,fun.GetX(1,-1,0),1)
 plus1.SetLineColor(ROOT.kOrange)
 minus1.SetLineColor(ROOT.kOrange)
 
-plus2   = ROOT.TLine(fun.GetX(4,0,1),0,fun.GetX(4,0,1),4) 
-minus2  = ROOT.TLine(fun.GetX(4,-0.5,0),0,fun.GetX(4,-0.5,0),4)
+plus2   = ROOT.TLine(fun.GetX(4,0,2.5),0,fun.GetX(4,0,2.5),4) 
+minus2  = ROOT.TLine(fun.GetX(4,-2.5,0),0,fun.GetX(4,-2.5,0),4)
 plus2.SetLineColor(ROOT.kOrange+10)
 minus2.SetLineColor(ROOT.kOrange+10)
 

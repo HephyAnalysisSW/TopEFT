@@ -72,6 +72,7 @@ def get_parser():
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
     argParser.add_argument('--year',                        action='store',                     type=int,                           default=2016, choices=[2016,2017],  help="Which year?")
+    argParser.add_argument('--MCgeneration',                action='store',                     type=str,                           default="Summer2017", choices=["Summer16", "Summer17", "Fall17"],  help="Which MC generation?")
 
     return argParser
 
@@ -107,8 +108,12 @@ if isInclusive:
 
 maxN = 2 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
-if options.year==2017:      MCgeneration = "Summer17"
-else:               MCgeneration = "Summer16"
+
+# select MC generation. For 2016, always use Summer16
+MCgeneration = options.MCgeneration
+if options.year==2016:
+    MCgeneration = "Summer16"
+
 samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
 logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
