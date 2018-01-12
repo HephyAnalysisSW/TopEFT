@@ -55,11 +55,11 @@ GC_11 = Coupling(name = 'GC_11',
 
 GC_12 = Coupling(name = 'GC_12',
                  value = '-(DAG*ee*projThirdGen3x3)/(2.*MT)',
-                 order = {'QED':1})
+                 order = {'QED':1,'NP':1})
 
 GC_13 = Coupling(name = 'GC_13',
                  value = '(DVG*ee*complex(0,1)*projThirdGen3x3)/(2.*MT)',
-                 order = {'QED':1})
+                 order = {'QED':1,'NP':1})
 
 GC_14 = Coupling(name = 'GC_14',
                  value = '-(DC2A*ee*projThirdGen3x3)/(2.*MZ)',
