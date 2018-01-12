@@ -12,4 +12,4 @@ define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 define w = w+ w-
 
-generate p p > t t~ a , (t > W+ b, W+ > l+ vl), (t~ > W- b~, W- > l- vl~) NP=1
+generate p p > t t~ a NP=1, (t > W+ b, W+ > l+ vl), (t~ > W- b~, W- > l- vl~) 
