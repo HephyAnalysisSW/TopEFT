@@ -12,30 +12,30 @@ import shutil
 
 from array import array
 from operator import mul
-from math import sqrt, atan2, sin, cos
+from math import sqrt, atan2, sin, cos, cosh
 
 # RootTools
 from RootTools.core.standard import *
 
 # User specific
-import TopEFT.tools.user as user
+import TopEFT.Tools.user as user
 
 # Tools for systematics
-from TopEFT.tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ
-from TopEFT.tools.addJERScaling              import addJERScaling
-from TopEFT.tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
-from TopEFT.tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
-from TopEFT.tools.overlapRemovalTTG          import getTTGJetsEventType
-from TopEFT.tools.getGenBoson                import getGenZ, getGenPhoton
-#from TopEFT.tools.triggerEfficiency          import triggerEfficiency
-#from TopEFT.tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
+from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar
+from TopEFT.Tools.addJERScaling              import addJERScaling
+from TopEFT.Tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
+from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
+from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
+from TopEFT.Tools.getGenBoson                import getGenZ, getGenPhoton
+#from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
+#from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 
 #triggerEff_withBackup   = triggerEfficiency(with_backup_triggers = True)
 #triggerEff              = triggerEfficiency(with_backup_triggers = False)
 #leptonTrackingSF        = leptonTrackingEfficiency()
 
 #MC tools
-from TopEFT.tools.mcTools import pdgToName, GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
+from TopEFT.Tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
 genSearch = GenSearch()
 
 # central configuration
@@ -66,18 +66,20 @@ def get_parser():
     argParser.add_argument('--keepAllJets',                 action='store_true',                                                                                        help="Keep all jets?")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
-    argParser.add_argument('--skipGenLepMatching',          action='store_true',                                                                                        help="skip matched genleps??")
+    argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
+    argParser.add_argument('--year',                        action='store',                     type=int,                           default=2016, choices=[2016,2017],  help="Which year?")
+    argParser.add_argument('--MCgeneration',                action='store',                     type=str,                           default="Summer2017", choices=["Summer16", "Summer17", "Fall17"],  help="Which MC generation?")
 
     return argParser
 
 options = get_parser().parse_args()
 
 # Logging
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job[0]))
 logger  = logger.get_logger(options.logLevel, logFile = logFile)
 
@@ -88,7 +90,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 isDiLep     =   options.skim.lower().startswith('dilep')
 isTriLep    =   options.skim.lower().startswith('trilep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
-isInclusive = options.skim.lower().count('inclusive') 
+isInclusive =   options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
 
 writeToDPM = options.targetDir == '/dpm/'
@@ -106,7 +108,13 @@ if isInclusive:
 
 maxN = 2 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
-samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN) for s in options.samples ]
+
+# select MC generation. For 2016, always use Summer16
+MCgeneration = options.MCgeneration
+if options.year==2016:
+    MCgeneration = "Summer16"
+
+samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
 logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
 if len(samples)==0:
@@ -127,20 +135,43 @@ diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
 EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
 
 if isData and options.triggerSelection is not None:
-    if options.triggerSelection == 'mu':
-        skimConds.append( "(HLT_SingleMuTTZ)" )
-    elif options.triggerSelection == 'e':
-        skimConds.append( "(HLT_SingleEleTTZ)" )
-    elif options.triggerSelection == 'e_for_mu':
-        skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-    elif options.triggerSelection == 'ee':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-    elif options.triggerSelection == 'mue':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-    elif options.triggerSelection == 'mumu':
-        skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-    else:
-        raise ValueError( "Don't know about triggerSelection %s"%options.triggerSelection )
+    if options.year == 2016:
+        if options.triggerSelection == 'mu':
+            skimConds.append( "(HLT_SingleMuTTZ)" )
+        elif options.triggerSelection == 'e':
+            skimConds.append( "(HLT_SingleEleTTZ)" )
+        elif options.triggerSelection == 'e_for_mu':
+            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
+        elif options.triggerSelection == 'ee':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+        elif options.triggerSelection == 'mue':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+        elif options.triggerSelection == 'mumu':
+            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+        else:
+            raise ValueError( "Don't know about triggerSelection %s in %i "%(options.triggerSelection, options.year) )
+    elif options.year == 2017:
+        if options.triggerSelection == 'mu':
+            skimConds.append( "(HLT_SingleMuTTZ)" )
+        elif options.triggerSelection == 'e':
+            skimConds.append( "(HLT_SingleEleTTZ)" )
+        elif options.triggerSelection == 'e_for_mu':
+            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
+        #if options.triggerSelection == 'mu':
+        #    skimConds.append( "HLT_IsoMu27" )
+        #elif options.triggerSelection == 'e':
+        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)" )
+        #elif options.triggerSelection == 'e_for_mu':
+        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)&(!HLT_IsoMu27)" )
+        #elif options.triggerSelection == 'ee':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
+        #elif options.triggerSelection == 'mue':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
+        #elif options.triggerSelection == 'mumu':
+        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
+        else:
+            raise ValueError( "Don't know about triggerSelection %s in %i"%(options.triggerSelection, options.year) )
+
     sample_name_postFix = "_Trig_"+options.triggerSelection
     logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
 else:
@@ -161,7 +192,7 @@ else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
 if isMC:
-    from TopEFT.tools.puReweighting import getReweightingFunction
+    from TopEFT.Tools.puReweighting import getReweightingFunction
     mcProfile = "Summer16"
     # nTrueIntReweighting
     nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
@@ -174,7 +205,7 @@ isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sa
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
 
-    from TopEFT.tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
+    from TopEFT.Tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
 
     logger.info( "Sample will have top pt reweighting." )
     topPtReweightingFunc = getUnscaledTopPairPtReweightungFunction(selection = "dilep")
@@ -191,16 +222,16 @@ else:
 addSystematicVariations = (not isData) and (not options.skipSystematicVariations)
 if addSystematicVariations:
     # B tagging SF
-    from TopEFT.tools.btagEfficiency import btagEfficiency
+    from TopEFT.Tools.btagEfficiency import btagEfficiency
     
     # CSVv2
-    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
     btagEff_CSVv2   = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
     # DeepCSV
-    effFile         = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
+    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
+    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
     btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
@@ -216,7 +247,7 @@ if writeToDPM:
     directory = os.path.join('/tmp/%s'%os.environ['USER'], str(uuid.uuid4()), options.processingEra)
     if not os.path.exists( directory ):
         os.makedirs( directory )
-    from TopEFT.tools.user import dpm_directory as user_dpm_directory
+    from TopEFT.Tools.user import dpm_directory as user_dpm_directory
 else:
     directory  = os.path.join(options.targetDir, options.processingEra) 
 
@@ -309,6 +340,8 @@ if sample.isData:
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
     sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
+    if options.year==2017:
+        sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
     lumiList = LumiList(os.path.expandvars(sample.heppy.json))
     logger.info( "Loaded json %s", sample.heppy.json )
 else:
@@ -348,9 +381,10 @@ if isMC:
 
     new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
 
-    if not options.skipGenLepMatching:
+    if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
         new_variables.append( 'GenLep[%s]'% ( ','.join(genLepVars) ) )
+        new_variables.extend(['genZ_pt/F', 'genZ_mass/F', 'genZ_eta/F', 'genZ_phi/F', 'genZ_cosThetaStar/F', 'genZ_daughter_flavor/I' ])
 
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
@@ -365,7 +399,7 @@ read_variables += [\
 ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
-new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F'] )
+new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
 
 if options.leptonConvinience:
     lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
@@ -379,7 +413,7 @@ new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
-new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F'] )
+new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F'] )
 
 if options.keepPhotons: 
     new_variables.extend( ['nPhotonGood/I','photon_pt/F','photon_eta/F','photon_phi/F','photon_idCutBased/I'] )
@@ -521,6 +555,11 @@ def filler( event ):
         event.Z_phi  = Z.Phi()
         event.Z_lldPhi = deltaPhi(leptons[event.Z_l1_index]['phi'], leptons[event.Z_l2_index]['phi'])
         event.Z_lldR   = deltaR(leptons[event.Z_l1_index], leptons[event.Z_l2_index])
+        
+        ## get the information for cos(theta*)
+        # get the Z and lepton (negative charge) vectors
+        lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+        event.cosThetaStar = cosThetaStar(event.Z_mass, event.Z_pt, event.Z_eta, event.Z_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
     # Jets and lepton jet cross-cleaning    
     allJets      = getAllJets(r, leptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
@@ -634,10 +673,13 @@ def filler( event ):
                 setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
 
     # gen information on extra leptons
-    if isMC and not options.skipGenLepMatching:
+    if isMC and not options.skipGenMatching:
         genSearch.init( gPart )
-        # Start with status 1 gen leptons in acceptance
-        gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1 and p['pt']>20 and abs(p['eta'])<2.5, gPart )
+        # Start with status 1 gen leptons
+
+        # gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1 and p['pt']>10 and abs(p['eta'])<2.5, gPart )
+        # ... no acceptance cuts
+        gLep = filter( lambda p:abs(p['pdgId']) in [11, 13] and p['status']==1, gPart )
         for l in gLep:
             ancestry = [ gPart[x]['pdgId'] for x in genSearch.ancestry( l ) ]
             l["n_D"]   =  sum([ancestry.count(p) for p in D_mesons])
@@ -651,11 +693,27 @@ def filler( event ):
             else:
                 l["lepGood2MatchIndex"] = -1
 
+        # store genleps
         event.nGenLep   = len(gLep)
         for iLep, lep in enumerate(gLep):
             for b in genLepVarNames:
                 getattr(event, "GenLep_"+b)[iLep] = lep[b]
 
+        # gen Z
+        genZs = filter( lambda p: (abs(p['pdgId'])==23 and genSearch.isLast(p)), gPart )
+        genZs.sort( key = lambda p: -p['pt'] )
+        if len( genZs )>0:
+            genZ = genZs[0]
+            event.genZ_pt  = genZ['pt'] 
+            event.genZ_mass= genZ['mass']
+            event.genZ_eta = genZ['eta']
+            event.genZ_phi = genZ['phi']
+
+            lep_m = filter( lambda p: p['pdgId'] in [11, 13, 15], genSearch.daughters( genZ ) )
+            event.genZ_daughter_flavor = max([p['pdgId'] for p in genSearch.daughters( genZ )])
+            if len( lep_m ) == 1:
+                event.genZ_cosThetaStar = cosThetaStar( event.genZ_mass, event.genZ_pt, event.genZ_eta, event.genZ_phi, lep_m[0]['pt'], lep_m[0]['eta'], lep_m[0]['phi'] )
+    
 # Create a maker. Maker class will be compiled. This instance will be used as a parent in the loop
 treeMaker_parent = TreeMaker(
     sequence  = [ filler ],
@@ -739,7 +797,7 @@ logger.info( "Converted %i events of %i, cloned %i",  convertedEvents, reader.nE
 
 # Storing JSON file of processed events
 if isData:
-    jsonFile = filename+'.json'
+    jsonFile = filename+'_%s.json'%(0 if options.nJobs==1 else options.job[0])
     LumiList( runsAndLumis = outputLumiList ).writeJSON(jsonFile)
     logger.info( "Written JSON file %s",  jsonFile )
 

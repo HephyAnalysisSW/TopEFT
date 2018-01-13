@@ -55,8 +55,20 @@ if __name__ == '__main__':
         ##'/HEL_UFO_ttZ_ll_cuW_0p200000/schoef-HEL_09Nov17-6a3c68b4249a638b0436b57c064ddea6/USER',
         #'/HEL_UFO_ttZ_ll_cuW_0p300000/schoef-HEL_09Nov17-a046fa0828dd90306ca134e402fb046d/USER',
         #'/HEL_UFO_ttZ_ll_cuW_m0p100000/schoef-HEL_09Nov17-0fc0045464dd563d2392bedcaa76f810/USER',
-        '/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',
-        '/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',
+        #'/HEL_UFO_ttZ_ll_cuW_m0p200000/schoef-HEL_09Nov17-6333492b80f6cd9d334ac349cec18447/USER',
+        #'/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-HEL_09Nov17-10730607a8d7ab9f15cbeb533e6f3d6f/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_0p176700_DVG_0p176700/schoef-ewkDMGZ_13Jan18-8535cd1a787d6fa7f8a7a05199d3edde/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_0p176700_DVG_m0p176700/schoef-ewkDMGZ_13Jan18-b7bab8838a6aeb18c09f864cdfe2a9eb/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_0p250000/schoef-ewkDMGZ_13Jan18-4ac23fdc8a66f12a69a622699758bc9d/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_0p500000/schoef-ewkDMGZ_13Jan18-18dde3b42a9237fb927cedad0ac35dde/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_m0p176700_DVG_0p176700/schoef-ewkDMGZ_13Jan18-1618b4d5c07807df3681ed7c992b5835/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_m0p176700_DVG_m0p176700/schoef-ewkDMGZ_13Jan18-118fb68aa0ea31b4bbf4cbe353bbd4b3/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_m0p250000/schoef-ewkDMGZ_13Jan18-f39ba0034177ba838f3f50aa0b713cda/USER',
+       '/ewkDMGZ_ttgamma_ll_DAG_m0p500000/schoef-ewkDMGZ_13Jan18-5eece2b828b074f947e49112af463185/USER',
+       '/ewkDMGZ_ttgamma_ll_DVG_0p250000/schoef-ewkDMGZ_13Jan18-13fd77e3f628a22eecb605d9bbb2fe86/USER',
+       '/ewkDMGZ_ttgamma_ll_DVG_0p500000/schoef-ewkDMGZ_13Jan18-75f111e46f64982c0fc914c419d19b0a/USER',
+       '/ewkDMGZ_ttgamma_ll_DVG_m0p250000/schoef-ewkDMGZ_13Jan18-bbc2ae83034adfca77c32081695aab14/USER',
+       '/ewkDMGZ_ttgamma_ll_DVG_m0p500000/schoef-ewkDMGZ_13Jan18-e34a55ccbdc53c17a664524d154e2a43/USER',
     ]:
         config.Data.inputDataset = input_dataset
         config.General.requestName = input_dataset.split('/')[1] 

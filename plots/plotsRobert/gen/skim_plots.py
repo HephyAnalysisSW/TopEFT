@@ -9,8 +9,8 @@ ROOT.gROOT.SetBatch(True)
 
 from math                                import sqrt, cos, sin, pi, isnan
 from RootTools.core.standard             import *
-from TopEFT.tools.user                   import plot_directory
-from TopEFT.tools.helpers                import deltaPhi
+from TopEFT.Tools.user                   import plot_directory
+from TopEFT.Tools.helpers                import deltaPhi
 
 #
 # Arguments
@@ -27,7 +27,7 @@ args = argParser.parse_args()
 #
 # Logger
 #
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)

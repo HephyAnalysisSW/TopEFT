@@ -10,10 +10,10 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi, atan2, cosh, sinh
 from RootTools.core.standard      import *
-from TopEFT.tools.user            import plot_directory
-from TopEFT.tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.tools.objectSelection import getFilterCut, isBJet
-from TopEFT.tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
+from TopEFT.Tools.objectSelection import getFilterCut, isBJet, isAnalysisJet
+from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
 # Arguments
@@ -21,80 +21,87 @@ from TopEFT.tools.cutInterpreter  import cutInterpreter
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "ewkDM_dipoleEllipsis", 'ewkDM_currentEllipsis'], help="Add signal to plot")
+argParser.add_argument('--signal',             action='store',      default=None,       nargs='?', choices=[None, 'dipoleEllipsis', 'currentEllipsis', 'C2VA0p2', 'cuW'], help='Add signal to plot')
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+#argParser.add_argument('--Run2017',                                 action='store_true',     help='2017 data & MC?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v5')
+argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
+argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v14')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
-argParser.add_argument('--badMuonFilters',     action='store',      default="Summer2016",  help="Which bad muon filters" )
 args = argParser.parse_args()
 
 #
 # Logger
 #
-import TopEFT.tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
-if args.badMuonFilters!="Summer2016": args.plot_directory += "_badMuonFilters_"+args.badMuonFilters
-if args.signal:                       args.plot_directory += "_signal_"+args.signal
+if args.signal and args.signal is not None: args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
+if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
 
 #
 # Make samples, will be searched for in the postProcessing directory
 #
+
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_v12/trilep/"
+data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_v11/trilep/"
-from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
+if args.signal is None:
+    signals = []
+elif args.signal ==  "C2VA0p2":
+    signals = [ttZ0j_ll, ttZ0j_ll_DC2A_0p200000_DC2V_0p200000]
+    ttZ0j_ll.style = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC2A_0p200000_DC2V_0p200000.style = styles.lineStyle( ROOT.kBlue,   width=2, dotted=False )
 
-signals = [ewkDM_TTZToLL_LO, ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2]
-ewkDM_TTZToLL_LO.style = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
-ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2.style = styles.lineStyle( ROOT.kBlue,   width=2, dotted=False )
+elif args.signal == "currentEllipsis": 
+    ttZ0j_ll.style                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p500000_DC1V_0p500000.style  = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False ) 
+    ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000.style = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_1p000000.style                = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
 
-#if args.signal.startswith( "ewkDM" ):
-#    postProcessing_directory = "TopEFT_PP_v11/trilep/"
-#    from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
-#    ewkDM_0     = ewkDM_TTZToLL_LO
-#    ewkDM_1     = ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 
-#
-#    ewkDM_0.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=False, dashed=False )
-#    ewkDM_1.style = styles.lineStyle( ROOT.kBlack, width=3, dotted=True )
-#
-##    ewkDM_dipole_2     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p1767_DC2V_m0p1767
-##    ewkDM_dipole_3     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767
-##    ewkDM_dipole_4     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767
-##    ewkDM_dipole_5     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_0p25
-##    ewkDM_dipole_6     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p25
-##    ewkDM_dipole_7     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_0p25
-##    ewkDM_dipole_8     = ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2V_m0p25
-#
-##    ewkDM_dipole_2.style = styles.lineStyle( ROOT.kMagenta, width=3)
-##    ewkDM_dipole_3.style = styles.lineStyle( ROOT.kMagenta, width=3, dotted=True)
-##    ewkDM_dipole_4.style = styles.lineStyle( ROOT.kMagenta, width=3, dashed=True)
-##
-##    ewkDM_dipole_5.style = styles.lineStyle( ROOT.kBlue, width=3)
-##    ewkDM_dipole_6.style = styles.lineStyle( ROOT.kBlue, width=3, dotted=True)
-##    ewkDM_dipole_7.style = styles.lineStyle( ROOT.kGreen+2, width=3)
-##    ewkDM_dipole_8.style = styles.lineStyle( ROOT.kGreen+2, width=3, dotted=True)
-##
-##    ewkDM_current_0 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_0p50
-##    ewkDM_current_1 = ewkDM_ttZ_ll_DC1A_0p50_DC1V_m1p00
-##    ewkDM_current_0.style = styles.lineStyle( ROOT.kBlue)
-##    ewkDM_current_1.style = styles.lineStyle( ROOT.kGreen+2)
-#
-#    if args.signal == 'ewkDM_dipoleEllipsis':
-#        signals = [ewkDM_dipole_2,ewkDM_dipole_3,ewkDM_dipole_4,ewkDM_dipole_5,ewkDM_dipole_6,ewkDM_dipole_7,ewkDM_dipole_8]
-#    elif args.signal == 'ewkDM_currentEllipsis':
-#        signals = [ewkDM_current_0, ewkDM_current_1]
-#    else:
-#        raise ValueError
-#else:
-#    signals = []
+    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000, ttZ0j_ll_DC1A_1p000000]
+elif args.signal == "dipoleEllipsis":
+    ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700.style     = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700.style    = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000.style                   = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700.style    = styles.lineStyle( ROOT.kMagenta, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700.style   = styles.lineStyle( ROOT.kCyan, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000.style                  = styles.lineStyle( ROOT.kAzure, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000.style                  = styles.lineStyle( ROOT.kGreen+2, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000.style                   = styles.lineStyle( ROOT.kMagenta+2, width=2, dotted=False, dashed=False )
+    signals = [
+        ttZ0j_ll, 
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000,
+        ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000
+    ]
+elif args.signal == 'cuW':
+
+    ttZ0j_ll.style               = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_0p100000.style  = styles.lineStyle( ROOT.kBlue, width=2, dotted=False, dashed=False ) 
+    ttZ0j_ll_cuW_0p200000.style  = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_0p300000.style  = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p100000.style = styles.lineStyle( ROOT.kMagenta, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p200000.style = styles.lineStyle( ROOT.kOrange, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_cuW_m0p300000.style = styles.lineStyle( ROOT.kAzure, width=2, dotted=False, dashed=False )
+
+    signals = [ttZ0j_ll, ttZ0j_ll_cuW_0p100000, ttZ0j_ll_cuW_0p200000, ttZ0j_ll_cuW_0p300000, ttZ0j_ll_cuW_m0p100000, ttZ0j_ll_cuW_m0p200000, ttZ0j_ll_cuW_m0p300000]
 
 def getter( var ):
     return lambda event, sample: getattr( event, var )
@@ -117,7 +124,7 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # reweighting 
 if args.reweightPtZToSM:
-    sel_string = "&&".join([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
+    sel_string = "&&".join([getFilterCut(isData=False), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
     TTZ_ptZ = TTZtoLLNuNu.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
     TTZ_ptZ.Scale(1./TTZ_ptZ.Integral())
 
@@ -142,7 +149,7 @@ if args.reweightPtZToSM:
 # Read variables and sequences
 #
 read_variables =    ["weight/F",
-                    "jet[pt/F,eta/F,phi/F,btagCSV/F]", "njet/I",
+                    "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I]", "njet/I","nJetSelected/I",
                     "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", 
@@ -152,8 +159,21 @@ sequence = []
 
 def extra_observables( event, sample ):
 
+    # get the negative-charge lepton from Z
+    l_m_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+    
+    # beta and gamma from Z
+    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+    beta    = sqrt( 1 - 1/gamma**2 )
+    
     # Z boson and l3 (convinience)
     Z_3D   = ROOT.TVector3( event.Z_pt*cos(event.Z_phi), event.Z_pt*sin(event.Z_phi), event.Z_pt*sinh(event.Z_eta) )
+    l_m_3D =  ROOT.TVector3(event.lep_pt[l_m_index]*cos(event.lep_phi[l_m_index]), event.lep_pt[l_m_index]*sin(event.lep_phi[l_m_index]), event.lep_pt[l_m_index]*sinh(event.lep_eta[l_m_index]))
+
+    # cos(theta)  ... cos(Z, l^-) in lab frame
+    cosTheta = Z_3D*l_m_3D / (sqrt(Z_3D*Z_3D) * sqrt(l_m_3D*l_m_3D))
+    event.cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta) 
+
     l3_3D  = ROOT.TVector3( event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index]), event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index]), event.lep_pt[event.nonZ_l1_index]*sinh(event.lep_eta[event.nonZ_l1_index]) )
     l3_pt  = event.lep_pt[event.nonZ_l1_index] 
     l3_phi = event.lep_phi[event.nonZ_l1_index] 
@@ -168,11 +188,11 @@ def extra_observables( event, sample ):
     met_2D = ROOT.TVector2( event.met_pt*cos(event.met_phi), event.met_pt*sin(event.met_phi) )
 
     # get jets
-    jetVars     = ['eta','pt','phi','btagCSV']
-    jets        = [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))]
+    jetVars     = ['eta','pt','phi','btagCSV','id']
+    jets        = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
     jets.sort( key = lambda l:-l['pt'] )
 
-    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets)
+    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets )
     nonBJets    = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
 
     # take highest-pT b-jet, supplement by non-bjets if there are less than two
@@ -238,6 +258,17 @@ def extra_observables( event, sample ):
 
 sequence.append( extra_observables )
 
+def Wpol( event, sample):
+
+    # Lp for the W
+    pxNonZl1 = event.lep_pt[event.nonZ_l1_index]*cos(event.lep_phi[event.nonZ_l1_index])
+    pyNonZl1 = event.lep_pt[event.nonZ_l1_index]*sin(event.lep_phi[event.nonZ_l1_index])
+    pxW      = event.met_pt*cos(event.met_phi) + pxNonZl1
+    pyW      = event.met_pt*sin(event.met_phi) + pyNonZl1
+    event.Lp = (pxW*pxNonZl1 + pyW*pyNonZl1)/(pxW**2+pyW**2)
+
+sequence.append( Wpol )
+
 #
 # Text on the plots
 #
@@ -253,21 +284,31 @@ def drawObjects( lumi_scale ):
     return [tex.DrawLatex(*l) for l in lines] 
 
 def drawPlots(plots, mode):
-  for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
-      if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
-      
-      plotting.draw(plot,
-	    plot_directory = plot_directory_,
-	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = True,
-	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {},
-	    legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( lumi_scale ),
-        copyIndexPHP = False
-      )
+        if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+        for log in [False, True]:
+            plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
+            if isinstance( plot, Plot2D):
+                plotting.draw2D(plot,
+                  plot_directory = plot_directory_,
+                  #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+                  logX = False, logY = False, logZ=log, 
+                  #scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
+                  #legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  drawObjects = drawObjects( lumi_scale ),
+                  copyIndexPHP = True
+                )
+            else:
+                plotting.draw(plot,
+                  plot_directory = plot_directory_,
+                  #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+                  logX = False, logY = log, sorting = True,
+                  yRange = (0.03, "auto") if log else (0.001, "auto"),
+                  scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
+                  legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  drawObjects = drawObjects( lumi_scale ),
+                  copyIndexPHP = True
+                )
 
 #
 # Loop over channels
@@ -285,7 +326,7 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.setSelectionString([getFilterCut(isData=False, badMuonFilters = args.badMuonFilters), getLeptonSelection(mode)])
+      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
 
       stack = Stack(mc)
 
@@ -296,7 +337,8 @@ for index, mode in enumerate(allModes):
             sample.reduceFiles( to = 1 )
 
     # Use some defaults
-    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot.  setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot2D.setDefaults(               weight = weight_, selectionString = cutInterpreter.cutString(args.selection))
 
     plots = []
     
@@ -353,7 +395,43 @@ for index, mode in enumerate(allModes):
         attribute = TreeVariable.fromString( "Z_eta/F" ),
         binning=[30,-3,3],
     ))
-    
+
+    plots.append(Plot(
+        name = 'cosThetaStar', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[20,-1,1],
+    ))
+   
+    plots.append(Plot(
+        name = 'cosThetaStar_coarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[10,-1,1],
+    ))
+   
+    plots.append(Plot(
+        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.cosThetaStar,
+        binning=[5,-1,1],
+    ))
+
+    plots.append(Plot(
+        name = 'Lp', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[20,-1.5,1.5],
+    ))
+   
+    plots.append(Plot(
+        name = 'Lp_coarse', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[10,-1.5,1.5],
+    ))
+   
+    plots.append(Plot(
+        name = 'Lp_veryCoarse', texX = 'L_{p}(W)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.Lp,
+        binning=[5,-1.5,1.5],
+    ))
+   
     plots.append(Plot(
         texX = '#Delta#phi(ll)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_lldPhi/F" ),
@@ -365,6 +443,7 @@ for index, mode in enumerate(allModes):
         attribute = TreeVariable.fromString( "Z_lldR/F" ),
         binning=[10,0,4],
     ))
+
     plots.append(Plot(
         name = "Z_lldEta",
         texX = '#Delta #eta(ll)', texY = 'Number of Events',
@@ -412,6 +491,12 @@ for index, mode in enumerate(allModes):
         binning=[12,0,180],
     ))
     
+    plots.append(Plot(
+        name = "l3_pt",
+        texX = 'p_{T}(l_{3}) (GeV)', texY = 'Number of Events / 5 GeV',
+        attribute = lambda event, sample:event.lep_pt[2],
+        binning=[20,0,100],
+    ))
     
     plots.append(Plot(
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 20 GeV',
@@ -428,7 +513,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
-      attribute = TreeVariable.fromString( "njet/I" ),
+      attribute = TreeVariable.fromString( "nJetSelected/I" ),
       binning=[5,2.5,7.5],
     ))
     
@@ -468,6 +553,13 @@ for index, mode in enumerate(allModes):
       name = 'St', texX = 'S_{t} (GeV)', texY = 'Number of Events / 30 GeV',
       attribute = lambda event, sample: event.St,
       binning=[30, 0, 900],
+    ))
+
+    plots.append(Plot2D(
+      name = 'TTZ', stack = Stack(TTZtoLLNuNu), texX = 'cos#theta^{*}(Z)', texY = 'L_{p}(W)',
+      attribute = [ lambda event, sample: event.cosThetaStar,
+                    lambda event, sample: event.Lp  ],
+      binning=[20,-1,1,30,-1.5,1.5],
     ))
 
     for fname, ftex, binning in [\

@@ -13,4 +13,3 @@ define vl~ = ve~ vm~ vt~
 define w = w+ w-
 
 generate p p > t t~ a NP=1
-

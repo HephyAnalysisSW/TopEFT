@@ -3,11 +3,12 @@ import os
 import shutil
 
 from RootTools.core.standard    import *
-from TopEFT.analysis.getResults import getResult
-from TopEFT.tools.user          import combineReleaseLocation, analysis_results, plot_directory
+from TopEFT.Analysis.run.getResults import getResult
+from TopEFT.Tools.user          import combineReleaseLocation, analysis_results, plot_directory
 from functools import partial
 
-from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
+#from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
+from TopEFT.samples.gen_fwlite_benchmarks import *
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -21,14 +22,29 @@ def Eval(obj, x, params):
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
 
 # get the absolute post fit NLL value of pure ttZ
-ttZ_res = getResult(ewkDM_ttZ_ll_noH)
+#ttZ_res = getResult(ewkDM_ttZ_ll_noH)
+ttZ_res = getResult(dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00)
 ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
 
 print "Max Likelihood ttZ SM"
 print ttZ_NLL_abs
 
-signals = [ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767, ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767]
-signals = [ewkDM_ttZ_ll_noH_DC2V_m0p25, ewkDM_ttZ_ll_noH_DC2V_m0p15, ewkDM_ttZ_ll_noH, ewkDM_ttZ_ll_noH_DC2V_0p05, ewkDM_ttZ_ll_noH_DC2V_0p10, ewkDM_ttZ_ll_noH_DC2V_0p20, ewkDM_ttZ_ll_noH_DC2V_0p30]
+#signals = [ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_m0p1767, ewkDM_ttZ_ll_DC1A_0p60_DC1V_m0p24_DC2A_m0p1767_DC2V_0p1767]
+#signals = [ewkDM_ttZ_ll_noH_DC2V_m0p25, ewkDM_ttZ_ll_noH_DC2V_m0p15, ewkDM_ttZ_ll_noH, ewkDM_ttZ_ll_noH_DC2V_0p05, ewkDM_ttZ_ll_noH_DC2V_0p10, ewkDM_ttZ_ll_noH_DC2V_0p20, ewkDM_ttZ_ll_noH_DC2V_0p30]
+
+
+signals = [ x for x in allSamples_dim6top if x.name.startswith("dim6top_LO_ttZ_ll_ctZ_0p00")]
+
+signals = [ dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m2p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p60, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p20, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p80, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p40, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p40, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p80, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p20, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p60, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_2p00 ]
+
+signals = [ dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p00, dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p00 ]
+
+
+
+#signals = sorted(signals)
+#print signals
+
+#raise NotImplementedError
 
 absNLL = []
 for s in signals:
@@ -46,7 +62,8 @@ for s in signals:
     NLL_list.append(float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs )
 
 # Create histogram and function to fit
-hist = ROOT.TH1F("NLL","", 41,-1,1)
+#hist = ROOT.TH1F("NLL","", 41,-1,1)
+hist = ROOT.TH1F("NLL","", 41,-2.01,2.01)
 hist.SetStats(0)
 #hist = ROOT.TGraph()
 
@@ -57,7 +74,9 @@ fun.SetLineStyle(3)
 
 # this needs to be automatized
 
-x_values = [-0.25, -0.15, 0, 0.05, 0.10, 0.2, 0.3]
+#x_values = [-0.25, -0.15, 0, 0.05, 0.10, 0.2, 0.3]
+x_values = [2*i/5. for i in range(-5,6)] 
+print x_values
 for i, x in enumerate(x_values):
     print x, 2*NLL_list[i]
     if NLL_list[i]<0.001: NLL_list[i]=0.001
@@ -77,7 +96,7 @@ hist.Fit(fun, "S")
 #fun.SetLineStyle(3)
 
 #ROOT.gROOT.SetBatch(True)
-ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/tools/scripts/tdrstyle.C')
+ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 
 # plot stuff, add vertical lines at 1, 2, 3 sigma
@@ -85,7 +104,10 @@ can = ROOT.TCanvas("can","",700,700)
 
 hist.SetMinimum(0)
 hist.SetMaximum(30)
-hist.GetXaxis().SetRangeUser(-0.3,0.3) 
+x_min = min(x_values)
+x_max = max(x_values)
+print x_min, x_max
+hist.GetXaxis().SetRangeUser(x_min, x_max) 
 hist.SetLineWidth(0)
 hist.SetMarkerStyle(10)
 #hist.GetYaxis().SetTitle("-2 log #frac{L(BSM)}{L(SM)}")
@@ -97,15 +119,15 @@ hist.Draw()
 #fun.Draw("same")
 
 
-one = ROOT.TF1("one","[0]",-1,1)
+one = ROOT.TF1("one","[0]",-10,10)
 one.SetParameter(0,1)
 one.SetLineColor(ROOT.kOrange)
 
-four = ROOT.TF1("four","[0]",-1,1)
+four = ROOT.TF1("four","[0]",-10,10)
 four.SetParameter(0,4)
 four.SetLineColor(ROOT.kOrange+10)
 
-nine = ROOT.TF1("nine","[0]",-1,1)
+nine = ROOT.TF1("nine","[0]",-10,10)
 nine.SetParameter(0,9)
 nine.SetLineColor(ROOT.kRed+1)
 
@@ -114,8 +136,8 @@ minus1  = ROOT.TLine(fun.GetX(1,-1,0),0,fun.GetX(1,-1,0),1)
 plus1.SetLineColor(ROOT.kOrange)
 minus1.SetLineColor(ROOT.kOrange)
 
-plus2   = ROOT.TLine(fun.GetX(4,0,1),0,fun.GetX(4,0,1),4) 
-minus2  = ROOT.TLine(fun.GetX(4,-0.5,0),0,fun.GetX(4,-0.5,0),4)
+plus2   = ROOT.TLine(fun.GetX(4,0,2.5),0,fun.GetX(4,0,2.5),4) 
+minus2  = ROOT.TLine(fun.GetX(4,-2.5,0),0,fun.GetX(4,-2.5,0),4)
 plus2.SetLineColor(ROOT.kOrange+10)
 minus2.SetLineColor(ROOT.kOrange+10)
 
@@ -173,7 +195,7 @@ plot_dir = os.path.join(plot_directory,args.plot_directory)
 if not os.path.isdir(plot_dir):
     os.makedirs(plot_dir)
 
-plot_dir += '/NLL_pseudoDataPriv'
+plot_dir += '/NLL_pseudoData_dim6top_LO_v1'
 if args.useBestFit:
     plot_dir += '_bestFit'
 

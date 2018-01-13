@@ -1,0 +1,17 @@
+#/DataFormats/BTauReco/
+#/EgammaAnalysis/ElectronTools/
+#/FWCore/GuiBrowsers
+/.gitignore/
+/PhysicsTools/Heppy/
+/PhysicsTools/HeppyCore/
+/PhysicsTools/PatAlgos/
+/EgammaAnalysis/ElectronTools/
+/RecoEgamma/ElectronIdentification/
+/RecoEgamma/PhotonIdentification/
+#/RecoBTag/Combined/
+#/RecoBTag/Configuration/
+#/RecoBTag/DeepFlavour/
+#/RecoBTag/LWTNN/
+#/RecoBTag/SecondaryVertex/
+#/RecoMET/METFilters/
+
