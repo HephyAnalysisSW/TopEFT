@@ -9,6 +9,10 @@ from TopEFT.Tools.user          import combineReleaseLocation, analysis_results,
 from functools import partial
 from TopEFT.Tools.niceColorPalette import niceColorPalette
 
+from TopEFT.Analysis.Setup import Setup
+
+setup = Setup()
+
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
@@ -95,6 +99,8 @@ for s in signals:
             z.append(2*limit)
             x.append(s.ctZ)
             y.append(s.ctZi)
+    else:
+        print "No results for %s found"%s.name
 
 proc = "ttZ"
 
@@ -138,7 +144,7 @@ pads.SetTopMargin(0.11)
 pads.Draw()
 pads.cd()
 
-hist.SetMaximum(9.95) #1.95
+hist.SetMaximum(19.95) #1.95
 hist.SetMinimum(0.)
 
 
@@ -173,7 +179,7 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    cans.Print(plotDir+"dim6top_LO_xsec"+e)
+    cans.Print(plotDir+"dim6top_LO_%s"%setup.name+e)
 
 
 

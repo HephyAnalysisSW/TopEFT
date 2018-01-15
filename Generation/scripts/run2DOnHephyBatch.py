@@ -50,6 +50,12 @@ dc2v = [ i*2./5 for i in range(-5,6) ]
 dc2a = [ i*2./5 for i in range(-5,6) ]
 couplingValues = [dc2v,dc2a]
 
+nonZeroCouplings = ("cpQM", "cpt")
+dc2v = [ i*4 for i in range(-2,8) ]
+dc2a = [ i*3.5 for i in range(-7,5) ]
+couplingValues = [dc2v,dc2a]
+
+
 
 nDim = len(nonZeroCouplings)
 # prepare the grid with all points

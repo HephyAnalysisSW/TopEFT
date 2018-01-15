@@ -67,8 +67,8 @@ hist = ROOT.TH1F("NLL","", 41,-2.01,2.01)
 hist.SetStats(0)
 #hist = ROOT.TGraph()
 
-fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2", -1., 1.)
-#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -1., 1.)
+#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2", -4., 4.)
+fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -4., 4.)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(3)
 
