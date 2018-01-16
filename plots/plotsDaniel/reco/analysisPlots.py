@@ -98,8 +98,8 @@ elif args.signal == "ewkDM":
     for i, dipole in enumerate(dipoles):
         dipole.style = styles.lineStyle( colors[i], width=3 )
     
-    signals = [SM, current1, current2, current3]
-    #signals = [SM] + dipoles 
+    #signals = [SM, current1, current2, current3]
+    signals = [SM] + dipoles 
 
 else:
     signals = []
@@ -281,6 +281,18 @@ def getTopCands( event, sample ):
     event.b2_phi    = b2.Phi()
 
 sequence += [ getDPhiZLep, getDPhiZJet,getJets ]
+
+def getCPVars( event, sample ):
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    b1      = ROOT.TLorentzVector()
+    b2      = ROOT.TLorentzVector()
+    jets    = [ROOT.TVector() for i,x in enumerate(event.jets)]
+
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+    b1.SetPtEtaPhiM(event.jets_sortbtag[0]['pt'], event.jets_sortbtag[0]['eta'], event.jets_sortbtag[0]['phi'], 0. )
+    b2.SetPtEtaPhiM(event.jets_sortbtag[1]['pt'], event.jets_sortbtag[1]['eta'], event.jets_sortbtag[1]['phi'], 0. )
 
 def getL( event, sample):
 

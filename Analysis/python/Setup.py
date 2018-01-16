@@ -39,7 +39,7 @@ dataLumi201678 = {'3mu':150000, '3e':150000, '2mu1e':150000, '2e1mu':150000}
 
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
-lumi = dataLumi201678
+lumi = dataLumi2016
 
 #Define defaults here
 zMassRange          = 10
@@ -60,7 +60,7 @@ default_parameters   = {
 
 class Setup:
     def __init__(self):
-        self.name       = "regionsE_150fb_xsec_shape_lowUnc"
+        self.name       = "regionsE_shape_lowUnc"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name

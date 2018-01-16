@@ -144,7 +144,7 @@ pads.SetTopMargin(0.11)
 pads.Draw()
 pads.cd()
 
-hist.SetMaximum(19.95) #1.95
+hist.SetMaximum(9.95) #1.95
 hist.SetMinimum(0.)
 
 
