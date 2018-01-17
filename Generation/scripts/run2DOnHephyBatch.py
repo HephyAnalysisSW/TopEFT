@@ -45,10 +45,16 @@ def chunks(l, n):
 
 ## dim6top_LO
 model_name = "dim6top_LO"
-nonZeroCouplings = ("ctZ", "ctZI")
-dc2v = [ i*2./5 for i in range(-5,6) ]
-dc2a = [ i*2./5 for i in range(-5,6) ]
+#nonZeroCouplings = ("ctZ", "ctZI")
+#dc2v = [ i*2./5 for i in range(-5,6) ]
+#dc2a = [ i*2./5 for i in range(-5,6) ]
+#couplingValues = [dc2v,dc2a]
+
+nonZeroCouplings = ("cpQM", "cpt")
+dc2v = [ i*4 for i in range(-2,8) ]
+dc2a = [ i*3.5 for i in range(-7,5) ]
 couplingValues = [dc2v,dc2a]
+
 
 
 nDim = len(nonZeroCouplings)
@@ -82,6 +88,6 @@ for p in processes[:1]:
                 couplingStr = (strBase+'\n').format(*c)
                 f.write(couplingStr)
         #if i == 2 or i == 8: continue
-        os.system(submitCMD+" --title %s_%i 'python run.py --model "%("GP",i)+model_name+" --process "+p+" --couplings %s_%i.txt --makeGridpack'"%(p,i)) #--calcXSec
+        os.system(submitCMD+" --title %s_%i 'python run.py --model "%("GP",i)+model_name+" --process "+p+" --couplings %s_%i.txt --makeGridpack --calcXSec'"%(p,i)) #--calcXSec
         if "echo" not in submitCMD:
             time.sleep(30)

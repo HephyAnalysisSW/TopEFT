@@ -11,6 +11,8 @@ argParser.add_argument("--scale",          action='store', default=1.0, type=flo
 argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
 argParser.add_argument("--popFromSR",      default = False, action = "store", help="Remove one signal region?")
 argParser.add_argument("--extension",      default = '', action = "store", help="Extension to dir name?")
+argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
+argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 
 args = argParser.parse_args()
 
@@ -36,7 +38,6 @@ setup.estimators        = constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "ra
 setup.reweightRegions   = regionsReweight
 #setup.regions           = regionsE #already defined in Setup
 
-# Define fake samples (yields from illia)
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
@@ -58,6 +59,20 @@ overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
 
+
+from TopEFT.Generation.Configuration import Configuration
+from TopEFT.Generation.Process       import Process
+from TopEFT.Tools.u_float         import u_float
+
+config = Configuration( model_name = "dim6top_LO" )
+p = Process(process = "ttZ_ll", nEvents = 5000, config = config)
+modification_dict = {"process":"ttZ_ll"}
+
+modification_dict["ctZ"]    = 0.
+modification_dict["ctZi"]   = 0.
+
+xsec_central = p.xsecDB.get(modification_dict)
+
 def wrapper(s):
     
     logger.info("Now working on %s", s.name)
@@ -65,6 +80,11 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
+    modification_dict["ctZ"]    = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
+    modification_dict["ctZi"]   = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
+
+    xsec = p.xsecDB.get(modification_dict)
+    
     cardFileName = os.path.join(limitDir, s.name+'.txt')
     if not os.path.exists(cardFileName) or overWrite:
         counter=0
@@ -104,20 +124,20 @@ def wrapper(s):
                         c.specifyExpectation(binname, name, expected.val)
 
                         if expected.val>0:
-                            c.specifyUncertainty('PU',          binname, name, 1.01)
-                            c.specifyUncertainty('JEC',         binname, name, 1.05)
-                            c.specifyUncertainty('btag',        binname, name, 1.05)
-                            c.specifyUncertainty('trigger',     binname, name, 1.04)
-                            c.specifyUncertainty('leptonSF',    binname, name, 1.07)
-                            c.specifyUncertainty('scale',       binname, name, 1.01)
-                            c.specifyUncertainty('PDF',         binname, name, 1.01)
+                            c.specifyUncertainty('PU',          binname, name, 1.01) 
+                            c.specifyUncertainty('JEC',         binname, name, 1.03) #1.05
+                            c.specifyUncertainty('btag',        binname, name, 1.03) #1.05
+                            c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
+                            c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
+                            c.specifyUncertainty('scale',       binname, name, 1.01) 
+                            c.specifyUncertainty('PDF',         binname, name, 1.01) 
 
-                            if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20)
-                            if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.20)
+                            if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
+                            if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
-                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.15)
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
+                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
 
 
                             #MC bkg stat (some condition to neglect the smaller ones?)
@@ -128,23 +148,33 @@ def wrapper(s):
                     obs = observation.cachedEstimate(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
 
-                    source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
-                    target_gen = s
+                    if args.useShape:
+                        logger.info("Using 2D reweighting method for shapes")
+                        source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+                        target_gen = s
 
-                    signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
-                    f = signalReweighting.cachedReweightingFunc( setup.genSelection )
+                        signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
+                        f = signalReweighting.cachedReweightingFunc( setup.genSelection )
+                        sig = signal.reweight2D(r, channel, setup, f)
+                    else:
+                        sig = signal.cachedEstimate(r, channel, setup)
+
+                    xSecMod = 1
+                    if args.useXSec:
+                        xSecMod = xsec.val/xsec_central.val
                     
-                    sig = signal.reweight2D(r, channel, setup, f)
-                    c.specifyExpectation(binname, 'signal', sig.val*xSecScale )
+                    logger.info("x-sec is multiplied by %s",xSecMod)
+                    
+                    c.specifyExpectation(binname, 'signal', sig.val*xSecScale * xSecMod )
                     
                     if sig.val>0:
                         c.specifyUncertainty('PU',          binname, "signal", 1.01)
-                        c.specifyUncertainty('JEC',         binname, "signal", 1.05)
-                        c.specifyUncertainty('btag',        binname, "signal", 1.05)
-                        c.specifyUncertainty('trigger',     binname, "signal", 1.04)
-                        c.specifyUncertainty('leptonSF',    binname, "signal", 1.07)
-                        c.specifyUncertainty('scale_sig',   binname, "signal", 1.30)
-                        c.specifyUncertainty('PDF',         binname, "signal", 1.15)
+                        c.specifyUncertainty('JEC',         binname, "signal", 1.03) #1.05
+                        c.specifyUncertainty('btag',        binname, "signal", 1.03) #1.05
+                        c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
+                        c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
+                        c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
+                        c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
@@ -159,7 +189,7 @@ def wrapper(s):
         c.specifyFlatUncertainty('Lumi', 1.026)
         cardFileName = c.writeToFile(cardFileName)
     else:
-        print "File %s found. Reusing."%cardFileName
+        logger.info("File %s found. Reusing.",cardFileName)
     
     res = {}
     
