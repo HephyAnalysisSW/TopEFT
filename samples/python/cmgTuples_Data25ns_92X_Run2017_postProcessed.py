@@ -82,7 +82,7 @@ SingleEleMu_Run2017            = getSample('SingleEleMu',      'Run2017',       
 MET_Run2017                     = getSample('MET',       'Run2017',       (1.)*1000)
 
 allSamples_Data25ns_2017= []
-allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017]#, MET_Run2017]
+allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017, MET_Run2017]
 
 for s in allSamples_Data25ns_2017:
   s.color   = ROOT.kBlack

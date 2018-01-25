@@ -58,7 +58,8 @@ print "Max Likelihood ttZ SM"
 print ttZ_NLL_abs
 
 # load all samples, omit the 1/1 point
-signals = [ x for x in allSamples_dim6top if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
+signals = [ x for x in dim6top_dipoles if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
+#signals = [ x for x in dim6top_currents ]
 
 
 ctZ_values = []
@@ -91,14 +92,17 @@ x = []
 y = []
 z = []
 
-for s in signals:
+for i,s in enumerate(signals):
     res = getResult(s)
     if type(res) == type({}):
         limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
-        if limit > 0:
+        if limit >= 0:
+            print s.name, round(2*limit,2)
             z.append(2*limit)
             x.append(s.ctZ)
             y.append(s.ctZi)
+        else:
+            print "No good result found for %s, results is %s"%(s.name, limit)
     else:
         print "No results for %s found"%s.name
 
@@ -144,7 +148,7 @@ pads.SetTopMargin(0.11)
 pads.Draw()
 pads.cd()
 
-hist.SetMaximum(9.95) #1.95
+hist.SetMaximum(69.95) #1.95
 hist.SetMinimum(0.)
 
 

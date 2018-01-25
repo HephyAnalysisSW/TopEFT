@@ -20,8 +20,8 @@ from array import array
 
 from TopEFT.Tools.user            import plot_directory
 
-#postProcessing_directory = "TopEFT_PP_v14/trilep/"
-#from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import TTZ_LO
 
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2017_Fall17_v1/trilep/"
@@ -120,6 +120,7 @@ for trigger in triggers:
             for i in range(3):
                 sample.hists[i] = { m:ROOT.TH1F("%s_%s_%s_%s_%s"%(sample.name, trigger, c, m, i),"", *binning) for m in ["SL_Run2017", "tt_Summer17"] }#["MET_Run2017", "MET_Run2016", "WJets"] }
                 sample.hist_ref[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "ref", c, i),"", *binning)
+                sample.hist_shape[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "shape", c, i),"", *binning)
                 sample.hist_direct[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "direct", c, i),"", *binning)
 
             print "Gonna loop over %s events"%number_events
@@ -150,9 +151,13 @@ for trigger in triggers:
                 for j in range(3):
                     pt = s.lep_pt[j] if s.lep_pt[j]<500 else 499.
                     sample.hist_ref[j].Fill(pt, w)
+                    #sample.hist_shape[j].Fill(pt, w)
                     if triggered:
                         sample.hist_direct[j].Fill(pt, w)
-            
+                
+            for j in range(3):
+                TTZ_LO.chain.Draw("lep_pt[%s]>>%s_%s_%s_%s"%(j,sample.name, "shape", c, j),incl_cut)
+                
             for j in range(3):
                 sample.teffs = {}
 
@@ -174,7 +179,7 @@ for trigger in triggers:
 
                 # plot the shape
 
-                sample.hist_shape[j] = sample.hist_ref[j].Clone()
+                #sample.hist_shape[j] = sample.hist_ref[j].Clone()
                 sample.hist_shape[j].SetLineColor(ROOT.kBlack)
                 sample.hist_shape[j].SetLineWidth(1)
                 sample.hist_shape[j].Scale(4/sample.hist_shape[j].Integral(), "width")
@@ -222,7 +227,7 @@ for trigger in triggers:
                 leg2.AddEntry(sample.teffs['tt_Summer17'], '1l meas. in t#bar{t} Summer17')
                 leg2.AddEntry(sample.teffs['SL_Run2017'], '1l meas. in singleLep PD(2017)')
                 leg2.AddEntry(sample.teffs['direct'], 'direct meas. in WZ Fall17')
-                leg2.AddEntry(sample.hist_shape[j], 'WZ distribution','f')
+                leg2.AddEntry(sample.hist_shape[j], 'ttZ distribution','f')
 
                 leg2.Draw()
 
@@ -239,7 +244,7 @@ for trigger in triggers:
                 if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
 
                 for f in ['.png','.pdf','.root']:
-                    can.Print(plot_dir+"/lep_pt_%s_%s"%(j,sample.name)+f)
+                    can.Print(plot_dir+"/lep_pt_%s_%s_v2"%(j,sample.name)+f)
 
 
                 #sample.hists[m].Divide(sample.hist_ref)

@@ -183,7 +183,7 @@
 #python genPostProcessing.py --sample dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p20
 #python genPostProcessing.py --sample dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p40
 
-python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m24p50
+#python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m24p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m14p00
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m3p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_7p00
@@ -267,7 +267,7 @@ python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m10p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_16p00_cpt_10p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_20p00_cpt_10p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m10p50
-python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_28p00_cpt_10p50
+#python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_28p00_cpt_10p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_20p00_cpt_0p00
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_24p00_cpt_10p50
 python genPostProcessing.py --sample dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_3p50

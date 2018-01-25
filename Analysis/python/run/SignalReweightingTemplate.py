@@ -117,6 +117,7 @@ if __name__ == "__main__":
     cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
     
     source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+    #source_gen = dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00 ## there shouldn't be a different between the two
 
     for target in allSamples_dim6top:
         target_gen = target

@@ -26,7 +26,9 @@ def getResult(sample):
         return res.getDicts(key)[0]
 
 def addResult(sample, key, value, overwrite):
-    print "Adding result for %s"%(sample.name)
+    print "Adding result for %s to database %s"%(sample.name, cacheFileName)
     key.update({"signal":sample.name})
+    if overwrite:
+        res.removeObjects({"signal":sample.name})
     res.add(key, value, overwrite=True)
 

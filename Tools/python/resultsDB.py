@@ -134,6 +134,8 @@ class resultsDB:
         '''
 
         if overwrite and self.contains(key):
+            print "removing old result"
+            print self.get(key)
             self.removeObjects(key)
 
         columns = self.clean(key.keys()+["value"])

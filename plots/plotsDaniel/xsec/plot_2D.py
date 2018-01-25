@@ -22,18 +22,23 @@ ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
 ROOT.gStyle.SetNumberContours(255)
 
-model_name = 'HEL_UFO'
+#model_name = 'HEL_UFO'
 #model_name = 'TopEffTh'
 #model_name = 'ewkDM'
 #model_name = 'ewkDMGZ'
+model_name = 'dim6top_LO'
 
 #nonZeroCouplings = ("cuW", "cuB")
 #nonZeroCouplings = ("IC3phiq", "ICtW")
 #nonZeroCouplings = ("DC2V","DC2A")
 #nonZeroCouplings = ("DVG","DAG")
-nonZeroCouplings = ("cuW", "cuB")
-dc2v = [ i*0.10/10 for i in range(-10,11) ]
-dc2a = [ i*0.30/10 for i in range(-10,11) ]
+#nonZeroCouplings = ("cuW", "cuB")
+#dc2v = [ i*0.10/10 for i in range(-10,11) ]
+#dc2a = [ i*0.30/10 for i in range(-10,11) ]
+
+nonZeroCouplings = ("ctZ", "ctZI")
+dc2v = [ i*2./5 for i in range(-5,6) ]
+dc2a = [ i*2./5 for i in range(-5,6) ]
 
 couplingValues = [dc2v,dc2a]
 
@@ -47,11 +52,11 @@ for comb in allCombinations:
     allCombinationsFlat.append([item for sublist in comb for item in sublist])
 
 #processes = [ "ttZ", "ttH", "ttW" ]
-contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67], 'ttgamma':[0.33,0.67,1.33,1.67]}
+contours = {'ttZ': [0.74,0.87,1.15,1.3], 'ttZ_ll': [0.74,0.87,1.15,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67], 'ttgamma':[0.33,0.67,1.33,1.67]}
 #contours = {'ttZ': [0.74,0.87,1.20,1.3], 'ttW': [0.58,0.79,1.23,1.46], 'ttH':[0.33,0.67,1.33,1.67], 'ttgamma':[0.33,0.67,1.33,1.67]}
 
 
-processes = [ "ttZ" ]
+processes = [ "ttZ_ll" ]
 
 
 drawContours = True
@@ -161,7 +166,7 @@ for proc in processes[:1]:
     pads[-1].Draw()
     pads[-1].cd()
     
-    hists[-1].SetMaximum(9.95) #1.95
+    hists[-1].SetMaximum(1.95) #1.95
     hists[-1].SetMinimum(0.95)
 
     hists[-1].Draw("colz")
@@ -182,7 +187,8 @@ for proc in processes[:1]:
 
 
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-    latex1.DrawLatex(0.14,0.92,'#bf{%s, couplings: #DeltaC_{1,V}=0.00, #DeltaC_{1,A}=0.00}'%proc)
+    latex1.DrawLatex(0.14,0.92,'#bf{%s}'%proc)
+    #latex1.DrawLatex(0.14,0.92,'#bf{%s, couplings: #DeltaC_{1,V}=0.00, #DeltaC_{1,A}=0.00}'%proc)
     latex1.DrawLatex(0.79,0.96,'#bf{MC (13TeV)}')
 
     plotDir = os.path.join( plot_directory,model_name,"simple_2D_scans_v2/" )
