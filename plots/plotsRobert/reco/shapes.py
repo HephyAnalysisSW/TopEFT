@@ -20,9 +20,9 @@ from TopEFT.Tools.cutInterpreter  import cutInterpreter
 # 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--signal',             action='store',      default=None,       nargs='?', choices=[None, 'dipoleEllipsis', 'currentEllipsis', 'C2VA0p2', 'cuW'], help='Add signal to plot')
-argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
+argParser.add_argument('--logLevel',           action='store',      default='INFO',      nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--signal',             action='store',      default=None,        nargs='?', choices=[None, 'fwf', 'dipoleEllipsis', 'currentEllipsis', 'C2VA0p2', 'cuW'], help='Add signal to plot')
+argParser.add_argument('--background',         action='store',      default='OnlyTTZ',   choices = ['OnlyTTZ', 'All', 'None'],        help="choose bkg")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 #argParser.add_argument('--Run2017',                                 action='store_true',     help='2017 data & MC?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
@@ -41,7 +41,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
 if args.signal and args.signal is not None: args.plot_directory += "_signal_"+args.signal
-if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
+if args.background is not None:       args.plot_directory += "_bkg%s"%args.background
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
 
@@ -70,6 +70,12 @@ elif args.signal == "currentEllipsis":
     ttZ0j_ll_DC1A_1p000000.style                = styles.lineStyle( ROOT.kGreen, width=2, dotted=False, dashed=False )
 
     signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000, ttZ0j_ll_DC1A_1p000000]
+elif args.signal == "fwf": 
+    ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p500000_DC1V_0p500000.style                                  = styles.lineStyle( ROOT.kRed + 1, width=2, dotted=False, dashed=False ) 
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700.style    = styles.lineStyle( ROOT.kBlue + 1, width=2, dotted=False, dashed=False )
+
+    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700]
 elif args.signal == "dipoleEllipsis":
     ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700.style     = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
@@ -115,10 +121,12 @@ def getLeptonSelection( mode ):
   elif mode=='all':    return "nGoodMuons+nGoodElectrons==3"
 
 # backgrounds / mc
-if args.onlyTTZ:
+if args.background == "OnlyTTZ":
     mc = [ TTZtoLLNuNu ]
-else:
+elif args.background == "All":
     mc = [ TTZtoLLNuNu , TTX, WZ, TTW, TZQ, rare ]#, nonprompt ]
+else:
+    mc = []
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -319,7 +327,7 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
 
-    lumi_scale = 35.9
+    lumi_scale = 150
     weight_ = lambda event, sample: event.weight
 
     for sample in mc + signals:
@@ -331,6 +339,8 @@ for index, mode in enumerate(allModes):
       stack = Stack(mc)
 
     stack.extend( [ [s] for s in signals ] )
+
+    stack = Stack( *filter( lambda s: s!=[], stack ) ) # if bkg is None
 
     if args.small:
         for sample in stack.samples:
