@@ -31,9 +31,6 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
 
     return res
 
-def isBJet(j):
-    return j['btagCSV']>0.8484
-
 def isBJet(j, tagger = 'CSVv2'):
     if tagger == 'CSVv2':
         return j['btagCSV']>0.8484
