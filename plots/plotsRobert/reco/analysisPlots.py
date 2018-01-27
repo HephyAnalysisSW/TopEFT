@@ -12,7 +12,7 @@ from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
 from TopEFT.Tools.user            import plot_directory
 from TopEFT.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from TopEFT.Tools.objectSelection import getFilterCut, isAnalysisJet
+from TopEFT.Tools.objectSelection import getFilterCut, isAnalysisJet, isBJet
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
 
 #
@@ -190,10 +190,37 @@ sequence.append( getDRZLep )
 
 
 def getJets( event, sample ):
-    jetVars     = ['eta','pt','phi','btagCSV','id']
-    event.jets  = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
-    event.jets_sortbtag = event.jets
-    event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
+    jetVars              = ['eta','pt','phi','btagCSV','id']
+    event.jets           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
+
+    b_jets = filter( lambda j: isAnalysisJet(j) and isBJet(j), event.jets )
+    leading_bjet = b_jets[0] if len(b_jets)>0 else None
+    if leading_bjet is not None:
+        v_leading_bjet = ROOT.TLorentzVector()
+        v_leading_bjet.SetPtEtaPhiM(leading_bjet['pt'],leading_bjet['eta'],leading_bjet['phi'],0.)
+
+    untagged_jets = filter( lambda j: not isBJet(j), event.jets )
+    event.leading_untagged_jet = untagged_jets[0] if len(untagged_jets)>0 else None
+    if event.leading_untagged_jet is not None and leading_bjet is not None:
+        v_leading_untagged_jet = ROOT.TLorentzVector()
+        v_leading_untagged_jet.SetPtEtaPhiM(event.leading_untagged_jet['pt'],event.leading_untagged_jet['eta'],event.leading_untagged_jet['phi'],0.)
+        event.m_leadingUntagged_bJet = (v_leading_bjet+v_leading_untagged_jet).M()
+    else:
+        event.m_leadingUntagged_bJet = float('nan') 
+
+    untagged_jets.sort(key = lambda j: -abs(j['eta'])) 
+    event.mostForward_untagged_jet = untagged_jets[0] if len(untagged_jets)>0 else None 
+    if event.mostForward_untagged_jet is not None and leading_bjet is not None:
+        v_mostForward_untagged_jet = ROOT.TLorentzVector()
+        v_mostForward_untagged_jet.SetPtEtaPhiM(event.mostForward_untagged_jet['pt'],event.mostForward_untagged_jet['eta'],event.mostForward_untagged_jet['phi'],0.)
+        event.m_mostForwardUntagged_bJet = (v_leading_bjet+v_mostForward_untagged_jet).M() 
+    else:
+        event.m_mostForwardUntagged_bJet = float('nan') 
+
+    event.jets = filter( isAnalysisJet, event.jets )
+
+    #event.jets_sortbtag  = event.jets
+    #event.jets_sortbtag.sort( key = lambda l:-l['btagCSV'] )
 
 sequence.append( getJets )
 
@@ -316,7 +343,6 @@ def drawPlots(plots, mode, dataMCScale):
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
         copyIndexPHP = True
       )
-
 
 #
 # Loop over channels
@@ -609,6 +635,42 @@ for index, mode in enumerate(allModes):
       texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
       name = 'jet2_pt', attribute = lambda event, sample: event.jets[1]['pt'] if len(event.jets)>1 else float('nan'),
       binning=[600/30,0,600],
+    ))
+
+    plots.append(Plot(
+      texX = 'p_{T}(leading non-b jet) (GeV)', texY = 'Number of Events / 30 GeV',
+      name = 'jetLeadNonB_pt', attribute = lambda event, sample: event.leading_untagged_jet['pt'] if event.leading_untagged_jet is not None else float('nan'),
+      binning=[600/30,0,600],
+    ))
+
+    plots.append(Plot(
+      texX = '|#eta|(leading non-b jet)', texY = 'Number of Events / 30 GeV',
+      name = 'jetLeadNonB_absEta', attribute = lambda event, sample: abs(event.leading_untagged_jet['eta']) if event.leading_untagged_jet is not None else float('nan'),
+      binning=[26,0,5.2],
+    ))
+
+    plots.append(Plot(
+      texX = 'M(l. non-b jet, l. b jet)', texY = 'Number of Events / 30 GeV',
+      name = 'mLeadNonBLeadB', attribute = lambda event, sample: event.m_leadingUntagged_bJet,
+      binning=[30,0,1000],
+    ))
+
+    plots.append(Plot(
+      texX = 'p_{T}(leading non-b jet) (GeV)', texY = 'Number of Events / 30 GeV',
+      name = 'jetMostFNonB_pt', attribute = lambda event, sample: event.mostForward_untagged_jet['pt'] if event.mostForward_untagged_jet is not None else float('nan'),
+      binning=[600/30,0,600],
+    ))
+
+    plots.append(Plot(
+      texX = '|#eta|(leading non-b jet)', texY = 'Number of Events / 30 GeV',
+      name = 'jetMostFNonB_absEta', attribute = lambda event, sample: abs(event.mostForward_untagged_jet['eta']) if event.mostForward_untagged_jet is not None else float('nan'),
+      binning=[26,0,5.2],
+    ))
+
+    plots.append(Plot(
+      texX = 'M(most f. non-b jet, l. b jet)', texY = 'Number of Events / 30 GeV',
+      name = 'mMostFNonBLeadB', attribute = lambda event, sample: event.m_mostForwardUntagged_bJet,
+      binning=[30,0,1000],
     ))
     
 #    plots.append(Plot(

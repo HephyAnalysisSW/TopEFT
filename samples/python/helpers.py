@@ -41,7 +41,7 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
         module_ = 'CMGTools.RootTools.samples.samples_13TeV_DATA2016'
     elif "Run2017" in sample:
         module_ = 'CMGTools.RootTools.samples.samples_13TeV_DATA2017'
-    elif "ttZ0j_ll" in sample:
+    elif "ttZ0j_ll" in sample or "ttGamma0j_ll" in sample:
         module_ = 'CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2'
     elif "ewkDM" in sample:
         module_ = 'CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2'
@@ -94,7 +94,7 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
             elif "Fall17" in heppy_sample.dataset:
                 from TopEFT.samples.heppy_dpm_samples import Fall17_heppy_mapper
                 return Fall17_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
-            elif "ttZ0j_ll" in sample:
+            elif "ttZ0j_ll" in sample or "ttGamma0j_ll" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_0j_0l_heppy_mapper
                 return signal_0j_0l_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ewkDM" in sample:
