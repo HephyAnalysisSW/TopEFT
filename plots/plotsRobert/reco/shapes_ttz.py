@@ -27,7 +27,7 @@ argParser.add_argument('--small',                                   action='stor
 #argParser.add_argument('--Run2017',                                 action='store_true',     help='2017 data & MC?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v14')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v19')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -52,8 +52,8 @@ if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
 postProcessing_directory = "TopEFT_PP_v14/trilep/"
 data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v12/trilep/"
-data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+postProcessing_directory = "TopEFT_PP_v19/trilep/"
+data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
 from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
 if args.signal is None:
@@ -71,11 +71,13 @@ elif args.signal == "currentEllipsis":
 
     signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000, ttZ0j_ll_DC1A_1p000000]
 elif args.signal == "fwf": 
-    ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
-    ttZ0j_ll_DC1A_0p500000_DC1V_0p500000.style                                  = styles.lineStyle( ROOT.kRed + 1, width=2, dotted=False, dashed=False ) 
-    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700.style    = styles.lineStyle( ROOT.kBlue + 1, width=2, dotted=False, dashed=False )
+    ttZ0j_ll.style                                                              = styles.fillStyle( color.TTZtoLLNuNu, errors=True ) 
+    ttZ0j_ll.texName = "t#bar{t}Z#rightarrow b#bar{b} l #bar{#nu} q#bar{q}, Z#rightarrow l#bar{l}"
+    ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000.style     = styles.lineStyle( ROOT.kRed + 2, width=2, errors=True, dotted=False, dashed=False ) 
+    #ttZ0j_ll_DC1A_1p000000.style    = styles.lineStyle( ROOT.kBlue + 2, width=2, errors=True, dotted=False, dashed=False )
+    ttZ0j_ll_DC1A_0p500000_DC1V_0p500000.style  = styles.lineStyle( ROOT.kBlue+2, width=2, errors = True, dotted=False, dashed=False ) 
 
-    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700]
+    signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000]
 elif args.signal == "dipoleEllipsis":
     ttZ0j_ll.style                                                              = styles.lineStyle( ROOT.kBlack, width=2, dotted=False, dashed=False )
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700.style     = styles.lineStyle( ROOT.kRed, width=2, dotted=False, dashed=False )
@@ -286,8 +288,11 @@ def drawObjects( lumi_scale ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Simulation'), 
-      (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale)
+      (0.15, 0.95, 'CMS Simulation'),
+      (0.6, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale),
+      (0.64, 0.84, 'N_{jets} #geq 3'),
+      (0.64, 0.79,  'N_{b-tags} #geq 1'),
+      (0.64, 0.74, 'all lepton flavors')
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
@@ -311,9 +316,10 @@ def drawPlots(plots, mode):
                   plot_directory = plot_directory_,
                   #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
                   logX = False, logY = log, sorting = True,
-                  yRange = (0.03, "auto") if log else (0.001, "auto"),
+                  yRange = (0.9, "auto") if log else (0.001, "auto"),
                   scaling = {i:0 for i in range(1, len(plot.histos))} if args.normalizeBSM else {},
-                  legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  #legend = [ (0.15,0.9-0.025*sum(map(len, plot.histos)),0.9,0.9), 2],
+                  legend = [ (0.2,0.88-0.05*sum(map(len, plot.histos)),0.6,0.88), 1],
                   drawObjects = drawObjects( lumi_scale ),
                   copyIndexPHP = True
                 )
@@ -385,7 +391,7 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = 'Z_pt_coarse', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events / 40 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[20,0,800],
+        binning=[13,0,520],
     ))
     
     plots.append(Plot(
@@ -612,6 +618,10 @@ for index, mode in enumerate(allModes):
             ))
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
+
+    for plot in plots:
+        for h in sum(plot.histos,[]):
+            h.Sumw2(0)
 
     # Get normalization yields from yield histogram
     for plot in plots:
