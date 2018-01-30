@@ -162,11 +162,11 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2 import mcSa
 Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v19, Summer17_cache_file)
 
 # Fall17 MC
-Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v1.pkl'
-daniel_94X_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v1']
-mc_dpm_directories = daniel_94X_1l_v1
+Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v2.pkl'
+daniel_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v2']
+mc_dpm_directories = daniel_94X
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2 import mcSamples as heppy_Fall17_samples
-Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, daniel_94X_1l_v1, Fall17_cache_file)
+Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, daniel_94X, Fall17_cache_file)
 
 # Data 2017 + 17Nov2017
 data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19+17Nov2017.pkl'
@@ -190,7 +190,7 @@ from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSa
 signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
 
 # Private signal MC with 0 jets (LO)
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttZ0j_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
+signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttZ0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
 robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v12']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttZ0j_signal_samples

@@ -336,7 +336,7 @@ def getCPVars( event, sample ):
     
     #print event.O2, event.O3, event.O4, event.O7
 
-sequence += [ getCPVars ]
+#sequence += [ getCPVars ]
 
 def getL( event, sample):
 
@@ -372,8 +372,6 @@ def reconstructLeptonicTop( event, sample ):
     
     lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
     met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
-    b1.SetPtEtaPhiM(event.jets_sortbtag[0]['pt'], event.jets_sortbtag[0]['eta'], event.jets_sortbtag[0]['phi'], 0. )
-    b2.SetPtEtaPhiM(event.jets_sortbtag[1]['pt'], event.jets_sortbtag[1]['eta'], event.jets_sortbtag[1]['phi'], 0. )
 
     # get the b from the top decay, assume back-to-back of the tops
     t1 = lepton + met + b1
@@ -425,7 +423,7 @@ def reconstructLeptonicTop( event, sample ):
     event.deltaR_tl_topRF = deltaR( {'eta':lepton.Eta(), 'phi':lepton.Phi()}, {'eta':t1.Eta(), 'phi':t1.Phi()}  )
     event.deltaEta_tl_topRF = abs( lepton.Eta() - t1.Eta() )
     
-sequence.append( reconstructLeptonicTop )
+#sequence.append( reconstructLeptonicTop )
 
 def getCosThetaStar( event, sample ):
     # get the negative-charge lepton from Z
@@ -583,68 +581,68 @@ for index, mode in enumerate(allModes):
         binning=[10,0,pi],
     ))
     
-    plots.append(Plot(
-        name = "O2_sign",
-        texX = 'O2/|O2|', texY = 'Number of Events',
-        attribute = lambda event, sample:event.O2,
-        binning=[2,-2,2],
-    ))
+    #plots.append(Plot(
+    #    name = "O2_sign",
+    #    texX = 'O2/|O2|', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.O2,
+    #    binning=[2,-2,2],
+    #))
 
-    plots.append(Plot(
-        name = "O3_sign",
-        texX = 'O3/|O3|', texY = 'Number of Events',
-        attribute = lambda event, sample:event.O3,
-        binning=[2,-2,2],
-    ))
+    #plots.append(Plot(
+    #    name = "O3_sign",
+    #    texX = 'O3/|O3|', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.O3,
+    #    binning=[2,-2,2],
+    #))
 
-    plots.append(Plot(
-        name = "O4_sign",
-        texX = 'O4/|O4|', texY = 'Number of Events',
-        attribute = lambda event, sample:event.O4,
-        binning=[2,-2,2],
-    ))
+    #plots.append(Plot(
+    #    name = "O4_sign",
+    #    texX = 'O4/|O4|', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.O4,
+    #    binning=[2,-2,2],
+    #))
 
-    plots.append(Plot(
-        name = "O7_sign",
-        texX = 'O7/|O7|', texY = 'Number of Events',
-        attribute = lambda event, sample:event.O7,
-        binning=[2,-2,2],
-    ))
-    
-    plots.append(Plot(
-        name = "mt_had",
-        texX = 'M(had. top)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.mt_had,
-        binning=[20,0,300],
-    ))
-    
-    plots.append(Plot(
-        name = "mt_lep",
-        texX = 'M(lep. top)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.mt_lep,
-        binning=[20,0,300],
-    ))
+    #plots.append(Plot(
+    #    name = "O7_sign",
+    #    texX = 'O7/|O7|', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.O7,
+    #    binning=[2,-2,2],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "mt_had",
+    #    texX = 'M(had. top)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.mt_had,
+    #    binning=[20,0,300],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "mt_lep",
+    #    texX = 'M(lep. top)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.mt_lep,
+    #    binning=[20,0,300],
+    #))
 
-    plots.append(Plot(
-        name = "mw_had",
-        texX = 'M(had. W)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.mw_had,
-        binning=[20,0,200],
-    ))
+    #plots.append(Plot(
+    #    name = "mw_had",
+    #    texX = 'M(had. W)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.mw_had,
+    #    binning=[20,0,200],
+    #))
 
-    plots.append(Plot(
-        name = "mw_lep",
-        texX = 'M(lep. W)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.mw_lep,
-        binning=[20,0,200],
-    ))
-    
-    plots.append(Plot(
-        name = "chi2min",
-        texX = 'min(#chi^2)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.chi2min,
-        binning=[20,0,200],
-    ))
+    #plots.append(Plot(
+    #    name = "mw_lep",
+    #    texX = 'M(lep. W)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.mw_lep,
+    #    binning=[20,0,200],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "chi2min",
+    #    texX = 'min(#chi^2)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.chi2min,
+    #    binning=[20,0,200],
+    #))
 
     
     #plots.append(Plot(
@@ -846,71 +844,71 @@ for index, mode in enumerate(allModes):
     #))
 
 
-    plots.append(Plot(
-      texX = 'p_{T}(leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-      name = 'bjet1_pt', attribute = lambda event, sample: event.b1_pt,
-      binning=[20,0,400],
-    ))
+    #plots.append(Plot(
+    #  texX = 'p_{T}(leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
+    #  name = 'bjet1_pt', attribute = lambda event, sample: event.b1_pt,
+    #  binning=[20,0,400],
+    #))
 
-    plots.append(Plot(
-      texX = 'p_{T}(2nd leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
-      name = 'bjet2_pt', attribute = lambda event, sample: event.b2_pt,
-      binning=[20,0,400],
-    ))
-    
-    plots.append(Plot(
-        name = "top_cand1_pt", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 30 GeV',
-        attribute = lambda event, sample:event.top1_pt,
-        binning=[20,0,600],
-    ))
+    #plots.append(Plot(
+    #  texX = 'p_{T}(2nd leading b-jet cand) (GeV)', texY = 'Number of Events / 20 GeV',
+    #  name = 'bjet2_pt', attribute = lambda event, sample: event.b2_pt,
+    #  binning=[20,0,400],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "top_cand1_pt", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 30 GeV',
+    #    attribute = lambda event, sample:event.top1_pt,
+    #    binning=[20,0,600],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
-        attribute = lambda event, sample:event.top1_pt,
-        binning=[3,0,600],
-    ))
-    
-    plots.append(Plot(
-        name = "top_cand1_pt_2bin", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
-        attribute = lambda event, sample:event.top1_pt,
-        binning=[2,0,400],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand1_pt_coarse", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
+    #    attribute = lambda event, sample:event.top1_pt,
+    #    binning=[3,0,600],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "top_cand1_pt_2bin", texX = 'p_{T}(t cand1) (GeV)', texY = 'Number of Events / 200 GeV',
+    #    attribute = lambda event, sample:event.top1_pt,
+    #    binning=[2,0,400],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
-        attribute = lambda event, sample:event.top1_mass,
-        binning=[20,0,300],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand1_mass", texX = 'M(t cand1) (GeV)', texY = 'Number of Events / 15 GeV',
+    #    attribute = lambda event, sample:event.top1_mass,
+    #    binning=[20,0,300],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand1_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.top1_phi,
-        binning=[10,-pi,pi],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand1_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.top1_phi,
+    #    binning=[10,-pi,pi],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand2_pt", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 30 GeV',
-        attribute = lambda event, sample:event.top2_pt,
-        binning=[20,0,600],
-    ))
-    
-    plots.append(Plot(
-        name = "top_cand2_pt_coarse", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 200 GeV',
-        attribute = lambda event, sample:event.top2_pt,
-        binning=[3,0,600],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand2_pt", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 30 GeV',
+    #    attribute = lambda event, sample:event.top2_pt,
+    #    binning=[20,0,600],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "top_cand2_pt_coarse", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 200 GeV',
+    #    attribute = lambda event, sample:event.top2_pt,
+    #    binning=[3,0,600],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
-        attribute = lambda event, sample:event.top2_mass,
-        binning=[20,0,300],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand2_mass", texX = 'p_{T}(t cand2) (GeV)', texY = 'Number of Events / 15 GeV',
+    #    attribute = lambda event, sample:event.top2_mass,
+    #    binning=[20,0,300],
+    #))
 
-    plots.append(Plot(
-        name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
-        attribute = lambda event, sample:event.top2_phi,
-        binning=[10,-pi,pi],
-    ))
+    #plots.append(Plot(
+    #    name = "top_cand2_phi", texX = '#phi(t cand1)', texY = 'Number of Events',
+    #    attribute = lambda event, sample:event.top2_phi,
+    #    binning=[10,-pi,pi],
+    #))
 
     #plots.append(Plot(
     #    name = "mt_1", texX = 'M_{T}(var 1) (GeV)', texY = 'Number of Events / 20 GeV',
@@ -966,29 +964,29 @@ for index, mode in enumerate(allModes):
         binning=[25,-2,3],
     ))
 
-    plots.append(Plot(
-        name = "deltaPhi_Wl", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.2',
-        attribute = lambda event, sample:event.deltaPhi_Wl,
-        binning=[16,0,3.2],
-    ))
+    #plots.append(Plot(
+    #    name = "deltaPhi_Wl", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.2',
+    #    attribute = lambda event, sample:event.deltaPhi_Wl,
+    #    binning=[16,0,3.2],
+    #))
 
-    plots.append(Plot(
-        name = "deltaPhi_Wl_coarse", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.8',
-        attribute = lambda event, sample:event.deltaPhi_Wl,
-        binning=[4,0,3.2],
-    ))
-    
-    plots.append(Plot(
-        name = "deltaPhi_tl", texX = '#Delta#phi_{t,l}', texY = 'Number of Events / 0.2',
-        attribute = lambda event, sample:event.deltaPhi_tl,
-        binning=[16,0,3.2],
-    ))
+    #plots.append(Plot(
+    #    name = "deltaPhi_Wl_coarse", texX = '#Delta#phi_{W,l}', texY = 'Number of Events / 0.8',
+    #    attribute = lambda event, sample:event.deltaPhi_Wl,
+    #    binning=[4,0,3.2],
+    #))
+    #
+    #plots.append(Plot(
+    #    name = "deltaPhi_tl", texX = '#Delta#phi_{t,l}', texY = 'Number of Events / 0.2',
+    #    attribute = lambda event, sample:event.deltaPhi_tl,
+    #    binning=[16,0,3.2],
+    #))
 
-    plots.append(Plot(
-        name = "deltaPhi_tl_coarse", texX = '#Delta#phi_{t,l}', texY = 'Number of Events / 0.8',
-        attribute = lambda event, sample:event.deltaPhi_tl,
-        binning=[4,0,3.2],
-    ))
+    #plots.append(Plot(
+    #    name = "deltaPhi_tl_coarse", texX = '#Delta#phi_{t,l}', texY = 'Number of Events / 0.8',
+    #    attribute = lambda event, sample:event.deltaPhi_tl,
+    #    binning=[4,0,3.2],
+    #))
     
     #plots.append(Plot(
     #    name = "deltaPhi_tl_topRF", texX = '#Delta#phi_{t,l} in t RF', texY = 'Number of Events / 0.2',

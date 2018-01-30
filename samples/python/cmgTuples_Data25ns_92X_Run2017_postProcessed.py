@@ -59,6 +59,8 @@ def getSample(pd, runName, lumi):
     sample.lumi = lumi
     return sample
 
+lumi = 39*1000
+
 SingleElectron_Run2017BC       = getSample('SingleElectron',   'Run2017BC',       (1.)*1000)
 SingleMuon_Run2017BC           = getSample('SingleMuon',       'Run2017BC',       (1.)*1000)
 SingleEleMu_Run2017BC          = getSample('SingleEleMu',      'Run2017BC',       (1.)*1000)
@@ -75,11 +77,11 @@ SingleElectron_Run2017EF       = getSample('SingleElectron',   'Run2017EF',     
 SingleMuon_Run2017EF           = getSample('SingleMuon',       'Run2017EF',       (1.)*1000)
 SingleEleMu_Run2017EF          = getSample('SingleEleMu',      'Run2017EF',       (1.)*1000)
 
-SingleElectron_Run2017         = getSample('SingleElectron',   'Run2017',       (1.)*1000)
-SingleMuon_Run2017             = getSample('SingleMuon',       'Run2017',       (1.)*1000)
-SingleEleMu_Run2017            = getSample('SingleEleMu',      'Run2017',       (1.)*1000)
+SingleElectron_Run2017         = getSample('SingleElectron',   'Run2017',       lumi)
+SingleMuon_Run2017             = getSample('SingleMuon',       'Run2017',       lumi)
+SingleEleMu_Run2017            = getSample('SingleEleMu',      'Run2017',       lumi)
 
-MET_Run2017                     = getSample('MET',       'Run2017',       (1.)*1000)
+MET_Run2017                     = getSample('MET',       'Run2017',       lumi)
 
 allSamples_Data25ns_2017= []
 allSamples_Data25ns_2017+= [SingleMuon_Run2017, SingleElectron_Run2017, SingleEleMu_Run2017, MET_Run2017]
