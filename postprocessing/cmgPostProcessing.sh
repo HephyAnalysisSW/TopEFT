@@ -46,6 +46,18 @@
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_DC1A_0p500000_DC1V_0p500000
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_0p176700_DVG_0p176700 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_0p176700_DVG_m0p176700 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_0p250000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_0p500000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_m0p176700_DVG_0p176700 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_m0p250000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DAG_m0p500000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DVG_0p250000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DVG_0p500000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DVG_m0p250000 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepPhotons --keepLHEWeights --sample  ttGamma0j_ll_DVG_m0p500000 #SPLIT10
 
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_noH
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample ewkDM_ttZ_ll_noH_DC2V_0p050000
@@ -78,6 +90,7 @@
 #python cmgPostProcessing.py --skim inclusive --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p100000 #SPLIT10
 #python cmgPostProcessing.py --skim inclusive --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p200000 #SPLIT10
 #python cmgPostProcessing.py --skim inclusive --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p300000 #SPLIT10
+
 #
 # 2016 MC For fake rate studies?
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample DYJetsToLL_M50 # SPLIT20
@@ -113,7 +126,38 @@
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016G_03Feb2017 #SPLIT10
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py --overwrite  --skim dilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT10
+<<<<<<< HEAD
 #
+=======
+
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection mu --sample  SingleMuon_Run2016H_03Feb2017_v3 #SPLIT10
+#
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT10
+
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016B_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016C_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016D_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016E_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016F_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016G_03Feb2017 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT10
+python cmgPostProcessing.py --overwrite  --skim trilep --processingEra TopEFT_PP_v14 --triggerSelection e_for_mu --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT10
+
+>>>>>>> 0eb7b19ca26a62e9b69a804b6e4120002b5a1da9
 #python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v14 --sample  MET_Run2016B_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v14 --sample  MET_Run2016C_03Feb2017 #SPLIT10
 #python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v14 --sample  MET_Run2016D_03Feb2017 #SPLIT10

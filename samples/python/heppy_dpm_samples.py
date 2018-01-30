@@ -197,8 +197,8 @@ from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import s
 signal_0j_heppy_mapper = heppy_mapper( ttZ0j_signal_samples, signal_dpm_directories, signal_cache_file)
 
 # Private signal MC with 0 jets (LO) and 0 lepton requirement
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttZ0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_0l_v12']
+signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_0l_v12', '/dpm/oeaw.ac.at//home/cms/store/user/schoef/cmgTuples/80X_0l_35']
 signal_dpm_directories = robert
-from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttZ0j_signal_samples
-signal_0j_0l_heppy_mapper = heppy_mapper( ttZ0j_signal_samples, signal_dpm_directories, signal_cache_file)
+from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttX0j_signal_samples
+signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file)

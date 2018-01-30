@@ -63,7 +63,6 @@ def get_parser():
     argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
     argParser.add_argument('--skim',                        action='store',         nargs='?',  type=str,                           default='dilepTiny',                help="Skim conditions to be applied for post-processing")
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
-    argParser.add_argument('--keepAllJets',                 action='store_true',                                                                                        help="Keep all jets?")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
@@ -568,8 +567,7 @@ def filler( event ):
         if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
             selected_jets.append( j )
         else:
-            if options.keepAllJets:
-                other_jets.append( j )
+            other_jets.append( j )
 
     # Don't change analysis jets even if we keep all jets, hence, apply abs eta cut
     bJets        = filter(lambda j:isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, selected_jets)
@@ -579,7 +577,7 @@ def filler( event ):
 
     # Store jets
     event.nJetSelected   = len(selected_jets)
-    jets_stored = allJets if options.keepAllJets else selected_jets
+    jets_stored = allJets 
     event.njet        = len(jets_stored)
     for iJet, jet in enumerate(jets_stored):
         for b in jetVarNames:

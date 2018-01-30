@@ -19,13 +19,13 @@ cfg_path = os.path.join(CMSSW_BASE, 'src/TopEFT/Generation/production/cfg/')
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--gridpackDir',           action='store',      default='/afs/hephy.at/data/dspitzbart01/TopEFT/results/gridpacks/',          nargs='?', help="Where are the gridpacks?")
-argParser.add_argument('--qualifier',             action='store',      default='dim6top_LO_ttZ_ll',          nargs='?', help="Any criteria on the name of the gridpack?")
-argParser.add_argument('--maxEvents',           action='store',      default=100000,          nargs='?', help="How many events?")
-argParser.add_argument('--nJetMax',           action='store',      default=0,          nargs='?', help="How many jets to match?")
-argParser.add_argument('--outDir',           action='store',      default='/afs/hephy.at/data/dspitzbart01/TopEFT/genSamples/',          nargs='?', help="Where are the gridpacks?")
-argParser.add_argument('--outFile',           action='store',      default='submit.txt',          nargs='?', help="Outputfile?")
-argParser.add_argument('--cfg',                     action='store', default='GEN.py',               help="Which cfg from Generation/production/cfg to use?")
+argParser.add_argument('--gridpackDir', action='store',     default='/afs/hephy.at/data/dspitzbart01/TopEFT/results/gridpacks/',    nargs='?', help="Where are the gridpacks?")
+argParser.add_argument('--qualifier',   action='store',     default='dim6top_LO_ttZ_ll',                                            nargs='?', help="Any criteria on the name of the gridpack?")
+argParser.add_argument('--maxEvents',   action='store',     default=100000,                                                         nargs='?', help="How many events?")
+argParser.add_argument('--nJetMax',     action='store',     default=0,                                                              nargs='?', help="How many jets to match?")
+argParser.add_argument('--outDir',      action='store',     default='/afs/hephy.at/data/dspitzbart01/TopEFT/genSamples/',           nargs='?', help="Where are the gridpacks?")
+argParser.add_argument('--outFile',     action='store',     default='submit.txt',                                                   nargs='?', help="Outputfile?")
+argParser.add_argument('--cfg',         action='store',     default='GEN.py',                                                                  help="Which cfg from Generation/production/cfg to use?")
 
 args = argParser.parse_args()
 

@@ -46,7 +46,6 @@ dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'] = ['ttZ0j_ll_DC1A_0p
 dirs['ttZ0j_ll_DC1A_1p000000'] = ['ttZ0j_ll_DC1A_1p000000']
 dirs['ttZ0j_ll_DC2A_0p200000_DC2V_0p200000'] = ['ttZ0j_ll_DC2A_0p200000_DC2V_0p200000']
 
-
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
 #ewkDM_TTZToLL_LO                    = Sample.fromDirectory(name="ewkDM_TTZToLL_LO",                 treeName="Events", isData=False, color=1, texName="#DeltaC_{1,2;V,A}=0",        directory=directories['ewkDM_TTZToLL_LO'])
@@ -80,6 +79,9 @@ ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 = Sample.fro
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0, C_{2,A}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'])
+
+
+
 allSignals = [\
     # default
     ttZ0j_ll,
