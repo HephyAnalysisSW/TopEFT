@@ -15,7 +15,8 @@ special_cuts = {
     "SSdilep":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])>0",
 #    "lepSelTTW":         "lep_pt[1]>25&&(
     "dilepOFOS":         "nGoodElectrons==1&&nGoodMuons==1&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
-    "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])<0",
+    "dilepOS":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
+    "dilepSFOS":         "(nGoodElectrons==2||nGoodMuons==2)&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "trilep":            "nlep==3",
     "quadlep":           "nlep==4",
     "Zcand":             "Z_mass>0",
@@ -23,6 +24,7 @@ special_cuts = {
     "lepSelTTG":         "lep_pt[0]>40&&lep_pt[1]>20",
     "lepSelTTZ4l":       "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&lep_pt[3]>10",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
+    "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
     "onZ":               "abs(Z_mass-91.2)<10",
     "offZ":              "abs(Z_mass-91.2)>10",
   }

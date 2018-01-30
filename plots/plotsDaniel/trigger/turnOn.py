@@ -49,30 +49,36 @@ def turnon_func(x, par):
 
 
 
-#postProcessing_directory = "TopEFT_PP_v10/trilep/"
-#from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_v12/dilep/"
-from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
+#postProcessing_directory = "TopEFT_PP_v14/singlelep/"
+#from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
+
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v14/singlelep/"
+from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
+
 
 postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v12/dilep/"
-from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_1e import *
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
+from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 
-presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
+#presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
 
 # presel for measuring efficiencies in single lep datasets
-presel = "nlep==2&&nGoodElectrons==1&&nGoodMuons==1&&lep_pdgId[0]*lep_pdgId[1]<0"
-presel = "nlep==1"
+presel = "nlep>=3"#&&met_pt>200&&HLT_AllMET170"
 
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
-channels = {'1e':'nGoodElectrons==1'}
+channels = {'3pl':'nlep>=3&&HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60'}
+#&&HLT_PFMET120_PFMHT120_IDTight
 #channels = {'all':'(1)'}
+
 
 # singleMu
 singleMuTTZ         = ["HLT_SingleMuTTZ"] #isolated
@@ -103,7 +109,7 @@ triggers_all = {
 
 triggers_2016 = {
     "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
-    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
+#    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
     "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
 }
@@ -137,14 +143,14 @@ eee_17          = ["HLT_eee"]
 
 triggers_2017 = {
     "singleLep": "(%s)"%"||".join(mu_17+ele_17),
-    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
+#    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
     "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
 }
 
 
 
-triggers = triggers_2016_ele
+triggers = triggers_2017
 
 
 
@@ -153,7 +159,9 @@ markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22,
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
-sample = MET_Run2016
+sample = MET_Run2017
+#sample = TTZ_LO
+#sample = WZ
 #sample = SingleMuon_Run2016
 #sample = SingleElectron_Run2016
 
@@ -184,6 +192,7 @@ for lep in leptons:
             #sample.chain.Draw("lep_pt>>total", baseline)
             #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
     
+            print "Number of events", h_trigg[trigger].Integral()
             h_ratio = h_trigg[trigger].Clone()
             h_ratio.Divide(h_total[trigger])
     
@@ -217,7 +226,7 @@ for lep in leptons:
             fturn.SetParameters(expHalfP,expWidth,expPlateau)
     
             ## do fit
-            fitr = tEff[trigger].Fit(fturn,'S Q E EX0')#EX0
+            #fitr = tEff[trigger].Fit(fturn,'S Q E EX0')#EX0
             
     
             #halfpoint = fitr.Value(0)
@@ -277,7 +286,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)

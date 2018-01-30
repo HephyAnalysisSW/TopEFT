@@ -5,7 +5,7 @@ import argparse
 from RootTools.core.Sample import Sample
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store', default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
-argParser.add_argument("--signal",         action='store', default='ewkDM',          nargs='?', choices=["ewkDM"], help="which signal?")
+argParser.add_argument("--signal",         action='store', default='dipole',          nargs='?', choices=["dipoles", "currents"], help="which signal?")
 argParser.add_argument("--only",           action='store', default=None,            nargs='?',                                                                                           help="pick only one masspoint?")
 argParser.add_argument("--scale",          action='store', default=1.0, type=float, nargs='?',                                                                                           help="scaling all yields")
 argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
@@ -13,6 +13,7 @@ argParser.add_argument("--popFromSR",      default = False, action = "store", he
 argParser.add_argument("--extension",      default = '', action = "store", help="Extension to dir name?")
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
+argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
 
 args = argParser.parse_args()
 
@@ -70,6 +71,8 @@ modification_dict = {"process":"ttZ_ll"}
 
 modification_dict["ctZ"]    = 0.
 modification_dict["ctZi"]   = 0.
+modification_dict["cpQM"]   = 0.
+modification_dict["cpt"]    = 0.
 
 xsec_central = p.xsecDB.get(modification_dict)
 
@@ -80,8 +83,18 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
-    modification_dict["ctZ"]    = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
-    modification_dict["ctZi"]   = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
+    modification_dict = {"process":"ttZ_ll"}
+    
+    if args.signal == "dipoles":
+        modification_dict["ctZ"]    = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
+        modification_dict["ctZi"]   = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
+        modification_dict["cpQM"]   = 0.
+        modification_dict["cpt"]    = 0.
+    elif args.signal == "currents":
+        modification_dict["ctZ"]    = 0.
+        modification_dict["ctZi"]   = 0.
+        modification_dict["cpQM"]   = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
+        modification_dict["cpt"]    = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
 
     xsec = p.xsecDB.get(modification_dict)
     
@@ -124,20 +137,21 @@ def wrapper(s):
                         c.specifyExpectation(binname, name, expected.val)
 
                         if expected.val>0:
-                            c.specifyUncertainty('PU',          binname, name, 1.01) 
-                            c.specifyUncertainty('JEC',         binname, name, 1.03) #1.05
-                            c.specifyUncertainty('btag',        binname, name, 1.03) #1.05
-                            c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
-                            c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
-                            c.specifyUncertainty('scale',       binname, name, 1.01) 
-                            c.specifyUncertainty('PDF',         binname, name, 1.01) 
+                            if not args.statOnly:
+                                c.specifyUncertainty('PU',          binname, name, 1.01) 
+                                c.specifyUncertainty('JEC',         binname, name, 1.03) #1.05
+                                c.specifyUncertainty('btag',        binname, name, 1.03) #1.05
+                                c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
+                                c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
+                                c.specifyUncertainty('scale',       binname, name, 1.01) 
+                                c.specifyUncertainty('PDF',         binname, name, 1.01) 
 
-                            if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
-                            if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
-                            if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
-                            if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
-                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
+                                if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
+                                if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
+                                if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
+                                if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
+                                if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
+                                if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
 
 
                             #MC bkg stat (some condition to neglect the smaller ones?)
@@ -168,13 +182,14 @@ def wrapper(s):
                     c.specifyExpectation(binname, 'signal', sig.val*xSecScale * xSecMod )
                     
                     if sig.val>0:
-                        c.specifyUncertainty('PU',          binname, "signal", 1.01)
-                        c.specifyUncertainty('JEC',         binname, "signal", 1.03) #1.05
-                        c.specifyUncertainty('btag',        binname, "signal", 1.03) #1.05
-                        c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
-                        c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
-                        c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
-                        c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
+                        if not args.statOnly:
+                            c.specifyUncertainty('PU',          binname, "signal", 1.01)
+                            c.specifyUncertainty('JEC',         binname, "signal", 1.03) #1.05
+                            c.specifyUncertainty('btag',        binname, "signal", 1.03) #1.05
+                            c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
+                            c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
+                            c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
+                            c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
@@ -205,6 +220,9 @@ def wrapper(s):
         # extract the NLL
         nll = c.calcNLL(cardFileName)
         res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+        print
+        print "Adding results"
+        print s, res, nll['nll_abs']
         addResult(s, res, nll['nll_abs'], overwrite=True)
         
     print "NLL results:"
@@ -225,7 +243,11 @@ def wrapper(s):
 
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
-jobs = allSamples_dim6top
+#jobs = allSamples_dim6top
+if args.signal == "dipoles":
+    jobs = dim6top_dipoles
+elif args.signal == "currents":
+    jobs = dim6top_currents
 
 allJobs = [j.name for j in jobs]
 #print "I have imported these signals:"
