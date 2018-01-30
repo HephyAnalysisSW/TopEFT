@@ -143,7 +143,7 @@ class Configuration:
         self.__pre_initialize()
 
         # couplings
-        modified_couplings = modified_couplings if modified_couplings is not None else []
+        modified_couplings = modified_couplings if modified_couplings is not None else {}
 
         # Check whether couplings are in the model
         for coup in modified_couplings.keys():
