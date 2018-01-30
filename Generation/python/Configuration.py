@@ -91,6 +91,12 @@ class Configuration:
             logger.error( "Apparently, list of couplings for model %s is not unique: %s. Check model file %s.", self.model_name, ",".join(self.all_model_couplings), model_file )
             raise RuntimeError
 
+        # Get default values for model
+        self.default_model_couplings = {}
+        for param_set in self.model.values():
+            for param, val in param_set:
+                self.default_model_couplings[param] = val
+
     def __pre_initialize( self ):
         ''' Create temporary directories and unzip GP. 
         Time consuming. '''

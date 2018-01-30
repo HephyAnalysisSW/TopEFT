@@ -239,7 +239,7 @@ class Process:
             if k in modified_couplings.keys():
                 key[k] = modified_couplings[k]
             else:
-                key[k] = 0.
+                key[k] = self.config.default_model_couplings[k]
         return key
     
     def hasXSec(self, modified_couplings):
