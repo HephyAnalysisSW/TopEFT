@@ -42,7 +42,7 @@ if len(args.couplings) == 1 and os.path.isfile(args.couplings[0]) :
 # Interpret couplings 
 #elif len(args.couplings)>=2:
 elif len(args.couplings)==0 or len(args.couplings)>=2:
-    # make a list of the form [ ['c1', v1, v2, ...], ['c2', ...] ] so we can recourse in the couplings c1,c2,... 
+    # make a list of the form [ ['c1', v1, v2, ...], ['c2', ...] ] so we can recurse in the couplings c1,c2,... 
     coupling_list = []
     for a in args.couplings:
         try:
@@ -51,7 +51,7 @@ elif len(args.couplings)==0 or len(args.couplings)>=2:
             coupling_list.append( [ a, [] ] )
             val = None
 
-        if val: coupling_list[-1][1].append( float(a) )
+        if val is not None: coupling_list[-1][1].append( float(a) )
 
     # recursively make a for loop over all couplings
     def recurse( c_list ):
