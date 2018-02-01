@@ -54,13 +54,13 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 
 ttZ0j_ll                        = Sample.fromDirectory(name="ttZ0j_ll", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttZ0j_ll'])
 
-#HEL_UFO
-ttZ0j_ll_cuW_0p100000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p100000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.1", directory=directories['ttZ0j_ll_cuW_0p100000'])
-ttZ0j_ll_cuW_0p200000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p200000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.2", directory=directories['ttZ0j_ll_cuW_0p200000'])
-ttZ0j_ll_cuW_0p300000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p300000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.3", directory=directories['ttZ0j_ll_cuW_0p300000'])
-ttZ0j_ll_cuW_m0p100000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p100000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.1", directory=directories['ttZ0j_ll_cuW_m0p100000'])
-ttZ0j_ll_cuW_m0p200000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p200000", treeName="Events", isData=False, color=1, texName="c_{uW}=-0.2", directory=directories['ttZ0j_ll_cuW_m0p200000'])
-ttZ0j_ll_cuW_m0p300000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p300000", treeName="Events", isData=False, color=1, texName="c_{uW}=-0.3", directory=directories['ttZ0j_ll_cuW_m0p300000'])
+##HEL_UFO
+#ttZ0j_ll_cuW_0p100000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p100000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.1", directory=directories['ttZ0j_ll_cuW_0p100000'])
+#ttZ0j_ll_cuW_0p200000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p200000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.2", directory=directories['ttZ0j_ll_cuW_0p200000'])
+#ttZ0j_ll_cuW_0p300000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p300000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.3", directory=directories['ttZ0j_ll_cuW_0p300000'])
+#ttZ0j_ll_cuW_m0p100000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p100000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.1", directory=directories['ttZ0j_ll_cuW_m0p100000'])
+#ttZ0j_ll_cuW_m0p200000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p200000", treeName="Events", isData=False, color=1, texName="c_{uW}=-0.2", directory=directories['ttZ0j_ll_cuW_m0p200000'])
+#ttZ0j_ll_cuW_m0p300000          = Sample.fromDirectory(name="ttZ0j_ll_cuW_m0p300000", treeName="Events", isData=False, color=1, texName="c_{uW}=-0.3", directory=directories['ttZ0j_ll_cuW_m0p300000'])
 
 # Markus' standard point
 ttZ0j_ll_DC2A_0p200000_DC2V_0p200000                                = Sample.fromDirectory(name="ttZ0j_ll_DC2A_0p200000_DC2V_0p200000", treeName="Events", isData=False, color=1, texName="C_{2,V}=0.2, C_{2,A}=0.2", directory=directories['ttZ0j_ll_DC2A_0p200000_DC2V_0p200000'])
@@ -88,13 +88,13 @@ allSignals = [\
     # Markus' point
     ttZ0j_ll_DC2A_0p200000_DC2V_0p200000,
 
-    # HEL_UFO
-    ttZ0j_ll_cuW_0p100000,
-    ttZ0j_ll_cuW_0p200000,
-    ttZ0j_ll_cuW_0p300000,
-    ttZ0j_ll_cuW_m0p100000,
-    ttZ0j_ll_cuW_m0p200000,
-    ttZ0j_ll_cuW_m0p300000,
+    ## HEL_UFO
+    #ttZ0j_ll_cuW_0p100000,
+    #ttZ0j_ll_cuW_0p200000,
+    #ttZ0j_ll_cuW_0p300000,
+    #ttZ0j_ll_cuW_m0p100000,
+    #ttZ0j_ll_cuW_m0p200000,
+    #ttZ0j_ll_cuW_m0p300000,
 
     # current ellipsis
     ttZ0j_ll_DC1A_1p000000,
