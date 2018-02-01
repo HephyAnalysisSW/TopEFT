@@ -311,8 +311,10 @@ logger.info("Loaded %s samples from directory %s", len(allSamples_dim6top), gen_
 ## Robert GEN 0j benchmarks Jan30 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 
-allSampleNames = [ x for x in os.listdir(gen_dir) if x.startswith('ewkDM_ttZ_ll_D') ]
-ewkDM_central = Sample.fromDirectory('ewkDM_ttZ_ll', directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll/")])
+import glob
+allSampleNames  = glob.glob(gen_dir+"ewkDM_ttZ_ll_D*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")] 
+ewkDM_central   = Sample.fromDirectory('ewkDM_ttZ_ll', directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll/")])
 
 ewkDM_currents  = []
 ewkDM_dipoles   = []
@@ -324,7 +326,7 @@ for s in allSampleNames:
     elif s.startswith('ewkDM_ttZ_ll_DC2'):
         ewkDM_dipoles.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
     else:
-        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s.name)
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
 
 ewkDM_all = [ewkDM_central] + ewkDM_currents + ewkDM_dipoles
 logger.info("Loaded %s samples from directory %s", len(ewkDM_all), gen_dir)

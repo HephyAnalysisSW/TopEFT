@@ -169,18 +169,26 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2 import mcSamp
 Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, daniel_94X, Fall17_cache_file)
 
 # Data 2017 + 17Nov2017
-data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19+17Nov2017.pkl'
-robert_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19', '/dpm/oeaw.ac.at//home/cms/store/user/schoef/cmgTuples/94X_1l_v1']
+data_cache_file_2017 = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19+17Nov2017.pkl'
+robert_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19', '/dpm/oeaw.ac.at//home/cms/store/user/schoef/cmgTuples/94X_1l_v1', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v4']
 data_dpm_directories = robert_1l_v19
 from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
 data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017)
 
+## Data ReminiAOD
+#data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v14.pkl'
+#robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
+#data_dpm_directories = robert_80X_1l_v14
+#from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
+
 # Data ReminiAOD
-data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v14.pkl'
-robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
+data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v15.pkl'
+robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_v15']
 data_dpm_directories = robert_80X_1l_v14
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
 data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
+
 
 # Private signal MC
 signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v12.pkl'

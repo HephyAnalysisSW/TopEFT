@@ -6,6 +6,7 @@ from RootTools.core.Sample import Sample
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store', default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
 argParser.add_argument("--signal",         action='store', default='dipole',          nargs='?', choices=["dipoles", "currents"], help="which signal?")
+argParser.add_argument("--model",         action='store', default='dim6top_LO',          nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal?")
 argParser.add_argument("--only",           action='store', default=None,            nargs='?',                                                                                           help="pick only one masspoint?")
 argParser.add_argument("--scale",          action='store', default=1.0, type=float, nargs='?',                                                                                           help="scaling all yields")
 argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
@@ -65,16 +66,53 @@ from TopEFT.Generation.Configuration import Configuration
 from TopEFT.Generation.Process       import Process
 from TopEFT.Tools.u_float         import u_float
 
-config = Configuration( model_name = "dim6top_LO" )
-p = Process(process = "ttZ_ll", nEvents = 5000, config = config)
+config = Configuration( model_name = args.model )
+
 modification_dict = {"process":"ttZ_ll"}
 
-modification_dict["ctZ"]    = 0.
-modification_dict["ctZi"]   = 0.
-modification_dict["cpQM"]   = 0.
-modification_dict["cpt"]    = 0.
+if args.model == "dim6top_LO":
+    xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
+    if args.signal == "dipoles":
+        nonZeroCouplings = ["ctZ","ctZi"]
+    elif args.signal == "currents":
+        nonZeroCouplings = ["cpQM", "cpt"]
+    # for safety, set all couplings to 0.
+    modification_dict["ctZ"]    = 0.
+    modification_dict["ctZi"]   = 0.
+    modification_dict["cpQM"]   = 0.
+    modification_dict["cpt"]    = 0.
+
+
+elif args.model == "ewkDM":
+    xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    if args.signal == "dipoles":
+        nonZeroCouplings = ["DC2A","DC2V"]
+    elif args.signal == "currents":
+        nonZeroCouplings = ["DC1A", "DC1V"]
+    # for safety, set all couplings to 0.
+    modification_dict["DC1A"]   = 0.
+    modification_dict["DC1V"]   = 0.
+    modification_dict["DC2A"]   = 0.
+    modification_dict["DC2V"]   = 0.
+
+
+logger.info("Using model %s in plane: %s", args.model, args.signal)
+
+logger.info("Will scan the following coupling values: %s and %s", nonZeroCouplings[0], nonZeroCouplings[1])
+
+p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB)
 
 xsec_central = p.xsecDB.get(modification_dict)
+
+logger.info("Found SM x-sec of %s", xsec_central)
+
+def getCouplingFromName(name, coupling):
+    if coupling in name:
+        l = name.split('_')
+        return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
+    else:
+        return 0.
+    
 
 def wrapper(s):
     
@@ -83,20 +121,12 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
-    modification_dict = {"process":"ttZ_ll"}
+    for coup in nonZeroCouplings:
+        modification_dict[coup] = getCouplingFromName(s.name, coup)
+        logger.info("The following coupling is set to non-zero value: %s: %s", coup, modification_dict[coup])
     
-    if args.signal == "dipoles":
-        modification_dict["ctZ"]    = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
-        modification_dict["ctZi"]   = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
-        modification_dict["cpQM"]   = 0.
-        modification_dict["cpt"]    = 0.
-    elif args.signal == "currents":
-        modification_dict["ctZ"]    = 0.
-        modification_dict["ctZi"]   = 0.
-        modification_dict["cpQM"]   = float(s.name.split('_')[5].replace('p','.').replace('m','-'))
-        modification_dict["cpt"]    = float(s.name.split('_')[7].replace('p','.').replace('m','-'))
-
     xsec = p.xsecDB.get(modification_dict)
+    logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')
     if not os.path.exists(cardFileName) or overWrite:
@@ -164,7 +194,10 @@ def wrapper(s):
 
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
-                        source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+                        if args.model == "dim6top_LO":
+                            source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+                        elif args.model == "ewkDM":
+                            source_gen = ewkDM_central
                         target_gen = s
 
                         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
@@ -210,7 +243,7 @@ def wrapper(s):
     
     if getResult(s) and not overWrite:
         res = getResult(s)
-        print "Found result for %s, reusing"%s.name
+        logger.info("Found result for %s, reusing", s.name)
     else:
         # calculate the limit
         limit = c.calcLimit(cardFileName)#, options="--run blind")
@@ -220,11 +253,9 @@ def wrapper(s):
         # extract the NLL
         nll = c.calcNLL(cardFileName)
         res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
-        print
-        print "Adding results"
-        print s, res, nll['nll_abs']
-        addResult(s, res, nll['nll_abs'], overwrite=True)
+        logger.inf("Adding results to database")
         
+    print
     print "NLL results:"
     print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
     print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
@@ -244,15 +275,18 @@ def wrapper(s):
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
 #jobs = allSamples_dim6top
-if args.signal == "dipoles":
-    jobs = dim6top_dipoles
-elif args.signal == "currents":
-    jobs = dim6top_currents
+if args.model == "dim6top_LO":
+    if args.signal == "dipoles":
+        jobs = dim6top_dipoles
+    elif args.signal == "currents":
+        jobs = dim6top_currents
+elif args.model == "ewkDM":
+    if args.signal == "dipoles":
+        jobs = [ewkDM_central] + ewkDM_dipoles
+    elif args.signal == "currents":
+        jobs = [ewkDM_central] + ewkDM_currents
 
 allJobs = [j.name for j in jobs]
-#print "I have imported these signals:"
-#for n in allJobs:
-#    print n
 
 if args.only is not None:
     wrapper(jobs[int(args.only)])

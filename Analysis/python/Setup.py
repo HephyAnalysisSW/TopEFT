@@ -60,7 +60,7 @@ default_parameters   = {
 
 class Setup:
     def __init__(self):
-        self.name       = "regionsE_xsec_lowUnc"
+        self.name       = "regionsE_xsec_shape_lowUnc"
         #self.name       = "regionsE_80fb_xsec_shape_lowUnc"
         self.channels   = ["all"]
         self.regions    = regionsE
