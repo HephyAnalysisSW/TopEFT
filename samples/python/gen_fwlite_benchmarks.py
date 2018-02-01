@@ -9,6 +9,10 @@ from RootTools.core.standard import *
 #Top EFT
 from TopEFT.Tools.user import results_directory 
 
+# Logging
+import logging
+logger = logging.getLogger(__name__)
+
 # Robert GENSIM 0j benchmarks 09Nov17 (used for analysis development)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 ewkDM_ttZ_ll_gen                                             = Sample.fromDirectory("ewkDM_ttZ_ll_gen",                                                                           texName ="SM",                                                       directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll_GS/")])
@@ -48,6 +52,8 @@ ewkDMGZ_ttgamma_gen_DVG_m0p250000               = Sample.fromDirectory("ewkDMGZ_
 
 ## Daniel GENSIM 0j benchmarks Jan18 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/gen/v2/"
+
+logger.info("Loading dim6top signals")
 
 # dipole scan
 dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00/")])
@@ -300,6 +306,8 @@ allSamples_dim6top = [ locals()[x] for x in locals().keys() if x.startswith("dim
 dim6top_dipoles  = [ locals()[x] for x in locals().keys() if ( x.startswith("dim6top") and 'ctZ' in x) ]
 dim6top_currents = [ locals()[x] for x in locals().keys() if ( x.startswith("dim6top") and 'cpQM' in x) ]
 
+logger.info("Loaded %s samples from directory %s", len(allSamples_dim6top), gen_dir)
+
 ## Robert GEN 0j benchmarks Jan30 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 
@@ -309,13 +317,17 @@ ewkDM_central = Sample.fromDirectory('ewkDM_ttZ_ll', directory = [os.path.join( 
 ewkDM_currents  = []
 ewkDM_dipoles   = []
 
+logger.info("Loading ewkDM signals")
 for s in allSampleNames:
     if s.startswith('ewkDM_ttZ_ll_DC1'):
         ewkDM_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
     elif s.startswith('ewkDM_ttZ_ll_DC2'):
         ewkDM_dipoles.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
     else:
-        print "Don't know what to do with sample %s, can't categorize into current or dipole."%s.name
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s.name)
 
 ewkDM_all = [ewkDM_central] + ewkDM_currents + ewkDM_dipoles
+logger.info("Loaded %s samples from directory %s", len(ewkDM_all), gen_dir)
+
+
 
