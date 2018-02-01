@@ -33,7 +33,6 @@ argParser.add_argument('--selectSys',         action='store',      default='all'
 argParser.add_argument('--showOnly',          action='store',      default=None)
 argParser.add_argument('--small',             action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--runLocal',             action='store_true',     help='Run local or submit?', )
-argParser.add_argument('--copyIndexPHP',      action='store_true',     help='copy index.php to directories?', )
 argParser.add_argument('--isChild',           action='store_true', default=False)
 argParser.add_argument('--normalizeBinWidth', action='store_true', default=False,       help='normalize wider bins?')
 argParser.add_argument('--dryRun',            action='store_true', default=False,       help='do not launch subjobs')
@@ -115,10 +114,6 @@ if args.small:                    args.plot_directory += "_small"
 try: os.makedirs(os.path.join(plot_directory, args.plot_directory, mode, args.selection))
 except: pass
 
-if args.copyIndexPHP:
-    copyIndexPHP( plot_directory )
-    copyIndexPHP( os.path.join( plot_directory, args.plot_directory ) )
-
 #
 # Make samples, will be searched for in the postProcessing directory
 #
@@ -160,8 +155,6 @@ if   args.signal == "ewkDM":
     for i, dipole in enumerate(dipoles):
         dipole.style = styles.lineStyle( colors[i], width=3 )
  
-    signals = [dipole1, TTW, TZQ, TTX, WZ, rare, nonprompt]
-    #signals = [ ewkDM1 ]
 
 #
 # Text on the plots
@@ -268,22 +261,16 @@ for index, mode in enumerate(allModes):
         sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
 
     for s in signals:
-        if type(s) == type([]):
-            for x in s:
-                x.scale          = lumi_scale
-                x.read_variables = ['reweightBTagCSVv2_SF/F','reweightPU36fb/F','nTrueInt/F']
-                x.weight         = lambda event, sample: event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb
-                x.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
-        else:
-            s.scale          = lumi_scale
-            #s.read_variables = ['reweightBTagCSVv2_SF/F','reweightPU36fb/F','nTrueInt/F']
-            #s.weight         = lambda event, sample: event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb
-            s.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
+        s.scale          = lumi_scale
+        #s.read_variables = ['reweightBTagCSVv2_SF/F','reweightPU36fb/F','nTrueInt/F']
+        #s.weight         = lambda event, sample: event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb
+        s.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
 
     # Use some defaults
     Plot.setDefaults( selectionString = cutInterpreter.cutString(args.selection) )
   
-    stack_mc   = Stack( mc )
+    stack_mc        = Stack( mc )
+    stack_signal    = Stack( mc[1:] + [dipole1] )
 
     if   args.signal == "ewkDM": stack_data = Stack( data_sample, signals ) 
     else:                       stack_data = Stack( data_sample )
@@ -367,14 +354,25 @@ for index, mode in enumerate(allModes):
     
     ZptBinning = [0, 100, 200, 400, 800]
 
-    Zpt_data  = Plot( 
+    #Zpt_data  = Plot( 
+    #    name            = "Z_pt_data",
+    #    texX            = 'p_{T}(Z) (GeV)', 
+    #    texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Events",
+    #    stack           = stack_data, 
+    #    attribute       = TreeVariable.fromString( "Z_pt/F" ),
+    #    binning         = Binning.fromThresholds( ZptBinning ),
+    #    weight          = data_weight,
+    #    )
+    #plots.append( Zpt_data )
+    
+    Zpt_data  = Plot(
         name            = "Z_pt_data",
-        texX            = 'p_{T}(Z) (GeV)', 
+        texX            = 'p_{T}(Z) (GeV)',
         texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Events",
-        stack           = stack_data, 
+        stack           = stack_signal,
         attribute       = TreeVariable.fromString( "Z_pt/F" ),
         binning         = Binning.fromThresholds( ZptBinning ),
-        weight          = data_weight,
+        #weight          = data_weight,
         )
     plots.append( Zpt_data )
 
@@ -452,8 +450,6 @@ for index, mode in enumerate(allModes):
     result_file = os.path.join(plot_directory, args.plot_directory, mode, args.selection, 'results.pkl')
     try: os.makedirs(os.path.join(plot_directory, args.plot_directory, mode, args.selection))
     except: pass
-    if args.copyIndexPHP:
-        copyIndexPHP ( os.path.join(plot_directory, args.plot_directory, mode, args.selection) )
 
     ## get the norm etc - not needed for ttZ!
     if args.selectSys != "combine": 
@@ -579,9 +575,6 @@ for index, mode in enumerate(allModes):
             #print "plot.histos[0][pos_top].Integral()", plot.histos[0][pos_top].Integral()    
             for log in [False, True]:
                 plotDir = os.path.join(plot_directory, args.plot_directory, mode + ("_log" if log else "") + "_scaled", args.selection)
-                if args.copyIndexPHP:
-                    copyIndexPHP( os.path.join(plot_directory, args.plot_directory, mode + ("_log" if log else "") + "_scaled") )
-                    copyIndexPHP(plotDir)
                 if args.showOnly: plotDir = os.path.join(plotDir, "only_" + args.showOnly)
                 plotting.draw(plot,
                     plot_directory = plotDir,
@@ -591,5 +584,5 @@ for index, mode in enumerate(allModes):
                     yRange = (0.03, "auto"),
                     #drawObjects = drawObjects( True, top_sf[None], lumi_scale ) + boxes,
                     drawObjects = drawObjects( True, 1, lumi_scale ) + boxes,
-                    copyIndexPHP = args.copyIndexPHP
+                    copyIndexPHP = True
                 )
