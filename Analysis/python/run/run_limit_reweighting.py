@@ -5,13 +5,12 @@ import argparse
 from RootTools.core.Sample import Sample
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store', default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
-argParser.add_argument("--signal",         action='store', default='dipole',          nargs='?', choices=["dipoles", "currents"], help="which signal?")
-argParser.add_argument("--model",         action='store', default='dim6top_LO',          nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal?")
-argParser.add_argument("--only",           action='store', default=None,            nargs='?',                                                                                           help="pick only one masspoint?")
+argParser.add_argument("--signal",         action='store', default='dipole',          nargs='?', choices=["dipoles", "currents"], help="which signal scan?")
+argParser.add_argument("--model",         action='store', default='dim6top_LO',          nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal model?")
+argParser.add_argument("--only",           action='store', default=None,            nargs='?',                                                                                           help="pick only one signal point?")
 argParser.add_argument("--scale",          action='store', default=1.0, type=float, nargs='?',                                                                                           help="scaling all yields")
 argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
 argParser.add_argument("--popFromSR",      default = False, action = "store", help="Remove one signal region?")
-argParser.add_argument("--extension",      default = '', action = "store", help="Extension to dir name?")
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
@@ -56,7 +55,7 @@ from TopEFT.Analysis.run.SignalReweightingTemplate import *
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
-limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, args.signal + args.extension)
+limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
@@ -253,7 +252,8 @@ def wrapper(s):
         # extract the NLL
         nll = c.calcNLL(cardFileName)
         res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
-        logger.inf("Adding results to database")
+        logger.info("Adding results to database")
+        addResult(s, res, nll['nll_abs'], overwrite=True)
         
     print
     print "NLL results:"
@@ -289,7 +289,14 @@ elif args.model == "ewkDM":
 allJobs = [j.name for j in jobs]
 
 if args.only is not None:
-    wrapper(jobs[int(args.only)])
+    if args.only.isdigit():
+        wrapper(jobs[int(args.only)])
+    else:
+        jobNames = [ x.name for x in jobs ]
+        try:
+            wrapper(jobs[jobNames.index(args.only)])
+        except ValueError:
+            logger.info("Couldn't find sample %s", args.only)
     exit(0)
 
 results = map(wrapper, jobs)

@@ -34,6 +34,13 @@ def natural_sort(list, key=lambda s:s):
 
     return lc
 
+def getCouplingFromName(name, coupling):
+    if coupling in name:
+        l = name.split('_')
+        return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
+    else:
+        return 0.
+
 def cosThetaStar( Z_mass, Z_pt, Z_eta, Z_phi, l_pt, l_eta, l_phi ):
 
     Z   = ROOT.TVector3()
