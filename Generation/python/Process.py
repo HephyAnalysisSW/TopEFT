@@ -237,7 +237,7 @@ class Process:
         key = {"process":self.process, "nEvents":self.nEvents}
         for k in self.config.all_model_couplings:
             if k in modified_couplings.keys():
-                key[k] = modified_couplings[k]
+                key[k] = float(modified_couplings[k])
             else:
                 key[k] = self.config.default_model_couplings[k]
         return key
