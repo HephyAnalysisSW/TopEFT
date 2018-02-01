@@ -42,6 +42,8 @@ p = Process(process = args.process, nEvents = args.nEvents, config = config)
 names  = param_points[::2]
 values = map(float,param_points[1::2])
 
+print values
+
 modification_dict = {c:v for c,v in zip( names, values ) }
 modification_dict["process"] = args.process
 modification_dict["nEvents"] = args.nEvents
