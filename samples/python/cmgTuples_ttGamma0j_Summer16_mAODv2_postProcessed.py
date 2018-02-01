@@ -26,6 +26,7 @@ logger.info("Loading MC samples from directory %s", os.path.join(data_directory,
 
 dirs = {}
 
+dirs['ttGamma0j_ll']                            = ['ttGamma0j_ll']
 dirs['ttGamma0j_ll_DAG_0p176700_DVG_0p176700']  = ['ttGamma0j_ll_DAG_0p176700_DVG_0p176700']
 dirs['ttGamma0j_ll_DAG_0p176700_DVG_m0p176700'] = ['ttGamma0j_ll_DAG_0p176700_DVG_m0p176700']
 dirs['ttGamma0j_ll_DAG_0p250000']               = ['ttGamma0j_ll_DAG_0p250000']
@@ -43,24 +44,24 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 
 #ewkDMGZ
 
-#ttGamma0j_ll                        = Sample.fromDirectory(name="ttGamma0j_ll", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll'])
-ttGamma0j_ll_DAG_0p176700_DVG_0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p176700_DVG_0p176700", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_0p176700_DVG_0p176700'])
-ttGamma0j_ll_DAG_0p176700_DVG_m0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p176700_DVG_m0p176700", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_0p176700_DVG_m0p176700'])
-ttGamma0j_ll_DAG_0p250000 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p250000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_0p250000'])
-ttGamma0j_ll_DAG_0p500000 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p500000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_0p500000'])
-ttGamma0j_ll_DAG_m0p176700_DVG_0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p176700_DVG_0p176700", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_m0p176700_DVG_0p176700'])
-ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700'])
-ttGamma0j_ll_DAG_m0p250000 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p250000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_m0p250000'])
-ttGamma0j_ll_DAG_m0p500000 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p500000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DAG_m0p500000'])
-ttGamma0j_ll_DVG_0p250000 = Sample.fromDirectory(name="ttGamma0j_ll_DVG_0p250000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DVG_0p250000'])
-ttGamma0j_ll_DVG_0p500000 = Sample.fromDirectory(name="ttGamma0j_ll_DVG_0p500000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DVG_0p500000'])
-ttGamma0j_ll_DVG_m0p250000 = Sample.fromDirectory(name="ttGamma0j_ll_DVG_m0p250000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DVG_m0p250000'])
-ttGamma0j_ll_DVG_m0p500000 = Sample.fromDirectory(name="ttGamma0j_ll_DVG_m0p500000", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttGamma0j_ll_DVG_m0p500000'])
+ttGamma0j_ll                            = Sample.fromDirectory(name="ttGamma0j_ll", treeName="Events", isData=False, color=1,                             texName="SM", directory=directories['ttGamma0j_ll'])
+ttGamma0j_ll_DAG_0p176700_DVG_0p176700  = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p176700_DVG_0p176700", treeName="Events", isData=False, color=1,   texName="C_{2,A} = C_{2,V} = 0.1767", directory=directories['ttGamma0j_ll_DAG_0p176700_DVG_0p176700'])
+ttGamma0j_ll_DAG_0p176700_DVG_m0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p176700_DVG_m0p176700", treeName="Events", isData=False, color=1,  texName="C_{2,A} = -C_{2,V} = 0.1767", directory=directories['ttGamma0j_ll_DAG_0p176700_DVG_m0p176700'])
+ttGamma0j_ll_DAG_0p250000               = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p250000", treeName="Events", isData=False, color=1,                texName="C_{2,A} = 0.25", directory=directories['ttGamma0j_ll_DAG_0p250000'])
+ttGamma0j_ll_DAG_0p500000               = Sample.fromDirectory(name="ttGamma0j_ll_DAG_0p500000", treeName="Events", isData=False, color=1,                texName="C_{2,A} = 0.5", directory=directories['ttGamma0j_ll_DAG_0p500000'])
+ttGamma0j_ll_DAG_m0p176700_DVG_0p176700 = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p176700_DVG_0p176700", treeName="Events", isData=False, color=1,  texName="C_{2,A} = -C_{2,V} = -0.1767", directory=directories['ttGamma0j_ll_DAG_m0p176700_DVG_0p176700'])
+ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700= Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700", treeName="Events", isData=False, color=1, texName="C_{2,A} = C_{2,V} = -0.1767", directory=directories['ttGamma0j_ll_DAG_m0p176700_DVG_m0p176700'])
+ttGamma0j_ll_DAG_m0p250000              = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p250000", treeName="Events", isData=False, color=1,               texName="C_{2,A} = -0.25", directory=directories['ttGamma0j_ll_DAG_m0p250000'])
+ttGamma0j_ll_DAG_m0p500000              = Sample.fromDirectory(name="ttGamma0j_ll_DAG_m0p500000", treeName="Events", isData=False, color=1,               texName="C_{2,A} = -0.5", directory=directories['ttGamma0j_ll_DAG_m0p500000'])
+ttGamma0j_ll_DVG_0p250000               = Sample.fromDirectory(name="ttGamma0j_ll_DVG_0p250000", treeName="Events", isData=False, color=1,                texName="C_{2,V} = 0.25", directory=directories['ttGamma0j_ll_DVG_0p250000'])
+ttGamma0j_ll_DVG_0p500000               = Sample.fromDirectory(name="ttGamma0j_ll_DVG_0p500000", treeName="Events", isData=False, color=1,                texName="C_{2,V} = 0.5", directory=directories['ttGamma0j_ll_DVG_0p500000'])
+ttGamma0j_ll_DVG_m0p250000              = Sample.fromDirectory(name="ttGamma0j_ll_DVG_m0p250000", treeName="Events", isData=False, color=1,               texName="C_{2,V} = -0.25", directory=directories['ttGamma0j_ll_DVG_m0p250000'])
+ttGamma0j_ll_DVG_m0p500000              = Sample.fromDirectory(name="ttGamma0j_ll_DVG_m0p500000", treeName="Events", isData=False, color=1,               texName="C_{2,V} = -0.5", directory=directories['ttGamma0j_ll_DVG_m0p500000'])
 
 
 allSignals = [\
 
-    #ttGamma0j_ll,
+    ttGamma0j_ll,
     ttGamma0j_ll_DAG_0p176700_DVG_0p176700,
     ttGamma0j_ll_DAG_0p176700_DVG_m0p176700,
     ttGamma0j_ll_DAG_0p250000,

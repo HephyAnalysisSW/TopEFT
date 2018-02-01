@@ -21,12 +21,11 @@ from RootTools.core.standard import *
 import TopEFT.Tools.user as user
 
 # Tools for systematics
-from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar
+from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar, getGenZ, getGenPhoton
 from TopEFT.Tools.addJERScaling              import addJERScaling
 from TopEFT.Tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
-from TopEFT.Tools.getGenBoson                import getGenZ, getGenPhoton
 #from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
 #from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 

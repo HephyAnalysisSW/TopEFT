@@ -13,26 +13,26 @@ try:
     data_directory = sys.modules['__main__'].data_directory
 except:
     #from TopEFT.Tools.user import data_directory as user_data_directory
-    data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/' 
+    data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/' 
 
 # Take post processing directory if defined in main module
 try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_v11/trilep/"
+  postProcessing_directory = "TopEFT_PP_v19/trilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
 
 dirs['ttZ0j_ll'] = ['ttZ0j_ll']
-dirs['ttZ0j_ll_cuW_0p100000'] = ['ttZ0j_ll_cuW_0p100000']
-dirs['ttZ0j_ll_cuW_0p200000'] = ['ttZ0j_ll_cuW_0p200000']
-dirs['ttZ0j_ll_cuW_0p300000'] = ['ttZ0j_ll_cuW_0p300000']
-dirs['ttZ0j_ll_cuW_m0p100000'] = ['ttZ0j_ll_cuW_m0p100000']
-dirs['ttZ0j_ll_cuW_m0p200000'] = ['ttZ0j_ll_cuW_m0p200000']
-dirs['ttZ0j_ll_cuW_m0p300000'] = ['ttZ0j_ll_cuW_m0p300000']
+#dirs['ttZ0j_ll_cuW_0p100000'] = ['ttZ0j_ll_cuW_0p100000']
+#dirs['ttZ0j_ll_cuW_0p200000'] = ['ttZ0j_ll_cuW_0p200000']
+#dirs['ttZ0j_ll_cuW_0p300000'] = ['ttZ0j_ll_cuW_0p300000']
+#dirs['ttZ0j_ll_cuW_m0p100000'] = ['ttZ0j_ll_cuW_m0p100000']
+#dirs['ttZ0j_ll_cuW_m0p200000'] = ['ttZ0j_ll_cuW_m0p200000']
+#dirs['ttZ0j_ll_cuW_m0p300000'] = ['ttZ0j_ll_cuW_m0p300000']
 dirs['ttZ0j_ll_DC1A_0p500000_DC1V_0p500000'] = ['ttZ0j_ll_DC1A_0p500000_DC1V_0p500000']
 dirs['ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000'] = ['ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000']
 dirs['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700'] = ['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700']
@@ -54,7 +54,7 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 
 ttZ0j_ll                        = Sample.fromDirectory(name="ttZ0j_ll", treeName="Events", isData=False, color=1, texName="SM", directory=directories['ttZ0j_ll'])
 
-##HEL_UFO
+#HEL_UFO
 #ttZ0j_ll_cuW_0p100000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p100000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.1", directory=directories['ttZ0j_ll_cuW_0p100000'])
 #ttZ0j_ll_cuW_0p200000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p200000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.2", directory=directories['ttZ0j_ll_cuW_0p200000'])
 #ttZ0j_ll_cuW_0p300000           = Sample.fromDirectory(name="ttZ0j_ll_cuW_0p300000", treeName="Events", isData=False, color=1, texName="c_{uW}=0.3", directory=directories['ttZ0j_ll_cuW_0p300000'])
@@ -73,12 +73,12 @@ ttZ0j_ll_DC1A_1p000000                                              = Sample.fro
 # dipole ellipsis
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700   = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0.176, C_{2,A}=0.176", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700  = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.176, C_{2,A}=0.176", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700'])
-ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000                 = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0, C_{2,A}=0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000'])
+ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000                 = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,A}=0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700  = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0.176, C_{2,A}=-0.176", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700'])
 ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.176, C_{2,A}=-0.176", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700'])
-ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=0, C_{2,A}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000'])
-ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000'])
-ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25, C_{2,A}=0", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'])
+ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,A}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000'])
+ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000'])
+ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000                = Sample.fromDirectory(name="ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000", treeName="Events", isData=False, color=1, texName="C_{1,V,A}=0, C_{2,V}=-0.25", directory=directories['ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000'])
 
 
 
