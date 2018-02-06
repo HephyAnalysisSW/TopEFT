@@ -308,19 +308,21 @@ class cardFileWriter:
           filename = fname if fname else os.path.join(uniqueDirname, ustr+".txt")
           self.writeToFile(filename)
 
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        # too tight constraints lead to failing fits
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 0.99 --rMax 1.01 -n Nominal --saveNLL --forceRecreateNLL "+filename
         print combineCommand
         os.system(combineCommand)
         nll = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 10 --rMin 0. --rMax 2.0 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 100 --rMin 0. --rMax 2.0 -n Nominal %s --saveNLL --forceRecreateNLL %s > log.txt"%(options, filename)
         os.system(combineCommand)
         nll2 = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
         
         nll["bestfit"] = nll2["nll"]
-        print "Comparing the two fits"
-        print nll["nll0"], nll2["nll0"]
+        #print "Comparing the two fits"
+        #print nll["nll0"], nll2["nll0"]
 
-        print nll
+        #print nll
         
         shutil.rmtree(uniqueDirname)
         

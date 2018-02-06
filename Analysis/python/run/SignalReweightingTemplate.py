@@ -121,7 +121,8 @@ if __name__ == "__main__":
     source_gen = ewkDM_central
 
     #allTargets = allSamples_dim6top
-    allTargets = ewkDM_currents + [ ewkDM_central ]
+    #allTargets = ewkDM_currents + [ ewkDM_central ]
+    allTargets = ewkDM_all
 
     for target in allTargets:
         target_gen = target

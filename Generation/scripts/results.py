@@ -5,9 +5,10 @@ import argparse
 import os
 
 # TopEFT imports
-from TopEFT.Generation.Configuration import Configuration
-from TopEFT.Generation.Process       import Process
-from TopEFT.Tools.u_float         import u_float
+from TopEFT.Generation.Configuration    import Configuration
+from TopEFT.Generation.Process          import Process
+from TopEFT.Tools.u_float               import u_float
+from TopEFT.Tools.user                  import results_directory
 
 # Logging
 import TopEFT.Tools.logger as logger
@@ -23,6 +24,8 @@ argParser.add_argument('--model',       action='store',         default='HEL_UFO
 argParser.add_argument('--couplings',   action='store',         default=[],         nargs='*',  type = str, help="Give a list of the non-zero couplings with values, e.g. NAME1 VALUE1 NAME2 VALUE2")
 argParser.add_argument('--nEvents',     action='store',         default = 50000,    type=int, help="Number of Events" )
 argParser.add_argument('--logLevel',    action='store',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
+argParser.add_argument('--dbfile',      action='store',         default=None, help="Which database to use?" )
+
 
 args = argParser.parse_args()
 
@@ -37,7 +40,10 @@ else:
 # Create configuration class
 config = Configuration( model_name = args.model )
 
-p = Process(process = args.process, nEvents = args.nEvents, config = config)
+if args.dbfile:
+    p = Process(process = args.process, nEvents = args.nEvents, config = config, xsec_cache=args.dbfile)
+else:
+    p = Process(process = args.process, nEvents = args.nEvents, config = config)
 
 names  = param_points[::2]
 values = map(float,param_points[1::2])

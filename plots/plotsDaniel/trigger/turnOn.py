@@ -57,25 +57,26 @@ from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/singlelep/"
-from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
-
-
-postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
-from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
+from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
-from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
+postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
+#from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
+
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_v19/singlelep/"
+from TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
+#from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 
 #presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
 
 # presel for measuring efficiencies in single lep datasets
-presel = "nlep>=3"#&&met_pt>200&&HLT_AllMET170"
+presel = "nlep>=1"#&&met_pt>200&&HLT_AllMET170"
 
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
-channels = {'3pl':'nlep>=3&&HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60'}
+channels = {'3pl':'nlep>=3'}
 #&&HLT_PFMET120_PFMHT120_IDTight
 #channels = {'all':'(1)'}
 
@@ -150,7 +151,7 @@ triggers_2017 = {
 
 
 
-triggers = triggers_2017
+triggers = triggers_2016
 
 
 
@@ -159,7 +160,7 @@ markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22,
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
-sample = MET_Run2017
+sample = MET_Run2016
 #sample = TTZ_LO
 #sample = WZ
 #sample = SingleMuon_Run2016
@@ -286,7 +287,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_noTagTrigger", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)

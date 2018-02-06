@@ -163,7 +163,7 @@ def wrapper(s):
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
                         expected = e.cachedEstimate(r, channel, setup)
-                        c.specifyExpectation(binname, name, expected.val)
+                        c.specifyExpectation(binname, name, round(expected.val,3) if expected.val > 0 else 0.01)
 
                         if expected.val>0:
                             if not args.statOnly:
@@ -186,7 +186,7 @@ def wrapper(s):
                             #MC bkg stat (some condition to neglect the smaller ones?)
                             uname = 'Stat_'+binname+'_'+name
                             c.addUncertainty(uname, 'lnN')
-                            c.specifyUncertainty(uname, binname, name, 1+expected.sigma/expected.val )
+                            c.specifyUncertainty(uname, binname, name, round(1+expected.sigma/expected.val,3) )
 
                     obs = observation.cachedEstimate(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
@@ -211,7 +211,7 @@ def wrapper(s):
                     
                     logger.info("x-sec is multiplied by %s",xSecMod)
                     
-                    c.specifyExpectation(binname, 'signal', sig.val*xSecScale * xSecMod )
+                    c.specifyExpectation(binname, 'signal', round(sig.val*xSecScale * xSecMod, 3) )
                     
                     if sig.val>0:
                         if not args.statOnly:
@@ -225,7 +225,7 @@ def wrapper(s):
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
-                        c.specifyUncertainty(uname, binname, 'signal', 1 + sig.sigma/sig.val )
+                        c.specifyUncertainty(uname, binname, 'signal', round(1 + sig.sigma/sig.val,3) )
                     else:
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
@@ -245,13 +245,18 @@ def wrapper(s):
         logger.info("Found result for %s, reusing", s.name)
     else:
         # calculate the limit
-        limit = c.calcLimit(cardFileName)#, options="--run blind")
-        res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
+        #limit = c.calcLimit(cardFileName)#, options="--run blind")
+        #res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
+        res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
         # run the checks
         c.calcNuisances(cardFileName)
         # extract the NLL
-        nll = c.calcNLL(cardFileName)
-        res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+        nll = c.calcNLL(cardFileName, options="--fastScan")
+        if nll["nll0"] > 0:
+            res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+        else:
+            res.update({"dNLL_postfit_r1":-999, "dNLL_bestfit":-999, "NLL_prefit":-999})
+            logger.info("Fits failed, adding values -999 as results")
         logger.info("Adding results to database")
         addResult(s, res, nll['nll_abs'], overwrite=True)
         

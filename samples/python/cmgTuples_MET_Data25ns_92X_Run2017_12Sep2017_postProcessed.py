@@ -10,23 +10,23 @@ logger = logging.getLogger(__name__)
 try:    data_directory = sys.modules['__main__'].data_directory
 except: from TopEFT.Tools.user import data_directory
 
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_2017_v1/singlelep'
+except: postProcessing_directory = 'TopEFT_PP_2017_v19/singlelep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
-for (run, version) in [('B',''),('C','')]:
-    runTag = 'Run2017' + run + '_12Sep2017' +  version
+for (run, version) in [('B',''),('C',''), ('D',''),('E','')]:
+    runTag = 'Run2017' + run + '_17Nov2017' +  version
     dirs["MET_Run2017"   + run + version ] = ["MET_"    + runTag ]
 
-for (run, version) in [('D',''),('E','')]:
-    runTag = 'Run2017' + run + version
-    dirs["MET_Run2017"   + run + version ] = ["MET_"    + runTag ]
-
+#for (run, version) in [('D',''),('E','')]:
+#    runTag = 'Run2017' + run + version
+#    dirs["MET_Run2017"   + run + version ] = ["MET_"    + runTag ]
+#
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
