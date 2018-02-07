@@ -34,18 +34,25 @@ def Eval(obj, x, params):
 
 def toGraph2D(name,title,length,x,y,z):
     result = ROOT.TGraph2D(length)
+    #debug = ROOT.TGraph()
     result.SetName(name)
     result.SetTitle(title)
+    #for i,key in enumerate(sorted(results.keys())):
+    #    print i,key,results[key]
+    #    result.SetPoint(i, key[0], key[1], results[key])
+    #    #result.SetPoint(i,x[i],y[i],z[i])
+    #    debug.SetPoint(i, key[0], key[1])
     for i in range(length):
-        result.SetPoint(i,x[i],y[i],z[i])
-    h = result.GetHistogram()
-    h.SetMinimum(min(z))
-    h.SetMaximum(max(z))
+        result.SetPoint(i, x[i], y[i], z[i])
+    #h = result.GetHistogram()
+    #h.SetMinimum(min(z))
+    #h.SetMaximum(max(z))
     c = ROOT.TCanvas()
     result.Draw()
+    #debug.Draw("same")
     del c
     #res = ROOT.TGraphDelaunay(result)
-    return result
+    return result#,debug
 
 
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
@@ -100,6 +107,8 @@ x = []
 y = []
 z = []
 
+res_dic = {}
+
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
@@ -121,10 +130,11 @@ for i,s in enumerate(signals):
             continue
         
         # Add results
-        print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1, s.var2, nll_value)
+        print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
         z.append(nll_value)
         x.append(s.var1 + x_shift)
         y.append(s.var2 + y_shift)
+        res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
         
     else:
         print "No results for %s found"%s.name
@@ -133,16 +143,22 @@ proc = "ttZ"
 
 multiplier = 1
 
-a = toGraph2D(proc, proc, len(x), x, y, z)
-nxbins = max(1, min(500, nbins_x*multiplier))
-nybins = max(1, min(500, nbins_y*multiplier))
+a = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
+#nxbins = max(1, min(500, nbins_x*multiplier))
+#nybins = max(1, min(500, nbins_y*multiplier))
 
 print "Number of bins on x-axis: %s"%nxbins
 print "Number of bins on y-axis: %s"%nybins
 
-a.SetNpx(nxbins)
-a.SetNpy(nybins)
+
 hist = a.GetHistogram().Clone()
+
+
+#a.SetNpx(nxbins)
+#a.SetNpy(nybins)
+hist = a.GetHistogram().Clone()
+
+
 if x_var == "DC1V":
     hist.GetXaxis().SetTitle("C_{1,V}")
 else:
@@ -157,7 +173,7 @@ hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
-hist.Smooth()
+#hist.Smooth()
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
@@ -184,7 +200,7 @@ pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(4.95) #19.95
+hist.SetMaximum(49.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
