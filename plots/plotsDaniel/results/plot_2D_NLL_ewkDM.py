@@ -27,7 +27,11 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',     action='store',      default='NLL_plots')
 argParser.add_argument('--useBestFit', action='store_true', help="Use best fit value? Default is r=1")
+argParser.add_argument('--smooth', action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
+argParser.add_argument('--plane', action='store', choices=["current", "dipole"], default = "current", help="Current of dipole plane?")
 args = argParser.parse_args()
+
+postFix = ""
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
@@ -67,18 +71,23 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 
 # load all samples, omit the 1/1 point
 #signals = [ x for x in allSamples_dim6top if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
-signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
-#signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles ]
 
+if args.plane == "current":
+    signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
+    x_var = 'DC1V'
+    y_var = 'DC1A'
+    x_shift = 0.24
+    y_shift = -0.60
+
+elif args.plane == "dipole":
+    signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles ]
+    x_var = 'DC2V'
+    y_var = 'DC2A'
+    x_shift = 0.
+    y_shift = 0.
 
 var1_values = []
 var2_values = []
-
-x_var = 'DC1V'
-y_var = 'DC1A'
-
-x_shift = 0.24
-y_shift = -0.60
 
 for s in signals:
     s.var1 = getCouplingFromName(s.name, x_var)
@@ -147,8 +156,8 @@ a = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
 #nxbins = max(1, min(500, nbins_x*multiplier))
 #nybins = max(1, min(500, nbins_y*multiplier))
 
-print "Number of bins on x-axis: %s"%nxbins
-print "Number of bins on y-axis: %s"%nybins
+#print "Number of bins on x-axis: %s"%nxbins
+#print "Number of bins on y-axis: %s"%nybins
 
 
 hist = a.GetHistogram().Clone()
@@ -173,7 +182,9 @@ hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
-#hist.Smooth()
+if args.smooth:
+    hist.Smooth()
+    postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
@@ -207,13 +218,13 @@ hist.SetMinimum(0.)
 hist.Draw("colz")
 
 if drawContours:
-    for conts in [cont_p1]:
+    for conts in [cont_p2]:
         for cont in conts:
             cont.SetLineColor(ROOT.kRed)
             cont.SetLineWidth(2)
             cont.SetLineStyle(7)
             cont.Draw("same")
-    for conts in [cont_p2]:
+    for conts in [cont_p1]:
         for cont in conts:
             cont.SetLineColor(ROOT.kOrange)
             cont.SetLineWidth(2)
@@ -235,5 +246,5 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    cans.Print(plotDir+"ewkDM_current_%s"%setup.name+e)
+    cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix)+e)
 

@@ -63,7 +63,7 @@ default_parameters   = {
 class Setup:
     def __init__(self):
         #self.name       = "regionsE_xsec_shape_lowUnc_statOnly"
-        self.name       = "regionsE_150fb_xsec_shape_lowUnc"
+        self.name       = "regionsE_150fb_xsec_lowUnc"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
