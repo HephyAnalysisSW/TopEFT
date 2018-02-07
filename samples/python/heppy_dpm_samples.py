@@ -210,3 +210,12 @@ robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_0l_v12', '/d
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttX0j_signal_samples
 signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file)
+
+# Private signal MC with up to one extra jet and madspin (LO)
+signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_ttZ01j_2l_madspin_v12.pkl'
+daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v12']
+signal_dpm_directories = daniel
+from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
+signal_madspin_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
+
+

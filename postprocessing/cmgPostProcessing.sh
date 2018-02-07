@@ -93,6 +93,9 @@
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p200000 #SPLIT5
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p300000 #SPLIT5
 
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO #SPLIT5
+python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT5
+
 #
 # 2016 MC For fake rate studies?
 #python cmgPostProcessing.py --skim dilep --processingEra TopEFT_PP_v14 --keepLHEWeights --sample DYJetsToLL_M50 # SPLIT20
@@ -306,11 +309,11 @@
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT10
 
-python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017B_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017C_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017D_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017E_17Nov2017 #SPLIT10
-python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017F_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017F_17Nov2017 #SPLIT10
 
 
 ### 2017 MC

@@ -151,7 +151,7 @@ triggers_2017 = {
 
 
 
-triggers = triggers_2016
+triggers = triggers_2017
 
 
 
@@ -160,17 +160,28 @@ markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22,
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
 
-sample = MET_Run2016
+MET_sample = MET_Run2017
+HTMHT_sample = HTMHT_Run2017
+
+MET_sample.setSelectionString("HLT_MET_had")
+HTMHT_sample.setSelectionString("HLT_HTMHT_had&&!HLT_MET_had")
+
+
+
 #sample = TTZ_LO
 #sample = WZ
 #sample = SingleMuon_Run2016
 #sample = SingleElectron_Run2016
 
-leptons = ["lep_pt[0]", "lep_pt[1]"]
+leptons = ["lep_pt[0]", "lep_pt[1]", "lep_pt[2]"]
 
 for lep in leptons:
     for c in channels:
         print c
+        h_met = {}
+        h_met_triggered = {}
+        h_htmht = {}
+        h_htmht_triggered = {}
         h_total = {}
         h_trigg = {}
         tEff = {}
@@ -186,9 +197,20 @@ for lep in leptons:
             print baseline
             print trigger_sel
 
-            
-            h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-            h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            h_met[trigger]              = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            h_met_triggered[trigger]    = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
+            h_htmht[trigger]              = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            h_htmht_triggered[trigger]    = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
+            h_total[trigger] = h_met[trigger].Clone()
+            h_total[trigger].Add(h_htmht[trigger])
+
+            h_trigg[trigger] = h_met_triggered[trigger].Clone()
+            h_trigg[trigger].Add(h_htmht_triggered[trigger])
+
+            #h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            #h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
     
             #sample.chain.Draw("lep_pt>>total", baseline)
             #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
@@ -287,10 +309,10 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_noTagTrigger", c)
+        plot_dir = os.path.join(plot_directory, "trigger", MET_sample.name, "turnOn_3l_MET_HTMHT", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
-            can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)
+            can.Print(plot_dir+"/%s_%s_comp"%(lep,MET_sample.name)+f)
     
     
         h_eff.SetMaximum(1.0)

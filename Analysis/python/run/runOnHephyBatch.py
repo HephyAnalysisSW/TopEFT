@@ -17,11 +17,26 @@ submitCMD = "echo "
 
 signals = ewkDM_currents
 
-for i, x in enumerate(signals):
+'''
+Currents
+'''
+
+for i, x in enumerate(ewkDM_currents):
     #print i, x.name
     os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal currents --useShape --useXSec --only=%s'"%str(i))
     if submitCMD.startswith("submit"):
         time.sleep(2)
+
+#'''
+#Dipoles
+#'''
+#
+#for i, x in enumerate(ewkDM_dipoles):
+#    #print i, x.name
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --useXSec --only=%s'"%str(i))
+#    if submitCMD.startswith("submit"):
+#        time.sleep(2)
+#
 
 ### for resubmission of failed jobs:
 #from TopEFT.Analysis.run.getResults import getResult
