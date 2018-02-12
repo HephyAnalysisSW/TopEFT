@@ -24,6 +24,26 @@ ROOT.setTDRStyle()
 ROOT.gStyle.SetOptFit(0)
 ROOT.gStyle.SetOptStat(0)
 
+def get_parser():
+    ''' Argument parser for post-processing module.
+    '''
+    import argparse
+    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
+
+    argParser.add_argument('--leg',                    action='store',         nargs='?',              choices=["E","M"],     default='E', help="electron or muon?")
+    argParser.add_argument('--Run2017',                action='store_true',          help="2017 data?")
+    argParser.add_argument('--data',                action='store_true',          help="2017 data?")
+    argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")    
+
+    return argParser
+
+options = get_parser().parse_args()
+
+import TopEFT.Tools.logger as logger
+import RootTools.core.logger as logger_rt
+logger    = logger.get_logger(   options.logLevel, logFile = None)
+logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
+
 
 def turnon_func(x, par):
 
@@ -68,6 +88,10 @@ postProcessing_directory = "TopEFT_PP_2017_v19/singlelep/"
 from TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 #from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = 'TopEFT_PP_2017_Fall17_v2/trilep'
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+
 #presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
 
 # presel for measuring efficiencies in single lep datasets
@@ -76,7 +100,11 @@ presel = "nlep>=1"#&&met_pt>200&&HLT_AllMET170"
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
-channels = {'3pl':'nlep>=3'}
+channels = {'3pl':'nlep>=3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
+#channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
+#channels = {'2l':'nlep==2&&lep_pt[0]>40&&lep_pt[1]>20'}
+
+
 #&&HLT_PFMET120_PFMHT120_IDTight
 #channels = {'all':'(1)'}
 
@@ -149,31 +177,48 @@ triggers_2017 = {
     "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
 }
 
-
-
-triggers = triggers_2017
-
-
+triggers = triggers_2017 if options.Run2017 else triggers_2016
 
 colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
 markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22, "SingleEle":23, "SingleEleTTZ":22}
 
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+binning = [0,10,20,30,40,60,80,100,120,150,200]
+binning = [0,1,2,3,4]
+binning = [0,1,2,3]
+binning = [-2.5, -1.75, -1., -0.5, 0., 0.5, 1., 1.75, 2.5]
 
-MET_sample = MET_Run2017
-HTMHT_sample = HTMHT_Run2017
+
+if options.Run2017:
+    MET_sample = MET_Run2017
+    HTMHT_sample = HTMHT_Run2017
+    JetHT_sample = JetHT_Run2017
+else:
+    MET_sample = MET_Run2016
+    HTMHT_sample = HTMHT_Run2016
+    JetHT_sample = JetHT_Run2016
+
 
 MET_sample.setSelectionString("HLT_MET_had")
-HTMHT_sample.setSelectionString("HLT_HTMHT_had&&!HLT_MET_had")
+HTMHT_sample.setSelectionString("( HLT_HTMHT_had&&!HLT_MET_had )")
+JetHT_sample.setSelectionString("( !HLT_HTMHT_had&&!HLT_MET_had )")
 
+sample = MET_sample
 
+if not options.data:
+    sample = TTZtoLLNuNu_17 if options.Run2017 else TTZ_LO
+    #sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
+    
 
 #sample = TTZ_LO
+#sample = TTZtoLLNuNu_17
 #sample = WZ
 #sample = SingleMuon_Run2016
 #sample = SingleElectron_Run2016
 
-leptons = ["lep_pt[0]", "lep_pt[1]", "lep_pt[2]"]
+#leptons = ["lep_pt[0]", "lep_pt[1]", "lep_pt[2]"]
+leptons = ["lep_eta[0]", "lep_eta[1]", "lep_eta[2]"]
+#leptons = ["nGoodElectrons"]
 
 for lep in leptons:
     for c in channels:
@@ -182,6 +227,8 @@ for lep in leptons:
         h_met_triggered = {}
         h_htmht = {}
         h_htmht_triggered = {}
+        h_jetht = {}
+        h_jetht_triggered = {}
         h_total = {}
         h_trigg = {}
         tEff = {}
@@ -197,20 +244,27 @@ for lep in leptons:
             print baseline
             print trigger_sel
 
-            h_met[trigger]              = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-            h_met_triggered[trigger]    = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+            if options.data:
+                h_met[trigger]              = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_met_triggered[trigger]    = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
 
-            h_htmht[trigger]              = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-            h_htmht_triggered[trigger]    = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_htmht[trigger]              = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_htmht_triggered[trigger]    = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
 
-            h_total[trigger] = h_met[trigger].Clone()
-            h_total[trigger].Add(h_htmht[trigger])
+                h_jetht[trigger]              = JetHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_jetht_triggered[trigger]    = JetHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
 
-            h_trigg[trigger] = h_met_triggered[trigger].Clone()
-            h_trigg[trigger].Add(h_htmht_triggered[trigger])
+                h_total[trigger] = h_met[trigger].Clone()
+                h_total[trigger].Add(h_htmht[trigger])
+                h_total[trigger].Add(h_jetht[trigger])
 
-            #h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-            #h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_trigg[trigger] = h_met_triggered[trigger].Clone()
+                h_trigg[trigger].Add(h_htmht_triggered[trigger])
+                h_trigg[trigger].Add(h_jetht_triggered[trigger])
+
+            else:
+                h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
     
             #sample.chain.Draw("lep_pt>>total", baseline)
             #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
@@ -262,7 +316,14 @@ for lep in leptons:
         h_eff = h_total[triggers.keys()[0]].Clone()
         h_eff.SetMaximum(1.05)
         h_eff.SetMinimum(0.0)
-        h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
+        label = ""
+        if "[0]" in lep: label = "leading"
+        elif "[1]" in lep: label = "sub-leading"
+        elif "[2]" in lep: label = "trailing"
+        #axis_label = "N_{e}"
+        #axis_label = "p_{T}(%s l) [GeV]"%label
+        axis_label = "#eta(%s l)"%label
+        h_eff.GetXaxis().SetTitle(axis_label)
         h_eff.GetYaxis().SetTitle("Efficiency")
     
         h_eff.GetXaxis().SetTitleSize(0.045)
@@ -285,7 +346,10 @@ for lep in leptons:
         latex1.SetTextSize(0.04)
         latex1.SetTextAlign(11) # align right
         latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-        latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+        if options.Run2017:
+            latex1.DrawLatex(0.72,0.96,"#bf{41.9fb^{-1}} (13TeV)")
+        else:
+            latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
         
         leg2 = ROOT.TLegend(0.50,0.45-0.04*len(triggers.keys()),0.90,0.45)
         leg2.SetFillColor(ROOT.kWhite)
@@ -309,15 +373,15 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", MET_sample.name, "turnOn_3l_MET_HTMHT", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
-            can.Print(plot_dir+"/%s_%s_comp"%(lep,MET_sample.name)+f)
+            can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)
     
     
         h_eff.SetMaximum(1.0)
         h_eff.SetMinimum(0.8)
-        h_eff.GetXaxis().SetTitle("p_{T}(leading l) [GeV]")
+        h_eff.GetXaxis().SetTitle(axis_label)
         h_eff.GetYaxis().SetTitle("Efficiency")
     
         h_eff.GetXaxis().SetTitleSize(0.045)
@@ -337,8 +401,10 @@ for lep in leptons:
         latex1.SetTextSize(0.04)
         latex1.SetTextAlign(11) # align right
         latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-        latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
-    
+        if options.Run2017:
+            latex1.DrawLatex(0.72,0.96,"#bf{41.9fb^{-1}} (13TeV)")
+        else:
+            latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
         for trigger in sorted(triggers.keys()):
             color = colors[trigger] if trigger in colors.keys() else ROOT.kOrange+1
             marker = markers[trigger] if trigger in markers.keys() else 20

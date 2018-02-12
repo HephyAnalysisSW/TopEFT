@@ -22,13 +22,14 @@ dirs = {}
 for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
     runTag = 'Run2016' + run + '_03Feb2017' + version
     dirs["MET_Run2016"   + run + version ] = ["MET_"    + runTag ]
-    dirs["HTMHT_Run2016"   + run + version ] = ["HTMHT_"    + runTag ]
+    dirs["HTMHT_Run2016" + run + version ] = ["HTMHT_"  + runTag ]
+    dirs["JetHT_Run2016" + run + version ] = ["JetHT_"  + runTag ]
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
-for pd in ['MET', 'HTMHT']:
+for pd in ['MET', 'HTMHT', 'JetHT']:
     merge(pd, 'Run2016BCD',    ['Run2016B_v2', 'Run2016C', 'Run2016D'])
     merge(pd, 'Run2016BCDEFG', ['Run2016BCD', 'Run2016E', 'Run2016F', 'Run2016G'])
     merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H_v2', 'Run2016H_v3'])
@@ -44,9 +45,10 @@ def getSample(pd, runName, lumi):
 
 MET_Run2016          = getSample('MET',   'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 HTMHT_Run2016        = getSample('HTMHT', 'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
+JetHT_Run2016        = getSample('JetHT', 'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 
 
-allSamples_Data25ns = [ MET_Run2016, HTMHT_Run2016 ]
+allSamples_Data25ns = [ MET_Run2016, HTMHT_Run2016, JetHT_Run2016 ]
 
 for s in allSamples_Data25ns:
   s.color   = ROOT.kBlack

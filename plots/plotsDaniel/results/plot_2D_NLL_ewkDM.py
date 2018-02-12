@@ -132,6 +132,7 @@ for i,s in enumerate(signals):
             # catch rounding errors
             nll_value = 0
         elif limit < -900:
+            continue
             # if the fit failed, add a dummy value (these points should easily be excluded)
             nll_value = 100
         else:
@@ -211,7 +212,7 @@ pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(49.95) #19.95
+hist.SetMaximum(19.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
