@@ -39,9 +39,13 @@ with open(args.outFile, 'w') as f:
         gpName      = gp.replace(".tar.xz","").replace(".","p").replace("-","m")
         uniqueDir   = uuid.uuid4().hex
         uPath       = os.path.join(tmp_directory, uniqueDir)
-        line        = "mkdir %s; cp %s %s; cd %s; cmsRun %s gridpack=%s/%s maxEvents=%s nJetMax=%s outputDir=%s/%s/; cd %s; rm -rf %s\n"%(uPath, cfg, uPath, uPath, args.cfg, args.gridpackDir, gp, args.maxEvents, args.nJetMax, args.outDir, gpName, baseDir, uPath)
-        #print line
-        f.write(line)
+        oDir = "{outDir}/{gpName}".format(outDir=args.outDir, gpName=gpName)
+        if not os.path.exists(os.path.join(oDir, "events.root")): 
+            line        = "mkdir {uPath}; cp {cfg} {uPath}; cd {uPath}; cmsRun {argsCfg} gridpack={gpDir}/{gp} maxEvents={maxEvents} nJetMax={nJetMax} outputDir={oDir}/; cd {baseDir}; rm -rf {uPath}\n".format(uPath=uPath, cfg=cfg, argsCfg=args.cfg, gpDir=args.gridpackDir, gp=gp, maxEvents=args.maxEvents, nJetMax=args.nJetMax, oDir=oDir, baseDir=baseDir)
+            #print line
+            f.write(line)
+        else:
+            print "Found ",os.path.join(oDir, "events.root"),"--> Skip!"
 
 print "Created submit file: %s"%args.outFile
 print "You can copy the content of 'forSamplesPY.txt' to your sample python file."
