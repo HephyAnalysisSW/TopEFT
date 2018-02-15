@@ -28,7 +28,9 @@ argParser.add_argument('--logLevel',           action='store',      default='INF
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--overwrite',          action='store_true', help='Overwrite?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v2')
-argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm')
+argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
+argParser.add_argument('--inputFiles',         action='store',      nargs = '*', default=[])
+argParser.add_argument('--targetSampleName',         action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
 argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,                          help="Maximum number of simultaneous jobs.")
 argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,                         help="Run only job i")
 args = argParser.parse_args()
@@ -41,9 +43,14 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
-sample_file = "$CMSSW_BASE/python/TopEFT/samples/fwlite_benchmarks.py"
-samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
-sample = getattr( samples, args.sample )
+# Load sample either from 
+if len(args.inputFiles)>0:
+    logger.info( "Input files found. Ignoring 'sample' argument. Files: %r", args.inputFiles)
+    sample = FWLiteSample( args.targetSampleName, args.inputFiles)
+else:
+    sample_file = "$CMSSW_BASE/python/TopEFT/samples/fwlite_benchmarks.py"
+    samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
+    sample = getattr( samples, args.sample )
 
 maxN = -1
 if args.small: 
