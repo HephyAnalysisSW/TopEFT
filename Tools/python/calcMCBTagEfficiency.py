@@ -107,13 +107,13 @@ presel = "(Sum$(Jet_pt>30&&abs(Jet_eta)<2.4&&Jet_id))>=2&&Sum$(LepGood_pt>20&&ab
 #pickle.dump(res, \
 #    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_deepCSV_eta.pkl'), 'w')
 #)
-
-res = getBTagMCTruthEfficiencies2D(tt_17.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8838')
-print "Efficiencies:"
-print res
-pickle.dump(res, \
-    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_CSVv2_eta.pkl'), 'w')
-)
+#
+#res = getBTagMCTruthEfficiencies2D(tt_17.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8838')
+#print "Efficiencies:"
+#print res
+#pickle.dump(res, \
+#    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_CSVv2_eta.pkl'), 'w')
+#)
 
 
 ## Moriond17
@@ -123,12 +123,12 @@ pickle.dump(res, \
 #pickle.dump(res, \
 #    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'), 'w')
 #)
-#
-#res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8484') #to test
-#print "Efficiencies:"
-#print res
-#pickle.dump(res, \
-#    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'), 'w')
-#)
+
+res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8484') #to test
+print "Efficiencies:"
+print res
+pickle.dump(res, \
+    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'), 'w')
+)
 
 
