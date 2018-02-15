@@ -49,7 +49,7 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
         if MCgeneration == "Summer17":
             module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2'
         elif MCgeneration == "Fall17":
-            module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2'
+            module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2' #update to central one
         else:
             module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2'
 
