@@ -223,13 +223,21 @@ if addSystematicVariations:
     from TopEFT.Tools.btagEfficiency import btagEfficiency
     
     # CSVv2
-    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+    if options.year == 2016:
+        effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
+    elif options.year == 2017:
+        effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_Fall17_2j_2l_CSVv2_eta.pkl'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_94XSF_V1_B_F.csv'
     btagEff_CSVv2   = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
     # DeepCSV
-    effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
-    sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
+    if options.year == 2016:
+        effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
+    elif options.year == 2017:
+        effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_Fall17_2j_2l_deepCSV_eta.pkl'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_94XSF_V1_B_F.csv'
     btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
@@ -569,10 +577,11 @@ def filler( event ):
             other_jets.append( j )
 
     # Don't change analysis jets even if we keep all jets, hence, apply abs eta cut
-    bJets        = filter(lambda j:isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, selected_jets)
-    bJetsDeepCSV = filter(lambda j:isBJet(j, tagger = 'DeepCSV') and abs(j['eta'])<=2.4, selected_jets)
-    nonBJets     = filter(lambda j:not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), selected_jets)
-    nonBJetsDeepCSV  = filter(lambda j:not ( isBJet(j, tagger = 'DeepCSV') and abs(j['eta'])<=2.4 ), selected_jets)
+    # Keep both b-tagging algorithms, however, DeepCSV is the new standard
+    bJetsCSVv2   = filter(lambda j:isBJet(j, tagger = 'CSVv2', year = options.year) and abs(j['eta'])<=2.4, selected_jets)
+    bJetsDeepCSV = filter(lambda j:isBJet(j, tagger = 'DeepCSV', year = options.year) and abs(j['eta'])<=2.4, selected_jets)
+    nonBJetsCSVv2    = filter(lambda j:not ( isBJet(j, tagger = 'CSVv2', year = options.year) and abs(j['eta'])<=2.4 ), selected_jets)
+    nonBJetsDeepCSV  = filter(lambda j:not ( isBJet(j, tagger = 'DeepCSV', year = options.year) and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
     event.nJetSelected   = len(selected_jets)
@@ -589,8 +598,8 @@ def filler( event ):
     # Analysis observables
     event.ht         = sum([j['pt'] for j in selected_jets])
     event.metSig     = event.met_pt/sqrt(event.ht) if event.ht>0 else float('nan')
-    event.nBTag      = len(bJets)
-    event.nBTagDeepCSV = len(bJetsDeepCSV)
+    event.nBTagCSVv2 = len(bJetsCSVv2)
+    event.nBTag      = len(bJetsDeepCSV)
 
     # Systematics
     jets_sys      = {}
@@ -631,8 +640,8 @@ def filler( event ):
             addJERScaling(j)
         for var in ['JECUp', 'JECDown', 'JERUp', 'JERDown']:
             jets_sys[var]       = filter(lambda j: isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt_'+var), allJets)
-            bjets_sys[var]      = filter(lambda j: isBJet(j) and abs(j['eta'])<2.4, jets_sys[var])
-            nonBjets_sys[var]   = filter(lambda j: not ( isBJet(j) and abs(j['eta'])<2.4), jets_sys[var])
+            bjets_sys[var]      = filter(lambda j: isBJet(j, tagger = 'DeepCSV', year = options.year) and abs(j['eta'])<2.4, jets_sys[var])
+            nonBjets_sys[var]   = filter(lambda j: not ( isBJet(j, tagger = 'DeepCSV', year = options.year) and abs(j['eta'])<2.4), jets_sys[var])
 
             setattr(event, "nJetSelected_"+var, len(jets_sys[var]))
             setattr(event, "ht_"+var,       sum([j['pt_'+var] for j in jets_sys[var]]))
@@ -659,7 +668,7 @@ def filler( event ):
         #print "CSVv2", selected_jets[0]['beff']['SF'], selected_jets[0]['pt']
         for var in btagEff_CSVv2.btagWeightNames:
             if var!='MC':
-                setattr(event, 'reweightBTagCSVv2_'+var, btagEff_CSVv2.getBTagSF_1a( var, bJets, filter( lambda j: abs(j['eta'])<2.4, nonBJets ) ) )
+                setattr(event, 'reweightBTagCSVv2_'+var, btagEff_CSVv2.getBTagSF_1a( var, bJetsCSVv2, filter( lambda j: abs(j['eta'])<2.4, nonBJetsCSVv2 ) ) )
 
         # B tagging weights method 1a, now for DeepCSV
         for j in selected_jets:

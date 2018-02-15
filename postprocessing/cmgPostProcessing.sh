@@ -93,8 +93,8 @@
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p200000 #SPLIT5
 #python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --keepLHEWeights --sample ttZ0j_ll_cuW_m0p300000 #SPLIT5
 
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO #SPLIT5
-python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT5
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO #SPLIT5
+#python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwrite --keepLHEWeights --sample ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2 #SPLIT5
 
 #
 # 2016 MC For fake rate studies?
@@ -344,7 +344,8 @@ python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwr
 #python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample DYJetsToLL_M50 #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample DYJetsToLL_M50_LO #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTZToQQ #SPLIT10
-#
+python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTWToLNu #SPLIT10
+
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTZToLLNuNu #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTZToLLNuNu_m1to10 #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTLep_pow #SPLIT10
@@ -354,6 +355,7 @@ python cmgPostProcessing.py --skim trilep --processingEra TopEFT_PP_v19 --overwr
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample DYJetsToLL_M50 #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample DYJetsToLL_M50_LO #SPLIT10
 #python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTZToQQ #SPLIT10
+python cmgPostProcessing.py  --overwrite --skim dilep --year 2017 --MCgeneration Fall17 --processingEra TopEFT_PP_2017_Fall17_v2 --sample TTWToLNu #SPLIT10
 
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample WJetsToLNu #SPLIT10
 #python cmgPostProcessing.py  --skim trilep --processingEra TopEFT_PP_v14 --sample WJetsToLNu_LO #SPLIT10

@@ -33,7 +33,9 @@ def get_parser():
     argParser.add_argument('--leg',                    action='store',         nargs='?',              choices=["E","M"],     default='E', help="electron or muon?")
     argParser.add_argument('--Run2017',                action='store_true',          help="2017 data?")
     argParser.add_argument('--data',                action='store_true',          help="2017 data?")
+    argParser.add_argument('--plot',           action='store',      default='pt',          nargs='?', choices=['pt', 'eta', 'flavor'], help="What the hell should I plot?")
     argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")    
+    argParser.add_argument('--channel',           action='store',      default='trilep',          nargs='?', choices=['dilep', 'trilep'], help="What the hell should I plot?")
 
     return argParser
 
@@ -102,7 +104,18 @@ channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
 channels = {'3pl':'nlep>=3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
 #channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
-#channels = {'2l':'nlep==2&&lep_pt[0]>40&&lep_pt[1]>20'}
+
+# SS or OS
+# SS cut: (lep_pdgId[0]*lep_pdgId[1])>0
+presel2l = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
+#presel2l = "nlep==2&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
+
+if options.channel == 'dilep':
+    channels = {'2l':presel2l,
+                '2e':presel2l+'&&nGoodElectrons==2',
+                '2m':presel2l+'&&nGoodMuons==2',
+                'em':presel2l+'&&nGoodElectrons==1&&nGoodMuons==1'
+                }
 
 
 #&&HLT_PFMET120_PFMHT120_IDTight
@@ -124,6 +137,7 @@ diMuTriggers        = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"," HLT_Mu17_TrkIsoVV
 diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
 EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
 trilepTriggers      = ["HLT_DiMu9_Ele9_CaloIdL_TrackIdL", "HLT_Mu8_DiEle12_CaloIdL_TrackIdL", "HLT_TripleMu_12_10_5", "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL"]
+photonTriggers      = ["HLT_Photon175", "HLT_Photon200"]
 
 triggers_all = {
     "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
@@ -140,7 +154,8 @@ triggers_2016 = {
     "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
 #    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
     "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
-    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
+    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+singleEleNoIso+singleMuNoIso),
+#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
 }
 
 triggers_2016_mu = {
@@ -160,6 +175,7 @@ mu_17           = ["HLT_mu"]
 mu_nonIso_17    = ["HLT_mu_nonIso"]
 ele_17          = ["HLT_ele"]
 ele_nonIso_17   = ["HLT_ele_nonIso"] # not there?
+ele_nonIso_17   = ["HLT_Ele115_CaloIdVT_GsfTrkIdT"]
 
 mumu_17         = ["HLT_mumu"]
 ee_17           = ["HLT_ee"]
@@ -174,20 +190,17 @@ triggers_2017 = {
     "singleLep": "(%s)"%"||".join(mu_17+ele_17),
 #    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
     "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
-    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
+#    "singleLep_addDiLep_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+photonTriggers),
+    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
+    "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
+#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
+#    "singleLep_addDiLep_addTriLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17+ele_nonIso_17+mu_nonIso_17)
 }
 
 triggers = triggers_2017 if options.Run2017 else triggers_2016
 
-colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1}
-markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22, "SingleEle":23, "SingleEleTTZ":22}
-
-binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
-binning = [0,10,20,30,40,60,80,100,120,150,200]
-binning = [0,1,2,3,4]
-binning = [0,1,2,3]
-binning = [-2.5, -1.75, -1., -0.5, 0., 0.5, 1., 1.75, 2.5]
-
+colors  = {"singleLep": ROOT.kRed+1, "singleLep_addNonIso": ROOT.kOrange+1, "singleLep_addDiLep":ROOT.kBlue+1, "singleLep_addDiLep_addTriLep":ROOT.kGreen+1, "SingleMu":ROOT.kRed+1, "SingleMuTTZ":ROOT.kBlue+1,"SingleEle":ROOT.kRed+1,"SingleEleTTZ":ROOT.kBlue+1,"singleLep_addDiLep_addPhoton":ROOT.kGreen+1, "singleLep_addDiLep_addNonIso":ROOT.kOrange+1, "singleLep_addDiLep_addNonIso_addPhoton":ROOT.kCyan+1}
+markers = {"singleLep": 20, "singleLep_addNonIso": 21, "singleLep_addDiLep": 22, "singleLep_addDiLep_addTriLep": 23, "SingleMu":23, "SingleMuTTZ":22, "SingleEle":23, "SingleEleTTZ":22, "singleLep_addDiLep_addPhoton":22, "singleLep_addDiLep_addNonIso":21, "singleLep_addDiLep_addNonIso_addPhoton":23}
 
 if options.Run2017:
     MET_sample = MET_Run2017
@@ -207,7 +220,8 @@ sample = MET_sample
 
 if not options.data:
     sample = TTZtoLLNuNu_17 if options.Run2017 else TTZ_LO
-    #sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
+    if options.channel == 'dilep':
+        sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
     
 
 #sample = TTZ_LO
@@ -216,9 +230,18 @@ if not options.data:
 #sample = SingleMuon_Run2016
 #sample = SingleElectron_Run2016
 
-#leptons = ["lep_pt[0]", "lep_pt[1]", "lep_pt[2]"]
-leptons = ["lep_eta[0]", "lep_eta[1]", "lep_eta[2]"]
-#leptons = ["nGoodElectrons"]
+if options.plot == "eta":
+    leptons = ["lep_eta[0]", "lep_eta[1]"]#, "lep_eta[2]"]
+    if not options.channel == 'dilep': leptons += ["lep_eta[2]"]
+    binning = [-2.5, -1.75, -1., -0.5, 0., 0.5, 1., 1.75, 2.5]
+elif options.plot == "flavor":
+    leptons = ["nGoodElectrons"]
+    binning = [0,1,2,3]
+else:
+    leptons = ["lep_pt[0]", "lep_pt[1]"]
+    if not options.channel == 'dilep': leptons += ["lep_pt[2]"]
+    binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+    #binning = [0,10,20,30,40,60,80,100,120,150,200]
 
 for lep in leptons:
     for c in channels:
@@ -320,9 +343,12 @@ for lep in leptons:
         if "[0]" in lep: label = "leading"
         elif "[1]" in lep: label = "sub-leading"
         elif "[2]" in lep: label = "trailing"
-        #axis_label = "N_{e}"
-        #axis_label = "p_{T}(%s l) [GeV]"%label
-        axis_label = "#eta(%s l)"%label
+        if options.plot == "eta":
+            axis_label = "#eta(%s l)"%label
+        elif options.plot == "flavor":
+            axis_label = "N_{e}"
+        else:
+            axis_label = "p_{T}(%s l) [GeV]"%label
         h_eff.GetXaxis().SetTitle(axis_label)
         h_eff.GetYaxis().SetTitle("Efficiency")
     
