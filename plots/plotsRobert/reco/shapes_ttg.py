@@ -28,7 +28,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--reweightPtGToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_ttg0j_v14')
-argParser.add_argument('--selection',          action='store',      default='lepSelTTG-njet1p-btag1p')
+argParser.add_argument('--selection',          action='store',      default='lepSelTTG-njet2p-btag1p')
 args = argParser.parse_args()
 
 #
@@ -59,7 +59,7 @@ from TopEFT.samples.cmgTuples_ttGamma0j_Summer16_mAODv2_postProcessed import *
 if args.signal is None:
     signals = []
 elif args.signal == "fwf": 
-    ttGamma0j_ll.style                = styles.fillStyle( color.TTZtoLLNuNu, errors=True )
+    ttGamma0j_ll.style                = styles.fillStyle( color.TTZtoLLNuNu, errors=False )
     ttGamma0j_ll.texName = "t#bar{t}#gamma #rightarrow l#bar{l}b#bar{b}#nu#bar{#nu}#gamma"
     ttGamma0j_ll_DAG_0p250000.style   = styles.lineStyle( ROOT.kBlue + 2, errors=True, width=2, dotted=False, dashed=False )
     ttGamma0j_ll_DVG_0p250000.style   = styles.lineStyle( ROOT.kBlue + 2, errors=True, width=2, dotted=False, dashed=False )
@@ -94,8 +94,8 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 # reweighting 
 if args.reweightPtGToSM:
     sel_string = "&&".join([getFilterCut(isData=False), getLeptonSelection('all'), cutInterpreter.cutString(args.selection)])
-    TTZ_ptG = TTZtoLLNuNu.get1DHistoFromDraw("gamma_pt[0]", [20,0,1000], selectionString = sel_string, weightString="weight")
-    TTZ_ptG.Scale(1./TTZ_ptG.Integral())
+    TTG_ptG = ttGamma0j_ll.get1DHistoFromDraw("photon_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
+    TTG_ptG.Scale(1./TTG_ptG.Integral())
 
     def get_reweight( var, histo ):
 
@@ -107,13 +107,13 @@ if args.reweightPtGToSM:
 
     for signal in signals:
         logger.info( "Computing PtG reweighting for signal %s", signal.name )
-        signal_ptG = signal.get1DHistoFromDraw("Z_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
+        signal_ptG = signal.get1DHistoFromDraw("photon_pt", [20,0,1000], selectionString = sel_string, weightString="weight")
         signal_ptG.Scale(1./signal_ptG.Integral())
 
-        signal.reweight_ptG_histo = TTZ_ptG.Clone()
+        signal.reweight_ptG_histo = TTG_ptG.Clone()
         signal.reweight_ptG_histo.Divide(signal_ptG)
 
-        signal.weight = get_reweight( "Z_pt", signal.reweight_ptG_histo )
+        signal.weight = get_reweight( "photon_pt", signal.reweight_ptG_histo )
 
 # Read variables and sequences
 #
@@ -127,6 +127,7 @@ sequence = []
 
 def extra_observables( event, sample ):
 
+    G = {'pt':event.photon_pt, 'eta':event.photon_eta, 'phi':event.photon_phi}
     G_2D        = ROOT.TVector2( event.photon_pt*cos(event.photon_phi), event.photon_pt*sin(event.photon_phi) )
     n_G_2D      = ROOT.TVector2( cos(event.photon_phi), sin(event.photon_phi) )
     #G_3D        = ROOT.TVector2( event.photon_pt*cos(event.photon_phi), event.photon_pt*sin(event.photon_phi) )
@@ -134,77 +135,57 @@ def extra_observables( event, sample ):
 
     # me_x,y
     met_2D = ROOT.TVector2( event.met_pt*cos(event.met_phi), event.met_pt*sin(event.met_phi) )
+    event.deltaPhi_G_MET = deltaPhi( G['phi'], event.met_phi ) 
 
     event.deltaPhi_ll = deltaPhi(event.lep_phi[0],  event.lep_phi[1])
+    event.deltaR_ll   = deltaR({'phi':event.lep_phi[0], 'eta':event.lep_eta[0]},  {'phi':event.lep_phi[1], 'eta':event.lep_eta[1]})
 
     ## get jets
-    #jetVars     = ['eta','pt','phi','btagCSV','id']
-    #jets        = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
-    #jets.sort( key = lambda l:-l['pt'] )
+    jetVars     = ['eta','pt','phi','btagCSV','id']
+    jets        = filter( isAnalysisJet, [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
+    jets.sort( key = lambda l:-l['pt'] )
 
-    #bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets )
-    #nonBJets    = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
+    bJets       = filter(lambda j: isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4, jets )
+    nonBJets    = filter(lambda j: not ( isBJet(j, tagger = 'CSVv2') and abs(j['eta'])<=2.4 ), jets)
 
-    ## take highest-pT b-jet, supplement by non-bjets if there are less than two
-    #bj0, bj1 = (bJets+nonBJets)[:2]
-    #bj0_3D = ROOT.TVector3( bj0['pt']*cos(bj0['phi']), bj0['pt']*sin(bj0['phi']), bj0['pt']*sinh(bj0['eta']) )
-    #bj1_3D = ROOT.TVector3( bj1['pt']*cos(bj1['phi']), bj1['pt']*sin(bj1['phi']), bj1['pt']*sinh(bj1['eta']) )
-    #bj0_2D = ROOT.TVector2( bj0_3D[0], bj0_3D[1] )
-    #bj1_2D = ROOT.TVector2( bj1_3D[0], bj1_3D[1] )
+    # take highest-pT b-jet, supplement by non-bjets if there are less than two
+    bj1, bj2 = (bJets+nonBJets)[:2]
+    l_bj1 = ROOT.TLorentzVector()
+    l_bj1.SetPtEtaPhiM( bj1['pt'], bj1['eta'], bj1['phi'], 0 )
+    l_bj2 = ROOT.TLorentzVector()
+    l_bj2.SetPtEtaPhiM( bj2['pt'], bj2['eta'], bj2['phi'], 0 )
 
-    ## resolve pairing ambiguity of bjets to top candidates by maximising the 
-    #if (bj0_2D + l3_2D + met_2D).Mod2() > ( bj1_2D + l3_2D + met_2D).Mod2():
-    #    blep, bhad        = bj0,    bj1
-    #    blep_2D, bhad_2D  = bj0_2D, bj1_2D
-    #    blep_3D, bhad_3D  = bj0_3D, bj1_3D
-    #else:
-    #    blep, bhad        = bj1,    bj0
-    #    blep_2D, bhad_2D  = bj1_2D, bj0_2D
-    #    blep_3D, bhad_3D  = bj1_3D, bj0_3D
+    # leptons
+    l_lep1 = ROOT.TLorentzVector() 
+    l_lep1.SetPtEtaPhiM( event.lep_pt[0], event.lep_eta[0], event.lep_phi[0], 0 )
+    lep1 = {'pt':event.lep_pt[0], 'eta':event.lep_eta[0], 'phi':event.lep_phi[0]}
+    l_lep2 = ROOT.TLorentzVector() 
+    l_lep2.SetPtEtaPhiM( event.lep_pt[1], event.lep_eta[1], event.lep_phi[1], 0 )
+    lep2 = {'pt':event.lep_pt[1], 'eta':event.lep_eta[1], 'phi':event.lep_phi[1]}
 
-    #event.blep_pt = blep['pt'] 
+    # resolve pairing ambiguity
+    max1 = max([(l_lep1 + l_bj1).M(), (l_lep2 + l_bj2).M()])
+    max2 = max([(l_lep1 + l_bj2).M(), (l_lep2 + l_bj1).M()])
+    if max1<max2: #Choose pairing with smaller invariant mass
+        pass 
+    else:
+        # switch
+        bj1, bj2     = bj2, bj1 
+        l_bj1, l_bj2 = l_bj2, l_bj1
 
-    ## ST observables
-    #event.ST = l3_pt + event.met_pt  # traditional (1l SUS)
-    #event.St = l3_pt + event.met_pt + event.blep_pt # scalar sum pt of the leptonic top candidate
+    event.M_lb_max = max(max1, max2)
+    event.M_lb_min = min(max1, max2)
 
-    ## MT observables
-    #event.mT = sqrt(  2*event.met_pt*l3_pt*(1 - cos(event.met_phi - l3_phi))) # transverse mass of leptonic W candidate
-    #event.mt = sqrt(  2*event.met_pt*l3_pt*(1 - cos(event.met_phi - l3_phi)) \
-    #                + 2*blep['pt']*l3_pt*(cosh(blep['eta'] - l3_eta)-cos(blep['phi'] - l3_phi))
-    #                + 2*event.met_pt*blep['pt']*(1-cos(event.met_phi - blep['phi'])) ) # transverse mass of the leptonic top
+    # G & leps
+    dPhi_G_l1 = deltaPhi( G['phi'], lep1['phi'] ) 
+    dPhi_G_l2 = deltaPhi( G['phi'], lep2['phi'] ) 
+    event.dPhi_G_l_max = max(dPhi_G_l1, dPhi_G_l2)
+    event.dPhi_G_l_min = min(dPhi_G_l1, dPhi_G_l2)
+    dR_G_l1 = deltaR( G, lep1 ) 
+    dR_G_l2 = deltaR( G, lep2 ) 
+    event.dR_G_l_max = max(dR_G_l1, dR_G_l2)
+    event.dR_G_l_min = min(dR_G_l1, dR_G_l2)
 
-    ## variables with 2D vectors  
-    #for fname, f in [\
-    #    #[ 'dPhiZ',    lambda vec: ROOT.TVector2.DeltaPhi( vec, Z_2D )],
-    #    [ 'absDPhiZ', lambda vec: abs(ROOT.TVector2.DeltaPhi( vec, Z_2D ))],
-    #    [ 'projZ',    lambda vec: vec* n_Z_2D ],
-    #    #[ 'dotZ',     lambda vec: vec.Dot( Z_2D )  )],
-    #    [ 'projorthZ',lambda vec: vec*n_orth_Z_2D ],
-    #    ]:
-    #    for vname, v in [
-    #        [ "met",          met_2D],
-    #        [ "met_blep",     met_2D + blep_2D],
-    #        [ "met_l3",       met_2D + l3_2D],
-    #        [ "l3",           l3_2D],
-    #        [ "blep",         blep_2D],
-    #        [ "l3_blep",      l3_2D+blep_2D],
-    #        [ "met_l3_blep",  l3_2D+blep_2D+met_2D],
-    #        ]:
-    #            #varname = "%s_%s"%( fname, vname )
-    #            setattr( event, "%s_%s"%( fname, vname ), f(v) )
-
-    ## variables with 3D vectors  
-    #for fname, f in [ 
-    #    [ 'dRZ',    lambda vec: ROOT.TVector3.DeltaR( vec, Z_3D )],
-    #    ]:
-    #    for vname, v in [
-    #        [ "l3",         l3_3D],
-    #        [ "blep",       blep_3D],
-    #        [ "l3_blep",    l3_3D+blep_3D],
-    #        ]:
-    #            #varname = "%s_%s"%( fname, vname )
-    #            setattr( event, "%s_%s"%( fname, vname ), f(v) )
     return
 
 sequence.append( extra_observables )
@@ -346,12 +327,59 @@ for index, mode in enumerate(allModes):
         binning=[20,0,pi],
     ))
 
-#    plots.append(Plot(
-#        texX = '#DeltaR(ll)', texY = 'Number of Events',
-#        attribute = TreeVariable.fromString( "Z_lldR/F" ),
-#        binning=[10,0,4],
-#    ))
+    plots.append(Plot( name = "deltaPhi_ll_coarse",
+        texX = '#Delta#phi(ll)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.deltaPhi_ll,
+        binning=[10,0,pi],
+    ))
 
+    plots.append(Plot( name = "deltaPhi_G_MET",
+        texX = '#Delta#phi(#gamma, E_{T}^{miss})', texY = 'Number of Events',
+        attribute = lambda event, sample: event.deltaPhi_G_MET,
+        binning=[20,0,pi],
+    ))
+
+    plots.append(Plot( name = "deltaR_ll",
+        texX = '#DeltaR(ll)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.deltaR_ll,
+        binning=[10,0,4],
+    ))
+
+    plots.append(Plot(name = "M_lb_max",
+        texX = 'M_{max}(lb) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.M_lb_max,
+        binning=[25,0,800],
+    ))
+
+    plots.append(Plot(name = "M_lb_min",
+        texX = 'M_{min}(lb) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample: event.M_lb_min,
+        binning=[25,0,800],
+    ))
+
+    plots.append(Plot( name = "dPhi_G_l_max",
+        texX = '#Delta#phi_{max}(#gamma, l)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.dPhi_G_l_max,
+        binning=[20,0,pi],
+    ))
+
+    plots.append(Plot( name = "dPhi_G_l_min",
+        texX = '#Delta#phi_{min}(#gamma, l)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.dPhi_G_l_min,
+        binning=[20,0,pi],
+    ))
+
+    plots.append(Plot( name = "dR_G_l_max",
+        texX = '#Delta R_{max}(#gamma, l)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.dR_G_l_max,
+        binning=[20,0,4],
+    ))
+
+    plots.append(Plot( name = "dR_G_l_min",
+        texX = '#Delta R_{min}(#gamma, l)', texY = 'Number of Events',
+        attribute = lambda event, sample: event.dR_G_l_min,
+        binning=[20,0,4],
+    ))
     
 #    plots.append(Plot(
 #        name = 'lnonZ1_pt',

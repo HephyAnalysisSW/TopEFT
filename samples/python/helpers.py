@@ -97,6 +97,9 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
             elif "ttZ0j_ll" in sample or "ttGamma0j_ll" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_0j_0l_heppy_mapper
                 return signal_0j_0l_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "TTZToLL_LO" in sample:
+                from TopEFT.samples.heppy_dpm_samples import signal_madspin_heppy_mapper
+                return signal_madspin_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "ewkDM" in sample:
                 from TopEFT.samples.heppy_dpm_samples import signal_heppy_mapper
                 return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)

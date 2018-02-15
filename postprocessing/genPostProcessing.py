@@ -4,7 +4,8 @@
 #
 # Standard imports and batch mode
 #
-import ROOT, os
+import ROOT
+import os, sys
 ROOT.gROOT.SetBatch(True)
 import itertools
 from math                                import sqrt, cos, sin, pi, acos
@@ -25,6 +26,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
+argParser.add_argument('--overwrite',          action='store_true', help='Overwrite?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v2')
 argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
 argParser.add_argument('--inputFiles',         action='store',      nargs = '*', default=[])
@@ -190,7 +192,11 @@ def filler( event ):
 
 tmp_dir     = ROOT.gDirectory
 #post_fix = '_%i'%args.job if args.nJobs > 1 else ''
-output_filename =  os.path.join(output_directory, sample.name+'.root') 
+output_filename =  os.path.join(output_directory, sample.name+'.root')
+if os.path.exists( output_filename ) and not args.overwrite:
+    logger.info( "File %s found. Quit.", output_filename )
+    sys.exit(0)
+
 output_file = ROOT.TFile( output_filename, 'recreate')
 output_file.cd()
 maker = TreeMaker(

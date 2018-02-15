@@ -27,6 +27,7 @@ argParser.add_argument('--small',                                   action='stor
 #argParser.add_argument('--Run2017',                                 action='store_true',     help='2017 data & MC?', )
 argParser.add_argument('--reweightPtZToSM',                         action='store_true',     help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--normalizeBSM',                            action='store_true',     help='Scale BSM signal to total MC?', )
+argParser.add_argument('--sumW2',                                   action='store_true',     help='Use sumW2 error?', )
 argParser.add_argument('--plot_directory',     action='store',      default='80X_ttz0j_v19')
 argParser.add_argument('--selection',          action='store',      default='lepSelTTZ-njet3p-btag1p-onZ')
 args = argParser.parse_args()
@@ -44,6 +45,7 @@ if args.signal and args.signal is not None: args.plot_directory += "_signal_"+ar
 if args.background is not None:       args.plot_directory += "_bkg%s"%args.background
 if args.reweightPtZToSM:              args.plot_directory += "_reweightPtZToSM"
 if args.normalizeBSM:                 args.plot_directory += "_normalizeBSM"
+if args.sumW2:                        args.plot_directory += "_sumW2"
 
 #
 # Make samples, will be searched for in the postProcessing directory
@@ -71,7 +73,7 @@ elif args.signal == "currentEllipsis":
 
     signals = [ttZ0j_ll, ttZ0j_ll_DC1A_0p500000_DC1V_0p500000, ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000, ttZ0j_ll_DC1A_1p000000]
 elif args.signal == "fwf": 
-    ttZ0j_ll.style                                                              = styles.fillStyle( color.TTZtoLLNuNu, errors=True ) 
+    ttZ0j_ll.style                                                              = styles.fillStyle( color.TTZtoLLNuNu ) 
     ttZ0j_ll.texName = "t#bar{t}Z#rightarrow b#bar{b} l #bar{#nu} q#bar{q}, Z#rightarrow l#bar{l}"
     ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000.style     = styles.lineStyle( ROOT.kRed + 2, width=2, errors=True, dotted=False, dashed=False ) 
     #ttZ0j_ll_DC1A_1p000000.style    = styles.lineStyle( ROOT.kBlue + 2, width=2, errors=True, dotted=False, dashed=False )
@@ -288,12 +290,13 @@ def drawObjects( lumi_scale ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Simulation'),
-      (0.6, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale),
+      (0.15, 0.95, 'CMS Simulation'), 
+      (0.60, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale),
       (0.64, 0.84, 'N_{jets} #geq 3'),
-      (0.64, 0.79,  'N_{b-tags} #geq 1'),
-      (0.64, 0.74, 'all lepton flavors')
+      (0.64, 0.79, 'N_{b-tags} #geq 1'),
+      (0.64, 0.74, 'all lepton flavors'),
     ]
+    #  (0.64, 0.69, 'p_{T}(Z) > 100 GeV')
     return [tex.DrawLatex(*l) for l in lines] 
 
 def drawPlots(plots, mode):
@@ -389,9 +392,9 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_coarse', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events / 40 GeV',
+        name = 'Z_pt_coarse', texX = 'p_{T}(Z) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[13,0,520],
+        binning=[11,0,550],
     ))
     
     plots.append(Plot(
@@ -413,19 +416,19 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        name = 'cosThetaStar', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        name = 'cosThetaStar', texX = 'cos(#theta_{Z}^{{}_{ #scale[1.5]{*}}})', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[20,-1,1],
     ))
    
     plots.append(Plot(
-        name = 'cosThetaStar_coarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        name = 'cosThetaStar_coarse', texX = 'cos(#theta_{Z}^{{}_{#scale[1.5]{*}}})', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[10,-1,1],
     ))
    
     plots.append(Plot(
-        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta^{*})(Z)', texY = 'Number of Events',
+        name = 'cosThetaStar_veryCoarse', texX = 'cos(#theta_{Z}^{{}_{#scale[1.5]{*}}})', texY = 'Number of Events',
         attribute = lambda event, sample: event.cosThetaStar,
         binning=[5,-1,1],
     ))
@@ -619,9 +622,10 @@ for index, mode in enumerate(allModes):
 
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 
-    for plot in plots:
-        for h in sum(plot.histos,[]):
-            h.Sumw2(0)
+    if not args.sumW2:
+        for plot in plots:
+            for h in sum(plot.histos,[]):
+                h.Sumw2(0)
 
     # Get normalization yields from yield histogram
     for plot in plots:

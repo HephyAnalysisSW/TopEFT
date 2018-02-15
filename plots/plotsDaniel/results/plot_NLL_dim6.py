@@ -73,7 +73,7 @@ hist.SetStats(0)
 
 #fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2", -4., 4.)
 fun = ROOT.TF1("f_1", "[0]  + [2]*x**2 +[4]*x**4 + [6]*x**6", -4., 4.)
-#fun = ROOT.TF1("f_1", "[0] * exp([1]*x)")
+#fun = ROOT.TF1("f_1", "[0] * exp([1]*x**2+[3])")
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(3)
 fun.SetLineWidth(2)

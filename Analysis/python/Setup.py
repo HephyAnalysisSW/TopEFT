@@ -37,6 +37,8 @@ dataLumi2016 = {'3mu':SingleMuon_Run2016.lumi, '3e':SingleElectron_Run2016.lumi,
 dataLumi20167 = {'3mu':80000, '3e':80000, '2mu1e':80000, '2e1mu':80000}
 dataLumi201678 = {'3mu':150000, '3e':150000, '2mu1e':150000, '2e1mu':150000}
 
+dataHighLumi = {'3mu':3e6, '3e':3e6, '2mu1e':3e6, '2e1mu':3e6}
+
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
 lumi = dataLumi2016
@@ -61,7 +63,7 @@ default_parameters   = {
 class Setup:
     def __init__(self):
         self.name       = "regionsE_xsec_lowUnc"
-        #self.name       = "regionsE_80fb_xsec_shape_lowUnc"
+        #self.name       = "regionsE_150fb_xsec_shape_statOnly"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
