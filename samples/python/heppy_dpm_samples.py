@@ -165,7 +165,7 @@ Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v19,
 Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v2.pkl'
 daniel_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v2']
 mc_dpm_directories = daniel_94X
-from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2 import mcSamples as heppy_Fall17_samples
+from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2 import mcSamples as heppy_Fall17_samples #update to central file
 Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, daniel_94X, Fall17_cache_file)
 
 # Data 2017 + 17Nov2017
