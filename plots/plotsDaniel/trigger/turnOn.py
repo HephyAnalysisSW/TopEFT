@@ -77,15 +77,15 @@ from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 #postProcessing_directory = "TopEFT_PP_v14/singlelep/"
 #from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_v14/singlelep/"
 from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
 #from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2017_v19/singlelep/"
 from TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 #from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
@@ -103,7 +103,7 @@ channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1',
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
 channels = {'3pl':'nlep>=3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
-#channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
+channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
 
 # SS or OS
 # SS cut: (lep_pdgId[0]*lep_pdgId[1])>0
@@ -191,9 +191,9 @@ triggers_2017 = {
 #    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
     "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
 #    "singleLep_addDiLep_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+photonTriggers),
-    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
-    "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
-#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
+#    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
+#    "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
+    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
 #    "singleLep_addDiLep_addTriLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17+ele_nonIso_17+mu_nonIso_17)
 }
 
@@ -236,12 +236,12 @@ if options.plot == "eta":
     binning = [-2.5, -1.75, -1., -0.5, 0., 0.5, 1., 1.75, 2.5]
 elif options.plot == "flavor":
     leptons = ["nGoodElectrons"]
-    binning = [0,1,2,3]
+    binning = [0,1,2,3,4]
 else:
     leptons = ["lep_pt[0]", "lep_pt[1]"]
     if not options.channel == 'dilep': leptons += ["lep_pt[2]"]
-    binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
-    #binning = [0,10,20,30,40,60,80,100,120,150,200]
+    #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+    binning = [0,10,20,30,40,60,80,100,120,150,200]
 
 for lep in leptons:
     for c in channels:
@@ -286,8 +286,14 @@ for lep in leptons:
                 h_trigg[trigger].Add(h_jetht_triggered[trigger])
 
             else:
-                h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-                h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                if options.Run2017:
+                    weight_passed = "((1) * ( ( (lep_pt[0]<80)*0.966) + ((lep_pt[0]>=80)*(1.0)) ) )"
+                else:
+                    weight_passed = "((1) * ( ( (lep_pt[0]<120)*0.985) + ((lep_pt[0]>=120)*(1.0)) ) )"
+                weight_total = "(1)"
+                #weight_total = "((1) * ( ( (lep_pt[0]<80)*0.50) + ((lep_pt[0]>=80)*(1.0)) ) )"
+                h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=weight_total, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+                h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=weight_passed, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
     
             #sample.chain.Draw("lep_pt>>total", baseline)
             #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
@@ -363,7 +369,8 @@ for lep in leptons:
     
     
         can = ROOT.TCanvas("can","can", 700,700)
-        
+        h_eff.SetLineWidth(0)
+        h_eff.SetMarkerSize(0)
         h_eff.Draw()
     
         extraText = "Preliminary"
@@ -399,7 +406,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning_SF", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)

@@ -39,10 +39,11 @@ postProcessing_directory = 'TopEFT_PP_2017_Fall17_v2/trilep'
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 # Define stuff for plotting
-binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+#binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+binning = [0,10,20,30,40,60,80,100,120,150,200]
 if options.Run2017:
-    binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
-    #binning = [0,10,20,30,40,60,80,100,120,150,200]
+    #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+    binning = [0,10,20,30,40,60,80,100,120,150,200]
 
 #binning = [0,1,2,3,4]
 
@@ -52,9 +53,9 @@ else:
     presel  = 'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&abs(Z_mass-90.2)<10'
 
 # loop over 3 leptons. Too tired to think of something nicer
-#for i in range(3):
+for i in range(3):
 #for i in range(1):
-for i in range(2):
+#for i in range(2):
 
     if options.Run2017:
         
@@ -64,10 +65,10 @@ for i in range(2):
             MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_TTLep_pow_17_comp.root"%i, "can")
         else:
             MC = TTZtoLLNuNu_17
-            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
-            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_TTZtoLLNuNu_17_comp.root"%i, "can")
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2017_comp.root", "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_TTZtoLLNuNu_17_comp.root", "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_TTZtoLLNuNu_17_comp.root"%i, "can")
+            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2017_comp.root", "can")
+            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/nGoodElectrons_TTZtoLLNuNu_17_comp.root", "can")
     
     else:
     
@@ -77,10 +78,10 @@ for i in range(2):
             MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_TTLep_pow_comp.root"%i, "can")
         else:
             MC = TTZ_LO
-            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT/3pl/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
-            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT/3pl/lep_pt[%s]_TTZ_LO_comp.root"%i, "can")
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2016_comp.root", "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_TTZ_LO_comp.root", "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_TTZ_LO_comp.root"%i, "can")
+            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2016_comp.root", "can")
+            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_TTZ_LO_comp.root", "can")
     
     # get the histogram with highest efficiencies ( == most ORed triggers)
     indexData   = 0
@@ -247,7 +248,7 @@ for i in range(2):
     ratioAsym.Draw("e1p same")
 
 
-    plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/2l_OR_combined_altBinning/"
+    plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/3l_OR_combined_altBinning_SF/"
     
     name = "lep_pt[%s]_Run2017"%i if options.Run2017 else "lep_pt[%s]_Run2016"%i
     #name = "nElectrons_Run2017" if options.Run2017 else "nElectrons_Run2016"
