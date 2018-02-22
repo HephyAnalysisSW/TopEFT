@@ -321,6 +321,9 @@ ewkDM_dipoles   = []
 
 logger.info("Loading ewkDM signals")
 for s in allSampleNames:
+    if len(s) > 50:
+        print "skipping",s
+        continue
     if s.startswith('ewkDM_ttZ_ll_DC1'):
         ewkDM_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
     elif s.startswith('ewkDM_ttZ_ll_DC2'):
@@ -332,4 +335,28 @@ ewkDM_all = [ewkDM_central] + ewkDM_currents + ewkDM_dipoles
 logger.info("Loaded %s samples from directory %s", len(ewkDM_all), gen_dir)
 
 
+## Fine scan of dim6top
+gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
+
+allSampleNames  = glob.glob(gen_dir+"dim6top_LO_ttZ_ll_c*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")]
+dim6top_central   = Sample.fromDirectory('dim6top_LO_ttZ_ll', directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll/")])
+
+dim6top_currents  = []
+dim6top_dipoles   = []
+
+logger.info("Loading ewkDM signals")
+for s in allSampleNames:
+    if len(s) > 50:
+        print "skipping",s
+        continue
+    if s.startswith('dim6top_LO_ttZ_ll_cp'):
+        dim6top_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
+    elif s.startswith('dim6top_LO_ttZ_ll_ct'):
+        dim6top_dipoles.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
+    else:
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
+
+dim6top_all = [dim6top_central] + dim6top_currents + dim6top_dipoles
+logger.info("Loaded %s samples from directory %s", len(dim6top_all), gen_dir)
 

@@ -31,32 +31,25 @@ argParser.add_argument('--smooth', action='store_true', help="Use histogram smoo
 argParser.add_argument('--plane', action='store', choices=["current", "dipole"], default = "current", help="Current of dipole plane?")
 args = argParser.parse_args()
 
-postFix = ""
+postFix = "_fine"
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
 
 def toGraph2D(name,title,length,x,y,z):
     result = ROOT.TGraph2D(length)
-    #debug = ROOT.TGraph()
+    debug = ROOT.TGraph()
     result.SetName(name)
     result.SetTitle(title)
-    #for i,key in enumerate(sorted(results.keys())):
-    #    print i,key,results[key]
-    #    result.SetPoint(i, key[0], key[1], results[key])
-    #    #result.SetPoint(i,x[i],y[i],z[i])
-    #    debug.SetPoint(i, key[0], key[1])
     for i in range(length):
         result.SetPoint(i, x[i], y[i], z[i])
-    #h = result.GetHistogram()
-    #h.SetMinimum(min(z))
-    #h.SetMaximum(max(z))
+        debug.SetPoint(i, x[i], y[i])
     c = ROOT.TCanvas()
     result.Draw()
-    #debug.Draw("same")
+    debug.Draw()
     del c
     #res = ROOT.TGraphDelaunay(result)
-    return result#,debug
+    return result,debug
 
 
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
@@ -76,6 +69,8 @@ if args.plane == "current":
     signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
     x_var = 'DC1V'
     y_var = 'DC1A'
+    #x_shift = 0.
+    #y_shift = 0.
     x_shift = 0.24
     y_shift = -0.60
 
@@ -85,6 +80,8 @@ elif args.plane == "dipole":
     y_var = 'DC2A'
     x_shift = 0.
     y_shift = 0.
+
+print "Number of results", len(signals)
 
 var1_values = []
 var2_values = []
@@ -132,7 +129,7 @@ for i,s in enumerate(signals):
             # catch rounding errors
             nll_value = 0
         elif limit < -900:
-            continue
+            #continue
             # if the fit failed, add a dummy value (these points should easily be excluded)
             nll_value = 100
         else:
@@ -151,21 +148,25 @@ for i,s in enumerate(signals):
 
 proc = "ttZ"
 
-multiplier = 1
+#print res_dic
 
-a = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
-#nxbins = max(1, min(500, nbins_x*multiplier))
-#nybins = max(1, min(500, nbins_y*multiplier))
+multiplier = 3
 
-#print "Number of bins on x-axis: %s"%nxbins
-#print "Number of bins on y-axis: %s"%nybins
+a,debug = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
+nxbins = max(1, min(500, nbins_x*multiplier))
+nybins = max(1, min(500, nbins_y*multiplier))
+
+print "Number of bins on x-axis: %s"%nxbins
+print "Number of bins on y-axis: %s"%nybins
 
 
 hist = a.GetHistogram().Clone()
 
+#nxbins = 200
+#nybins = 200
 
-#a.SetNpx(nxbins)
-#a.SetNpy(nybins)
+a.SetNpx(nxbins)
+a.SetNpy(nybins)
 hist = a.GetHistogram().Clone()
 
 
@@ -248,4 +249,7 @@ if not os.path.isdir(plotDir):
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix)+e)
+
+debug.Draw("ap0")
+cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix+"_grid")+'.png')
 

@@ -70,7 +70,8 @@ config = Configuration( model_name = args.model )
 modification_dict = {"process":"ttZ_ll"}
 
 if args.model == "dim6top_LO":
-    xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
+    #xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
+    xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":
         nonZeroCouplings = ["ctZ","ctZi"]
     elif args.signal == "currents":
@@ -102,6 +103,8 @@ logger.info("Will scan the following coupling values: %s and %s", nonZeroCouplin
 p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB)
 
 xsec_central = p.xsecDB.get(modification_dict)
+
+print xsec_central
 
 logger.info("Found SM x-sec of %s", xsec_central)
 
@@ -282,9 +285,9 @@ from TopEFT.samples.gen_fwlite_benchmarks import *
 #jobs = allSamples_dim6top
 if args.model == "dim6top_LO":
     if args.signal == "dipoles":
-        jobs = dim6top_dipoles
+        jobs = [dim6top_central] + dim6top_dipoles
     elif args.signal == "currents":
-        jobs = dim6top_currents
+        jobs = [dim6top_central] + dim6top_currents
 elif args.model == "ewkDM":
     if args.signal == "dipoles":
         jobs = [ewkDM_central] + ewkDM_dipoles

@@ -10,6 +10,7 @@ from RootTools.core.standard import *
 
 # TopEFT
 from TopEFT.Tools.PickleCache import PickleCache
+#from TopEFT.Analysis.Cache import Cache
 
 if __name__ == "__main__":
 
@@ -40,6 +41,7 @@ class SignalReweighting:
         self.source_sample = source_sample
         self.target_sample = target_sample 
         self.initCache( cacheDir )
+        #self.cache = Cache( os.path.join(cacheDir, 'signalReweightingTemplates.sql') )
 
         self.cosThetaStar_binning = [ i/5. for i in range(-5,6) ] 
         self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 2000 ]
@@ -72,14 +74,15 @@ class SignalReweighting:
 
     def cachedTemplate( self, selection, weight = '(1)', save = True, overwrite = False):
 
-        key =  self.uniqueKey( selection, weight, self.source_sample.name, self.target_sample.name)
+        key = (selection, self.source_sample.name, weight, self.target_sample.name, 0.)
+        #key =  self.uniqueKey( selection, weight, self.source_sample.name, self.target_sample.name)
         if (self.cache and self.cache.contains(key)) and not overwrite:
             result = self.cache.get(key)
             logger.debug( "Loading cached template for %s : %s"%( key, result) )
         elif self.cache:
             logger.info( "Obtain template for %s"%( key, ) )
             result = self.makeTemplate( selection = selection, weight = weight)
-            result = self.cache.add( key, result, save=save)
+            result = self.cache.add( key, result, save=save )
             #print "Adding template to cache for %s : %r" %( key, result)
             logger.debug( "Adding template to cache for %s : %r" %( key, result) )
         else:
@@ -118,13 +121,15 @@ if __name__ == "__main__":
     
     #source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
     #source_gen = dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00 ## there shouldn't be a different between the two
-    source_gen = ewkDM_central
+    source_gen = dim6top_central
 
     #allTargets = allSamples_dim6top
     #allTargets = ewkDM_currents + [ ewkDM_central ]
-    allTargets = ewkDM_all
+    allTargets = dim6top_all
+    print len(allTargets)
 
-    for target in allTargets:
+    for target in allTargets[0:2]:
+        print target.name
         target_gen = target
 
         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = target_gen, cacheDir = cacheDir)
@@ -136,7 +141,7 @@ if __name__ == "__main__":
         f = signalReweighting.cachedReweightingFunc( selection )
         
         # plot the reweighting matrix
-        matrix = signalReweighting.cachedTemplate( selection )
+        matrix = signalReweighting.cachedTemplate( selection, overwrite=False )
         
         matrixPlot = Plot2D.fromHisto( target_gen.name, texY = "p_{T}(Z)", texX = "cos(#Theta*)", histos = [[matrix]])
         matrixPlot.drawOption = "colz text"
@@ -148,4 +153,3 @@ if __name__ == "__main__":
         ROOT.gStyle.SetPaintTextFormat("2.2f")        
          
         plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = True, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])
-    
