@@ -13,7 +13,7 @@ import shutil
 from TopEFT.Tools.user import skim_output_directory
 
 #RootTools
-from RootTools.core.helpers import checkRootFile
+from RootTools.core.helpers import checkRootFile, checkEDMRootFile
 
 # Logging
 import TopEFT.Tools.logger as logger
@@ -59,7 +59,7 @@ else:
 
 # Check if the intermediate gen file is there
 gen_file = os.path.join( args.genSampleDir, gp, 'events.root' ) 
-if os.path.exists( gen_file ):
+if os.path.exists( gen_file ) and checkEDMRootFile( gen_file ):
     logger.info( "Found edm gen file %s.", gen_file)
     if args.overwriteGenFile:
         os.remove( gen_file )
