@@ -66,18 +66,19 @@ triggers_all = {
     "ttHMix_no3l": "(%s)"%"||".join(singleMuTriggers+singleEleTriggers+diMuTriggers+diEleTriggers+EMuTriggers),
 }
 
-
 triggers_2016 = {
     "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
-    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
+#    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
     "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
-    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
+    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+singleEleNoIso+singleMuNoIso),
+#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
 }
 
 mu_17           = ["HLT_mu"]
 mu_nonIso_17    = ["HLT_mu_nonIso"]
 ele_17          = ["HLT_ele"]
 ele_nonIso_17   = ["HLT_ele_nonIso"] # not there?
+ele_nonIso_17   = ["HLT_Ele115_CaloIdVT_GsfTrkIdT"]
 
 mumu_17         = ["HLT_mumu"]
 ee_17           = ["HLT_ee"]
@@ -90,9 +91,13 @@ eee_17          = ["HLT_eee"]
 
 triggers_2017 = {
     "singleLep": "(%s)"%"||".join(mu_17+ele_17),
-    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
+#    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
     "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
-    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17)
+#    "singleLep_addDiLep_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+photonTriggers),
+    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
+    "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
+#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
+#    "singleLep_addDiLep_addTriLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17+ele_nonIso_17+mu_nonIso_17)
 }
 
 triggers = triggers_2016
@@ -131,6 +136,29 @@ for c in channels:
         
         print baseline
         print trigger_sel
+
+        ## for data
+        #h_met[trigger]                  = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+        #h_met_triggered[trigger]        = MET_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
+        #h_htmht[trigger]                = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+        #h_htmht_triggered[trigger]      = HTMHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
+        #h_jetht[trigger]                = JetHT_sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+        #h_jetht_triggered[trigger]      = JetHT_sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
+        #h_total[trigger] = h_met[trigger].Clone()
+        #h_total[trigger].Add(h_htmht[trigger])
+        #h_total[trigger].Add(h_jetht[trigger])
+
+        #h_trigg[trigger] = h_met_triggered[trigger].Clone()
+        #h_trigg[trigger].Add(h_htmht_triggered[trigger])
+        #h_trigg[trigger].Add(h_jetht_triggered[trigger])
+
+        ## for MC
+        #h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+        #h_trigg[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+
 
         h_total[trigger] = sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning, selectionString=baseline, weightString=None, binningIsExplicit=True, isProfile=False) #no overflow
         h_trigg[trigger] = sample.get2DHistoFromDraw("abs(%s):%s"%(eta,pt), binning, selectionString=trigger_sel, weightString=None, binningIsExplicit=True, isProfile=False) #no overflow

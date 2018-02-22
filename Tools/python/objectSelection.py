@@ -31,11 +31,26 @@ def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollecti
 
     return res
 
-def isBJet(j, tagger = 'CSVv2'):
+def isBJet(j, tagger = 'DeepCSV', year = 2016):
     if tagger == 'CSVv2':
-        return j['btagCSV']>0.8484
+        if year == 2016:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80XReReco
+            return j['btagCSV'] > 0.8484 
+        elif year == 2017:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+            return j['btagCSV'] > 0.8838 
+        else:
+            raise (NotImplementedError, "Don't know what cut to use for year %s"%year)
     elif tagger == 'DeepCSV':
-        return j['DFbb'] + j['DFb'] > 0.6324
+        if year == 2016:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80XReReco
+            return j['DFbb'] + j['DFb'] > 0.6324
+        elif year == 2017:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+            return j['DFbb'] + j['DFb'] > 0.4941
+        else:
+            raise (NotImplementedError, "Don't know what cut to use for year %s"%year)
+
 
 def getGoodBJets(c, tagger = 'CSVv2'):
     return filter(lambda j:isBJet(j, tagger = tagger), getGoodJets(c))
