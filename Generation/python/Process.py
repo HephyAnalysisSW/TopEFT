@@ -16,12 +16,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db'):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db', reweight=False):
 
         self.process            = process
         self.config             = config
         self.processCardDir     = os.path.join(self.config.data_path, 'processCards')
         self.processCardFile    = process+'.dat'
+        self.reweight           = reweight
 
         # template process card file
         self.templateProcessCard = os.path.join(self.processCardDir, self.processCardFile)
@@ -61,6 +62,13 @@ class Process:
             target = os.path.join( self.processTmpDir, 'Cards', filename )
             shutil.copyfile( source, target )
             logger.debug( "Done with %s -> %s", source, target )
+        
+        # copy reweight cards
+        if self.reweight:
+            source = os.path.join( self.data_path,  'template', 'template_reweight_card_'+model_name+'.dat')
+            target = os.path.join( self.processTmpDir, 'Cards', "reweight_card.dat" )
+            shutil.copyfile( source, target )
+        
 
         # Append to me5_configuration.txt 
         with open( os.path.join( self.processTmpDir, 'Cards/me5_configuration.txt'), 'a') as f:

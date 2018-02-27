@@ -109,6 +109,8 @@ print xsec_central
 logger.info("Found SM x-sec of %s", xsec_central)
 
 def getCouplingFromName(name, coupling):
+    name = name.lower()
+    coupling = coupling.lower()
     if coupling in name:
         l = name.split('_')
         return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
@@ -123,9 +125,21 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
+    ## Make it less likely that database write access is concurrent
+    #if "worker" in os.path.expandvars("$HOSTNAME") or True:
+    #    import random
+    #    import time
+    #    waitTime = random.random()*20
+    #    logger.info("Waiting for %s seconds to avoid database problems.", waitTime)
+    #    time.sleep(waitTime)
+
     for coup in nonZeroCouplings:
-        modification_dict[coup] = getCouplingFromName(s.name, coup)
-        logger.info("The following coupling is set to non-zero value: %s: %s", coup, modification_dict[coup])
+        try:
+            modification_dict[coup] = getCouplingFromName(s.name, coup)
+            logger.info("The following coupling is set to non-zero value: %s: %s", coup, modification_dict[coup])
+        except ValueError:
+            logger.info("The following coupling is kept at zero: %s: %s", coup, modification_dict[coup])
+            continue
     
     xsec = p.xsecDB.get(modification_dict)
     logger.info("Found modified x-sec of %s", xsec)
@@ -197,7 +211,7 @@ def wrapper(s):
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
                         if args.model == "dim6top_LO":
-                            source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+                            source_gen = dim6top_central
                         elif args.model == "ewkDM":
                             source_gen = ewkDM_central
                         target_gen = s
@@ -301,10 +315,12 @@ if args.only is not None:
         wrapper(jobs[int(args.only)])
     else:
         jobNames = [ x.name for x in jobs ]
-        try:
-            wrapper(jobs[jobNames.index(args.only)])
-        except ValueError:
-            logger.info("Couldn't find sample %s", args.only)
+        print jobNames[145]
+        print len(jobs)
+        #try:
+        wrapper(jobs[jobNames.index(args.only)])
+        #except ValueError:
+        #    logger.info("Couldn't find sample %s", args.only)
     exit(0)
 
 results = map(wrapper, jobs)

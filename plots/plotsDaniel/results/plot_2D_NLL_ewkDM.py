@@ -119,6 +119,7 @@ print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
     res = getResult(s)
+    print s.name
     if type(res) == type({}):
         limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
@@ -138,11 +139,13 @@ for i,s in enumerate(signals):
         
         # Add results
         print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-        z.append(nll_value)
-        x.append(s.var1 + x_shift)
-        y.append(s.var2 + y_shift)
-        res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
-        
+        if s.var2 + y_shift > -0.8 and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+            z.append(nll_value)
+            x.append(s.var1 + x_shift)
+            y.append(s.var2 + y_shift)
+            res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
+        else:
+            print "Omitting..."
     else:
         print "No results for %s found"%s.name
 
@@ -213,7 +216,7 @@ pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(19.95) #19.95
+hist.SetMaximum(79.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 

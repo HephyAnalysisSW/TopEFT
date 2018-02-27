@@ -173,15 +173,15 @@ hist = a.GetHistogram().Clone()
 hist = a.GetHistogram().Clone()
 
 
-if x_var == "DC1V":
-    hist.GetXaxis().SetTitle("C_{1,V}")
+if x_var == "cpQM":
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
 else:
-    hist.GetXaxis().SetTitle("#DeltaC_{2,V}")
+    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
 hist.GetXaxis().SetNdivisions(505)
-if y_var == "DC1A":
-    hist.GetYaxis().SetTitle("C_{1,A}")
+if y_var == "cpt":
+    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
 else:
-    hist.GetYaxis().SetTitle("#DeltaC_{2,A}")
+    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")

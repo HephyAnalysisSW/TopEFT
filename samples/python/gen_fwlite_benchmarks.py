@@ -322,7 +322,7 @@ ewkDM_dipoles   = []
 logger.info("Loading ewkDM signals")
 for s in allSampleNames:
     if len(s) > 50:
-        print "skipping",s
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
         continue
     if s.startswith('ewkDM_ttZ_ll_DC1'):
         ewkDM_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
@@ -348,7 +348,7 @@ dim6top_dipoles   = []
 logger.info("Loading ewkDM signals")
 for s in allSampleNames:
     if len(s) > 50:
-        print "skipping",s
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
         continue
     if s.startswith('dim6top_LO_ttZ_ll_cp'):
         dim6top_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
