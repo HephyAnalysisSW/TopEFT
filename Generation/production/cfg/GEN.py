@@ -27,35 +27,19 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEN')
 
-## import of standard configurations
-#process.load('Configuration.StandardSequences.Services_cff')
-#process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-#process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.EventContent.EventContent_cff')
-#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-#process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-#process.load('Configuration.StandardSequences.Generator_cff')
-#process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
-#process.load('GeneratorInterface.Core.genFilterSummary_cff')
-#process.load('Configuration.StandardSequences.EndOfProcess_cff')
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('FastSimulation.Configuration.Geometries_MC_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('FastSimulation.Configuration.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -173,10 +157,6 @@ process = addMonitoring(process)
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
-#process = customisePostLS1(process)
-
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-
+process = customisePostLS1(process)
 
 # End of customisation functions
