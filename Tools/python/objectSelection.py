@@ -234,17 +234,17 @@ def getGoodPhotons(c, ptCut=50, idLevel="loose", isData=True, collVars=None):
     if collVars is None: collVars = photonVars if isData else photonVarsMC
     return [p for p in getPhotons(c, collVars) if p['idCutBased'] >= idCutBased[idLevel] and p['pt'] > ptCut and p['pdgId']==22]
 
+
 def triggerEmulatorSelector(l):
 
     ECSc = abs(l["etaSc"])>1.479
-    eInvMinusPInv = l["eInvMinusPInv"] if l["eInvMinusPInv"] > 0 else 9e9
 
-    if l["hadronicOverEm"]          >= (0.10-0.03*ECSc):     return False
-    if abs(l["dEtaScTrkIn"])        >= (0.01-0.002*ECSc):    return False
+    if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
     if abs(l["dPhiScTrkIn"])        >= (0.04+0.03*ECSc):     return False
+    if abs(l["dEtaScTrkIn"])        >= (0.01-0.002*ECSc):    return False
     if l["eInvMinusPInv"]           <= -0.05:                return False
     if l["eInvMinusPInv"]           >= (0.01-0.005*ECSc):    return False
-    if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
+    if l["hadronicOverEm"]          >= (0.10-0.03*ECSc):     return False
     return True
 
 def getFilterCut(isData=False, isFastSim = False, year = 2016):
