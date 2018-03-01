@@ -1,6 +1,6 @@
 import logging
 import sys
-def get_logger(logLevel, logFile = None):
+def get_logger(logLevel, logFile = None, add_sync_level = False):
     ''' Logger for EFT  module.
     '''
 
@@ -8,9 +8,13 @@ def get_logger(logLevel, logFile = None):
     # see default levels at https://docs.python.org/2/library/logging.html#logging-levels
     logging.TRACE = 5
     logging.addLevelName(logging.TRACE, 'TRACE')
-    
     logging.Logger.trace = lambda inst, msg, *args, **kwargs: inst.log(logging.TRACE, msg, *args, **kwargs)
     logging.trace = lambda msg, *args, **kwargs: logging.log(logging.TRACE, msg, *args, **kwargs)
+
+    logging.SYNC = logging.INFO + 10 if add_sync_level else logging.TRACE - 1
+    logging.addLevelName(logging.SYNC, 'SYNC')
+    logging.Logger.sync = lambda inst, msg, *args, **kwargs: inst.log(logging.SYNC, msg, *args, **kwargs)
+    logging.sync = lambda inst, msg, *args, **kwargs: inst.log(logging.SYNC, msg, *args, **kwargs)
 
     logger = logging.getLogger('TopEFT')
 
