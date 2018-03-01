@@ -132,13 +132,13 @@ if __name__ == "__main__":
     
     #source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
     #source_gen = dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00 ## there shouldn't be a different between the two
-    #source_gen = dim6top_central
-    source_gen = ewkDM_central
+    source_gen = dim6top_central
+    #source_gen = ewkDM_central
     
     #allTargets = allSamples_dim6top
     #allTargets = ewkDM_currents + [ ewkDM_central ]
-    #allTargets = dim6top_all
-    allTargets = ewkDM_all
+    allTargets = dim6top_all
+    #allTargets = ewkDM_all
 
     for target in allTargets:
         logger.info("Working on target samples %s", target.name)

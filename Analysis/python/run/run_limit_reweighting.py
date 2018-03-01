@@ -70,8 +70,10 @@ config = Configuration( model_name = args.model )
 modification_dict = {"process":"ttZ_ll"}
 
 if args.model == "dim6top_LO":
-    #xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
+    # This is for the fine scan (should be merged)
     xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    # This is for the coarse scan
+    xsecDB_Backup = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":
         nonZeroCouplings = ["ctZ","ctZi"]
     elif args.signal == "currents":
@@ -85,6 +87,8 @@ if args.model == "dim6top_LO":
 
 elif args.model == "ewkDM":
     xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    # Just in case
+    xsecDB_Backup = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":
         nonZeroCouplings = ["DC2A","DC2V"]
     elif args.signal == "currents":
@@ -140,8 +144,13 @@ def wrapper(s):
         except ValueError:
             logger.info("The following coupling is kept at zero: %s: %s", coup, modification_dict[coup])
             continue
-    
-    xsec = p.xsecDB.get(modification_dict)
+    try:
+        p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB)
+        xsec = p.xsecDB.get(modification_dict)
+    except IndexError:
+        logger.info("Looking into backup DB for x-sec")
+        p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
+        xsec = p.xsecDB.get(modification_dict)
     logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')

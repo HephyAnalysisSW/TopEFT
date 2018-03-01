@@ -41,6 +41,7 @@ dataHighLumi = {'3mu':3e6, '3e':3e6, '2mu1e':3e6, '2e1mu':3e6}
 
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
+#lumi = dataLumi201678
 lumi = dataHighLumi
 
 #Define defaults here

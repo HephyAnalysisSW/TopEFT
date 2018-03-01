@@ -32,6 +32,7 @@ argParser.add_argument('--plane', action='store', choices=["current", "dipole"],
 args = argParser.parse_args()
 
 postFix = "_fine"
+postFix = "_YR1"
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
@@ -141,9 +142,11 @@ for i,s in enumerate(signals):
         
         # Add results
         print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-        z.append(nll_value)
-        x.append(s.var1 + x_shift)
-        y.append(s.var2 + y_shift)
+        #if s.var1 + x_shift < 12. and s.var2 + y_shift > -12.:
+        if True:
+            z.append(nll_value)
+            x.append(s.var1 + x_shift)
+            y.append(s.var2 + y_shift)
         res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
         
     else:
@@ -188,7 +191,8 @@ hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
 if args.smooth:
-    hist.Smooth()
+    for i in range(1):
+        hist.Smooth(1,"k3a")
     postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
@@ -241,10 +245,12 @@ latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
-latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-latex1.DrawLatex(0.14,0.92,'#bf{dim6top model}')
-latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
+#latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+#latex1.DrawLatex(0.14,0.92,'#bf{dim6top model}')
+#latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
+latex1.DrawLatex(0.14,0.94,'#bf{dim6top model}')
+latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
 if not os.path.isdir(plotDir):

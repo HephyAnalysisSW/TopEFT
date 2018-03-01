@@ -65,9 +65,14 @@ class Process:
         
         # copy reweight cards
         if self.reweight:
-            source = os.path.join( self.data_path,  'template', 'template_reweight_card_'+model_name+'.dat')
-            target = os.path.join( self.processTmpDir, 'Cards', "reweight_card.dat" )
+            source = os.path.join( self.config.data_path,  'template', 'template_reweight_card_'+self.config.model_name+'.dat')
+            target = os.path.join( self.processTmpDir, 'Cards', 'reweight_card.dat' )
+            print target
             shutil.copyfile( source, target )
+            if os.path.isfile(target):
+                logger.debug( "Done with %s -> %s", source, target )
+            else:
+                logger.info("File copy failed. WTF!")
         
 
         # Append to me5_configuration.txt 
@@ -150,7 +155,12 @@ class Process:
                 os.makedirs( self.GP_outputDir )
 
             logger.info( "Preparing gridpack" )
-            output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), '-f'])
+            #print "Testing reweighting"
+            if self.reweight:
+                # not yet working
+                output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), 'reweight', '-f'])
+            else:
+                output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), '-f'])
 
             logger.info( "Stitching together all the parts of the gridpack" )
             subprocess.call(['tar', 'xaf', os.path.join( self.config.uniquePath, 'processtmp/run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])

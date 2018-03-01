@@ -31,7 +31,7 @@ argParser.add_argument('--smooth', action='store_true', help="Use histogram smoo
 argParser.add_argument('--plane', action='store', choices=["current", "dipole"], default = "current", help="Current of dipole plane?")
 args = argParser.parse_args()
 
-postFix = "_fine"
+postFix = "_fine_YR1"
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
@@ -130,6 +130,7 @@ for i,s in enumerate(signals):
             # catch rounding errors
             nll_value = 0
         elif limit < -900:
+            #print "WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOT"
             #continue
             # if the fit failed, add a dummy value (these points should easily be excluded)
             nll_value = 100
@@ -139,13 +140,30 @@ for i,s in enumerate(signals):
         
         # Add results
         print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-        if s.var2 + y_shift > -0.8 and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+        if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+        #if True:
             z.append(nll_value)
             x.append(s.var1 + x_shift)
             y.append(s.var2 + y_shift)
             res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
-        else:
-            print "Omitting..."
+        #else:
+        #    print "Omitting..."
+        #x.append(-1.06)
+        #y.append(-0.9)
+        #z.append(100)
+        #
+        #x.append(1.14)
+        #y.append(-0.9)
+        #z.append(100)
+        #
+        #x.append(-1.06)
+        #y.append(0.9)
+        #z.append(100)
+
+        #x.append(1.14)
+        #y.append(0.9)
+        #z.append(100)
+
     else:
         print "No results for %s found"%s.name
 
@@ -176,12 +194,12 @@ hist = a.GetHistogram().Clone()
 if x_var == "DC1V":
     hist.GetXaxis().SetTitle("C_{1,V}")
 else:
-    hist.GetXaxis().SetTitle("#DeltaC_{2,V}")
+    hist.GetXaxis().SetTitle("C_{2,V}")
 hist.GetXaxis().SetNdivisions(505)
 if y_var == "DC1A":
     hist.GetYaxis().SetTitle("C_{1,A}")
 else:
-    hist.GetYaxis().SetTitle("#DeltaC_{2,A}")
+    hist.GetYaxis().SetTitle("C_{2,A}")
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
@@ -241,10 +259,12 @@ latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
-latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
-latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
+#latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+#latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
+#latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
+latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
+latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
 if not os.path.isdir(plotDir):
