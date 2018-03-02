@@ -32,25 +32,30 @@ class resultsDB:
         self.columns        = self.clean(columns)
         self.columns        = self.columns + ["value"]
         self.columnString   = ", ".join([ s+" text" for s in self.columns ])
-        if not os.path.isfile(database):
-            self.connect()
-            with self.conn:
-                '''
-                Use context manager for connections. Closes the connection on exit.
-                '''
-                executeString = '''CREATE TABLE %s (%s, time_stamp real )'''%(self.tableName, self.columnString)
-                try:
-                    self.conn.execute(executeString)
-                    # try to aviod database malform problems
-                    self.conn.execute('''PRAGMA journal_mode = DELETE''') # WAL doesn't work on network filesystems
-                    self.conn.execute('''PRAGMA synchronus = 2''')
-                except sqlite3.OperationalError:
-                    # Doesn't really matter if that doesn't work.
-                    logger.info("Table already exists.")
-            self.close()
+        self.connect()
+        with self.conn:
+            '''
+            Use context manager for connections. Closes the connection on exit.
+            '''
+            executeString = '''CREATE TABLE %s (%s, time_stamp real )'''%(self.tableName, self.columnString)
+            try:
+                self.conn.execute(executeString)
+                # try to aviod database malform problems
+                self.conn.execute('''PRAGMA journal_mode = DELETE''') # WAL doesn't work on network filesystems
+                self.conn.execute('''PRAGMA synchronus = 2''')
+            except sqlite3.OperationalError:
+                # Doesn't really matter if that doesn't work.
+                logger.info("Table already exists.")
+        self.close()
 
     def clean(self, columns):
         return [ c for c in columns ]
+    
+    def dropTable(self):
+        executeString = '''DROP TABLE %s'''%self.tableName
+        self.connect()
+        with self.conn:
+            self.conn.execute(executeString)
 
     def connect(self):
         '''

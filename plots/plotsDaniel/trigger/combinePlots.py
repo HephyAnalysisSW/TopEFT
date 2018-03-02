@@ -24,6 +24,7 @@ def get_parser():
     argParser.add_argument('--leg',                    action='store',         nargs='?',              choices=["E","M"],     default='E', help="electron or muon?")
     argParser.add_argument('--Run2017',                action='store_true',          help="2017 data?")
     argParser.add_argument('--channel',                action='store', choices = ["dilep", "trilep"], default = "trilep",          help="Which channel?")
+    argParser.add_argument('--flavor',                action='store', choices = ["2l","2e","2m","em"], default = "2l",          help="Which channel?")
 
     return argParser
 
@@ -39,8 +40,8 @@ postProcessing_directory = 'TopEFT_PP_2017_Fall17_v2/trilep'
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 # Define stuff for plotting
-#binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
-binning = [0,10,20,30,40,60,80,100,120,150,200]
+binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+#binning = [0,10,20,30,40,60,80,100,120,150,200]
 if options.Run2017:
     #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
     binning = [0,10,20,30,40,60,80,100,120,150,200]
@@ -53,16 +54,17 @@ else:
     presel  = 'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&abs(Z_mass-90.2)<10'
 
 # loop over 3 leptons. Too tired to think of something nicer
-for i in range(3):
-#for i in range(1):
-#for i in range(2):
+if options.channel == "dilep": ran = range(2)
+else: ran = range(3)
+
+for i in ran:
 
     if options.Run2017:
         
         if options.channel == "dilep":
             MC = TTW_17
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_TTLep_pow_17_comp.root"%i, "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_MET_Run2017_comp.root"%(options.flavor, i), "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_TTLep_pow_17_comp.root"%(options.flavor, i), "can")
         else:
             MC = TTZtoLLNuNu_17
             DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
@@ -74,8 +76,8 @@ for i in range(3):
     
         if options.channel == "dilep":
             MC = TTW
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow/turnOn_3l_MET_HTMHT_JetHT_altBinning/2l/lep_pt[%s]_TTLep_pow_comp.root"%i, "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_MET_Run2016_comp.root"%(options.flavor, i), "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_TTLep_pow_comp.root"%(options.flavor, i), "can")
         else:
             MC = TTZ_LO
             DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
@@ -100,8 +102,8 @@ for i in range(3):
     if not indexData == 6:
         print "Weird"
 
-    indexData = 6#6
-    indexMC = 6#6
+    indexData = 7#6
+    indexMC = 7#6
     
     DataHist    = DataCanvas.GetListOfPrimitives()[indexData]
     DataHist.SetLineColor(ROOT.kBlue)
@@ -248,10 +250,14 @@ for i in range(3):
     ratioAsym.Draw("e1p same")
 
 
-    plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/3l_OR_combined_altBinning_SF/"
+    if options.channel == 'dilep':
+        plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/2l_OR_combined_altBinning/"
+    else:
+        plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/3l_OR_combined_altBinning_SF/"
     
     name = "lep_pt[%s]_Run2017"%i if options.Run2017 else "lep_pt[%s]_Run2016"%i
     #name = "nElectrons_Run2017" if options.Run2017 else "nElectrons_Run2016"
+    if options.channel == 'dilep': name += "_%s"%options.flavor
     
     for e in ['.png', '.pdf', '.root']:
         canNew.Print(plotDir+name+e)

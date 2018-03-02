@@ -1,0 +1,81 @@
+# This file was automatically created by FeynRules 2.3.29
+# Mathematica version: 10.2.0 for Linux x86 (64-bit) (July 28, 2015)
+# Date: Tue 19 Dec 2017 19:53:06
+
+
+# 
+# This is the logfile for the model Standard Model
+
+# Authors: N. Christensen, C. Duhr, B. Fuks
+# Model version: 1.4.7
+# Checking the Quantum numbers
+   * Electric charge defined.
+#
+# Particle definitions
+#
+
+   * No particles removed. All particles correspond to GenInt setup.
+
+# Automatically assigned PDG numbers
+   * Assigned PDG number 9000001 to particle ghA
+   * Assigned PDG number 9000002 to particle ghZ
+   * Assigned PDG number 9000003 to particle ghWp
+   * Assigned PDG number 9000004 to particle ghWm
+
+
+# Compulsory PDG codes:
+   * Class SM leptons complete.
+   * Class SM neutrinos complete.
+   * Class SM quarks complete.
+   * Class SM gauge bosons complete.
+#
+# Parameter definitions
+#
+
+   * Parameter sq2 has no value. Default value 1 assigned.
+   * Parameter cQQplus has no value. Default value 1 assigned.
+   * Parameter ctA has no value. Default value 1 assigned.
+
+
+# Vertices
+   * Appending manually appended vertices.
+   * Number of classes vertices: 340
+   * Number of flavored vertices: 340
+   * Saved vertices in InterfaceRun[ 1 ].
+   * Checked QNumber conservation.
+      - Quantum number GhostNumber conserved in all vertices.
+      - Quantum number LeptonNumber conserved in all vertices.
+      - Quantum number Q conserved in all vertices.
+      - Quantum number Y conserved in all vertices.
+   * particles.py written.
+   * parameters.py written.
+#
+# Vertex definitions
+#
+
+   * 345 vertices written.
+   * vertices.py written.
+#
+# Lorentz structure definitions
+#
+
+   * 71 lorentz structures written.
+   * lorentz.py written.
+#
+# Coupling definitions
+#
+
+   * 888 couplings written.
+   * couplings.py written.
+#
+# Coupling order definitions
+#
+
+   * 0 couplings orders written.
+   * coupling_orders.py written.
+#
+# CTCoupling definitions
+#
+
+   * 0 CTcouplings written.
+   * CT_couplings.py written.
