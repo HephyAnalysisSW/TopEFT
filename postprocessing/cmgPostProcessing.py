@@ -206,7 +206,7 @@ if isMC:
         
 # top pt reweighting
 # Decision based on sample name -> whether TTJets or TTLep is in the sample name
-isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow")
+isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow") or sample.name.startswith("TTZ")
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
 
