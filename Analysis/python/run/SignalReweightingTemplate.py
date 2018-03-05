@@ -9,7 +9,9 @@ import os
 from RootTools.core.standard import *
 
 # TopEFT
-from TopEFT.Tools.PickleCache import PickleCache
+#from TopEFT.Tools.PickleCache import PickleCache
+from TopEFT.Tools.resultsDB import resultsDB
+#from TopEFT.Analysis.Cache import Cache
 
 if __name__ == "__main__":
 
@@ -19,6 +21,7 @@ if __name__ == "__main__":
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser")
     argParser.add_argument('--logLevel',        action='store',      default='INFO',  nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+    argParser.add_argument('--makePlots',        action='store_true',       help="Make reweighting matrix plots?")
     args = argParser.parse_args()
 
     # Logger
@@ -40,20 +43,22 @@ class SignalReweighting:
         self.source_sample = source_sample
         self.target_sample = target_sample 
         self.initCache( cacheDir )
+        #self.cache = Cache( os.path.join(cacheDir, 'signalReweightingTemplates.sql') )
 
         self.cosThetaStar_binning = [ i/5. for i in range(-5,6) ] 
         self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 2000 ]
         self.template_draw_string = 'Z_pt:Z_cosThetaStar'
 
     def initCache(self, cacheDir):
-        if cacheDir:
-            self.cacheDir = cacheDir
-            try:    os.makedirs(cacheDir)
-            except: pass
-            cacheFileName = os.path.join(cacheDir, 'signalReweightingTemplates.pkl')
-            self.cache    = PickleCache(cacheFileName)
-        else:
-            self.cache=None
+        self.cache = resultsDB(os.path.join(cacheDir, 'signalReweightingTemplates.sql'), "signalWeights", ["selection", "weight", "source", "target"])
+        #if cacheDir:
+        #    self.cacheDir = cacheDir
+        #    try:    os.makedirs(cacheDir)
+        #    except: pass
+        #    cacheFileName = os.path.join(cacheDir, 'signalReweightingTemplates.pkl')
+        #    self.cache    = PickleCache(cacheFileName)
+        #else:
+        #    self.cache=None
 
     def uniqueKey( self, *arg ):
         '''No dressing required'''
@@ -71,17 +76,22 @@ class SignalReweighting:
             
 
     def cachedTemplate( self, selection, weight = '(1)', save = True, overwrite = False):
-
-        key =  self.uniqueKey( selection, weight, self.source_sample.name, self.target_sample.name)
+        
+        key = {"selection":selection, "weight":weight, "source":self.source_sample.name, "target":self.target_sample.name}
+        #key =  self.uniqueKey( selection, weight, self.source_sample.name, self.target_sample.name)
         if (self.cache and self.cache.contains(key)) and not overwrite:
             result = self.cache.get(key)
-            logger.debug( "Loading cached template for %s : %s"%( key, result) )
+            logger.info( "Loaded reweighting template from %s for %s : %r"%(self.cache.database_file, key, result) )
+            logger.debug( "With properties %s : %s"%( key, result) )
         elif self.cache:
             logger.info( "Obtain template for %s"%( key, ) )
             result = self.makeTemplate( selection = selection, weight = weight)
-            result = self.cache.add( key, result, save=save)
-            #print "Adding template to cache for %s : %r" %( key, result)
-            logger.debug( "Adding template to cache for %s : %r" %( key, result) )
+            if result:
+                result = self.cache.addData( key, result, overwrite=save )
+                #print "Adding template to cache for %s : %r" %( key, result)
+                logger.info( "Adding template to cache for %s : %r" %( key, result) )
+            else:
+                logger.info( "Couldn't create template to cache for %s : %r" %( key, result) )
         else:
             result = self.makeTemplate( selection = selection, weight = weight)
         return result
@@ -94,12 +104,14 @@ class SignalReweighting:
         if h_source.Integral()>0:
             h_source.Scale(1./h_source.Integral())
         else:
+            return False
             raise ValueError
         h_target = self.target_sample.get2DHistoFromDraw(self.template_draw_string , ( self.cosThetaStar_binning, self.Z_pt_binning), selectionString = selection, weightString = weight, binningIsExplicit = True )
         logger.info( "Target histogram contains %s weighted events", h_target.Integral() )
         if h_target.Integral()>0:
             h_target.Scale(1./h_target.Integral())
         else:
+            return False
             raise ValueError
 
         h_target.Divide( h_source ) 
@@ -109,6 +121,8 @@ class SignalReweighting:
 
 if __name__ == "__main__":
 
+    makePlot = False
+    
     # Benchmarks for testing
     from TopEFT.samples.gen_fwlite_benchmarks import *
     from TopEFT.Tools.user import results_directory, plot_directory
@@ -118,13 +132,16 @@ if __name__ == "__main__":
     
     #source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
     #source_gen = dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00 ## there shouldn't be a different between the two
-    source_gen = ewkDM_central
-
+    source_gen = dim6top_central
+    #source_gen = ewkDM_central
+    
     #allTargets = allSamples_dim6top
     #allTargets = ewkDM_currents + [ ewkDM_central ]
-    allTargets = ewkDM_all
+    allTargets = dim6top_all
+    #allTargets = ewkDM_all
 
     for target in allTargets:
+        logger.info("Working on target samples %s", target.name)
         target_gen = target
 
         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = target_gen, cacheDir = cacheDir)
@@ -136,16 +153,15 @@ if __name__ == "__main__":
         f = signalReweighting.cachedReweightingFunc( selection )
         
         # plot the reweighting matrix
-        matrix = signalReweighting.cachedTemplate( selection )
-        
-        matrixPlot = Plot2D.fromHisto( target_gen.name, texY = "p_{T}(Z)", texX = "cos(#Theta*)", histos = [[matrix]])
-        matrixPlot.drawOption = "colz text"
+        if args.makePlots:
+            matrix = signalReweighting.cachedTemplate( selection, overwrite=False )
+            
+            matrixPlot = Plot2D.fromHisto( target_gen.name, texY = "p_{T}(Z)", texX = "cos(#Theta*)", histos = [[matrix]])
+            matrixPlot.drawOption = "colz text"
 
-        def optimizeLogZ(histo):
-            histo.GetZaxis().SetMoreLogLabels()
-            histo.GetZaxis().SetNoExponent()
+            def optimizeLogZ(histo):
+                histo.GetZaxis().SetMoreLogLabels()
+                histo.GetZaxis().SetNoExponent()
 
-        ROOT.gStyle.SetPaintTextFormat("2.2f")        
-         
-        plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = True, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])
-    
+            ROOT.gStyle.SetPaintTextFormat("2.2f")        
+            plotting.draw2D( matrixPlot, plot_directory = os.path.join( plot_directory, 'reweightingMatrices', source_gen.name), logY = True, copyIndexPHP = True, zRange = [0.5, 5.], extensions = ["png"], histModifications = [optimizeLogZ])

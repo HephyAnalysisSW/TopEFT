@@ -70,7 +70,10 @@ config = Configuration( model_name = args.model )
 modification_dict = {"process":"ttZ_ll"}
 
 if args.model == "dim6top_LO":
-    xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
+    # This is for the fine scan (should be merged)
+    xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    # This is for the coarse scan
+    xsecDB_Backup = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":
         nonZeroCouplings = ["ctZ","ctZi"]
     elif args.signal == "currents":
@@ -84,6 +87,8 @@ if args.model == "dim6top_LO":
 
 elif args.model == "ewkDM":
     xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    # Just in case
+    xsecDB_Backup = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":
         nonZeroCouplings = ["DC2A","DC2V"]
     elif args.signal == "currents":
@@ -103,9 +108,13 @@ p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsec
 
 xsec_central = p.xsecDB.get(modification_dict)
 
+print xsec_central
+
 logger.info("Found SM x-sec of %s", xsec_central)
 
 def getCouplingFromName(name, coupling):
+    name = name.lower()
+    coupling = coupling.lower()
     if coupling in name:
         l = name.split('_')
         return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
@@ -120,11 +129,28 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
+    ## Make it less likely that database write access is concurrent
+    #if "worker" in os.path.expandvars("$HOSTNAME") or True:
+    #    import random
+    #    import time
+    #    waitTime = random.random()*20
+    #    logger.info("Waiting for %s seconds to avoid database problems.", waitTime)
+    #    time.sleep(waitTime)
+
     for coup in nonZeroCouplings:
-        modification_dict[coup] = getCouplingFromName(s.name, coup)
-        logger.info("The following coupling is set to non-zero value: %s: %s", coup, modification_dict[coup])
-    
-    xsec = p.xsecDB.get(modification_dict)
+        try:
+            modification_dict[coup] = getCouplingFromName(s.name, coup)
+            logger.info("The following coupling is set to non-zero value: %s: %s", coup, modification_dict[coup])
+        except ValueError:
+            logger.info("The following coupling is kept at zero: %s: %s", coup, modification_dict[coup])
+            continue
+    try:
+        p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB)
+        xsec = p.xsecDB.get(modification_dict)
+    except IndexError:
+        logger.info("Looking into backup DB for x-sec")
+        p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
+        xsec = p.xsecDB.get(modification_dict)
     logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')
@@ -194,7 +220,7 @@ def wrapper(s):
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
                         if args.model == "dim6top_LO":
-                            source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+                            source_gen = dim6top_central
                         elif args.model == "ewkDM":
                             source_gen = ewkDM_central
                         target_gen = s
@@ -282,9 +308,9 @@ from TopEFT.samples.gen_fwlite_benchmarks import *
 #jobs = allSamples_dim6top
 if args.model == "dim6top_LO":
     if args.signal == "dipoles":
-        jobs = dim6top_dipoles
+        jobs = [dim6top_central] + dim6top_dipoles
     elif args.signal == "currents":
-        jobs = dim6top_currents
+        jobs = [dim6top_central] + dim6top_currents
 elif args.model == "ewkDM":
     if args.signal == "dipoles":
         jobs = [ewkDM_central] + ewkDM_dipoles
@@ -298,10 +324,12 @@ if args.only is not None:
         wrapper(jobs[int(args.only)])
     else:
         jobNames = [ x.name for x in jobs ]
-        try:
-            wrapper(jobs[jobNames.index(args.only)])
-        except ValueError:
-            logger.info("Couldn't find sample %s", args.only)
+        print jobNames[145]
+        print len(jobs)
+        #try:
+        wrapper(jobs[jobNames.index(args.only)])
+        #except ValueError:
+        #    logger.info("Couldn't find sample %s", args.only)
     exit(0)
 
 results = map(wrapper, jobs)

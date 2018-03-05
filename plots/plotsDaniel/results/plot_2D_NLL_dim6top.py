@@ -31,7 +31,8 @@ argParser.add_argument('--smooth', action='store_true', help="Use histogram smoo
 argParser.add_argument('--plane', action='store', choices=["current", "dipole"], default = "current", help="Current of dipole plane?")
 args = argParser.parse_args()
 
-postFix = "_fine_YR1"
+postFix = "_fine"
+postFix = "_YR1"
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
@@ -55,8 +56,7 @@ def toGraph2D(name,title,length,x,y,z):
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
 
 # get the absolute post fit NLL value of pure ttZ
-ttZ_res = getResult(ewkDM_central)
-#ttZ_res = getResult(dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00)
+ttZ_res = getResult(dim6top_central)
 ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
 
 print "Max Likelihood ttZ SM"
@@ -66,18 +66,16 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 #signals = [ x for x in allSamples_dim6top if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
 
 if args.plane == "current":
-    signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
-    x_var = 'DC1V'
-    y_var = 'DC1A'
-    #x_shift = 0.
-    #y_shift = 0.
-    x_shift = 0.24
-    y_shift = -0.60
+    signals = [ dim6top_central ] + [ x for x in dim6top_currents ]
+    x_var = 'cpQM'
+    y_var = 'cpt'
+    x_shift = 0.
+    y_shift = 0.
 
 elif args.plane == "dipole":
-    signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles ]
-    x_var = 'DC2V'
-    y_var = 'DC2A'
+    signals = [ dim6top_central ] + [ x for x in dim6top_dipoles ]
+    x_var = 'ctZ'
+    y_var = 'ctZI'
     x_shift = 0.
     y_shift = 0.
 
@@ -87,8 +85,14 @@ var1_values = []
 var2_values = []
 
 for s in signals:
-    s.var1 = getCouplingFromName(s.name, x_var)
-    s.var2 = getCouplingFromName(s.name, y_var)
+    try:
+        s.var1 = getCouplingFromName(s.name, x_var)
+    except ValueError:
+        s.var1 = 0.
+    try:
+        s.var2 = getCouplingFromName(s.name, y_var)
+    except ValueError:
+        s.var2 = 0.
     if s.var1 != 0.0 and (s.var1+x_shift) not in var1_values:
         var1_values.append(s.var1 + x_shift)
     if s.var2 != 0.0 and (s.var2+y_shift) not in var2_values:
@@ -119,7 +123,6 @@ print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
     res = getResult(s)
-    print s.name
     if type(res) == type({}):
         limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
@@ -130,7 +133,6 @@ for i,s in enumerate(signals):
             # catch rounding errors
             nll_value = 0
         elif limit < -900:
-            #print "WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOT"
             #continue
             # if the fit failed, add a dummy value (these points should easily be excluded)
             nll_value = 100
@@ -140,30 +142,13 @@ for i,s in enumerate(signals):
         
         # Add results
         print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-        if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
-        #if True:
+        #if s.var1 + x_shift < 12. and s.var2 + y_shift > -12.:
+        if True:
             z.append(nll_value)
             x.append(s.var1 + x_shift)
             y.append(s.var2 + y_shift)
-            res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
-        #else:
-        #    print "Omitting..."
-        #x.append(-1.06)
-        #y.append(-0.9)
-        #z.append(100)
-        #
-        #x.append(1.14)
-        #y.append(-0.9)
-        #z.append(100)
-        #
-        #x.append(-1.06)
-        #y.append(0.9)
-        #z.append(100)
-
-        #x.append(1.14)
-        #y.append(0.9)
-        #z.append(100)
-
+        res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
+        
     else:
         print "No results for %s found"%s.name
 
@@ -186,27 +171,28 @@ hist = a.GetHistogram().Clone()
 #nxbins = 200
 #nybins = 200
 
-a.SetNpx(nxbins)
-a.SetNpy(nybins)
+#a.SetNpx(nxbins)
+#a.SetNpy(nybins)
 hist = a.GetHistogram().Clone()
 
 
-if x_var == "DC1V":
-    hist.GetXaxis().SetTitle("C_{1,V}")
+if x_var == "cpQM":
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
 else:
-    hist.GetXaxis().SetTitle("C_{2,V}")
+    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
 hist.GetXaxis().SetNdivisions(505)
-if y_var == "DC1A":
-    hist.GetYaxis().SetTitle("C_{1,A}")
+if y_var == "cpt":
+    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
 else:
-    hist.GetYaxis().SetTitle("C_{2,A}")
+    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
 if args.smooth:
-    hist.Smooth()
+    for i in range(1):
+        hist.Smooth(1,"k3a")
     postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
@@ -234,7 +220,7 @@ pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(79.95) #19.95
+hist.SetMaximum(69.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
@@ -260,10 +246,10 @@ latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
 #latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-#latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
+#latex1.DrawLatex(0.14,0.92,'#bf{dim6top model}')
 #latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
-latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
+latex1.DrawLatex(0.14,0.94,'#bf{dim6top model}')
 latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
@@ -271,8 +257,8 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix)+e)
+    cans.Print(plotDir+"dim6top_%s_%s%s"%(args.plane, setup.name, postFix)+e)
 
 debug.Draw("ap0")
-cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix+"_grid")+'.png')
+cans.Print(plotDir+"dim6top_%s_%s%s"%(args.plane, setup.name, postFix+"_grid")+'.png')
 
