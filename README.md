@@ -9,8 +9,6 @@ cd CMSSW_9_4_1/src
 cmsenv
 git cms-init
 git clone https://github.com/danbarto/TopEFT
-cd TopEFT
-git checkout -b 94X_dev origin/94X_dev
 cd $CMSSW_BASE/src
 ./TopEFT/setup94X.sh
 ```
