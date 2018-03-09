@@ -234,7 +234,7 @@ pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(79.95) #19.95
+hist.SetMaximum(19.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
@@ -259,12 +259,12 @@ latex1.SetNDC()
 latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
-#latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-#latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
-#latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
+latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
+latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
-latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
-latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
+#latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
+#latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
 if not os.path.isdir(plotDir):

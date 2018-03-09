@@ -108,7 +108,22 @@ channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
 
 # SS or OS
 # SS cut: (lep_pdgId[0]*lep_pdgId[1])>0
-presel2l = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
+
+leadingElectron = "(abs(lep_pdgId[0])==11&&lep_pt[0]>40)"
+subleadElectron = "(abs(lep_pdgId[1])==11&&lep_pt[1]>27)"
+leadingMuon     = "(abs(lep_pdgId[0])==13&&lep_pt[0]>25)"
+subleadMuon     = "(abs(lep_pdgId[1])==13&&lep_pt[1]>25)"
+
+ee_Sel = "( %s )"%"&&".join([leadingElectron,subleadElectron])
+em_Sel = "( %s )"%"&&".join([leadingElectron,subleadMuon])
+me_Sel = "( %s )"%"&&".join([leadingMuon,subleadElectron])
+mm_Sel = "( %s )"%"&&".join([leadingMuon,subleadMuon])
+
+
+lepSel_ttW = "||".join([ee_Sel,em_Sel,me_Sel,mm_Sel])
+presel2l = "nlep==2 && (%s) && met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"%lepSel_ttW
+
+#presel2l = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
 #presel2l = "nlep==2&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
 
 if options.channel == 'dilep':
@@ -267,6 +282,7 @@ else:
     if not options.channel == 'dilep': leptons += ["lep_pt[2]"]
     #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
     binning = [0,10,20,30,40,60,80,100,120,150,200]
+    #binning = [0,25,40,60,80,100,120,150,200]
 
 for lep in leptons:
     for c in channels:
@@ -312,9 +328,11 @@ for lep in leptons:
 
             else:
                 if options.Run2017:
-                    weight_passed = "((1) * ( ( (lep_pt[0]<80)*0.966) + ((lep_pt[0]>=80)*(1.0)) ) )"
+                    weight_passed = "(1)"
+                    #weight_passed = "((1) * ( ( (lep_pt[0]<80)*0.966) + ((lep_pt[0]>=80)*(1.0)) ) )"
                 else:
-                    weight_passed = "((1) * ( ( (lep_pt[0]<120)*0.985) + ((lep_pt[0]>=120)*(1.0)) ) )"
+                    weight_passed = "(1)"
+                    #weight_passed = "((1) * ( ( (lep_pt[0]<120)*0.985) + ((lep_pt[0]>=120)*(1.0)) ) )"
                 weight_total = "(1)"
                 #weight_total = "((1) * ( ( (lep_pt[0]<80)*0.50) + ((lep_pt[0]>=80)*(1.0)) ) )"
                 h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=weight_total, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
@@ -431,7 +449,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning_SF", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)

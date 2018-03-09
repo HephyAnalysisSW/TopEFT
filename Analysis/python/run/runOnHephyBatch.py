@@ -44,10 +44,10 @@ Currents
 
 ## for resubmission of failed jobs:
 from TopEFT.Analysis.run.getResults import getResult
-for i,s in enumerate(dim6top_currents):
+for i,s in enumerate(ewkDM_dipoles):
     res = getResult(s)
     if not type(res) == type({}):
-        os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --only=%s'"%str(i))
+        os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --only=%s'"%str(i))
 #        print "Resubmitted signal point %s"%s.name
 
 

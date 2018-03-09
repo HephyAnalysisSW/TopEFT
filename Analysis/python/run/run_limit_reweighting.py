@@ -14,6 +14,7 @@ argParser.add_argument("--popFromSR",      default = False, action = "store", he
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
+argParser.add_argument("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p'], help="Use any CRs cut?")
 
 args = argParser.parse_args()
 
@@ -33,29 +34,48 @@ from TopEFT.Tools.u_float               import u_float
 from math                               import sqrt
 from copy                               import deepcopy
 
-setup                   = Setup()
-#setup.channels          = ['all'] #already defined in Setup
-setup.estimators        = constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
-setup.reweightRegions   = regionsReweight
-#setup.regions           = regionsE #already defined in Setup
-
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
-setups = [setup]
-
-##https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSYSignalSystematicsRun2
 from TopEFT.Tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
 from TopEFT.Tools.cardFileWriter import cardFileWriter
 from TopEFT.Analysis.run.getResults  import getResult, addResult
 
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
 
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v14/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
+
+setup                   = Setup(year=2016)
+#setup.channels          = ['all'] #already defined in Setup
+
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
-limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, '_'.join([args.model, args.signal]))
+if args.controlRegion:
+    subDir = args.controlRegion
+    if args.controlRegion == 'nbtag0-njet3p':
+        setup = setup.systematicClone(parameters={'nJets':(3,-1), 'nBTags':(0,0)})
+    elif args.controlRegion == 'nbtag1p-njet02':
+        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(1,-1)})
+    elif args.controlRegion == 'nbtag1p-njet2':
+        setup = setup.systematicClone(parameters={'nJets':(2,2), 'nBTags':(1,-1)})
+    elif args.controlRegion == 'nbtag0-njet02':
+        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(0,0)})
+    elif args.controlRegion == 'nbtag0-njet0p':
+        setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
+    else:
+        raise NotImplementedError
+else:
+    subDir = ''
+
+estimators = estimatorList(setup)
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+setup.reweightRegions   = regionsReweight
+#setup.regions           = regionsE #already defined in Setup
+
+setups = [setup]
+
+limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
@@ -223,7 +243,7 @@ def wrapper(s):
                             source_gen = dim6top_central
                         elif args.model == "ewkDM":
                             source_gen = ewkDM_central
-                        target_gen = s
+                        #target_gen = s
 
                         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
                         f = signalReweighting.cachedReweightingFunc( setup.genSelection )
@@ -266,30 +286,30 @@ def wrapper(s):
     
     res = {}
     
-    if getResult(s) and not overWrite:
-        res = getResult(s)
-        logger.info("Found result for %s, reusing", s.name)
-    else:
-        # calculate the limit
-        #limit = c.calcLimit(cardFileName)#, options="--run blind")
-        #res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
-        res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
-        # run the checks
-        c.calcNuisances(cardFileName)
-        # extract the NLL
-        nll = c.calcNLL(cardFileName, options="--fastScan")
-        if nll["nll0"] > 0:
-            res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
-        else:
-            res.update({"dNLL_postfit_r1":-999, "dNLL_bestfit":-999, "NLL_prefit":-999})
-            logger.info("Fits failed, adding values -999 as results")
-        logger.info("Adding results to database")
-        addResult(s, res, nll['nll_abs'], overwrite=True)
-        
-    print
-    print "NLL results:"
-    print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
-    print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
+    #if getResult(s) and not overWrite:
+    #    res = getResult(s)
+    #    logger.info("Found result for %s, reusing", s.name)
+    #else:
+    #    # calculate the limit
+    #    #limit = c.calcLimit(cardFileName)#, options="--run blind")
+    #    #res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
+    #    res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
+    #    # run the checks
+    #    c.calcNuisances(cardFileName)
+    #    # extract the NLL
+    #    nll = c.calcNLL(cardFileName, options="--fastScan")
+    #    if nll["nll0"] > 0:
+    #        res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+    #    else:
+    #        res.update({"dNLL_postfit_r1":-999, "dNLL_bestfit":-999, "NLL_prefit":-999})
+    #        logger.info("Fits failed, adding values -999 as results")
+    #    logger.info("Adding results to database")
+    #    addResult(s, res, nll['nll_abs'], overwrite=True)
+    #    
+    #print
+    #print "NLL results:"
+    #print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
+    #print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
     
     if xSecScale != 1:
         for k in res:

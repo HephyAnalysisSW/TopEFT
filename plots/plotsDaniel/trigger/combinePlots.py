@@ -41,15 +41,33 @@ from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 # Define stuff for plotting
 binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
+binning = [0,10,20,30,40,60,80,100,120,150,200]
 #binning = [0,10,20,30,40,60,80,100,120,150,200]
 if options.Run2017:
     #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
     binning = [0,10,20,30,40,60,80,100,120,150,200]
 
-#binning = [0,1,2,3,4]
+if options.channel == "dilep":
+    binning = [0,25,40,60,80,100,120,150,200]
+
+binning = [0,1,2,3,4]
+
+leadingElectron = "(abs(lep_pdgId[0])==11&&lep_pt[0]>40)"
+subleadElectron = "(abs(lep_pdgId[1])==11&&lep_pt[1]>27)"
+leadingMuon     = "(abs(lep_pdgId[0])==13&&lep_pt[0]>25)"
+subleadMuon     = "(abs(lep_pdgId[1])==13&&lep_pt[1]>25)"
+
+ee_Sel = "( %s )"%"&&".join([leadingElectron,subleadElectron])
+em_Sel = "( %s )"%"&&".join([leadingElectron,subleadMuon])
+me_Sel = "( %s )"%"&&".join([leadingMuon,subleadElectron])
+mm_Sel = "( %s )"%"&&".join([leadingMuon,subleadMuon])
+
+lepSel_ttW = "||".join([ee_Sel,em_Sel,me_Sel,mm_Sel])
+presel2l = "nlep==2 && (%s) && met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"%lepSel_ttW
 
 if options.channel == "dilep":
-    presel = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
+    presel = presel2l
+    #presel = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
 else:
     presel  = 'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&abs(Z_mass-90.2)<10'
 
@@ -57,33 +75,34 @@ else:
 if options.channel == "dilep": ran = range(2)
 else: ran = range(3)
 
+ran = range(1)
 for i in ran:
 
     if options.Run2017:
         
         if options.channel == "dilep":
             MC = TTW_17
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_MET_Run2017_comp.root"%(options.flavor, i), "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_TTLep_pow_17_comp.root"%(options.flavor, i), "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning_ttWSel/%s/lep_pt[%s]_MET_Run2017_comp.root"%(options.flavor, i), "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_ttWSel/%s/lep_pt[%s]_TTLep_pow_17_comp.root"%(options.flavor, i), "can")
         else:
             MC = TTZtoLLNuNu_17
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_TTZtoLLNuNu_17_comp.root"%i, "can")
-            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2017_comp.root", "can")
-            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/nGoodElectrons_TTZtoLLNuNu_17_comp.root", "can")
+            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_MET_Run2017_comp.root"%i, "can")
+            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_TTZtoLLNuNu_17_comp.root"%i, "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2017/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2017_comp.root", "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZtoLLNuNu_17/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/nGoodElectrons_TTZtoLLNuNu_17_comp.root", "can")
     
     else:
     
         if options.channel == "dilep":
             MC = TTW
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_MET_Run2016_comp.root"%(options.flavor, i), "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow/turnOn_3l_MET_HTMHT_JetHT_altBinning/%s/lep_pt[%s]_TTLep_pow_comp.root"%(options.flavor, i), "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning_ttWSel/%s/lep_pt[%s]_MET_Run2016_comp.root"%(options.flavor, i), "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTLep_pow/turnOn_3l_MET_HTMHT_JetHT_altBinning_ttWSel/%s/lep_pt[%s]_TTLep_pow_comp.root"%(options.flavor, i), "can")
         else:
             MC = TTZ_LO
-            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
-            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/lep_pt[%s]_TTZ_LO_comp.root"%i, "can")
-            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_MET_Run2016_comp.root", "can")
-            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/nGoodElectrons_TTZ_LO_comp.root", "can")
+            #DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_MET_Run2016_comp.root"%i, "can")
+            #MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning/3pl/lep_pt[%s]_TTZ_LO_comp.root"%i, "can")
+            DataCanvas  = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/MET_Run2016/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/nGoodElectrons_MET_Run2016_comp.root", "can")
+            MCCanvas    = getObjFromFile("/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/TTZ_LO/turnOn_3l_MET_HTMHT_JetHT_altBinning_SF/3pl/nGoodElectrons_TTZ_LO_comp.root", "can")
     
     # get the histogram with highest efficiencies ( == most ORed triggers)
     indexData   = 0
@@ -102,8 +121,12 @@ for i in ran:
     if not indexData == 6:
         print "Weird"
 
-    indexData = 7#6
-    indexMC = 7#6
+    if options.Run2017 and options.channel == "dilep":
+        indexData = 7#6
+        indexMC = 7#6
+    else:
+        indexData = 6
+        indexMC = 6
     
     DataHist    = DataCanvas.GetListOfPrimitives()[indexData]
     DataHist.SetLineColor(ROOT.kBlue)
@@ -111,11 +134,11 @@ for i in ran:
     DataHist.SetMarkerStyle(21)
     MCHist      = MCCanvas.GetListOfPrimitives()[indexMC]
     
-    shapeHist   = MC.get1DHistoFromDraw("lep_pt[%s]"%i, binning, selectionString=presel, weightString="weight", binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
-    #shapeHist   = MC.get1DHistoFromDraw("nGoodElectrons", binning, selectionString=presel, weightString="weight", binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+    #shapeHist   = MC.get1DHistoFromDraw("lep_pt[%s]"%i, binning, selectionString=presel, weightString="weight", binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
+    shapeHist   = MC.get1DHistoFromDraw("nGoodElectrons", binning, selectionString=presel, weightString="weight", binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
     if i == 0:
-        shapeHist.Scale(15/shapeHist.Integral(),"width")
-        #shapeHist.Scale(0.5/shapeHist.Integral(),"width")
+        #shapeHist.Scale(15/shapeHist.Integral(),"width")
+        shapeHist.Scale(0.5/shapeHist.Integral(),"width")
     elif i ==1:
         shapeHist.Scale(7/shapeHist.Integral(),"width") #10
     else:
@@ -153,7 +176,16 @@ for i in ran:
         ratioAsym.SetPointError(j, 0.,0.,scaleFactors[j].down, scaleFactors[j].up)
         print binning[j]
         x_err = (binning[j+1]-binning[j])/2. if j < len(binning)-1 else 0
-        ratioSyst.SetPointError(j, x_err,x_err,0.02, 0.02)
+        if options.Run2017 and options.channel == "trilep" and i == 0 and j <4:
+            ratioSyst.SetPointError(j, x_err,x_err,0.0, 0.0)
+        elif options.Run2017 and options.channel == "trilep" and i == 0 and j <6:
+            ratioSyst.SetPointError(j, x_err,x_err,0.034, 0.034)
+        elif options.Run2017 and options.channel == "trilep" and i == 1 and j <2:
+            ratioSyst.SetPointError(j, x_err,x_err,0.0, 0.0)
+        elif options.Run2017 and options.channel == "trilep" and i == 2 and j <1:
+            ratioSyst.SetPointError(j, x_err,x_err,0.0, 0.0)
+        else:
+            ratioSyst.SetPointError(j, x_err,x_err,0.02, 0.02)
 
     canNew = ROOT.TCanvas("canNew","can", 700,700)
     #canNew.SetLogx()
@@ -222,13 +254,13 @@ for i in ran:
     numHist.GetYaxis().SetTitleOffset(0.32)
     numHist.GetYaxis().SetNdivisions(504)
 
-    numHist.GetXaxis().SetTitle("p_{T}(l) (GeV)")
-    #numHist.GetXaxis().SetLabelSize(0.18)
-    #numHist.GetXaxis().SetBinLabel(1, "mmm")
-    #numHist.GetXaxis().SetBinLabel(2, "emm")
-    #numHist.GetXaxis().SetBinLabel(3, "eem")
-    #numHist.GetXaxis().SetBinLabel(4, "eee")
-    #numHist.GetXaxis().SetTitle("N_{e}")
+    #numHist.GetXaxis().SetTitle("p_{T}(l) (GeV)")
+    numHist.GetXaxis().SetLabelSize(0.18)
+    numHist.GetXaxis().SetBinLabel(1, "mmm")
+    numHist.GetXaxis().SetBinLabel(2, "emm")
+    numHist.GetXaxis().SetBinLabel(3, "eem")
+    numHist.GetXaxis().SetBinLabel(4, "eee")
+    numHist.GetXaxis().SetTitle("N_{e}")
     numHist.GetYaxis().SetTitle("Data/MC")
 
     one = ROOT.TF1("one","1",0,200)
@@ -251,12 +283,12 @@ for i in ran:
 
 
     if options.channel == 'dilep':
-        plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/2l_OR_combined_altBinning/"
+        plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/2l_OR_combined_altBinning_ttW/"
     else:
         plotDir = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/trigger/3l_OR_combined_altBinning_SF/"
     
-    name = "lep_pt[%s]_Run2017"%i if options.Run2017 else "lep_pt[%s]_Run2016"%i
-    #name = "nElectrons_Run2017" if options.Run2017 else "nElectrons_Run2016"
+    #name = "lep_pt[%s]_Run2017"%i if options.Run2017 else "lep_pt[%s]_Run2016"%i
+    name = "nElectrons_Run2017" if options.Run2017 else "nElectrons_Run2016"
     if options.channel == 'dilep': name += "_%s"%options.flavor
     
     for e in ['.png', '.pdf', '.root']:

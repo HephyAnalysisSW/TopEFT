@@ -125,7 +125,7 @@ from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 signals = []
 if   args.signal == "ewkDM":
-    data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+    data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
     postProcessing_directory = "TopEFT_PP_v19/trilep/"
     from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
@@ -278,7 +278,7 @@ for index, mode in enumerate(allModes):
     plots = []
   
 
-    nBtagBinning = [5, 1, 6] if args.selection.count('btagM') else [1,0,1]
+    nBtagBinning = [5, 1, 6]
 
     nbtags_data  = Plot( 
         name            = "nbtags_data",
@@ -301,7 +301,7 @@ for index, mode in enumerate(allModes):
         ) for sys in all_systematics }
     plots.extend( nbtags_mc.values() )
 
-    jetBinning = [8,2,10] if args.selection.count('njet2') else [2,0,2]
+    jetBinning = [8,2,10]
 
     njets_data  = Plot( 
         name            = "njets_data",

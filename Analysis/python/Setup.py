@@ -42,7 +42,7 @@ dataHighLumi = {'3mu':3e6, '3e':3e6, '2mu1e':3e6, '2e1mu':3e6}
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
 #lumi = dataLumi201678
-lumi = dataHighLumi
+lumi = dataLumi20167
 
 #Define defaults here
 zMassRange          = 10
@@ -62,12 +62,13 @@ default_parameters   = {
         }
 
 class Setup:
-    def __init__(self):
+    def __init__(self, year=2017):
         #self.name       = "regionsE_xsec_shape_lowUnc"
-        self.name       = "regionsE_3000fb_xsec_shape_lowUnc"
+        self.name       = "regionsE_80fb_xsec_shape_lowUnc"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
+        self.year       = year
 
         self.analysis_results = analysis_results
         self.zMassRange       = zMassRange
@@ -81,6 +82,8 @@ class Setup:
         self.dataLumi     = lumi
         
         self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
+
+        #SingleMuon 
 
         self.samples = {
         'TTZ':          {c:TTZSample        for c in channels},
@@ -215,7 +218,7 @@ class Setup:
               res['cuts'].append('Z_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
-              
+            presel_2l     = "(nGoodLeptons>=2)"  
             presel3mu     = "(nGoodMuons==3&&nGoodElectrons==0)"
             presel2mu1e   = "(nGoodMuons==2&&nGoodElectrons==1)"
             presel2e1mu   = "(nGoodMuons==1&&nGoodElectrons==2)"
@@ -228,22 +231,25 @@ class Setup:
             if zWindow == 'offZ' and channel!="EMu": res['cuts'].append(getZCut(zWindow, self.zMassRange))  # Never use offZ when in emu channel, use allZ instead
 
             #lepton channel
-            assert channel in allChannels, "channel must be one of "+",".join(allChannels)+". Got %r."%channel
+            assert channel in allChannels+["2l_incl"], "channel must be one of "+",".join(allChannels)+". Got %r."%channel
 
             if channel=="3mu":        chStr = presel3mu
             elif channel=="2mu1e":    chStr = presel2mu1e
             elif channel=="2e1mu":    chStr = presel2e1mu
             elif channel=="3e":       chStr = presel3e
+            elif channel=="2l_incl":  chStr = presel_2l
             elif channel=="all":      chStr = "("+'||'.join(allPresels)+')'
 
             res['cuts'].append(chStr)
 
-            res['cuts'].append('nlep==3')
+            if channel is not "2l_incl":
+                res['cuts'].append('nlep==3')
 
-            res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
+                res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
-        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim))
+        # Need a better solution for the Setups for different eras
+        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}
