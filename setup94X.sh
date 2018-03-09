@@ -32,25 +32,15 @@ cd CMGTools
 git remote add origin git@github.com:GhentAnalysis/cmgtools-lite.git -f -t 94X_dev_StopsDilepton 
 git checkout -b 94X_dev_StopsDilepton origin/94X_dev_StopsDilepton
 
-#cd $CMSSW_BASE/src
-#add the repository with the updated Egamma package
-#git cms-merge-topic cms-egamma:EGM_gain_v1
-#cd EgammaAnalysis/ElectronTools/data
-# download the txt files with the corrections
-#git clone https://github.com/ECALELFS/ScalesSmearings.git
-#git checkout Moriond17_23Jan_v2
-
-#cd $CMSSW_BASE/src
-#git fetch origin
-#git checkout -b 80X_StopsDilepton origin/80X_StopsDilepton
-
-## DeepCSV
-#cd $CMSSW_BASE/src
-#git cms-merge-topic -u mverzett:DeepFlavourCMVA-from-CMSSW_8_0_21
-#mkdir RecoBTag/DeepFlavour/data/
-#cd RecoBTag/DeepFlavour/data/
-#wget http://home.fnal.gov/~verzetti//DeepFlavour/training/DeepFlavourNoSL.json
-#wget http://mon.iihe.ac.be/~smoortga/DeepFlavour/CMSSW_implementation_DeepCMVA/Model_DeepCMVA.json
+# Fall17 EGM MVA
+# https://github.com/CERN-PH-CMG/cmgtools-lite/pull/218
+git remote add cmssw-guitargeek https://github.com/guitargeek/cmssw.git -t ElectronID_MVA2017_940pre3 -f
+git format-patch --stdout 2efa972169e..64030f65aa2 | git apply -
+# Comment below because I added the training files under /src for running with crab
+#cd $CMSSW_BASE/external/slc6_amd64_gcc630
+#git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+#cd data/RecoEgamma/ElectronIdentification/data
+#git checkout CMSSW_9_4_0_pre3_TnP
 
 cd $CMSSW_BASE/src
 #compile
