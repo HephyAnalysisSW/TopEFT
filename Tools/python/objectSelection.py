@@ -103,8 +103,11 @@ def muonSelector( lepton_selection ):
             loose_ = muonSelector( 'loose' )
             return \
                 loose_(l) \
-                and l["mediumMuonId"]>=1 \
-                and l["mvaTTV"] > tight_mva_threshold
+                and l["mediumMuonId"]>=1\
+                and l["relIso03"]<0.15\
+                and l["sip3d"]<4.0
+                ## -> future
+                # and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
         def func(l):
@@ -161,7 +164,7 @@ def eleSelector( lepton_selection ):
                 l["pt"]>=7\
                 and abs(l["pdgId"])==11\
                 and abs(l["eta"])<2.5\
-                and l["miniRelIso"]<0.4 \
+                and l["miniRelIso"]<0.4\
                 and l["sip3d"]<8.0\
                 and abs(l["dxy"])<0.05\
                 and abs(l["dz"])<0.1\
@@ -173,7 +176,12 @@ def eleSelector( lepton_selection ):
             loose_ = eleSelector( 'loose' )
             return \
                 loose_(l) \
-                and l["mvaTTV"] > tight_mva_threshold
+                and l["relIso03"] < 0.15\
+                and l["sip3d"]<4.0\
+                and l['convVeto']\
+                and l['lostHits']<=1
+                # future -->
+                #and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
         def func(l):
