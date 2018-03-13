@@ -27,10 +27,9 @@ from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, el
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
-#from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
+triggerSF = triggerEfficiency(options.year)
 
-#triggerEff_withBackup   = triggerEfficiency(with_backup_triggers = True)
-#triggerEff              = triggerEfficiency(with_backup_triggers = False)
+#from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 #leptonTrackingSF        = leptonTrackingEfficiency()
 
 # for syncing
@@ -144,7 +143,6 @@ if isData and options.triggerSelection:
     logger.info("Sample will have the following trigger skim: %s"%triggerCond)
     skimConds.append( triggerCond )
 
-triggerSF = triggerEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -527,7 +525,7 @@ def filler( event ):
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
     if isMC and len(tightLeptons)>0:
-        trigg, trigg_err = triggerSF.getSF(tightLeptons[0]['pt'])
+        trigg, trigg_err = triggerSF.getSF(tightLeptons)
         event.reweightTrigger       = trigg
         event.reweightTriggerUp     = trigg + trigg_err
         event.reweightTriggerDown   = trigg - trigg_err
