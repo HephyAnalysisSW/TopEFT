@@ -15,6 +15,8 @@ argParser.add_argument("--useXSec",        action='store_true', help="Use the x-
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
 argParser.add_argument("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p'], help="Use any CRs cut?")
+argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
+argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017' ], help='Which year?')
 
 args = argParser.parse_args()
 
@@ -25,11 +27,19 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight
 from TopEFT.Analysis.estimators         import *
+from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Tools.resultsDB             import resultsDB
-from TopEFT.Analysis.run.getEstimates   import getEstimate
+#from TopEFT.Analysis.run.getEstimates   import getEstimate
 from TopEFT.Tools.u_float               import u_float
 from math                               import sqrt
 from copy                               import deepcopy
@@ -40,12 +50,12 @@ from TopEFT.Analysis.run.getResults  import getResult, addResult
 
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+#data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_v14/trilep/"
+#from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 
-setup                   = Setup(year=2016)
+setup                   = Setup(int(args.year))
 #setup.channels          = ['all'] #already defined in Setup
 
 subDir = ''
@@ -75,7 +85,14 @@ setup.reweightRegions   = regionsReweight
 
 setups = [setup]
 
-limitDir    = os.path.join(baseDir, 'cardFiles', setup.name, subDir, '_'.join([args.model, args.signal]))
+cardDir = "regionsE_%s"%(args.year)
+if args.useXSec:
+    cardDir += "_xsec"
+if args.useShape:
+    cardDir += "_shape"
+cardDir += "_lowUnc"
+
+limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
@@ -128,7 +145,6 @@ p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsec
 
 xsec_central = p.xsecDB.get(modification_dict)
 
-print xsec_central
 
 logger.info("Found SM x-sec of %s", xsec_central)
 
@@ -195,7 +211,10 @@ def wrapper(s):
 
         for setup in setups:
             signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
-            observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
+            if args.unblind and args.controlRegion:
+                observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
+            else:
+                observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
             #observation = DataObservation(name='Data', sample=setup.sample['pseudoData'], cacheDir=setup.defaultCacheDir())
             for e in setup.estimators: e.initCache(setup.defaultCacheDir())
 
@@ -286,6 +305,25 @@ def wrapper(s):
     
     res = {}
     
+    resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)
+    res = {"signal":s.name}
+    if not overWrite and res.DB.contains(key):
+        res = resDB.getDicts(key)[0]
+        logger.info("Found result for %s, reusing", s.name)
+    else:
+        # calculate the limit
+        res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
+        c.calcNuisances(cardFileName)
+        # extract the NLL
+        nll = c.calcNLL(cardFileName, options="--fastScan")
+        if nll["nll0"] > 0:
+            res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
+        else:
+            res.update({"dNLL_postfit_r1":-999, "dNLL_bestfit":-999, "NLL_prefit":-999})
+            logger.info("Fits failed, adding values -999 as results")
+        logger.info("Adding results to database")
+        resDB.add(res, nll['nll_abs'], overwrite=True)
+
     #if getResult(s) and not overWrite:
     #    res = getResult(s)
     #    logger.info("Found result for %s, reusing", s.name)
@@ -306,10 +344,10 @@ def wrapper(s):
     #    logger.info("Adding results to database")
     #    addResult(s, res, nll['nll_abs'], overwrite=True)
     #    
-    #print
-    #print "NLL results:"
-    #print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
-    #print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
+    print
+    print "NLL results:"
+    print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
+    print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
     
     if xSecScale != 1:
         for k in res:

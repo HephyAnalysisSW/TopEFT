@@ -240,14 +240,14 @@ if __name__ == "__main__":
         h = {}
         h["met_pt"]         = {s:ROOT.TH1F('h_met_pt', 'h_met_pt', 10, 0, 500) for s in ['source', 'target', 'source_reweighted']}
         h["Z_mass"]         = {s:ROOT.TH1F('h_Z_mass', 'h_Z_mass', 20, 70, 110) for s in ['source', 'target', 'source_reweighted']}
-        h["nJetSelected"]   = {s:ROOT.TH1F('h_njet', 'h_njet', 8, 0, 8) for s in ['source', 'target', 'source_reweighted']}
-        h["nBTag"]          = {s:ROOT.TH1F('h_nbtag', 'h_nbtag', 8, 0, 8) for s in ['source', 'target', 'source_reweighted']}
+        h["nJetSelected"]   = {s:ROOT.TH1F('h_njet', 'h_njet', 7, 3, 10) for s in ['source', 'target', 'source_reweighted']}
+        h["nBTag"]          = {s:ROOT.TH1F('h_nbtag', 'h_nbtag', 5, 0, 5) for s in ['source', 'target', 'source_reweighted']}
 
-        h["lep_pt1"]        = {s:ROOT.TH1F('h_lep_pt1', 'h_lep_pt1', 15, 0, 300) for s in ['source', 'target', 'source_reweighted']}
+        h["lep_pt1"]        = {s:ROOT.TH1F('h_lep_pt1', 'h_lep_pt1', 15, 0, 450) for s in ['source', 'target', 'source_reweighted']}
         h["lep_pt2"]        = {s:ROOT.TH1F('h_lep_pt2', 'h_lep_pt2', 15, 0, 300) for s in ['source', 'target', 'source_reweighted']}
         h["lep_pt3"]        = {s:ROOT.TH1F('h_lep_pt3', 'h_lep_pt3', 15, 0, 150) for s in ['source', 'target', 'source_reweighted']}
 
-        h["Z_lep_pt1"]        = {s:ROOT.TH1F('h_Z_lep_pt1', 'h_Z_lep_pt1', 15, 0, 300) for s in ['source', 'target', 'source_reweighted']}
+        h["Z_lep_pt1"]        = {s:ROOT.TH1F('h_Z_lep_pt1', 'h_Z_lep_pt1', 15, 0, 450) for s in ['source', 'target', 'source_reweighted']}
         h["Z_lep_pt2"]        = {s:ROOT.TH1F('h_Z_lep_pt2', 'h_Z_lep_pt2', 15, 0, 300) for s in ['source', 'target', 'source_reweighted']}
         h["nonZ_lep_pt"]      = {s:ROOT.TH1F('h_nonZ_lep', 'h_nonZ_lep_pt', 15, 0, 150) for s in ['source', 'target', 'source_reweighted']}
 
@@ -257,13 +257,13 @@ if __name__ == "__main__":
         h["nJetSelected"]["texX"]   = "N_{jet}"
         h["nBTag"]["texX"]          = "N_{b-jet}"
         
-        h["lep_pt1"]["texX"]        = "p_T (leading l) (GeV)"
-        h["lep_pt2"]["texX"]        = "p_T (sub-leading l) (GeV)"
-        h["lep_pt3"]["texX"]        = "p_T (trailing l) (GeV)"
+        h["lep_pt1"]["texX"]        = "p_{T} (leading l) (GeV)"
+        h["lep_pt2"]["texX"]        = "p_{T} (sub-leading l) (GeV)"
+        h["lep_pt3"]["texX"]        = "p_{T} (trailing l) (GeV)"
 
-        h["Z_lep_pt1"]["texX"]        = "p_T (leading l from Z) (GeV)"
-        h["Z_lep_pt2"]["texX"]        = "p_T (sub-leading l from Z) (GeV)"
-        h["nonZ_lep_pt"]["texX"]      = "p_T (l from W) (GeV)"
+        h["Z_lep_pt1"]["texX"]        = "p_{T} (leading l from Z) (GeV)"
+        h["Z_lep_pt2"]["texX"]        = "p_{T} (sub-leading l from Z) (GeV)"
+        h["nonZ_lep_pt"]["texX"]      = "p_{T} (l from W) (GeV)"
 
         plotVars = ["met_pt", "Z_mass", "nJetSelected", "nBTag", "lep_pt1", "lep_pt2", "lep_pt3", "Z_lep_pt1", "Z_lep_pt2", "nonZ_lep_pt"]
 
@@ -390,7 +390,7 @@ if __name__ == "__main__":
             h[var]['source_reweighted'].Scale( h[var]['target'].Integral()/h[var]['source_reweighted'].Integral())
             histos = [ [h[var]['source']], [h[var]['target']], [h[var]['source_reweighted']] ]
             plot = Plot.fromHisto( var, texX = h[var]['texX'], texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = True, yRange = (0.008,8.), copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
 
         for pt_bin in pt_bins:

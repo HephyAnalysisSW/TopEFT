@@ -55,7 +55,7 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu_amcatnlo'],      help="List of samples to be post-processed, given as CMG component name")
-    argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
+    argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
@@ -140,45 +140,18 @@ diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
 EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
 
 if isData and options.triggerSelection is not None:
+    from TopEFT.Tools.triggerSelector import *
+    ts = triggerSelector(options.year)
     if options.year == 2016:
-        if options.triggerSelection == 'mu':
-            skimConds.append( "(HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'e':
-            skimConds.append( "(HLT_SingleEleTTZ)" )
-        elif options.triggerSelection == 'e_for_mu':
-            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'ee':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-        elif options.triggerSelection == 'mue':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-        elif options.triggerSelection == 'mumu':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-        else:
-            raise ValueError( "Don't know about triggerSelection %s in %i "%(options.triggerSelection, options.year) )
-    elif options.year == 2017:
-        if options.triggerSelection == 'mu':
-            skimConds.append( "(HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'e':
-            skimConds.append( "(HLT_SingleEleTTZ)" )
-        elif options.triggerSelection == 'e_for_mu':
-            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-        #if options.triggerSelection == 'mu':
-        #    skimConds.append( "HLT_IsoMu27" )
-        #elif options.triggerSelection == 'e':
-        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)" )
-        #elif options.triggerSelection == 'e_for_mu':
-        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)&(!HLT_IsoMu27)" )
-        #elif options.triggerSelection == 'ee':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-        #elif options.triggerSelection == 'mue':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-        #elif options.triggerSelection == 'mumu':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-        else:
-            raise ValueError( "Don't know about triggerSelection %s in %i"%(options.triggerSelection, options.year) )
+        skimCond = ts.getSelection(options.samples[0])
+        logger.info("Sample will have the following trigger skim: %s"%skimCond)
+        skimConds.append( skimCond )
 
-    sample_name_postFix = "_Trig_"+options.triggerSelection
-    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
+    else:
+        raise NotImplementedError
+    sample_name_postFix = "_TriggerStrategy2018"
+
+    logger.info( "Added trigger selection and postFix %s", options.triggerSelection, sample_name_postFix )
 else:
     sample_name_postFix = ""
 

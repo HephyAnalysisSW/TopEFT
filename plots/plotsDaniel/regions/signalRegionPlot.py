@@ -54,7 +54,8 @@ Nbins = len(regions)
 cardName = "ewkDM_ttZ_ll"
 subDir = "nbtag0-njet0p"
 #subDir = ""
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_80fb_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
+#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_80fb_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_36fb_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -85,6 +86,7 @@ for i, r in enumerate(regions):
         
         totalUncertainty += pError
         hists[p].SetBinContent(i+1, pYield.val)
+        hists[p].SetBinError(i+1,0)
         if p == "signal":
             hists[p].legendText = "ttZ"
         else:
@@ -101,7 +103,7 @@ for i, r in enumerate(regions):
     hists['observed'].SetBinContent(i+1, getObservationFromCard(cardFile, binName).val)
     hists['observed'].legendText = 'data'
 
-hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
+#hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
 hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1. )
 
 boxes = []
@@ -120,6 +122,7 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     #r_box.SetFillColor(ROOT.kBlack)
 
     boxes.append( box )
+    hists['total'].SetBinError(ib, 0)
     #ratio_boxes.append( r_box )
 
 def drawLabels( regions ):
@@ -170,7 +173,7 @@ def drawObjects( ):
     tex.SetTextAlign(11) # align right
     lines = [
       (0.15, 0.95, 'CMS Simulation'),
-      (0.75, 0.95, '80fb^{-1} (13 TeV)' )
+      (0.75, 0.95, '36fb^{-1} (13 TeV)' )
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
@@ -193,7 +196,7 @@ plots = [ bkgHists, [hists['observed']] ]
 if subDir:
     subDir = "%s_"%subDir
 plotting.draw(
-    Plot.fromHisto("%s%s_signalRegions"%(subDir,cardName),
+    Plot.fromHisto("%s%s_signalRegions_unblindV2"%(subDir,cardName),
                 plots,
                 texX = "Signal Region"
             ),

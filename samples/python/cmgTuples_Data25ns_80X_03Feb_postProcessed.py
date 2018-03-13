@@ -8,18 +8,20 @@ logger = logging.getLogger(__name__)
 
 # Data directory
 try:    data_directory = sys.modules['__main__'].data_directory
-except: from TopEFT.Tools.user import data_directory
+except:
+    #from TopEFT.Tools.user import data_directory
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_v14/trilep'
+except: postProcessing_directory = 'TopEFT_PP_v20/trilep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
 for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
-    runTag = 'Run2016' + run + '_03Feb2017' + version
-    dirs["DoubleEG_Run2016"   + run + version ] = ["DoubleEG_"    + runTag ]
+    runTag = 'Run2016' + run + '_03Feb2017' + version + '_TriggerStrategy2018'
+    dirs["DoubleEG_Run2016"         + run + version ] = ["DoubleEG_"          + runTag ]
     dirs["DoubleMuon_Run2016"       + run + version ] = ["DoubleMuon_"        + runTag ]
     dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag ]
     dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag ]
@@ -55,6 +57,9 @@ MuonEG_Run2016                  = getSample('MuonEG',           'Run2016',      
 allSamples_Data25ns = []
 #allSamples_Data25ns += [SingleElectron_Run2016]
 allSamples_Data25ns += [SingleMuon_Run2016, SingleElectron_Run2016, MuonEG_Run2016, DoubleEG_Run2016, DoubleMuon_Run2016]
+
+Run2016 = Sample.combine("Run2016", [SingleMuon_Run2016, SingleElectron_Run2016, MuonEG_Run2016, DoubleEG_Run2016, DoubleMuon_Run2016], texName = "Data")
+Run2016.lumi = (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000
 
 for s in allSamples_Data25ns:
   s.color   = ROOT.kBlack

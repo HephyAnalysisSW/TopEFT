@@ -24,6 +24,7 @@ import math
 from TopEFT.Analysis.SetupHelpers   import channels, allChannels
 from TopEFT.Analysis.regions        import regionsE, noRegions
 from TopEFT.Tools.u_float           import u_float 
+from TopEFT.Tools.resultsDB     import resultsDB
 from TopEFT.Analysis.Region         import Region 
 from TopEFT.Analysis.Setup          import Setup
 
@@ -88,6 +89,9 @@ check all PDF sets that are available. will only implement parts for now.
 PDFset = options.PDFset
 #PDFset = "NNPDF30"
 
+scale_indices = [1,2,3,4,6,8]
+LHEweight_original = 'abs(LHEweight_original)' # should be similar to genWeight
+
 if options.sample == "TTZ_NLO_16":
     if PDFset == "NNPDF30":
         PDFType         = "replicas"
@@ -118,6 +122,7 @@ else:
 
 # central weights here should cancel out, but are necessary to not change the sign for NLO samples
 if not options.selectWeight:
+    scale_variations= [ "abs(LHEweight_wgt[%i])"%(i) for i in scale_indices ]
     PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ]
     aS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in aS_indices ]
     variations      = PDF_variations + aS_variations
@@ -128,9 +133,15 @@ results = {}
 
 scale_systematics = {}
 
-estimate = MCBasedEstimate(name=sample.name, sample={channel:sample for channel in allChannels})
+cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%(PDFset)
 
-estimate.initCache("/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%(PDFset))
+estimate = MCBasedEstimate(name=sample.name, sample={channel:sample for channel in allChannels})
+estimate.initCache(cacheDir)
+
+## Results DB for scale and PDF uncertainties
+
+PDF_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
+scale_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "scale", ["region", "channel", "PDFset"])
 
 
 '''
@@ -184,13 +195,26 @@ if options.combine:
     
         for region in regions:
             
+            scales = []
             deltas = []
             delta_squared = 0
             # central yield inclusive and in region
-            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone())
+            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
             sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
-            sigma_central       = estimate.cachedEstimate(region, channel, setup.systematicClone())
+            sigma_central       = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[LHEweight_original]}))
             sigma_centralWeight = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[centralWeight]}))
+
+            for var in scale_variations:
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
+                norm = sigma_incl_central/simga_incl_reweight
+                
+                sigma_reweight  = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[var]}))
+                sigma_reweight_acc = sigma_reweight * norm
+                
+                unc = abs( ( sigma_reweight_acc - sigma_central) / sigma_central )
+                scales.append(unc.val)
+            
+            scale_rel = max(scales)
 
             for var in PDF_variations:
                 # calculate x-sec noramlization
@@ -243,15 +267,9 @@ if options.combine:
             logger.info("Delta x-sec using alpha_S variations: %s", delta_sigma_alphaS)
             logger.info("Delta x-sec total: %s", delta_sigma_total)
             logger.info("Relative uncertainty: %s", delta_sigma_rel)
-
-        
-            #raise NotImplementedError
-
-
-#    if not os.path.exists(os.path.dirname(ofile)):
-#        os.makedirs(os.path.dirname(ofile))
-#    
-#    pickle.dump( scale_systematics, file( ofile, 'w') )
-#    logger.info( "Written output %s", ofile )
-
+            logger.info("Relative scale uncertainty: %s", scale_rel)
+            
+            # Store results
+            PDF_cache.add({"region":region, "channel":channel, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
+            scale_cache.add({"region":region, "channel":channel, "PDFset":None}, scale_rel, overwrite=True)
 
