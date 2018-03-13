@@ -1,7 +1,6 @@
 # TopEFT
 Repository for work on top quark coupling measurements
 
-```
 ## Installation CMSSW_9_4_X
 
 ```
