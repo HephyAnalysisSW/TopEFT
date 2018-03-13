@@ -35,9 +35,7 @@ class triggerSelector:
         # define an arbitrary hierarchy
         self.PDHierarchy = [ "DoubleMuon", "DoubleMuon", "DoubleEG", "MuonEG", "SingleMuon", "SingleElectron" ]
 
-
-
-    def getVeto(self, cutString):
+    def __getVeto(self, cutString):
         return "!%s"%cutString
 
     def getSelection(self, PD):
@@ -48,10 +46,9 @@ class triggerSelector:
         else:
             for x in reversed(self.PDHierarchy):
                 if found:
-                    cutString += "&&%s"%self.getVeto(getattr(self,x))
+                    cutString += "&&%s"%self.__getVeto(getattr(self,x))
                 if x in PD:# == getattr(self, PD):
                     found = True
                     cutString = getattr(self, x)
 
             return cutString
-
