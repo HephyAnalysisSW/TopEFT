@@ -142,7 +142,7 @@ EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu
 if isData and options.triggerSelection is not None:
     from TopEFT.Tools.triggerSelector import *
     ts = triggerSelector(options.year)
-    if options.year == 2016:
+    if options.year == 2016 or options.year == 2017:
         skimCond = ts.getSelection(options.samples[0])
         logger.info("Sample will have the following trigger skim: %s"%skimCond)
         skimConds.append( skimCond )
