@@ -148,12 +148,12 @@ proxy_path = os.path.expandvars('$HOME/private/.proxy')
 proxy = renew_proxy( proxy_path )
 logger.info( "Using proxy %s"%proxy )
 
-#mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_80X_1l_v14.pkl'
-#robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
-#mc_dpm_directories = robert_80X_1l_v14
-#from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-#mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, robert_80X_1l_v14, mc_cache_file)
-#
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_80X_1l_v14.pkl'
+robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
+mc_dpm_directories = robert_80X_1l_v14
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, robert_80X_1l_v14, mc_cache_file)
+
 ## Summer17 MC
 #Summer17_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer17_92X_1l_v19.pkl'
 #robert_92X_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19']

@@ -526,8 +526,8 @@ def filler( event ):
             for var in lep_convinience_vars:
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
-    if isMC:
-        trigg, trigg_err = triggerSF(tightLeptons[0]['pt'])
+    if isMC and len(tightLeptons)>0:
+        trigg, trigg_err = triggerSF.getSF(tightLeptons[0]['pt'])
         event.reweightTrigger       = trigg
         event.reweightTriggerUp     = trigg + trigg_err
         event.reweightTriggerDown   = trigg - trigg_err
