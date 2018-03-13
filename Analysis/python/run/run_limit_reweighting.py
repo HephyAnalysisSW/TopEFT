@@ -239,10 +239,10 @@ def wrapper(s):
 
                         if expected.val>0:
                             if not args.statOnly:
-                                c.specifyUncertainty('PU',          binname, name, e.PUSystematic( r, channel, setup).val) #1.01 
-                                c.specifyUncertainty('JEC',         binname, name, e.JECSystematic( r, channel, setup).val) #1.03 #1.05
-                                c.specifyUncertainty('btag_heavy',  binname, name, e.btaggingSFbSystematic(r, channel, setup).val) #1.03 #1.05 before
-                                c.specifyUncertainty('btag_light',  binname, name, e.btaggingSFlSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('PU',          binname, name, 1+round(e.PUSystematic( r, channel, setup).val,3)) #1.01 
+                                c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
+                                c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
+                                c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
                                 c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
                                 c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
@@ -288,10 +288,10 @@ def wrapper(s):
                     
                     if sig.val>0:
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, "signal", e.PUSystematic( r, channel, setup).val)
-                            c.specifyUncertainty('JEC',         binname, "signal", e.JECSystematic( r, channel, setup).val) #1.05
-                            c.specifyUncertainty('btag_heavy',  binname, "signal", e.btaggingSFbSystematic(r, channel, setup).val) #1.05
-                            c.specifyUncertainty('btag_light',  binname, "signal", e.btaggingSFlSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('PU',          binname, "signal", 1+round(e.PUSystematic( r, channel, setup).val,3))
+                            c.specifyUncertainty('JEC',         binname, "signal", 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.05
+                            c.specifyUncertainty('btag_heavy',  binname, "signal", 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.05
+                            c.specifyUncertainty('btag_light',  binname, "signal", 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.05
                             c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
                             c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.

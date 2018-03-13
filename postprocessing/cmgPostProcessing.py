@@ -26,7 +26,7 @@ from TopEFT.Tools.addJERScaling              import addJERScaling
 from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, eleSelector, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
-#from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
+from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
 #from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 
 #triggerEff_withBackup   = triggerEfficiency(with_backup_triggers = True)
@@ -143,6 +143,8 @@ treeFormulas = {"triggerDecision": {'string':triggerCond} }
 if isData and options.triggerSelection:
     logger.info("Sample will have the following trigger skim: %s"%triggerCond)
     skimConds.append( triggerCond )
+
+triggerSF = triggerEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -363,7 +365,7 @@ if isMC:
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
-    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
+    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F', 'reweightTrigger/F', 'reweightTriggerUp/F', 'reweightTriggerDown/F'])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -490,7 +492,7 @@ def filler( event ):
         event.reweightPU36fb     = nTrueInt36fb_puRW       ( r.nTrueInt )
         event.reweightPU36fbDown = nTrueInt36fb_puRWDown   ( r.nTrueInt )
         event.reweightPU36fbUp   = nTrueInt36fb_puRWUp     ( r.nTrueInt )
-
+    
     # top pt reweighting
     if isMC and options.doTopPtReweighting: 
         event.reweightTopPt = topPtReweightingFunc(getTopPtsForReweighting(r))/topScaleF if doTopPtReweighting else 1.
@@ -524,6 +526,12 @@ def filler( event ):
             for var in lep_convinience_vars:
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
+    if isMC:
+        trigg, trigg_err = triggerSF(tightLeptons[0]['pt'])
+        event.reweightTrigger       = trigg
+        event.reweightTriggerUp     = trigg + trigg_err
+        event.reweightTriggerDown   = trigg - trigg_err
+
     # Identify best Z from tight leptons 
     #(event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
     (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(tightLeptons)
