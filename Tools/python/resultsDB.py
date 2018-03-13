@@ -45,7 +45,7 @@ class resultsDB:
                 self.conn.execute('''PRAGMA synchronus = 2''')
             except sqlite3.OperationalError:
                 # Doesn't really matter if that doesn't work.
-                logger.info("Table already exists.")
+                logger.debug("Table already exists.")
         self.close()
 
     def clean(self, columns):

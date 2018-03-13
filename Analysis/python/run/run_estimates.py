@@ -4,6 +4,8 @@ parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p'], help="Use any CRs cut?")
+parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data"], help="Choose which sample to run the estimates for")
+parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -66,10 +68,18 @@ if options.controlRegion:
     else:
         raise NotImplementedError
 
-setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
-setupCR.verbose     = True
+setup.verbose = True
+#setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
 
-setups = [setupCR]
+reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
+modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
+
+setups = [setup]
+if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystematics):
+    for r in reweights:
+        setups.append(setup.systematicClone(sys={"reweight":[r]}))
+    for m in modifiers:
+        setups.append(setup.systematicClone(sys={"selectionModifier":m}))
 
 #signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
 
@@ -80,21 +90,37 @@ def wrapper(args):
 
 jobs=[]
 
+if options.sample not in ["Data", "TTZ", "pseudoData"]:
+    estimators = estimators.constructEstimatorList([options.sample]) if options.sample else estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+else:
+    estimators = []
+
 for setup in setups:
+
     signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
     data        = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
     observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
-    for e in setup.estimators: e.initCache(setup.defaultCacheDir())
+    for e in estimators: e.initCache(setup.defaultCacheDir())
+
     for r in setup.regions:
         for channel in setup.channels:
 
-            for e in setup.estimators:
-                name = e.name.split('-')[0]
-                jobs.append((e, r, channel, setup))
-            
-            jobs.append((data, r, channel, setup))
-            jobs.append((observation, r, channel, setup))
-            jobs.append((signal, r, channel, setup))
+            if options.sample == "Data":
+                jobs.append((data, r, channel, setup))
+            elif options.sample == "TTZ":
+                jobs.append((signal, r, channel, setup))
+            elif options.sample == "pseudoData":
+                jobs.append((observation, r, channel, setup))
+            else:
+                for e in estimators:
+                    name = e.name.split('-')[0]
+                    jobs.append((e, r, channel, setup))
+
+
+if options.sample == "TTZ":
+    for setup in [setups[0]]:
+        for rr in setup.reweightRegions:
+            jobs.append((signal, rr, channel, setup))
 
 
 

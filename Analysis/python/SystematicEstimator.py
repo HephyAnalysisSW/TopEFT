@@ -117,14 +117,14 @@ class SystematicEstimator:
 
     def btaggingSFbSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Up']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_b_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_b_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFlSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Up']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_l_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_l_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFFSSystematic(self, region, channel, setup):

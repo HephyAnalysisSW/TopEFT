@@ -273,3 +273,6 @@ if options.combine:
             PDF_cache.add({"region":region, "channel":channel, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
             scale_cache.add({"region":region, "channel":channel, "PDFset":None}, scale_rel, overwrite=True)
 
+            print region, channel
+            PDF_cache.get({"region":region, "channel":channel, "PDFset":options.PDFset})
+            scale_cache.get({"region":region, "channel":channel, "PDFset":None})

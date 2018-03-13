@@ -42,7 +42,7 @@ default_nJets       = (3, -1)   # written as (min, max)
 default_nBTags      = (1, -1)
 default_metMin      = 0
 
-default_sys = {'weight':'weight', 'reweight':['reweightPU36fb'], 'selectionModifier':None}
+default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None}
 default_parameters   = {
             'mllMin':        default_mllMin,
             'metMin':        default_metMin,
@@ -153,8 +153,8 @@ class Setup:
                     for upOrDown in ['Up','Down']:
                       if 'reweightPU36fb'+upOrDown             in res.sys[k]: res.sys[k].remove('reweightPU36fb')
                       if 'reweightDilepTriggerBackup'+upOrDown in res.sys[k]: res.sys[k].remove('reweightDilepTriggerBackup')
-                      if 'reweightBTag_SF_b_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTag_SF')
-                      if 'reweightBTag_SF_l_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTag_SF')
+                      if 'reweightBTagDeepCSV_SF_b_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
+                      if 'reweightBTagDeepCSV_SF_l_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
                       if 'reweightLeptonSF'+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF')
                       if 'reweightLeptonFastSimSF'+upOrDown    in res.sys[k]: res.sys[k].remove('reweightLeptonFastSimSF')
                 else:

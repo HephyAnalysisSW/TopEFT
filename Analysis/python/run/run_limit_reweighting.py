@@ -34,29 +34,23 @@ from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
+from math                               import sqrt
+from copy                               import deepcopy
+
+
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
-from TopEFT.Tools.resultsDB             import resultsDB
-#from TopEFT.Analysis.run.getEstimates   import getEstimate
-from TopEFT.Tools.u_float               import u_float
-from math                               import sqrt
-from copy                               import deepcopy
-
-from TopEFT.Tools.user           import combineReleaseLocation, analysis_results, results_directory, plot_directory
-from TopEFT.Tools.cardFileWriter import cardFileWriter
-from TopEFT.Analysis.run.getResults  import getResult, addResult
-
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
 
-#data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-#postProcessing_directory = "TopEFT_PP_v14/trilep/"
-#from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+from TopEFT.Tools.resultsDB             import resultsDB
+from TopEFT.Tools.u_float               import u_float
+from TopEFT.Tools.user                  import combineReleaseLocation, analysis_results, results_directory, plot_directory
+from TopEFT.Tools.cardFileWriter        import cardFileWriter
 
-
-setup                   = Setup(int(args.year))
-#setup.channels          = ['all'] #already defined in Setup
+year = int(args.year)
+setup                   = Setup(year)
 
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
@@ -85,7 +79,7 @@ setup.reweightRegions   = regionsReweight
 
 setups = [setup]
 
-cardDir = "regionsE_%s"%(args.year)
+cardDir = "regionsE_%s"%(year)
 if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
@@ -145,6 +139,19 @@ p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsec
 
 xsec_central = p.xsecDB.get(modification_dict)
 
+if year == 2016:
+    PDFset = "NNPDF30"
+    TTZ_sample = "TTZ_NLO"
+elif year == 2017:
+    PDFset = "NNPDF30"
+    TTZ_sample = "TTZ_NLO_17"
+    raise NotImplementedError
+
+PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%PDFset
+PDF_cache   = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
+scale_cache = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "scale", ["region", "channel", "PDFset"])
+
+#print PDF_cache.get({'region':regionsE[0], "channel":
 
 logger.info("Found SM x-sec of %s", xsec_central)
 
@@ -195,7 +202,8 @@ def wrapper(s):
         c.reset()
         c.addUncertainty('PU',          'lnN')
         c.addUncertainty('JEC',         'lnN')
-        c.addUncertainty('btag',        'lnN')
+        c.addUncertainty('btag_heavy',  'lnN')
+        c.addUncertainty('btag_light',  'lnN')
         c.addUncertainty('trigger',     'lnN')
         c.addUncertainty('leptonSF',    'lnN')
         c.addUncertainty('scale',       'lnN')
@@ -215,7 +223,6 @@ def wrapper(s):
                 observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
             else:
                 observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
-            #observation = DataObservation(name='Data', sample=setup.sample['pseudoData'], cacheDir=setup.defaultCacheDir())
             for e in setup.estimators: e.initCache(setup.defaultCacheDir())
 
             for r in setup.regions:
@@ -232,13 +239,14 @@ def wrapper(s):
 
                         if expected.val>0:
                             if not args.statOnly:
-                                c.specifyUncertainty('PU',          binname, name, 1.01) 
-                                c.specifyUncertainty('JEC',         binname, name, 1.03) #1.05
-                                c.specifyUncertainty('btag',        binname, name, 1.03) #1.05
+                                c.specifyUncertainty('PU',          binname, name, e.PUSystematic( r, channel, setup).val) #1.01 
+                                c.specifyUncertainty('JEC',         binname, name, e.JECSystematic( r, channel, setup).val) #1.03 #1.05
+                                c.specifyUncertainty('btag_heavy',  binname, name, e.btaggingSFbSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('btag_light',  binname, name, e.btaggingSFlSystematic(r, channel, setup).val) #1.03 #1.05 before
                                 c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
                                 c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
-                                c.specifyUncertainty('PDF',         binname, name, 1.01) 
+                                c.specifyUncertainty('PDF',         binname, name, 1.01)
 
                                 if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
                                 if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
@@ -280,13 +288,17 @@ def wrapper(s):
                     
                     if sig.val>0:
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, "signal", 1.01)
-                            c.specifyUncertainty('JEC',         binname, "signal", 1.03) #1.05
-                            c.specifyUncertainty('btag',        binname, "signal", 1.03) #1.05
+                            c.specifyUncertainty('PU',          binname, "signal", e.PUSystematic( r, channel, setup).val)
+                            c.specifyUncertainty('JEC',         binname, "signal", e.JECSystematic( r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_heavy',  binname, "signal", e.btaggingSFbSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_light',  binname, "signal", e.btaggingSFlSystematic(r, channel, setup).val) #1.05
                             c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
                             c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
-                            c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
-                            c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
+                            # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
+                            c.specifyUncertainty('scale_sig',   binname, "signal", round(scale_cache.get({"region":r, "channel":channel, "PDFset":None}).val,3) + 1)
+                            c.specifyUncertainty('PDF',         binname, "signal", round(PDF_cache.get({"region":r, "channel":channel, "PDFset":PDFset}).val,3) + 1)
+                            #c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
+                            #c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
@@ -312,6 +324,7 @@ def wrapper(s):
         logger.info("Found result for %s, reusing", s.name)
     else:
         # calculate the limit
+        #limit = c.calcLimit(cardFileName)#, options="--run blind")
         res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
         c.calcNuisances(cardFileName)
         # extract the NLL
@@ -324,34 +337,10 @@ def wrapper(s):
         logger.info("Adding results to database")
         resDB.add(res, nll['nll_abs'], overwrite=True)
 
-    #if getResult(s) and not overWrite:
-    #    res = getResult(s)
-    #    logger.info("Found result for %s, reusing", s.name)
-    #else:
-    #    # calculate the limit
-    #    #limit = c.calcLimit(cardFileName)#, options="--run blind")
-    #    #res.update({"exp":limit['0.500'], "obs":limit['-1.000'], "exp1up":limit['0.840'], "exp2up":limit['0.975'], "exp1down":limit['0.160'], "exp2down":limit['0.025']})
-    #    res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
-    #    # run the checks
-    #    c.calcNuisances(cardFileName)
-    #    # extract the NLL
-    #    nll = c.calcNLL(cardFileName, options="--fastScan")
-    #    if nll["nll0"] > 0:
-    #        res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
-    #    else:
-    #        res.update({"dNLL_postfit_r1":-999, "dNLL_bestfit":-999, "NLL_prefit":-999})
-    #        logger.info("Fits failed, adding values -999 as results")
-    #    logger.info("Adding results to database")
-    #    addResult(s, res, nll['nll_abs'], overwrite=True)
-    #    
     print
     print "NLL results:"
     print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
     print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
-    
-    if xSecScale != 1:
-        for k in res:
-            res[k] *= xSecScale
     
     #if res: 
     #    try:
