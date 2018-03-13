@@ -135,12 +135,8 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-diMuTriggers        = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"," HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"]
-diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
-EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
-
 if isData and options.triggerSelection is not None:
-    from TopEFT.Tools.triggerSelector import *
+    from TopEFT.Tools.triggerSelector import triggerSelector
     ts = triggerSelector(options.year)
     if options.year == 2016:
         skimCond = ts.getSelection(options.samples[0])
