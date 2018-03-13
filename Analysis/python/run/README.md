@@ -30,3 +30,9 @@ python run_limit_reweighting.py --model ewkDM --signal dipoles --useXSec --useSh
 You can also do the same for some control regions. However, the fit seems to be meaningless/failing.
 Anyway, the card file can be used to create plots.
 Right now, unblinding only works in control regions using the options `--controlRegion nbtag0-njet0p --unblind`
+
+
+If you ever happen to crash a sqlite DB, use the `recoverDB.sh` script inside the Tools section:
+```
+./recoverDB.sh DBNAME PATHTODB
+```
