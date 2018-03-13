@@ -82,7 +82,7 @@ tight_mva_threshold = 0.85
 lepton_selections = ['loose', 'tight', 'FO', 'tight_SS', 'FO_SS']
 
 # muons 
-def muonSelector( lepton_selection ):
+def muonSelector( lepton_selection, year):
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about muon selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
@@ -100,28 +100,29 @@ def muonSelector( lepton_selection ):
 
     elif lepton_selection == 'tight':
         def func(l):
-            loose_ = muonSelector( 'loose' )
+            loose_ = muonSelector( 'loose', year )
             return \
                 loose_(l) \
                 and l["mediumMuonId"]>=1\
                 and l["relIso03"]<0.15\
-                and l["sip3d"]<4.0
+                and l["sip3d"]<4.0\
+                and l['lostHits']<=1
                 ## -> future
                 # and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
         def func(l):
-            loose_ = muonSelector( 'loose' )
+            loose_ = muonSelector( 'loose', year )
             return \
                 loose_(l) \
                 and l["mediumMuonId"]>=1 
 
     # No extra muon-SS cuts for FO and tight selections
     elif lepton_selection == 'FO_SS':
-        func = muonSelector('FO')
+        func = muonSelector('FO', year)
 
     elif lepton_selection == 'tight_SS':
-        func = muonSelector('tight')
+        func = muonSelector('tight', year)
 
     return func
 
@@ -152,8 +153,13 @@ def triggerEmulatorSelector(l):
 #        return False
 #    return func
 
+#def eleCutIDSelector( ele_cut_Id = 4):
+#    def func(l):
+#        return l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=ele_cut_Id 
+#    return func
 
-def eleSelector( lepton_selection ):
+
+def eleSelector( lepton_selection, year ):
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
@@ -172,26 +178,45 @@ def eleSelector( lepton_selection ):
                 and triggerEmulatorSelector(l) 
 
     elif lepton_selection == 'tight':
-        def func(l):
-            loose_ = eleSelector( 'loose' )
-            return \
-                loose_(l) \
-                and l["relIso03"] < 0.15\
-                and l["sip3d"]<4.0\
-                and l['convVeto']\
-                and l['lostHits']<=1
+        if year == 2016:
+            def func(l):
+                loose_ = eleSelector( 'loose', year)
+                return \
+                    loose_(l) \
+                    and l["relIso03"] < 0.15\
+                    and l["sip3d"]<4.0\
+                    and l['convVeto']\
+                    and l['lostHits']<=1\
+                    and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["dPhiScTrkIn"])<0.103   and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.045  and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) ) 
+        elif year == 2017:
+            def func(l):
+                loose_ = eleSelector( 'loose', year)
+                return \
+                    loose_(l) \
+                    and l["relIso03"] < 0.15\
+                    and l["sip3d"]<4.0\
+                    and l['convVeto']\
+                    and l['lostHits']<=1\
+                    and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["dPhiScTrkIn"])<0.0588  and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.0355  and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) ) 
+            
                 # future -->
                 #and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
         def func(l):
-            loose_ = eleSelector( 'loose' )
+            loose_ = eleSelector( 'loose', year)
             return \
                 loose_(l)
 
     # extra ele-SS cuts for FO and tight selections
     elif lepton_selection == 'FO_SS':
-        fo_ = eleSelector('FO')
+        fo_ = eleSelector('FO', year)
         def func(l):
             return fo_(l)\
                 and l['convVeto']\
@@ -199,7 +224,7 @@ def eleSelector( lepton_selection ):
                 and l['tightCharge']==2
 
     elif lepton_selection == 'tight_SS':
-        tight_ = eleSelector('tight')
+        tight_ = eleSelector('tight', year)
         def func(l):
             return tight_(l)\
                 and l['convVeto']\
@@ -213,27 +238,24 @@ lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
 
-default_muon_selector = muonSelector('loose')
-default_ele_selector = eleSelector('loose')
-
 def getAllLeptons(c, collVars=leptonVars, collection = "LepGood"):
     return [getObjDict(c, '%s_'%collection, collVars, i) for i in range(int(getVarValue(c, 'n%s'%collection)))]
 
-def getLeptons(c,  collVars=leptonVars, mu_selector = default_muon_selector, ele_selector = default_ele_selector):
+def getLeptons(c, mu_selector, ele_selector, collVars=leptonVars):
     good_lep = [l for l in getAllLeptons(c, collVars, 'LepGood') if (abs(l["pdgId"])==11 and ele_selector(l)) or (abs(l["pdgId"])==13 and mu_selector(l))]
     other_lep = [l for l in getAllLeptons(c, collVars, 'LepOther') if (abs(l["pdgId"])==11 and ele_selector(l)) or (abs(l["pdgId"])==13 and mu_selector(l))]
     lep = good_lep + other_lep
     lep.sort( key = lambda l:-l['pt'] )
     return lep
 
-def getElectrons(c,  collVars=leptonVars, selector = default_ele_selector):
+def getElectrons(c, selector, collVars=leptonVars):
     good_lep = [l for l in getAllLeptons(c, collVars, 'LepGood') if (abs(l["pdgId"])==11 and selector(l))]
     other_lep = [l for l in getAllLeptons(c, collVars, 'LepOther') if (abs(l["pdgId"])==11 and selector(l))]
     lep = good_lep + other_lep
     lep.sort( key = lambda l:-l['pt'] )
     return lep
 
-def getMuons(c,  collVars=leptonVars, selector = default_muon_selector):
+def getMuons(c, selector, collVars=leptonVars):
     good_lep = [l for l in getAllLeptons(c, collVars, 'LepGood') if (abs(l["pdgId"])==13 and selector(l))]
     other_lep = [l for l in getAllLeptons(c, collVars, 'LepOther') if (abs(l["pdgId"])==13 and selector(l))]
     lep = good_lep + other_lep

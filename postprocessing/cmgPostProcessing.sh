@@ -216,21 +216,24 @@
 #python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  MuonEG_Run2016H_03Feb2017_v2 #SPLIT10
 #python cmgPostProcessing.py  --skim dilep --processingEra TopEFT_PP_v14 --sample  MuonEG_Run2016H_03Feb2017_v3 #SPLIT10
 
-# 2017 data
+# 2017 data 
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleMuon_Run2017F_17Nov2017 #SPLIT10
 
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017B_12Sep2017 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017C_12Sep2017 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017Cv2 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017D #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017E #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleMuon_Run2017F #SPLIT10
-#
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017B_12Sep2017 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017C_12Sep2017 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017Cv2 #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017D #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017E #SPLIT10
-#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample SingleElectron_Run2017F #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v19 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT10
+
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017B_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017C_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017D_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017E_17Nov2017 #SPLIT10
+#python cmgPostProcessing.py  --overwrite --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample MET_Run2017F_17Nov2017 #SPLIT10
 
 
 ### 2017 MC

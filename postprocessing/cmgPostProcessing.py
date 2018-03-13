@@ -135,21 +135,14 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-if isData and options.triggerSelection is not None:
-    from TopEFT.Tools.triggerSelector import triggerSelector
-    ts = triggerSelector(options.year)
-    if options.year == 2016 or options.year == 2017:
-        skimCond = ts.getSelection(options.samples[0])
-        logger.info("Sample will have the following trigger skim: %s"%skimCond)
-        skimConds.append( skimCond )
-
-    else:
-        raise NotImplementedError
-    sample_name_postFix = "_TriggerStrategy2018"
-
-    logger.info( "Added trigger selection and postFix %s", options.triggerSelection, sample_name_postFix )
-else:
-    sample_name_postFix = ""
+# Trigger selection
+from TopEFT.Tools.triggerSelector import triggerSelector
+ts = triggerSelector(options.year)
+triggerCond  = ts.getSelection(options.samples[0] if isData else "MC")
+treeFormulas = {"triggerDecision": {'string':triggerCond} }
+if isData and options.triggerSelection:
+    logger.info("Sample will have the following trigger skim: %s"%triggerCond)
+    skimConds.append( triggerCond )
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -161,7 +154,6 @@ if len(samples)>1:
         sample.clear()
 elif len(samples)==1:
     sample = samples[0]
-    sample.name+=sample_name_postFix
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
@@ -321,7 +313,6 @@ if sample.isData:
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_DATA
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
-
     if options.year == 2016:
         json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
     elif options.year == 2017:
@@ -343,7 +334,7 @@ if options.keepPhotons:
     read_variables += [ TreeVariable.fromString('ngamma/I'),
                         VectorTreeVariable.fromString('gamma[pt/F,eta/F,phi/F,mass/F,idCutBased/I,pdgId/I]') ]
 
-new_variables = [ 'weight/F']
+new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
@@ -352,8 +343,8 @@ lepton_branches_store = lepton_branches_read
 
 # store this extra Id information
 extra_lep_ids = ['tight', 'FO', 'tight_SS', 'FO_SS']
-extra_mu_selector = {lep_id:muonSelector(lep_id) for lep_id in extra_lep_ids}
-extra_ele_selector = {lep_id:eleSelector(lep_id) for lep_id in extra_lep_ids}
+extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
+extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%lep_id
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
 lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
@@ -490,6 +481,8 @@ def filler( event ):
     if isData:
         #event.vetoPassed  = vetoList.passesVeto(r.run, r.lumi, r.evt)
         event.jsonPassed  = lumiList.contains(r.run, r.lumi)
+        # make data weight zero if JSON was not passed
+        if not event.jsonPassed: event.weight = 0
         # store decision to use after filler has been executed
         event.jsonPassed_ = event.jsonPassed
 
@@ -502,9 +495,12 @@ def filler( event ):
     if isMC and options.doTopPtReweighting: 
         event.reweightTopPt = topPtReweightingFunc(getTopPtsForReweighting(r))/topScaleF if doTopPtReweighting else 1.
 
+    # Trigger Decision
+    event.triggerDecision = int(treeFormulas['triggerDecision']['TTreeFormula'].EvalInstance())
+
     # Leptons: Reading LepGood and LepOther and fill new LepGood collection in the output tree
-    mu_selector  = muonSelector( "loose" )
-    ele_selector = eleSelector( "loose" )
+    mu_selector  = muonSelector( "loose", year = options.year)
+    ele_selector = eleSelector( "loose", year = options.year )
     leptons      = getLeptons(r, collVars=lepton_vars_read, mu_selector = mu_selector, ele_selector = ele_selector)
     leptons.sort(key = lambda p:-p['pt'])
 
@@ -518,7 +514,7 @@ def filler( event ):
             getattr(event, "lep_"+b)[iLep] = lep[b]
 
     # Storing tight lepton counters
-    tightLeptons = filter(  lambda l: l['tight'], leptons)
+    tightLeptons         = filter(  lambda l: l['tight'], leptons )
     event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, tightLeptons))
     event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, tightLeptons))
     event.nGoodLeptons   = event.nGoodMuons + event.nGoodElectrons 
@@ -529,10 +525,13 @@ def filler( event ):
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
     # Identify best Z from tight leptons 
-    (event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
-    nonZ_lepton_indices = [ i for i in range(len(tightLeptons)) if i not in [event.Z_l1_index, event.Z_l2_index] ]
-    event.nonZ_l1_index = nonZ_lepton_indices[0] if len(nonZ_lepton_indices)>0 else -1
-    event.nonZ_l2_index = nonZ_lepton_indices[1] if len(nonZ_lepton_indices)>1 else -1
+    #(event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
+    (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(tightLeptons)
+    nonZ_tightLepton_indices = [ i for i in range(len(tightLeptons)) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+    event.Z_l1_index    = tightLeptons[Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+    event.Z_l2_index    = tightLeptons[Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+    event.nonZ_l1_index = tightLeptons[nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+    event.nonZ_l2_index = tightLeptons[nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
 
     # Store Z information 
     if event.Z_mass>=0:
@@ -766,9 +765,12 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     # Set the reader to the event range
     reader.setEventRange( eventRange )
 
+    # Clone the empty maker in order to avoid recompilation at every loop iteration
     clonedTree = reader.cloneTree( branchKeepStrings, newTreename = "Events", rootfile = outputfile )
     clonedEvents += clonedTree.GetEntries()
-    # Clone the empty maker in order to avoid recompilation at every loop iteration
+    # Add the TTreeFormulas
+    for formula in treeFormulas.keys():
+        treeFormulas[formula]['TTreeFormula'] = ROOT.TTreeFormula(formula, treeFormulas[formula]['string'], clonedTree )
     maker = treeMaker_parent.cloneWithoutCompile( externalTree = clonedTree )
 
     maker.start()
@@ -784,6 +786,7 @@ for ievtRange, eventRange in enumerate( eventRanges ):
                 else:
                     if reader.event.lumi not in outputLumiList[reader.event.run]:
                         outputLumiList[reader.event.run].add(reader.event.lumi)
+
     convertedEvents += maker.tree.GetEntries()
     maker.tree.Write()
     outputfile.Close()
