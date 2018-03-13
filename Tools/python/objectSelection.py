@@ -178,6 +178,7 @@ def eleSelector( lepton_selection, year ):
                 and triggerEmulatorSelector(l) 
 
     elif lepton_selection == 'tight':
+        # The preliminary cut based Id resembles the 2016 and 2017 medium Id
         if year == 2016:
             def func(l):
                 loose_ = eleSelector( 'loose', year)
@@ -190,7 +191,8 @@ def eleSelector( lepton_selection, year ):
                     and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
                     and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
                     and ( ( abs(l["dPhiScTrkIn"])<0.103   and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.045  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) ) 
+                    and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
         elif year == 2017:
             def func(l):
                 loose_ = eleSelector( 'loose', year)
@@ -203,8 +205,8 @@ def eleSelector( lepton_selection, year ):
                     and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
                     and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
                     and ( ( abs(l["dPhiScTrkIn"])<0.0588  and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.0355  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) ) 
-            
+                    and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) )\
+                    and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
                 # future -->
                 #and l["mvaTTV"] > tight_mva_threshold
 
