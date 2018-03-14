@@ -23,7 +23,8 @@ from TopEFT.Analysis.regions import *
 
 #to run on data
 dataLumi2016 = {'3mu':Run2016.lumi, '3e':Run2016.lumi, '2mu1e':Run2016.lumi, '2e1mu':Run2016.lumi}
-dataLumi20167 = {'3mu':80000, '3e':80000, '2mu1e':80000, '2e1mu':80000}
+lumi1617 = Run2016.lumi + 41290
+dataLumi20167 = {'3mu':lumi1617, '3e':lumi1617, '2mu1e':lumi1617, '2e1mu':lumi1617}
 dataLumi2017 = {'3mu':41290, '3e':41290, '2mu1e':41290, '2e1mu':41290}
 dataLumi201678 = {'3mu':150000, '3e':150000, '2mu1e':150000, '2e1mu':150000}
 
@@ -268,6 +269,7 @@ class Setup:
 
 
         # Need a better solution for the Setups for different eras
+        if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
         res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         res['cuts'].extend(self.externalCuts)
         

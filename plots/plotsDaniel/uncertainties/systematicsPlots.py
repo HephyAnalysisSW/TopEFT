@@ -55,7 +55,7 @@ bJetSelectionM  = "nBTag"
 jet_systematics    = ['JECUp','JECDown']# 'JERDown','JECVUp','JECVDown']
 met_systematics    = ['UnclusteredEnUp', 'UnclusteredEnDown']
 jme_systematics    = jet_systematics + met_systematics
-weight_systematics = ['PU36fbUp', 'PU36fbDown', 'BTagCSVv2_SF_b_Down', 'BTagCSVv2_SF_b_Up', 'BTagCSVv2_SF_l_Down', 'BTagCSVv2_SF_l_Up']
+weight_systematics = ['PU36fbUp', 'PU36fbDown', 'BTagDeepCSV_SF_b_Down', 'BTagDeepCSV_SF_b_Up', 'BTagDeepCSV_SF_l_Down', 'BTagDeepCSV_SF_l_Up']
 
 
 if args.selectSys != "all" and args.selectSys != "combine": all_systematics = [args.selectSys if args.selectSys != 'None' else None]
@@ -68,8 +68,8 @@ sys_pairs = [\
     ('PU36fb',      'PU36fbUp', 'PU36fbDown'),
 #    ('TopPt',       'TopPt', None),
 #   ('JER',         'JERUp', 'JERDown'),
-    ('BTag_b',      'BTagCSVv2_SF_b_Down', 'BTagCSVv2_SF_b_Up' ),
-    ('BTag_l',      'BTagCSVv2_SF_l_Down', 'BTagCSVv2_SF_l_Up'),
+    ('BTag_b',      'BTagDeepCSV_SF_b_Down', 'BTagDeepCSV_SF_b_Up' ),
+    ('BTag_l',      'BTagDeepCSV_SF_l_Down', 'BTagDeepCSV_SF_l_Up'),
 ]
 
 #
@@ -118,9 +118,9 @@ except: pass
 # Make samples, will be searched for in the postProcessing directory
 #
 
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 signals = []
@@ -178,10 +178,10 @@ def addSys( selectionString , sys = None ):
 
 
 def weightMC( sys = None ):
-    if sys is None:                 return (lambda event, sample:event.weight*event.reweightPU36fb, "weight*reweightPU36fb")
-    elif 'PU' in sys:               return (lambda event, sample:event.weight*getattr(event, "reweight"+sys), "weight*reweight"+sys)
-    elif 'BTag' in sys:             return (lambda event, sample:event.weight*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweight"+sys)
-    elif sys in weight_systematics: return (lambda event, sample:event.weight*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweight"+sys)
+    if sys is None:                 return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightBTagDeepCSV_SF, "weight*reweightPU36fb*reweightBTagDeepCSV_SF")
+    elif 'PU' in sys:               return (lambda event, sample:event.weight*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweight"+sys)
+    elif 'BTag' in sys:             return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweightBTagDeepCSV_SF*reweight"+sys)
+    elif sys in weight_systematics: return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweightBTagDeepCSV_SF*reweight"+sys)
     elif sys in jme_systematics :   return weightMC( sys = None )
     else:                           raise ValueError( "Systematic %s not known"%sys )
     
@@ -211,33 +211,19 @@ for index, mode in enumerate(allModes):
 
     logger.info('Working on mode ' + str(mode))
 
-    if mode == "mumumu":
-        data_sample = [SingleMuon_Run2016]
-        #data_sample.texName = "data (3#mu)"
-    elif mode == "eee":
-        data_sample = [SingleElectron_Run2016]
-        #data_sample.texName = "data (3e)"
-    elif mode == "mumue":
-        data_sample = [SingleEleMu_Run2016, SingleMuon_Run2016]
-        ## not sure about that yet. Need to think the trigger logic through once more"
-        SingleMuon_Run2016.setSelectionString("(HLT_SingleMuTTZ)")
-        SingleEleMu_Run2016.setSelectionString("(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)")
-        #data_sample.texName = "data (2#mu, 1e)"
-    elif mode == "muee":
-        data_sample = [SingleEleMu_Run2016, SingleMuon_Run2016]
-        SingleMuon_Run2016.setSelectionString("(HLT_SingleMuTTZ)")
-        SingleEleMu_Run2016.setSelectionString("(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)")
-        #data_sample.texName = "data (1#mu, 2e)"
-    elif mode == "all":
-        data_sample = [SingleEleMu_Run2016, SingleMuon_Run2016, SingleElectron_Run2016]
-        SingleMuon_Run2016.setSelectionString([getFilterCut(isData=True),  "(HLT_SingleMuTTZ)"])
-        SingleEleMu_Run2016.setSelectionString([getFilterCut(isData=True), "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)"])
+    data_sample = Run2016
+    data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
 
-    for d in data_sample:
-        d.texName = "data"
-        d.read_variables = ['weight/F']
-        d.style   = styles.errorStyle( ROOT.kBlack )
-        lumi_scale = sum(d.lumi for d in data_sample)/float(len(data_sample))/1000
+    lumi_scale = data_sample.lumi/1000
+    data_sample.texName = "data"
+    data_sample.read_variables = ['weight/F']
+    data_sample.style   = styles.errorStyle( ROOT.kBlack )
+
+    #for d in data_sample:
+    #    d.texName = "data"
+    #    d.read_variables = ['weight/F']
+    #    d.style   = styles.errorStyle( ROOT.kBlack )
+    #    lumi_scale = sum(d.lumi for d in data_sample)/float(len(data_sample))/1000
 
     data_weight = lambda event, sample: event.weight
     data_weight_string = "weight"
@@ -254,7 +240,7 @@ for index, mode in enumerate(allModes):
     for sample in mc:
         sample.scale           = lumi_scale
         sample.style           = styles.fillStyle(sample.color, lineColor = sample.color)
-        sample.read_variables  = ['reweightBTagCSVv2_SF/F','reweightPU36fb/F','nTrueInt/F']
+        sample.read_variables  = ['reweightBTagDeepCSV_SF/F','reweightPU36fb/F','nTrueInt/F']
         sample.read_variables += ["reweight%s/F"%s    for s in weight_systematics]
         sample.read_variables += ["nJetSelected_%s/I"%s   for s in jet_systematics]
         sample.read_variables += ["nBTag_%s/I"%s      for s in jet_systematics]
@@ -270,7 +256,7 @@ for index, mode in enumerate(allModes):
     Plot.setDefaults( selectionString = cutInterpreter.cutString(args.selection) )
   
     stack_mc        = Stack( mc )
-    stack_signal    = Stack( mc[1:] + [dipole1] )
+    #stack_signal    = Stack( mc[1:] + [dipole1] )
 
     if   args.signal == "ewkDM": stack_data = Stack( data_sample, signals ) 
     else:                       stack_data = Stack( data_sample )
@@ -278,11 +264,11 @@ for index, mode in enumerate(allModes):
     plots = []
   
 
-    nBtagBinning = [5, 1, 6]
+    nBtagBinning = [6, 0, 6]
 
     nbtags_data  = Plot( 
         name            = "nbtags_data",
-        texX            = 'number of b-tags (CSVM)', texY = 'Number of Events',
+        texX            = 'number of b-tags (deepCSV)', texY = 'Number of Events',
         stack           = stack_data,
         attribute       = TreeVariable.fromString('nBTag/I'),
         binning         = nBtagBinning,
@@ -292,7 +278,7 @@ for index, mode in enumerate(allModes):
 
     nbtags_mc  = {sys: Plot(
         name            = "nbtags" if sys is None else "nbtags_mc_%s" % sys,
-        texX            = 'number of b-tags (CSVM)', texY = 'Number of Events',
+        texX            = 'number of b-tags (deepCSV)', texY = 'Number of Events',
         stack           = sys_stacks[sys],
         attribute       = TreeVariable.fromString('nBTag/I') if sys is None or sys in weight_systematics or sys in met_systematics else TreeVariable.fromString( "nBTag_%s/I" % sys ),
         binning         = nBtagBinning,
@@ -301,7 +287,7 @@ for index, mode in enumerate(allModes):
         ) for sys in all_systematics }
     plots.extend( nbtags_mc.values() )
 
-    jetBinning = [8,2,10]
+    jetBinning = [10,0,10]
 
     njets_data  = Plot( 
         name            = "njets_data",
@@ -326,7 +312,7 @@ for index, mode in enumerate(allModes):
         ) for sys in all_systematics }
     plots.extend( njets_mc.values() )
     
-    cosThetaStarBinning = [-1,-0.6, 0.6, 1.0]
+    cosThetaStarBinning = [-1,-0.6, -0.2, 0.2, 0.6, 1.0]
     
     cosThetaStar_data  = Plot(
         name            = "cosThetaStar_data",
@@ -369,7 +355,7 @@ for index, mode in enumerate(allModes):
         name            = "Z_pt_data",
         texX            = 'p_{T}(Z) (GeV)',
         texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Events",
-        stack           = stack_signal,
+        stack           = stack_data,
         attribute       = TreeVariable.fromString( "Z_pt/F" ),
         binning         = Binning.fromThresholds( ZptBinning ),
         #weight          = data_weight,
@@ -524,7 +510,7 @@ for index, mode in enumerate(allModes):
                     shapeUnc.append( (0.30*shapeHists[nonprompt].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TTX].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TZQ].GetBinContent(ib))**2 )
-                    #shapeUnc.append( (0.60*shapeHists[TTZ_mc].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.10*shapeHists[TTZ_mc].GetBinContent(ib))**2 ) # mockup for PDF and scale
                     h_rel_err.SetBinContent(ib, h_rel_err.GetBinContent(ib) + sum( shapeUnc ) )
 
             # take sqrt
@@ -580,7 +566,7 @@ for index, mode in enumerate(allModes):
                     plot_directory = plotDir,
                     ratio = ratio,
                     legend = (0.50,0.88-0.04*sum(map(len, plot.histos)),0.95,0.88),
-                    logX = False, logY = log, #sorting = True,
+                    logX = False, logY = log, sorting = True,
                     yRange = (0.03, "auto"),
                     #drawObjects = drawObjects( True, top_sf[None], lumi_scale ) + boxes,
                     drawObjects = drawObjects( True, 1, lumi_scale ) + boxes,
