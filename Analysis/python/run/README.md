@@ -30,3 +30,20 @@ python run_limit_reweighting.py --model ewkDM --signal dipoles --useXSec --useSh
 You can also do the same for some control regions. However, the fit seems to be meaningless/failing.
 Anyway, the card file can be used to create plots.
 Right now, unblinding only works in control regions using the options `--controlRegion nbtag0-njet0p --unblind`
+
+
+If you ever happen to crash a sqlite DB, use the `recoverDB.sh` script inside the Tools section:
+```
+./recoverDB.sh DBNAME PATHTODB
+```
+
+
+Plots of observables including systematic uncertainties are produced with the following command (code to be found within plotsDaniel/uncertainties)
+```
+python systematicsPlots.py --plot_directory systematicsPlots_80X_v20 --selection trilep-Zcand-lepSelTTZ-njet3p-btag0-onZ --selectSys JECUp --runLocal
+```
+First run over the various sources separately (JECUp/Down, PU36fbUp/Down etc), then run with `--selectSys combine`.
+Batch submission doesn't work atm, so please use `--runLocal`.
+
+Plots of the signal regions, including _all_ pre-fit uncerertainties can be obtained using `signalRegionPlots.py` in plotsDaniel/regions.
+Just specify a cardfile and enjoy the beauty.
