@@ -35,7 +35,7 @@ def natural_sort(list, key=lambda s:s):
     return lc
 
 def getCouplingFromName(name, coupling):
-    if coupling in name:
+    if "%s_"%coupling in name:
         l = name.split('_')
         return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
     else:

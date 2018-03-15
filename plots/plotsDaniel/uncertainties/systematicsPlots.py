@@ -207,6 +207,7 @@ def getLeptonSelection( mode ):
 #
 allPlots   = {}
 allModes   = ['mumumu','mumue','muee', 'eee', 'all']
+allModes   = ['all']
 for index, mode in enumerate(allModes):
 
     logger.info('Working on mode ' + str(mode))
