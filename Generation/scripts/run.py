@@ -44,14 +44,19 @@ if len(args.couplings) == 1 and os.path.isfile(args.couplings[0]) :
 elif len(args.couplings)==0 or len(args.couplings)>=2:
     # make a list of the form [ ['c1', v1, v2, ...], ['c2', ...] ] so we can recurse in the couplings c1,c2,... 
     coupling_list = []
+    reweight_list = []
+    _list = coupling_list
     for a in args.couplings:
+        if a=="reweight":
+            _list = reweight_list
+            continue
         try:
             val = float(a)
         except ValueError:
-            coupling_list.append( [ a, [] ] )
+            _list.append( [ a, [] ] )
             val = None
 
-        if val is not None: coupling_list[-1][1].append( float(a) )
+        if val is not None: _list[-1][1].append( float(a) )
 
     # recursively make a for loop over all couplings
     def recurse( c_list ):
@@ -63,11 +68,13 @@ elif len(args.couplings)==0 or len(args.couplings)>=2:
         else:
             return pairs
 
-    param_points = recurse( coupling_list ) if len(coupling_list)>0 else [[]]
-    
+    param_points    = recurse( coupling_list ) if len(coupling_list)>0 else [[]]
+    reweight_points = recurse( reweight_list ) if len(reweight_list)>0 else [[]] 
 else:
-    logger.error("Need an even number of coupling arguments of the format coupling1, value1, value2, ... , coupling2, value3, ... . Got %r", args.couplings )
+    logger.error("Need an even number of coupling arguments of the format coupling1, value1, value2, ... , coupling2, value3, ... 'reweight', coupling3, value 4, .... Got %r", args.couplings )
     raise ValueError
+
+logger.debug( "Found %i param_points and %i reweight_points", len(param_points), len(reweight_points) )
 
 # Create configuration class
 config = Configuration( model_name = args.model )
@@ -93,7 +100,7 @@ for i_param_point, param_point in enumerate(param_points):
 
     # Make grid pack
     if args.makeGridpack: 
-        gridpack = p.makeGridpack(modified_couplings = modification_dict, overwrite = args.overwrite)
+        gridpack = p.makeGridpack(modified_couplings = modification_dict, reweights = reweight_points, overwrite = args.overwrite)
 
     # calculate x-sec
     if args.calcXSec:

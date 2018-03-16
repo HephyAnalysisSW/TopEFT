@@ -54,24 +54,14 @@ class Configuration:
         self.data_path = os.path.expandvars( '$CMSSW_BASE/src/TopEFT/Generation/data' )
 
         # MG5 directories
-
-        if self.model_name == 'dim6top_LO':
-            logger.warning( "Model dim6top_LO: Using MG 2.6.0!") 
-            self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.6.0.tar.gz' # From MG webpage --> WARNING: No matching PDFs for pattern: Ct10nlo.LHgrid
-            self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_6_0')
-        else:
-            self.MG5_tarball     = '/afs/hephy.at/data/dspitzbart01/MG5_aMC_v2.3.3.tar.gz'
-            self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_3_3')
+        #if self.model_name == 'dim6top_LO':
+        logger.warning( "Model dim6top_LO: Using MG 2.6.0!") 
+        self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.6.0.tar.gz' # From MG webpage --> WARNING: No matching PDFs for pattern: Ct10nlo.LHgrid
+        self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_6_0')
+        #else:
+        #    self.MG5_tarball     = '/afs/hephy.at/data/dspitzbart01/MG5_aMC_v2.3.3.tar.gz'
+        #    self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_3_3')
     
-        #self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.6.0_mod.tar.gz' # From MG webpage --> added CT10 pdf brute force in /madgraph/various/banner.py -> doesn't help 
-        #self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_6_0')
-
-        #self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.5.5.tar.gz' # From gridpack /cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc481/13TeV/madgraph/V5_2.5.5/WZJJ_EWK_test/WLLJJ_WToLNu_EWK_4F_MLL-60_ScaleMaxPtJ_slc6_amd64_gcc481_CMSSW_7_1_28_tarball.tar.xz -> vendor/DescriteSampler incomplete/different?
-        #self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_5_5')
-
-        #self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.4.2.tar.gz' -> same as 2.5.5 
-        #self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_4_2')
-
         logger.info( "Will use MG5 from %s", self.MG5_tarball )
 
         # GridPack directories       
@@ -116,7 +106,9 @@ class Configuration:
         # unzip MG tarball
         logger.info( "Extracting madgraph" )
         subprocess.call(['tar', 'xaf', self.MG5_tarball, '--directory', self.uniquePath])
-        
+        ## Apply patches from Alexander
+        #os.system('cd %s; cat $CMSSW_BASE/src/TopEFT/Generation/patches/*.patch | patch -p1'%self.uniquePath)
+ 
         # unzip gridpack for central config files
         logger.info( "Extracting central gridpack" )
         subprocess.call(['tar', 'xaf', self.GP_tarball,  '--directory', self.GP_tmpdir])
@@ -135,7 +127,7 @@ class Configuration:
 
         logger.info( "########## Done: pre-initialize Configuration #########" )
         
-    def initialize(self, modified_couplings = None ):
+    def initialize(self, modified_couplings = None):
         ''' Update the restriction card
         '''
         logger.info( "#################### Model Setup ######################" )

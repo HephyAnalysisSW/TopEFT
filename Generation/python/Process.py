@@ -5,6 +5,7 @@ import shutil
 import re
 import copy
 import imp 
+import sys
 
 # TopEFT
 from TopEFT.Tools.resultsDB import resultsDB
@@ -15,6 +16,43 @@ from TopEFT.Tools.u_float import u_float
 import logging
 logger = logging.getLogger(__name__)
 
+# Helper
+def add_reweight_cmd( filename ):
+    '''Helper to add the reweight cmd to the run_cmsgrid.sh
+    '''
+    c_str = \
+"""#reweight if necessary
+if [ -e process/madevent/Cards/reweight_card.dat ]; then
+    echo "reweighting events"
+    mv cmsgrid_final.lhe process/madevent/Events/GridRun_${rnum}/unweighted_events.lhe
+    cd process/madevent
+    echo "0" |./bin/madevent --debug reweight GridRun_${rnum}
+    cd ../..
+    mv process/madevent/Events/GridRun_${rnum}/unweighted_events.lhe.gz cmsgrid_final.lhe.gz
+    gzip -d  cmsgrid_final.lhe.gz
+fi"""
+    with open(filename, "r") as in_file:
+        buf = in_file.readlines()
+
+    with open(filename, "w") as out_file:
+        for line in buf:
+            if line.startswith( "./run.sh "):
+                line = line + "\n" + c_str + "\n"
+            out_file.write(line) 
+
+def make_reweight_card( filename, reweights ):
+    import datetime
+    with open(filename, "w") as out_file:
+        out_file.write("# reweight card file created with https://github.com/danbarto/TopEFT on %s\n" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        out_file.write("change rwgt_dir rwgt\n\n")
+        for reweight in reweights:
+            name = "_".join( [ "%s_%8.6f"%( reweight[2*i], reweight[2*i+1] ) for i in range(len(reweight)/2) ] ) 
+            name = name.replace('.','p').replace('-','m')
+            out_file.write( "launch --rwgt_name=%s\n"%name )
+            for i in range(len(reweight)/2):
+                out_file.write("set %s %8.6f\n"%( reweight[2*i], reweight[2*i+1]))
+            out_file.write('\n')
+    
 class Process:
     def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db'):
 
@@ -41,7 +79,7 @@ class Process:
     def __initialize( self, modified_couplings = None):
 
         # Initialize setup
-        self.config.initialize( modified_couplings )
+        self.config.initialize( modified_couplings)
 
         # Write process card
         self.__writeProcessCard()
@@ -126,15 +164,19 @@ class Process:
 
             return xsec_
 
-    def makeGridpack(self, modified_couplings = None, overwrite=False):
+    def makeGridpack(self, modified_couplings = None, overwrite=False, reweights = None):
+
+        do_reweight = len(reweights)>0
+        postfix = "_reweight" if do_reweight else ""
 
         # gridpack file name
-        gridpack = '%s/%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ) )
+        gridpack = '%s/%s%s.tar.xz'%(self.GP_outputDir, self.getGridpackFileName( modified_couplings ), postfix )
         # Do we have the gridpack?
-        if os.path.exists( gridpack ) and not  overwrite: 
+        if os.path.exists( gridpack ) and not overwrite: 
             logger.info( "Found gridpack %s. Do nothing", gridpack )
             return
         else:
+            logger.info( "Will create gridpack %s", gridpack )
             self.__initialize( modified_couplings ) 
 
             # Make gridpack directory
@@ -166,6 +208,24 @@ class Process:
             # runcmsgrid.sh
             shutil.copy(os.path.join( self.config.GP_tmpdir,   'runcmsgrid.sh'),  self.config.uniquePath )
 
+            if do_reweight:
+                # copy models directory (for reweighting )
+                source_models = os.path.join( self.config.MG5_tmpdir, 'models' )
+                target_models = os.path.join( self.config.uniquePath, 'mgbasedir', 'models' )
+                logger.info( "Copying models directory %s -> %s", source_models, target_models )
+                if os.path.exists( target_models ): shutil.rmtree( target_models )
+                shutil.copytree( source_models, target_models )
+                # modify runcmsgrid.sh
+                rungrid_sh_file = os.path.join( self.config.uniquePath, 'runcmsgrid.sh' )
+                logger.info( "Modify runcmsgrid.sh for reweighting." )
+                logger.debug( "runcmsgrid.sh at %s", rungrid_sh_file )
+                add_reweight_cmd( rungrid_sh_file )
+                logger.info( "Make reweight card file.")
+                # reweight card file
+                reweight_card_file = os.path.join( self.config.uniquePath, 'process/madevent/Cards/reweight_card.dat' )
+                logger.debug( "Reweight card file is %s", reweight_card_file)
+                make_reweight_card( reweight_card_file , reweights ) 
+
             logger.info( "Compressing the gridpack" )
             os.system('cd %s; tar cJpsf %s mgbasedir process runcmsgrid.sh'%(self.config.uniquePath,gridpack))
 
@@ -173,43 +233,6 @@ class Process:
             logger.info( "The gridpack is now ready to use: %r", gridpack )
 
             return gridpack
-
-#            # Make gridpack directory
-#            if not os.path.exists( self.GP_outputDir ):
-#                os.makedirs( self.GP_outputDir )
-#
-#            logger.info( "Preparing gridpack: Calling bin/generate_events" )
-#            output = subprocess.check_output([os.path.join( self.processTmpDir, 'bin/generate_events'), '-f'])
-#
-#            logger.info( "Extracting run_01_gridpack.tar.gz" )
-#            subprocess.call(['tar', 'xaf', os.path.join( self.processTmpDir, 'run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])
-#
-#            # move madevent, run.sh to process_forgridpack_tmp
-#            #process_forgridpack_tmp = os.path.join(self.config.uniquePath, 'process')
-#            #if os.path.exists( process_forgridpack_tmp ): shutil.rmtree( process_forgridpack_tmp )
-#            shutil.move(os.path.join(self.config.uniquePath, 'madevent'),       self.processTmpDir)
-#            shutil.move(os.path.join(self.config.uniquePath, 'run.sh'),         self.processTmpDir)
-#
-#            ##  copy mgbasedir from original to uniquePath for usage in gridpack
-#            #mgbasedir_for_gridpack = os.path.join( self.config.uniquePath, 'mgbasedir')
-#            #if os.path.exists( mgbasedir_for_gridpack ): shutil.rmtree(mgbasedir_for_gridpack )
-#            #shutil.copytree(os.path.join(self.config.GP_tmpdir, 'mgbasedir'),       self.config.uniquePath)
-#
-#            # copy runcmsgrid.sh from original
-#            #shutil.copy(os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),   self.config.uniquePath)
-#
-#            logger.info( "Compressing the gridpack" )
-#            os.system('tar cJpsf {gridpack} -C {centralgridpackdir} runcmsgrid.sh -C {centralgridpackdir} mgbasedir -C {uniquepath} processtmp --transform s/processtmp/process/'.format(
-#                uniquepath   = self.config.uniquePath,
-#                gridpack     = gridpack,
-#                #runcmsgridsh = os.path.join(self.config.GP_tmpdir, 'runcmsgrid.sh'),
-#                centralgridpackdir = self.config.GP_tmpdir,
-#            ))
-#
-#            logger.info( "Done!" )
-#            logger.info( "The gridpack is now ready to use: %r", gridpack )
-#
-#            return gridpack
 
     def diagrams(self, plot_dir, modified_couplings):
         self.__initialize( modified_couplings )
