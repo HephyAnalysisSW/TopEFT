@@ -14,6 +14,7 @@ from TopEFT.Tools.user            import plot_directory
 from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue, deltaR, deltaR2
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.triggerSelector import triggerSelector
 
 #
 # Arguments
@@ -27,7 +28,7 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM', action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v14')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_v20')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 args = argParser.parse_args()
@@ -50,11 +51,14 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
     postProcessing_directory = "TopEFT_PP_v14/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
@@ -133,7 +137,7 @@ def drawPlots(plots, mode, dataMCScale):
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
         extensions = extensions_,
-	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
+	    ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
@@ -192,7 +196,7 @@ def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
 
 def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nJetSelected') #nJetSelected
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan') #nJetSelected
 
 def getSelectedJets( event, sample ):
     jetVars     = ['eta','pt','phi','btagCSV','DFbb', 'DFb', 'id']
@@ -464,16 +468,8 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-        if mode == "mumumu":
-            data_sample = SingleMuon_Run2016
-            data_sample.texName = "data (3#mu)"
-        elif mode == "eee":
-            data_sample = SingleElectron_Run2016
-            data_sample.texName = "data (3e)"
-        else:
-            data_sample = SingleEleMu_Run2016
-        if   mode=="mumue": data_sample.texName = "data (2#mu, 1e)"
-        if   mode=="muee": data_sample.texName = "data (1#mu, 2e)"
+        data_sample = Run2016
+        data_sample.texName = "data"
 
         data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
         data_sample.name           = "data"
@@ -492,7 +488,7 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZ_mc ]
     else:
-        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare ]#, nonprompt ]
+        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare, TTLep_pow, DY_HT_LO ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -500,9 +496,10 @@ for index, mode in enumerate(allModes):
       sample.scale          = lumi_scale
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.read_variables = ['reweightBTagCSVv2_SF/F']
-      #sample.weight         = lambda event, sample: event.reweightBTagCSVv2_SF
-      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F']
+      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb
+      tr = triggerSelector(2016)
+      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode), tr.getSelection("MC")])
 
     if not args.noData:
       stack = Stack(mc, data_sample)
