@@ -12,35 +12,27 @@ logger = logging.getLogger(__name__)
 from TopEFT.Tools.user import analysis_results
 from TopEFT.Tools.helpers import getObjFromFile
 
-#define samples
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+##define samples
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-
-## Choices for specific samples
-TTZSample       = TTZtoLLNuNu
-WZSample        = WZ
-TTXSample       = TTX
-TTWSample       = TTW
-TZQSample       = TZQ
-rareSample      = rare
-nonpromptSample = nonprompt
-pseudoDataSample= pseudoData
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
 from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Analysis.regions import *
 
-
 #to run on data
-dataLumi2016 = {'3mu':SingleMuon_Run2016.lumi, '3e':SingleElectron_Run2016.lumi, '2mu1e':SingleMuon_Run2016.lumi, '2e1mu':SingleElectron_Run2016.lumi}
-dataLumi20167 = {'3mu':80000, '3e':80000, '2mu1e':80000, '2e1mu':80000}
+dataLumi2016 = {'3mu':Run2016.lumi, '3e':Run2016.lumi, '2mu1e':Run2016.lumi, '2e1mu':Run2016.lumi}
+lumi1617 = Run2016.lumi + 41290
+dataLumi20167 = {'3mu':lumi1617, '3e':lumi1617, '2mu1e':lumi1617, '2e1mu':lumi1617}
+dataLumi2017 = {'3mu':41290, '3e':41290, '2mu1e':41290, '2e1mu':41290}
 dataLumi201678 = {'3mu':150000, '3e':150000, '2mu1e':150000, '2e1mu':150000}
 
 dataHighLumi = {'3mu':3e6, '3e':3e6, '2mu1e':3e6, '2e1mu':3e6}
 
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
+#lumi = dataLumi201678
 lumi = dataLumi2016
 
 #Define defaults here
@@ -51,7 +43,7 @@ default_nJets       = (3, -1)   # written as (min, max)
 default_nBTags      = (1, -1)
 default_metMin      = 0
 
-default_sys = {'weight':'weight', 'reweight':['reweightPU36fb'], 'selectionModifier':None}
+default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None}
 default_parameters   = {
             'mllMin':        default_mllMin,
             'metMin':        default_metMin,
@@ -61,12 +53,15 @@ default_parameters   = {
         }
 
 class Setup:
-    def __init__(self):
-        self.name       = "regionsE_xsec_shape_lowUnc"
-        #self.name       = "regionsE_150fb_xsec_shape_statOnly"
+    def __init__(self, year=2017):
+        self.name       = "defaultSetup"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
+        self.year       = year
+
+        self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
+        self.uncertaintyColumns = ["region", "channel", "PDFset"]
 
         self.analysis_results = analysis_results
         self.zMassRange       = zMassRange
@@ -76,10 +71,39 @@ class Setup:
         #Default cuts and requirements. Those three things below are used to determine the key in the cache!
         self.parameters   = default_parameters 
         self.sys          = default_sys 
-        self.lumi         = lumi
-        self.dataLumi     = lumi
-        
+        if year == 2017:
+            self.lumi         = dataLumi2017
+            self.dataLumi     = dataLumi2017
+        elif year == 2016:
+            self.lumi         = dataLumi2016
+            self.dataLumi     = dataLumi2016
+        elif year == 20167:
+            self.lumi         = dataLumi20167
+            self.dataLumi     = dataLumi20167
+        elif year == "run2":
+            self.lumi         = dataLumi201678
+            self.dataLumi     = dataLumi201678
+        elif year == "HLLHC":
+            self.lumi         = dataHighLumi
+            self.dataLumi     = dataHighLumi
+
         self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
+
+        # defining seperate samples. should not be necessary, but just for the sake of sanity. Add switch for eras
+        MMM = Run2016
+        EEE = Run2016 
+        MME = Run2016
+        EEM = Run2016
+        # MC
+        TTZSample           = TTZtoLLNuNu
+        WZSample            = WZ
+        TTXSample           = TTX
+        TTWSample           = TTW
+        TZQSample           = TZQ
+        rareSample          = rare
+        nonpromptSample     = nonprompt
+        pseudoDataSample    = pseudoData
+
 
         self.samples = {
         'TTZ':          {c:TTZSample        for c in channels},
@@ -90,10 +114,10 @@ class Setup:
         'rare':         {c:rareSample       for c in channels},
         'nonprompt':    {c:nonpromptSample  for c in channels},
         'pseudoData':   {c:pseudoDataSample for c in channels},
-        'Data'   :    {'3mu':   SingleMuon_Run2016, #FIXME This needs to be fixed when we have a decent trigger/backup trigger strategy
-                       '3e':    SingleElectron_Run2016,
-                       '2mu1e': SingleMuon_Run2016,
-                       '2e1mu': SingleElectron_Run2016},
+        'Data'   :    {'3mu':   MMM,
+                       '3e':    EEE,
+                       '2mu1e': MME,
+                       '2e1mu': EEM},
         }
         
     def prefix(self):
@@ -130,8 +154,8 @@ class Setup:
                     for upOrDown in ['Up','Down']:
                       if 'reweightPU36fb'+upOrDown             in res.sys[k]: res.sys[k].remove('reweightPU36fb')
                       if 'reweightDilepTriggerBackup'+upOrDown in res.sys[k]: res.sys[k].remove('reweightDilepTriggerBackup')
-                      if 'reweightBTag_SF_b_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTag_SF')
-                      if 'reweightBTag_SF_l_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTag_SF')
+                      if 'reweightBTagDeepCSV_SF_b_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
+                      if 'reweightBTagDeepCSV_SF_l_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
                       if 'reweightLeptonSF'+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF')
                       if 'reweightLeptonFastSimSF'+upOrDown    in res.sys[k]: res.sys[k].remove('reweightLeptonFastSimSF')
                 else:
@@ -214,7 +238,7 @@ class Setup:
               res['cuts'].append('Z_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
-              
+            presel_2l     = "(nGoodLeptons>=2)"  
             presel3mu     = "(nGoodMuons==3&&nGoodElectrons==0)"
             presel2mu1e   = "(nGoodMuons==2&&nGoodElectrons==1)"
             presel2e1mu   = "(nGoodMuons==1&&nGoodElectrons==2)"
@@ -227,22 +251,26 @@ class Setup:
             if zWindow == 'offZ' and channel!="EMu": res['cuts'].append(getZCut(zWindow, self.zMassRange))  # Never use offZ when in emu channel, use allZ instead
 
             #lepton channel
-            assert channel in allChannels, "channel must be one of "+",".join(allChannels)+". Got %r."%channel
+            assert channel in allChannels+["2l_incl"], "channel must be one of "+",".join(allChannels)+". Got %r."%channel
 
             if channel=="3mu":        chStr = presel3mu
             elif channel=="2mu1e":    chStr = presel2mu1e
             elif channel=="2e1mu":    chStr = presel2e1mu
             elif channel=="3e":       chStr = presel3e
+            elif channel=="2l_incl":  chStr = presel_2l
             elif channel=="all":      chStr = "("+'||'.join(allPresels)+')'
 
             res['cuts'].append(chStr)
 
-            res['cuts'].append('nlep==3')
+            if channel is not "2l_incl":
+                res['cuts'].append('nlep==3')
 
-            res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
+                res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
-        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim))
+        # Need a better solution for the Setups for different eras
+        if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
+        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

@@ -17,6 +17,7 @@ color.TTH            = ROOT.kRed
 color.TTW            = ROOT.kRed+3
 color.TTZ            = ROOT.kPink+9
 color.TTZtoLLNuNu    = ROOT.kOrange
+color.signal         = ROOT.kOrange
 color.TTZtoQQ        = ROOT.kBlue
 color.TTG            = ROOT.kRed
 color.TZQ            = 9

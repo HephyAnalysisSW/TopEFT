@@ -44,16 +44,16 @@ def chunks(l, n):
 #couplingValues = [dc2v,dc2a]
 
 ## dim6top_LO
-model_name = "dim6top_LO"
-#nonZeroCouplings = ("ctZ", "ctZI")
-#dc2v = [ i*2./5 for i in range(-5,6) ]
-#dc2a = [ i*2./5 for i in range(-5,6) ]
-#couplingValues = [dc2v,dc2a]
-
-nonZeroCouplings = ("cpQM", "cpt")
-dc2v = [ i*4 for i in range(-2,8) ]
-dc2a = [ i*3.5 for i in range(-7,5) ]
+model_name = "dim6top_LO_v2"
+nonZeroCouplings = ("ctZ", "ctZI")
+dc2v = [ i*3./6 for i in range(-6,7) ]
+dc2a = [ i*3./6 for i in range(-6,7) ]
 couplingValues = [dc2v,dc2a]
+
+#nonZeroCouplings = ("cpQM", "cpt")
+#dc2v = [ i*4 for i in range(-2,8) ]
+#dc2a = [ i*3.5 for i in range(-7,5) ]
+#couplingValues = [dc2v,dc2a]
 
 
 
@@ -70,7 +70,8 @@ for comb in allCombinations:
 
 #processes = ['tZq_4f', 'ttZ','ttW','ttH']
 #processes = ['ttgamma', 'ttZ']
-processes = ['ttZ_ll']
+processes = ['ttgamma']
+
 submitCMD = "submitBatch.py"
 #submitCMD = "echo"
 
@@ -78,7 +79,7 @@ nJobs = len(processes[:1])*len(allCombinationsFlat)
 
 logger.info("Will need to run over %i combinations.",nJobs)
 
-combinationChunks = chunks(allCombinationsFlat, 3)
+combinationChunks = chunks(allCombinationsFlat, 5)
 
 for p in processes[:1]:
     for i,comb in enumerate(combinationChunks):

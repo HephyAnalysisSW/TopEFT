@@ -6,16 +6,16 @@ from functools                      import partial
 
 from RootTools.core.standard        import *
 
-from TopEFT.Analysis.run.getResults import getResult
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
 from TopEFT.Tools.niceColorPalette  import niceColorPalette
 from TopEFT.Tools.helpers           import getCouplingFromName
 from TopEFT.Analysis.Setup          import Setup
+from TopEFT.Tools.resultsDB             import resultsDB
+from TopEFT.Tools.u_float               import u_float
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
 
 
-setup = Setup()
 
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
@@ -28,63 +28,102 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',     action='store',      default='NLL_plots')
 argParser.add_argument('--useBestFit', action='store_true', help="Use best fit value? Default is r=1")
 argParser.add_argument('--smooth', action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
-argParser.add_argument('--plane', action='store', choices=["current", "dipole"], default = "current", help="Current of dipole plane?")
+argParser.add_argument('--model', action='store', choices=["ewkDM", "dim6top_LO"], help="Which model?")
+argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
+argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
+argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
+argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+
 args = argParser.parse_args()
 
-postFix = ""
+year = int(args.year)
+
+setup = Setup(year)
+
+postFix = ""#"_fine_YR1"
 
 def Eval(obj, x, params):
     return obj.Eval(x[0])
 
 def toGraph2D(name,title,length,x,y,z):
     result = ROOT.TGraph2D(length)
-    #debug = ROOT.TGraph()
+    debug = ROOT.TGraph()
     result.SetName(name)
     result.SetTitle(title)
-    #for i,key in enumerate(sorted(results.keys())):
-    #    print i,key,results[key]
-    #    result.SetPoint(i, key[0], key[1], results[key])
-    #    #result.SetPoint(i,x[i],y[i],z[i])
-    #    debug.SetPoint(i, key[0], key[1])
     for i in range(length):
         result.SetPoint(i, x[i], y[i], z[i])
-    #h = result.GetHistogram()
-    #h.SetMinimum(min(z))
-    #h.SetMaximum(max(z))
+        debug.SetPoint(i, x[i], y[i])
     c = ROOT.TCanvas()
     result.Draw()
-    #debug.Draw("same")
+    debug.Draw()
     del c
     #res = ROOT.TGraphDelaunay(result)
-    return result#,debug
+    return result,debug
 
+
+# do the same stuff as in the analysis part
+
+subDir = ''
+baseDir = os.path.join(analysis_results, subDir)
+
+cardDir = "regionsE_%s"%(year)
+if args.useXSec:
+    cardDir += "_xsec"
+if args.useShape:
+    cardDir += "_shape"
+cardDir += "_lowUnc"
+
+limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.plane]))
+
+resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)
 
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
 
 # get the absolute post fit NLL value of pure ttZ
-ttZ_res = getResult(ewkDM_central)
-#ttZ_res = getResult(dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00)
+if args.model == "ewkDM":
+    ttZ_res = resDB.getDicts({"signal":ewkDM_central.name})[0]
+elif args.model == "dim6top_LO":
+    ttZ_res = resDB.getDicts({"signal":dim6top_central.name})[0]
+
 ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
 
 print "Max Likelihood ttZ SM"
 print "{:10.2f}".format(ttZ_NLL_abs)
 
-# load all samples, omit the 1/1 point
-#signals = [ x for x in allSamples_dim6top if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
+if args.model == "ewkDM":
+    if args.plane == "currents":
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
+        x_var = 'DC1V'
+        y_var = 'DC1A'
+        #x_shift = 0.
+        #y_shift = 0.
+        x_shift = 0.24
+        y_shift = -0.60
+    
+    elif args.plane == "dipoles":
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles ]
+        x_var = 'DC2V'
+        y_var = 'DC2A'
+        x_shift = 0.
+        y_shift = 0.
 
-if args.plane == "current":
-    signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
-    x_var = 'DC1V'
-    y_var = 'DC1A'
-    x_shift = 0.24
-    y_shift = -0.60
+elif args.model == "dim6top_LO":
+    if args.plane == "currents":
+        signals = [ dim6top_central ] + [ x for x in dim6top_currents ]
+        x_var = 'cpQM'
+        y_var = 'cpt'
+        x_shift = 0.
+        y_shift = 0.
+    
+    elif args.plane == "dipoles":
+        signals = [ dim6top_central ] + [ x for x in dim6top_dipoles ]
+        x_var = 'ctZ'
+        y_var = 'ctZI'
+        x_shift = 0.
+        y_shift = 0.
+    
 
-elif args.plane == "dipole":
-    signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles ]
-    x_var = 'DC2V'
-    y_var = 'DC2A'
-    x_shift = 0.
-    y_shift = 0.
+print "Number of results", len(signals)
 
 var1_values = []
 var2_values = []
@@ -121,63 +160,98 @@ res_dic = {}
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
-    res = getResult(s)
-    if type(res) == type({}):
-        limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+    if resDB.contains({"signal":s.name}):
+        res = resDB.getDicts({"signal":s.name})[0]
+        #res = getResult(s)
+        print s.name
+        if type(res) == type({}):
+            limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
-        if limit >= 0:
-            # good result
-            nll_value = 2*limit
-        elif limit > -0.01 and limit < 0:
-            # catch rounding errors
-            nll_value = 0
-        elif limit < -900:
-            continue
-            # if the fit failed, add a dummy value (these points should easily be excluded)
-            nll_value = 100
+            if limit >= 0:
+                # good result
+                nll_value = 2*limit
+            elif limit > -0.1 and limit < 0:
+                # catch rounding errors
+                nll_value = 0
+            elif limit < -900:
+                # if the fit failed, add a dummy value (these points should easily be excluded)
+                nll_value = 100
+            else:
+                print "No good result found for %s, results is %s"%(s.name, limit)
+                continue
+            
+            # Add results
+            print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
+            if True:#s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+            #if True:
+                z.append(nll_value)
+                x.append(s.var1 + x_shift)
+                y.append(s.var2 + y_shift)
+                res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
+            #else:
+            #    print "Omitting..."
+            #x.append(-1.06)
+            #y.append(-0.9)
+            #z.append(100)
+            #
+            #x.append(1.14)
+            #y.append(-0.9)
+            #z.append(100)
+            #
+            #x.append(-1.06)
+            #y.append(0.9)
+            #z.append(100)
+
+            #x.append(1.14)
+            #y.append(0.9)
+            #z.append(100)
+
         else:
-            print "No good result found for %s, results is %s"%(s.name, limit)
-            continue
-        
-        # Add results
-        print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-        z.append(nll_value)
-        x.append(s.var1 + x_shift)
-        y.append(s.var2 + y_shift)
-        res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
-        
-    else:
-        print "No results for %s found"%s.name
+            print "No results for %s found"%s.name
 
 proc = "ttZ"
 
-multiplier = 1
+#print res_dic
 
-a = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
-#nxbins = max(1, min(500, nbins_x*multiplier))
-#nybins = max(1, min(500, nbins_y*multiplier))
+multiplier = 3
 
-#print "Number of bins on x-axis: %s"%nxbins
-#print "Number of bins on y-axis: %s"%nybins
+a,debug = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
+nxbins = max(1, min(500, nbins_x*multiplier))
+nybins = max(1, min(500, nbins_y*multiplier))
+
+print "Number of bins on x-axis: %s"%nxbins
+print "Number of bins on y-axis: %s"%nybins
 
 
 hist = a.GetHistogram().Clone()
 
+#nxbins = 200
+#nybins = 200
 
-#a.SetNpx(nxbins)
-#a.SetNpy(nybins)
+a.SetNpx(nxbins)
+a.SetNpy(nybins)
 hist = a.GetHistogram().Clone()
 
 
 if x_var == "DC1V":
     hist.GetXaxis().SetTitle("C_{1,V}")
-else:
-    hist.GetXaxis().SetTitle("#DeltaC_{2,V}")
+elif x_var == "DC2V":
+    hist.GetXaxis().SetTitle("C_{2,V}")
+elif x_var == "cpQM":
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
+elif x_var == "ctZ":
+    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+
 hist.GetXaxis().SetNdivisions(505)
 if y_var == "DC1A":
     hist.GetYaxis().SetTitle("C_{1,A}")
-else:
-    hist.GetYaxis().SetTitle("#DeltaC_{2,A}")
+elif y_var == "DC2A":
+    hist.GetYaxis().SetTitle("C_{2,A}")
+elif y_var == "cpt":
+    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
+elif y_var == "ctZI":
+    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
@@ -238,14 +312,19 @@ latex1.SetTextSize(0.04)
 latex1.SetTextAlign(11)
 
 latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-latex1.DrawLatex(0.14,0.92,'#bf{ewkDM model}')
+latex1.DrawLatex(0.14,0.92,'#bf{%s model}'%args.model)
 latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
+#latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
+#latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_fullUncertainties/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    cans.Print(plotDir+"ewkDM_%s_%s%s"%(args.plane, setup.name, postFix)+e)
+    cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
+
+debug.Draw("ap0")
+cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
 

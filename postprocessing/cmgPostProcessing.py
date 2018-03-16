@@ -23,15 +23,18 @@ import TopEFT.Tools.user as user
 # Tools for systematics
 from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar, getGenZ, getGenPhoton
 from TopEFT.Tools.addJERScaling              import addJERScaling
-from TopEFT.Tools.objectSelection            import getMuons, getElectrons, muonSelector, eleSelector, getGoodLeptons, getGoodAndOtherLeptons, lepton_branches_data, lepton_branches_mc
+from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, eleSelector, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
-#from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
+from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
 #from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 
 #triggerEff_withBackup   = triggerEfficiency(with_backup_triggers = True)
 #triggerEff              = triggerEfficiency(with_backup_triggers = False)
 #leptonTrackingSF        = leptonTrackingEfficiency()
+
+# for syncing
+import TopEFT.Tools.sync as sync
 
 #MC tools
 from TopEFT.Tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
@@ -40,7 +43,7 @@ genSearch = GenSearch()
 # central configuration
 targetLumi = 1000 #pb-1 Which lumi to normalize to
 
-logChoices      = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET']
+logChoices      = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC']
 triggerChoices  = ['mumu', 'ee', 'mue', 'mu', 'e', 'e_for_mu']
 
 def get_parser():
@@ -52,7 +55,7 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu_amcatnlo'],      help="List of samples to be post-processed, given as CMG component name")
-    argParser.add_argument('--triggerSelection',            action='store',         nargs='?',  type=str,   choices=triggerChoices, default=None,                       help="Trigger selection?")
+    argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
@@ -62,6 +65,7 @@ def get_parser():
     argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
     argParser.add_argument('--skim',                        action='store',         nargs='?',  type=str,                           default='dilepTiny',                help="Skim conditions to be applied for post-processing")
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
+    argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
@@ -78,7 +82,7 @@ options = get_parser().parse_args()
 # Logging
 import TopEFT.Tools.logger as logger
 logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job[0]))
-logger  = logger.get_logger(options.logLevel, logFile = logFile)
+logger  = logger.get_logger(options.logLevel, logFile = logFile, add_sync_level = options.sync)
 
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
@@ -97,7 +101,7 @@ skimConds = []
 if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
-    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_relIso03<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_relIso03<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
 if isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
 if isInclusive:
@@ -110,11 +114,13 @@ if options.year==2016:
     MCgeneration = "Summer16"
 else:
     MCgeneration = "Fall17"
-
-print MCgeneration
-
-samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
-logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
+    
+if options.sync:
+    from TopEFT.samples.sync import *
+    samples = map( eval, options.samples ) 
+else:
+    samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
+    logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
 if len(samples)==0:
     logger.info( "No samples found. Was looking for %s. Exiting" % options.samples )
@@ -129,52 +135,16 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 
 xSection = samples[0].heppy.xSection if isMC else None
 
-diMuTriggers        = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"," HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"]
-diEleTriggers       = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"]
-EMuTriggers         = ["HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"]
+# Trigger selection
+from TopEFT.Tools.triggerSelector import triggerSelector
+ts = triggerSelector(options.year)
+triggerCond  = ts.getSelection(options.samples[0] if isData else "MC")
+treeFormulas = {"triggerDecision": {'string':triggerCond} }
+if isData and options.triggerSelection:
+    logger.info("Sample will have the following trigger skim: %s"%triggerCond)
+    skimConds.append( triggerCond )
 
-if isData and options.triggerSelection is not None:
-    if options.year == 2016:
-        if options.triggerSelection == 'mu':
-            skimConds.append( "(HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'e':
-            skimConds.append( "(HLT_SingleEleTTZ)" )
-        elif options.triggerSelection == 'e_for_mu':
-            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'ee':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-        elif options.triggerSelection == 'mue':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-        elif options.triggerSelection == 'mumu':
-            skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-        else:
-            raise ValueError( "Don't know about triggerSelection %s in %i "%(options.triggerSelection, options.year) )
-    elif options.year == 2017:
-        if options.triggerSelection == 'mu':
-            skimConds.append( "(HLT_SingleMuTTZ)" )
-        elif options.triggerSelection == 'e':
-            skimConds.append( "(HLT_SingleEleTTZ)" )
-        elif options.triggerSelection == 'e_for_mu':
-            skimConds.append( "(HLT_SingleEleTTZ && !HLT_SingleMuTTZ)" )
-        #if options.triggerSelection == 'mu':
-        #    skimConds.append( "HLT_IsoMu27" )
-        #elif options.triggerSelection == 'e':
-        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)" )
-        #elif options.triggerSelection == 'e_for_mu':
-        #    skimConds.append( "(HLT_Ele35_WPTight_Gsf||HLT_Ele27_WPTight_Gsf)&(!HLT_IsoMu27)" )
-        #elif options.triggerSelection == 'ee':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diEleTriggers) )
-        #elif options.triggerSelection == 'mue':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(EMuTriggers) )
-        #elif options.triggerSelection == 'mumu':
-        #    skimConds.append( "(%s)&&!(HLT_SingleMuTTZ||HLT_SingleEleTTZ)"%"||".join(diMuTriggers) )
-        else:
-            raise ValueError( "Don't know about triggerSelection %s in %i"%(options.triggerSelection, options.year) )
-
-    sample_name_postFix = "_Trig_"+options.triggerSelection
-    logger.info( "Added trigger selection %s and postFix %s", options.triggerSelection, sample_name_postFix )
-else:
-    sample_name_postFix = ""
+triggerSF = triggerEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -186,7 +156,6 @@ if len(samples)>1:
         sample.clear()
 elif len(samples)==1:
     sample = samples[0]
-    sample.name+=sample_name_postFix
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
@@ -200,7 +169,7 @@ if isMC:
         
 # top pt reweighting
 # Decision based on sample name -> whether TTJets or TTLep is in the sample name
-isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow")
+isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow") or sample.name.startswith("TTZ")
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
 
@@ -346,16 +315,18 @@ if sample.isData:
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_DATA
     from FWCore.PythonUtilities.LumiList import LumiList
     # Apply golden JSON
-    sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
-    if options.year==2017:
-        sample.heppy.json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
-    lumiList = LumiList(os.path.expandvars(sample.heppy.json))
-    logger.info( "Loaded json %s", sample.heppy.json )
+    if options.year == 2016:
+        json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
+    elif options.year == 2017:
+        json = '$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+    if hasattr( sample, 'heppy'): sample.heppy.json = json
+    lumiList = LumiList(os.path.expandvars(json))
+    logger.info( "Loaded json %s", json )
 else:
     lumiScaleFactor = xSection*targetLumi/float(sample.normalization) if xSection is not None else None
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
-jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
+jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'btagDeepCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -365,12 +336,20 @@ if options.keepPhotons:
     read_variables += [ TreeVariable.fromString('ngamma/I'),
                         VectorTreeVariable.fromString('gamma[pt/F,eta/F,phi/F,mass/F,idCutBased/I,pdgId/I]') ]
 
-new_variables = [ 'weight/F']
+new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
-lepton_branches_store = lepton_branches_mc if isMC else lepton_branches_data
-lepton_branches_store += ',relIso/F'
+lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
+if sync: lepton_branches_read += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagCSV/F,jetBTagCSV/F,segmentCompatibility/F,mvaIdSpring16/F'
+lepton_branches_store = lepton_branches_read
+
+# store this extra Id information
+extra_lep_ids = ['tight', 'FO', 'tight_SS', 'FO_SS']
+extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
+extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
+for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%lep_id
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
+lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
 new_variables+= [ 'lep[%s]' % lepton_branches_store ]
 
 if isMC:
@@ -386,7 +365,7 @@ if isMC:
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
-    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
+    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F', 'reweightTrigger/F', 'reweightTriggerUp/F', 'reweightTriggerDown/F'])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -396,8 +375,8 @@ if isMC:
 read_variables += [\
     TreeVariable.fromString('nLepGood/I'),
     TreeVariable.fromString('nLepOther/I'),
-    VectorTreeVariable.fromString('LepGood[%s]'  % (lepton_branches_mc if isMC else lepton_branches_data)),
-    VectorTreeVariable.fromString('LepOther[%s]' % (lepton_branches_mc if isMC else lepton_branches_data)),
+    VectorTreeVariable.fromString('LepGood[%s]'  % (lepton_branches_read)),
+    VectorTreeVariable.fromString('LepOther[%s]' % (lepton_branches_read)),
 
     TreeVariable.fromString('nJet/I'),
     TreeVariable.fromString('nDiscJet/I'),
@@ -416,7 +395,6 @@ if options.leptonConvinience:
         new_variables.extend( [var.format(n=i) for var in lep_convinience_branches] )
 
 new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
-
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
@@ -446,8 +424,6 @@ if addSystematicVariations:
     for var in btagEff_DeepCSV.btagWeightNames:
         if var!='MC':
             new_variables.append('reweightBTagDeepCSV_'+var+'/F')
-
-
 
 # Define a reader
 reader = sample.treeReader( \
@@ -492,6 +468,7 @@ def getMetCorrected(r, var, addPhoton = None):
 def filler( event ):
     # shortcut
     r = reader.event
+    if options.sync: sync.print_header( r.run, r.lumi, r.evt )
     if isMC: gPart = getGenPartsAll(r)
 
     # weight
@@ -506,6 +483,8 @@ def filler( event ):
     if isData:
         #event.vetoPassed  = vetoList.passesVeto(r.run, r.lumi, r.evt)
         event.jsonPassed  = lumiList.contains(r.run, r.lumi)
+        # make data weight zero if JSON was not passed
+        if not event.jsonPassed: event.weight = 0
         # store decision to use after filler has been executed
         event.jsonPassed_ = event.jsonPassed
 
@@ -513,41 +492,54 @@ def filler( event ):
         event.reweightPU36fb     = nTrueInt36fb_puRW       ( r.nTrueInt )
         event.reweightPU36fbDown = nTrueInt36fb_puRWDown   ( r.nTrueInt )
         event.reweightPU36fbUp   = nTrueInt36fb_puRWUp     ( r.nTrueInt )
-
+    
     # top pt reweighting
     if isMC and options.doTopPtReweighting: 
         event.reweightTopPt = topPtReweightingFunc(getTopPtsForReweighting(r))/topScaleF if doTopPtReweighting else 1.
 
+    # Trigger Decision
+    event.triggerDecision = int(treeFormulas['triggerDecision']['TTreeFormula'].EvalInstance())
+
     # Leptons: Reading LepGood and LepOther and fill new LepGood collection in the output tree
-    mu_selector  = muonSelector( isoVar = "relIso04", barrelIso = 0.25, endcapIso = 0.25, absEtaCut = 2.4, dxy = 0.05, dz = 0.1 )
-    ele_selector = eleSelector(  isoVar = "relIso03", barrelIso = 0.1,  endcapIso = 0.1,  absEtaCut = 2.5, dxy = 0.05, dz = 0.1, eleId = "M", noMissingHits=False )
-    leptons      = getGoodAndOtherLeptons(r, ptCut=10, mu_selector = mu_selector, ele_selector = ele_selector)
+    mu_selector  = muonSelector( "loose", year = options.year)
+    ele_selector = eleSelector( "loose", year = options.year )
+    leptons      = getLeptons(r, collVars=lepton_vars_read, mu_selector = mu_selector, ele_selector = ele_selector)
     leptons.sort(key = lambda p:-p['pt'])
 
     # Store leptons
     event.nlep = len(leptons)
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
-        lep['relIso'] = lep["relIso04"] if abs(lep['pdgId'])==13 else lep["relIso03"] 
+        for lep_id in extra_lep_ids:
+            lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
 
-    # Storing lepton counters
-    event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, leptons))
-    event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, leptons))
-    event.nGoodLeptons   = len(leptons)
-
+    # Storing tight lepton counters
+    tightLeptons         = filter(  lambda l: l['tight'], leptons )
+    event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, tightLeptons))
+    event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, tightLeptons))
+    event.nGoodLeptons   = event.nGoodMuons + event.nGoodElectrons 
     # Lepton convinience
     if options.leptonConvinience:
-        for i in range(min(4, len(leptons))):
+        for i in range(min(4, len(tightLeptons))):
             for var in lep_convinience_vars:
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
-    # Identify best Z 
-    (event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(leptons)
-    nonZ_lepton_indices = [ i for i in range(len(leptons)) if i not in [event.Z_l1_index, event.Z_l2_index] ]
-    event.nonZ_l1_index = nonZ_lepton_indices[0] if len(nonZ_lepton_indices)>0 else -1
-    event.nonZ_l2_index = nonZ_lepton_indices[1] if len(nonZ_lepton_indices)>1 else -1
+    if isMC and len(tightLeptons)>0:
+        trigg, trigg_err = triggerSF.getSF(tightLeptons[0]['pt'])
+        event.reweightTrigger       = trigg
+        event.reweightTriggerUp     = trigg + trigg_err
+        event.reweightTriggerDown   = trigg - trigg_err
+
+    # Identify best Z from tight leptons 
+    #(event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
+    (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(tightLeptons)
+    nonZ_tightLepton_indices = [ i for i in range(len(tightLeptons)) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+    event.Z_l1_index    = tightLeptons[Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+    event.Z_l2_index    = tightLeptons[Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+    event.nonZ_l1_index = tightLeptons[nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+    event.nonZ_l2_index = tightLeptons[nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
 
     # Store Z information 
     if event.Z_mass>=0:
@@ -569,7 +561,7 @@ def filler( event ):
         event.cosThetaStar = cosThetaStar(event.Z_mass, event.Z_pt, event.Z_eta, event.Z_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
     # Jets and lepton jet cross-cleaning    
-    allJets      = getAllJets(r, leptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    allJets      = getAllJets(r, tightLeptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
         if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
@@ -601,6 +593,13 @@ def filler( event ):
     event.metSig     = event.met_pt/sqrt(event.ht) if event.ht>0 else float('nan')
     event.nBTagCSVv2 = len(bJetsCSVv2)
     event.nBTag      = len(bJetsDeepCSV)
+
+    #  sync info
+    sync.print_met( r.met_pt, r.met_phi ) 
+    sync.print_leptons( leptons )
+    sync.print_jets( selected_jets )
+    logger.sync( "Summary: tight mu %i tight ele %i njets %i nbtags %i",  event.nGoodMuons, event.nGoodElectrons, event.nJetSelected, event.nBTag)
+    logger.sync( "#"*30 )
 
     # Systematics
     jets_sys      = {}
@@ -774,9 +773,12 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     # Set the reader to the event range
     reader.setEventRange( eventRange )
 
+    # Clone the empty maker in order to avoid recompilation at every loop iteration
     clonedTree = reader.cloneTree( branchKeepStrings, newTreename = "Events", rootfile = outputfile )
     clonedEvents += clonedTree.GetEntries()
-    # Clone the empty maker in order to avoid recompilation at every loop iteration
+    # Add the TTreeFormulas
+    for formula in treeFormulas.keys():
+        treeFormulas[formula]['TTreeFormula'] = ROOT.TTreeFormula(formula, treeFormulas[formula]['string'], clonedTree )
     maker = treeMaker_parent.cloneWithoutCompile( externalTree = clonedTree )
 
     maker.start()
@@ -792,6 +794,7 @@ for ievtRange, eventRange in enumerate( eventRanges ):
                 else:
                     if reader.event.lumi not in outputLumiList[reader.event.run]:
                         outputLumiList[reader.event.run].add(reader.event.lumi)
+
     convertedEvents += maker.tree.GetEntries()
     maker.tree.Write()
     outputfile.Close()

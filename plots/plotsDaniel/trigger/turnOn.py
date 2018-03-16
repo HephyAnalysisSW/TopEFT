@@ -94,20 +94,36 @@ data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = 'TopEFT_PP_2017_Fall17_v2/trilep'
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
-#presel = "nlep>=1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
-
 # presel for measuring efficiencies in single lep datasets
+presel1l = "nlep==1&&met_pt>20&&sqrt(2.*lep_pt[0]*met_pt*(1.-cos(lep_phi[0]-met_phi)))>20"
+
 presel = "nlep>=1"#&&met_pt>200&&HLT_AllMET170"
 
 channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1','emumu':'nGoodElectrons==1&&nGoodMuons==2','mumumu':'nGoodElectrons==0&&nGoodMuons==3', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'(1)'}
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
+
 channels = {'3pl':'nlep>=3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
 channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
 
 # SS or OS
 # SS cut: (lep_pdgId[0]*lep_pdgId[1])>0
-presel2l = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
+
+leadingElectron = "(abs(lep_pdgId[0])==11&&lep_pt[0]>40)"
+subleadElectron = "(abs(lep_pdgId[1])==11&&lep_pt[1]>27)"
+leadingMuon     = "(abs(lep_pdgId[0])==13&&lep_pt[0]>25)"
+subleadMuon     = "(abs(lep_pdgId[1])==13&&lep_pt[1]>25)"
+
+ee_Sel = "( %s )"%"&&".join([leadingElectron,subleadElectron])
+em_Sel = "( %s )"%"&&".join([leadingElectron,subleadMuon])
+me_Sel = "( %s )"%"&&".join([leadingMuon,subleadElectron])
+mm_Sel = "( %s )"%"&&".join([leadingMuon,subleadMuon])
+
+
+lepSel_ttW = "||".join([ee_Sel,em_Sel,me_Sel,mm_Sel])
+presel2l = "nlep==2 && (%s) && met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"%lepSel_ttW
+
+#presel2l = "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
 #presel2l = "nlep==2&&met_pt>40&&sqrt(2*lep_pt[0]*lep_pt[1]*(cosh(lep_eta[0]-lep_eta[1])-cos(lep_phi[0]-lep_phi[1])))>20"
 
 if options.channel == 'dilep':
@@ -116,7 +132,11 @@ if options.channel == 'dilep':
                 '2m':presel2l+'&&nGoodMuons==2',
                 'em':presel2l+'&&nGoodElectrons==1&&nGoodMuons==1'
                 }
-
+elif options.channel == 'singleLep':
+    channels = {'1e':presel1l+'&&nGoodElectrons==1',
+                '1m':presel1l+'&&nGoodMuons==1',
+                '1l':presel1l
+                }
 
 #&&HLT_PFMET120_PFMHT120_IDTight
 #channels = {'all':'(1)'}
@@ -149,14 +169,23 @@ triggers_all = {
     "ttHMix_no3l": "(%s)"%"||".join(singleMuTriggers+singleEleTriggers+diMuTriggers+diEleTriggers+EMuTriggers),
 }
 
-
-triggers_2016 = {
-    "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
-#    "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso),
-    "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
-    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+singleEleNoIso+singleMuNoIso),
-#    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
-}
+if options.channel == 'dilep':
+    triggers_2016 = {
+        "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
+        "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
+        "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+singleEleNoIso+singleMuNoIso),
+    }
+elif options.channel ==  'singleLep':
+    triggers_2016 = {
+        "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
+        "singleLep_addNonIso": "(%s)"%"||".join(singleMuTTZ+singleMuNoIso+singleEleTTZ+singleEleNoIso)
+    }
+else:
+    triggers_2016 = {
+        "singleLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ),
+        "singleLep_addDiLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers),
+        "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(singleMuTTZ+singleEleTTZ+diMuTriggers+diEleTriggers+EMuTriggers+trilepTriggers),
+    }
 
 triggers_2016_mu = {
     "IsoMu22":"HLT_IsoMu22",
@@ -186,16 +215,26 @@ mme_17          = ["HLT_mme"]
 mee_17          = ["HLT_mee"]
 eee_17          = ["HLT_eee"]
 
-triggers_2017 = {
-    "singleLep": "(%s)"%"||".join(mu_17+ele_17),
-#    "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17),
-    "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
-#    "singleLep_addDiLep_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+photonTriggers),
-#    "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
-#    "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
-    "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
-#    "singleLep_addDiLep_addTriLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17+ele_nonIso_17+mu_nonIso_17)
-}
+if options.channel == 'dilep':
+    triggers_2017 = {
+        "singleLep": "(%s)"%"||".join(mu_17+ele_17),
+        "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
+        "singleLep_addDiLep_addNonIso": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17),
+        "singleLep_addDiLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
+    }
+elif options.channel == 'singleLep':
+    triggers_2017 = {
+        "singleLep": "(%s)"%"||".join(mu_17+ele_17),
+        "singleLep_addNonIso": "(%s)"%"||".join(mu_17+mu_nonIso_17+ele_17+ele_nonIso_17),
+        "singleLep_addNonIso_addPhoton": "(%s)"%"||".join(mu_17+ele_17+ele_nonIso_17+mu_nonIso_17+photonTriggers),
+    }
+else:
+    triggers_2017 = {
+        "singleLep": "(%s)"%"||".join(mu_17+ele_17),
+        "singleLep_addDiLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17),
+        "singleLep_addDiLep_addTriLep": "(%s)"%"||".join(mu_17+ele_17+mumu_17+ee_17+mue_17+mmm_17+mme_17+mee_17+eee_17),
+    }
+
 
 triggers = triggers_2017 if options.Run2017 else triggers_2016
 
@@ -222,7 +261,8 @@ if not options.data:
     sample = TTZtoLLNuNu_17 if options.Run2017 else TTZ_LO
     if options.channel == 'dilep':
         sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
-    
+    elif options.channel == 'singleLep':
+        sample = TTLep_pow_17 if options.Run2017 else TTLep_pow # need some W+jets sample. Check and rerun?
 
 #sample = TTZ_LO
 #sample = TTZtoLLNuNu_17
@@ -242,6 +282,7 @@ else:
     if not options.channel == 'dilep': leptons += ["lep_pt[2]"]
     #binning = [0,10,20,30,40,50,60,70,80,100,120,150,200]
     binning = [0,10,20,30,40,60,80,100,120,150,200]
+    #binning = [0,25,40,60,80,100,120,150,200]
 
 for lep in leptons:
     for c in channels:
@@ -287,9 +328,11 @@ for lep in leptons:
 
             else:
                 if options.Run2017:
-                    weight_passed = "((1) * ( ( (lep_pt[0]<80)*0.966) + ((lep_pt[0]>=80)*(1.0)) ) )"
+                    weight_passed = "(1)"
+                    #weight_passed = "((1) * ( ( (lep_pt[0]<80)*0.966) + ((lep_pt[0]>=80)*(1.0)) ) )"
                 else:
-                    weight_passed = "((1) * ( ( (lep_pt[0]<120)*0.985) + ((lep_pt[0]>=120)*(1.0)) ) )"
+                    weight_passed = "(1)"
+                    #weight_passed = "((1) * ( ( (lep_pt[0]<120)*0.985) + ((lep_pt[0]>=120)*(1.0)) ) )"
                 weight_total = "(1)"
                 #weight_total = "((1) * ( ( (lep_pt[0]<80)*0.50) + ((lep_pt[0]>=80)*(1.0)) ) )"
                 h_total[trigger] = sample.get1DHistoFromDraw(lep, binning, selectionString=baseline, weightString=weight_total, binningIsExplicit=True, addOverFlowBin='upper', isProfile=False)
@@ -406,7 +449,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning_SF", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)
