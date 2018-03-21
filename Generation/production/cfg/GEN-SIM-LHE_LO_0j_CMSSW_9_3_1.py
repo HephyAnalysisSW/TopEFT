@@ -156,8 +156,8 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 # filter all path with the production filter sequence
 for path in process.paths:
-	if path in ['lhe_step']: continue
-	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
+    if path in ['lhe_step']: continue
+    getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
 
 # Customisation from command line
