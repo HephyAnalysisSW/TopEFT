@@ -9,7 +9,7 @@ config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'PrivateMC'
-config.JobType.psetName = '../cfg/GEN-SIM-LHE_LO.py'
+config.JobType.psetName = '../cfg/GEN_LO_CMSSW_7_1_25_patch2.py'
 config.JobType.disableAutomaticOutputCollection = False
 
 config.section_("Data")

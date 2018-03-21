@@ -12,7 +12,7 @@ config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../cfg/RECOmAOD.py'
+config.JobType.psetName = '../cfg/RECOmAOD_CMSSW_8_0_21.py'
 config.JobType.disableAutomaticOutputCollection = False
 
 config.section_("Data")

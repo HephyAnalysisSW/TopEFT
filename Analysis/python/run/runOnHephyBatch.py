@@ -35,19 +35,19 @@ Currents
 #Dipoles
 #'''
 #
-#for i, x in enumerate(ewkDM_dipoles):
-#    #print i, x.name
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --useXSec --only=%s'"%str(i))
-#    if submitCMD.startswith("submit"):
-#        time.sleep(2)
-#
+for i, x in enumerate(dim6top_dipoles):
+    #print i, x.name
+    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useShape --useXSec --year 20167 --only=%s'"%str(i))
+    if submitCMD.startswith("submit"):
+        time.sleep(2)
+
 
 ## for resubmission of failed jobs:
-from TopEFT.Analysis.run.getResults import getResult
-for i,s in enumerate(ewkDM_dipoles):
-    res = getResult(s)
-    if not type(res) == type({}):
-        os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --only=%s'"%str(i))
-#        print "Resubmitted signal point %s"%s.name
+#from TopEFT.Analysis.run.getResults import getResult
+#for i,s in enumerate(ewkDM_dipoles):
+#    res = getResult(s)
+#    if not type(res) == type({}):
+#        os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --only=%s'"%str(i))
+##        print "Resubmitted signal point %s"%s.name
 
 

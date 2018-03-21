@@ -14,9 +14,9 @@ argParser.add_argument("--popFromSR",      default = False, action = "store", he
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
-argParser.add_argument("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p'], help="Use any CRs cut?")
+argParser.add_argument("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
-argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017' ], help='Which year?')
+argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 
 args = argParser.parse_args()
 
@@ -59,6 +59,8 @@ if args.controlRegion:
     subDir = args.controlRegion
     if args.controlRegion == 'nbtag0-njet3p':
         setup = setup.systematicClone(parameters={'nJets':(3,-1), 'nBTags':(0,0)})
+    elif args.controlRegion == 'nbtag0-njet2p':
+        setup = setup.systematicClone(parameters={'nJets':(2,-1), 'nBTags':(0,0)})
     elif args.controlRegion == 'nbtag1p-njet02':
         setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(1,-1)})
     elif args.controlRegion == 'nbtag1p-njet2':
@@ -146,6 +148,10 @@ elif year == 2017:
     PDFset = "NNPDF30"
     TTZ_sample = "TTZ_NLO_17"
     raise NotImplementedError
+elif year == 20167:
+    PDFset = "NNPDF30"
+    TTZ_sample = "TTZ_NLO"
+    logger.info("Will use PDF and scale uncertainties based on 2016.")
 
 PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%PDFset
 PDF_cache   = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PDF", ["region", "channel", "PDFset"])

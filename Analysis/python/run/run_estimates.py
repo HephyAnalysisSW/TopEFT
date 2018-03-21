@@ -3,7 +3,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
-parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p'], help="Use any CRs cut?")
+parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
 parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data"], help="Choose which sample to run the estimates for")
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 (options, args) = parser.parse_args()
@@ -48,7 +48,7 @@ allRegions = regionsE + noRegions
 
 from TopEFT.Analysis.Setup              import Setup
 
-setup                   = Setup(year=2016)
+setup                   = Setup(year=20167)
 estimators = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
 setup.reweightRegions   = regionsReweight
@@ -57,6 +57,8 @@ setup.reweightRegions   = regionsReweight
 if options.controlRegion:
     if options.controlRegion == 'nbtag0-njet3p':
         setup = setup.systematicClone(parameters={'nJets':(3,-1), 'nBTags':(0,0)})
+    elif options.controlRegion == 'nbtag0-njet2p':
+        setup = setup.systematicClone(parameters={'nJets':(2,-1), 'nBTags':(0,0)})
     elif options.controlRegion == 'nbtag1p-njet02':
         setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(1,-1)})
     elif options.controlRegion == 'nbtag1p-njet2':
