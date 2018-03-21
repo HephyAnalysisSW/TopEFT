@@ -9,7 +9,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('gridpack', '/afs/cern.ch/work/s/schoef/CMS/gen/gridpacks/ttZ0j_rwgt_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.tar.xz',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Which Gridpack?")
 options.register('outputDir','./',          VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Where to store the output root file?")
-options.maxEvents=10 # maxEvents is a registered option. 
+options.maxEvents=1000 # maxEvents is a registered option. 
 
 if not 'ipython' in VarParsing.sys.argv[0]:
   options.parseArguments()
@@ -42,7 +42,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 # Input source
@@ -54,7 +54,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('Configuration/GenProduction/python/HIG-RunIIFall17wmLHEGS-00041-fragment.py nevts:10'),
+    annotation = cms.untracked.string('Configuration/GenProduction/python/HIG-RunIIFall17wmLHEGS-00041-fragment.py nevts:%i'%options.maxEvents),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -177,7 +177,7 @@ process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
     #args = cms.vstring('/cvmfs/cms.cern.ch/phys_generator/gridpacks/2017/13TeV/madgraph/V5_2.4.2/ttZ01j_5f/v1/ttZ01j_5f.tar.xz'),
     #args = cms.vstring('/afs/cern.ch/work/s/schoef/CMS/gen/gridpacks/ttZ0j_rwgt_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.tar.xz'),
     args = cms.vstring(options.gridpack),
-    nEvents = cms.untracked.uint32(10),
+    nEvents = cms.untracked.uint32(options.maxEvents),
     numberOfParameters = cms.uint32(1),
     outputFile = cms.string('cmsgrid_final.lhe'),
     scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh')

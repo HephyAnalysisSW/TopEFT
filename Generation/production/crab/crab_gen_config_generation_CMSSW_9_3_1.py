@@ -15,8 +15,8 @@ config.JobType.disableAutomaticOutputCollection = False
 config.section_("Data")
 config.Data.splitting = 'EventBased'
 
-config.Data.unitsPerJob = 800
-config.Data.totalUnits  = 500000 
+config.Data.unitsPerJob = 1000
+config.Data.totalUnits  = 1000000 
 config.Data.publication = True
 config.Data.publishDBS = 'phys03'
 
