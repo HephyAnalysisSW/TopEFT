@@ -33,7 +33,7 @@ class triggerSelector:
         self.SingleElectron = "(%s)"%"||".join(self.e)
 
         # define an arbitrary hierarchy
-        self.PDHierarchy = [ "DoubleMuon", "DoubleMuon", "DoubleEG", "MuonEG", "SingleMuon", "SingleElectron" ]
+        self.PDHierarchy = [ "DoubleMuon", "DoubleEG", "MuonEG", "SingleMuon", "SingleElectron" ]
 
     def __getVeto(self, cutString):
         return "!%s"%cutString
