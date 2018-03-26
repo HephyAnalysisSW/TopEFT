@@ -12,7 +12,7 @@ config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../cfg/step1_DIGI_L1_DIGI2RAW_HLT_PU.py'
+config.JobType.psetName = '../cfg/step1_CMSSW_8_0_21.py'
 config.JobType.disableAutomaticOutputCollection = False
 
 config.section_("Data")

@@ -25,10 +25,10 @@ from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
+argParser.add_argument('--small',              default=True,        action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--overwrite',          action='store_true', help='Overwrite?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v2')
-argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
+argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_scan', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
 argParser.add_argument('--inputFiles',         action='store',      nargs = '*', default=[])
 argParser.add_argument('--targetSampleName',         action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
 argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,                          help="Maximum number of simultaneous jobs.")
@@ -56,7 +56,7 @@ maxN = -1
 if args.small: 
     args.targetDir += "_small"
     maxN = 500
-    sample.files=sample.files[:2]
+    sample.files=sample.files[:1]
 
 output_directory = os.path.join(skim_output_directory, 'gen', args.targetDir, sample.name) 
 if not os.path.exists( output_directory ): 
@@ -71,6 +71,7 @@ if args.nJobs>1:
     logger.info( "Running job %i/%i over %i files from a total of %i.", args.job, args.nJobs, n_files_after, n_files_before)
 
 products = {
+    'lhe':{'type':'LHEEventProduct', 'label':("externalLHEProducer")},
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
     'genJets':{'type':'vector<reco::GenJet>', 'label':("ak4GenJets")},
     'genMET':{'type':'vector<reco::GenMET>',  'label':("genMetTrue")},

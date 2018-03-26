@@ -18,6 +18,9 @@ if __name__ == "__main__":
     import RootTools.core.logger as logger_rt
     logger_rt = logger_rt.get_logger('DEBUG')
 
+# TTZ 931 gen with weights!
+fwlite_ttZ_ll_LO_scan = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan", "/ttZ0j_rwgt_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_21March18_lxplus-444e65ebb502b0f6da416595c061e0bb/USER", "phys03", dbFile=None)
+
 # FWLite TTZ benchmarks, first shot with approx same x-Sec of 0.5pb
 #fwlite_ttZ_sm   = FWLiteSample.fromFiles( "SM", texName = "SM", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ.root"] , dbFile = dbFile)
 #fwlite_ttZ_bm1  = FWLiteSample.fromFiles( "C1Vm1p0_C1A0p5", texName = "C1V=-1.0 C1A=0.5", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ_DC1A_0.500000_DC1V_-1.000000.root"] , dbFile = dbFile)
