@@ -96,7 +96,7 @@ class Setup:
         EEM = Run2016
         # MC
         TTZSample           = TTZtoLLNuNu
-        WZSample            = WZ
+        WZSample            = WZ_amcatnlo
         TTXSample           = TTX
         TTWSample           = TTW
         TZQSample           = TZQ

@@ -465,6 +465,20 @@ def getM3l( event, sample ):
 
 sequence.append( getM3l )
 
+def getWpt( event, sample):
+
+    # get the lepton and met
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+
+    # get the W boson candidate
+    W   = lepton + met
+    event.W_pt = W.Pt()
+
+sequence.append( getWpt )
+
 def getLeptonSelection( mode ):
   if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
   elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
@@ -509,6 +523,8 @@ for index, mode in enumerate(allModes):
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
+      if args.WZpowheg and sample in [WZ_powheg]:
+        sample.scale          = lumi_scale * 4.666/4.42965 # get same x-sec as amc@NLO
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
       sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F']
@@ -559,6 +575,13 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
+        binning=[20,0,400],
+    ))
+    
+    plots.append(Plot(
+        name = "W_pt",
+        texX = 'p_{T}(W) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample:event.W_pt,
         binning=[20,0,400],
     ))
     

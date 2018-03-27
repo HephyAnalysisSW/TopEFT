@@ -27,11 +27,11 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 from math                               import sqrt

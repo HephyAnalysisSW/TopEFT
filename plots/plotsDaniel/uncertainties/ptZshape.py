@@ -50,6 +50,10 @@ sample2 = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData
 
 
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
+WZselection = cutInterpreter.cutString('trilep-looseVeto-Zcand-lepSelTTZ-njet0p-btag0-onZloose')
+
+selection = WZselection
+
 weight_central  = "weight"
 weight_reweight = "weight * reweightTopPt"
 
@@ -117,9 +121,11 @@ plotting.draw(
             ),
     plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/topPt/",
     logX = False, logY = True, #sorting = True, 
-    yRange = (0.008,3.),
+    #yRange = (0.008,3.),
+    yRange = (0.03, 150.),
     #yRange = (0.03, [0.001,0.5]),
     ratio = {'yRange': (0.88, 1.12)},
+    #ratio = {'yRange': (0.5, 1.5)},
     scaling = {0:1},
     drawObjects = drawObjects()
 )

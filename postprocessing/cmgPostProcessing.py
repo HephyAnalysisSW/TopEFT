@@ -27,7 +27,6 @@ from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, el
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
-triggerSF = triggerEfficiency(options.year)
 
 #from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 #leptonTrackingSF        = leptonTrackingEfficiency()
@@ -77,6 +76,8 @@ def get_parser():
     return argParser
 
 options = get_parser().parse_args()
+
+triggerSF = triggerEfficiency(options.year)
 
 # Logging
 import TopEFT.Tools.logger as logger
