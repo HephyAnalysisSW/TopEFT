@@ -26,8 +26,6 @@ from TopEFT.Tools.addJERScaling              import addJERScaling
 from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, eleSelector, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
-from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
-triggerSF = triggerEfficiency(options.year)
 
 #from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
 #leptonTrackingSF        = leptonTrackingEfficiency()
@@ -53,7 +51,7 @@ def get_parser():
 
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
-    argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu_amcatnlo'],      help="List of samples to be post-processed, given as CMG component name")
+    argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu'],               help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
@@ -143,6 +141,9 @@ if isData and options.triggerSelection:
     logger.info("Sample will have the following trigger skim: %s"%triggerCond)
     skimConds.append( triggerCond )
 
+# Trigger SF
+from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
+triggerSF = triggerEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -304,7 +305,7 @@ if isMC:
     if isTiny:
         jetMCInfo = ['mcPt/F', 'hadronFlavour/I', 'mcMatchId/I']
     else:
-        jetMCInfo = ['mcMatchFlav/I', 'partonId/I', 'partonMotherId/I', 'mcPt/F', 'mcFlavour/I', 'hadronFlavour/I', 'mcMatchId/I', 'partonFlavour/I']
+        jetMCInfo = ['mcMatchFlav/I', 'partonId/I', 'partonMotherId/I', 'mcPt/F', 'mcFlavour/I', 'hadronFlavour/I', 'mcMatchId/I']
 else:
     jetMCInfo = []
 

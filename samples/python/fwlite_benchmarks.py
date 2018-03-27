@@ -19,7 +19,10 @@ if __name__ == "__main__":
     logger_rt = logger_rt.get_logger('DEBUG')
 
 # TTZ 931 gen with weights!
-fwlite_ttZ_ll_LO_scan = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan", "/ttZ0j_rwgt_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_21March18_lxplus-444e65ebb502b0f6da416595c061e0bb/USER", "phys03", dbFile=None)
+fwlite_ttZ_ll_LO_scan     = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan", "/ttZ0j_rwgt_patch_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_24March18-fc63c38760bbac18778f1ee1fe68cd42/USER", "phys03", dbFile = dbFile)
+fwlite_ttZ_ll_LO_scan.reweight_pkl = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/ttZ0j_rwgt_patch_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.pkl"
+
+#fwlite_ttZ_ll_LO_scan_old = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan_old", "/ttZ0j_rwgt_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_21March18_lxplus-444e65ebb502b0f6da416595c061e0bb/USER", "phys03", dbFile=None)
 
 # FWLite TTZ benchmarks, first shot with approx same x-Sec of 0.5pb
 #fwlite_ttZ_sm   = FWLiteSample.fromFiles( "SM", texName = "SM", files = ["/data/rschoefbeck/TopEFT/GEN/ewkDM_ttZ.root"] , dbFile = dbFile)
