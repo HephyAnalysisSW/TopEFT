@@ -184,6 +184,7 @@ def eleSelector( lepton_selection, year ):
                 return \
                     loose_(l) \
                     and l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=4
+                    #and l["relIso03"]<0.15
                     #and l["relIso03"] < 0.15\
                     #and l["sip3d"]<4.0\
                     #and l['convVeto']\
