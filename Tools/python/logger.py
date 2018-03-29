@@ -23,7 +23,10 @@ def get_logger(logLevel, logFile = None, add_sync_level = False):
         raise ValueError("Invalid log level: %s" % logLevel)
      
     logger.setLevel(numeric_level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    if add_sync_level:
+        formatter = logging.Formatter('%(message)s')
+    else:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     if logFile: 
       # create the logging file handler
       fileHandler = logging.FileHandler(logFile, mode='w')

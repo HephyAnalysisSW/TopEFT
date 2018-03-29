@@ -99,8 +99,8 @@ def muonSelector( lepton_selection, year):
                 and abs(l["dz"])<0.1
 
     elif lepton_selection == 'tight':
+        loose_ = muonSelector( 'loose', year )
         def func(l):
-            loose_ = muonSelector( 'loose', year )
             return \
                 loose_(l) \
                 and l["mediumMuonId"]>=1\
@@ -111,8 +111,8 @@ def muonSelector( lepton_selection, year):
                 # and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
+        loose_ = muonSelector( 'loose', year )
         def func(l):
-            loose_ = muonSelector( 'loose', year )
             return \
                 loose_(l) \
                 and l["mediumMuonId"]>=1 
@@ -178,21 +178,22 @@ def eleSelector( lepton_selection, year ):
                 and triggerEmulatorSelector(l) 
 
     elif lepton_selection == 'tight':
-        # The preliminary cut based Id resembles the 2016 and 2017 medium Id
+        loose_ = eleSelector( 'loose', year)
         if year == 2016:
             def func(l):
-                loose_ = eleSelector( 'loose', year)
                 return \
                     loose_(l) \
-                    and l["relIso03"] < 0.15\
-                    and l["sip3d"]<4.0\
-                    and l['convVeto']\
-                    and l['lostHits']<=1\
-                    and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["dPhiScTrkIn"])<0.103   and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.045  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
+                    and l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=4
+                    #and l["relIso03"]<0.15
+                    #and l["relIso03"] < 0.15\
+                    #and l["sip3d"]<4.0\
+                    #and l['convVeto']\
+                    #and l['lostHits']<=1\
+                    #and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["dPhiScTrkIn"])<0.103   and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.045  and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
         elif year == 2017:
             def func(l):
                 loose_ = eleSelector( 'loose', year)
@@ -211,6 +212,7 @@ def eleSelector( lepton_selection, year ):
                 #and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
+        loose_ = eleSelector( 'loose', year)
         def func(l):
             loose_ = eleSelector( 'loose', year)
             return \
@@ -235,7 +237,7 @@ def eleSelector( lepton_selection, year ):
 
     return func
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,mvaTTV/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 

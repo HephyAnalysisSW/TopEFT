@@ -6,6 +6,9 @@ from functools                      import partial
 
 from RootTools.core.standard        import *
 
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
+
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
 from TopEFT.Tools.niceColorPalette  import niceColorPalette
 from TopEFT.Tools.helpers           import getCouplingFromName
@@ -14,7 +17,6 @@ from TopEFT.Tools.resultsDB             import resultsDB
 from TopEFT.Tools.u_float               import u_float
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
-
 
 
 # Plot style
@@ -75,6 +77,7 @@ cardDir += "_lowUnc"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.plane]))
 
+print limitDir
 resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)
 
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
@@ -257,6 +260,10 @@ hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
+if args.useXSec:
+    postFix += "_useXSec"
+if args.useShape:
+    postFix += "_useShape"
 if args.smooth:
     hist.Smooth()
     postFix += "_smooth"
@@ -325,6 +332,7 @@ if not os.path.isdir(plotDir):
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
 
-debug.Draw("ap0")
-cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
+if False:
+    debug.Draw("ap0")
+    cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
 

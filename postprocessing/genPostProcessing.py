@@ -25,14 +25,15 @@ from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--small',              default=True,        action='store_true', help='Run only on a small subset of the data?')#, default = True)
+argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--overwrite',          action='store_true', help='Overwrite?')#, default = True)
 argParser.add_argument('--targetDir',          action='store',      default='v2')
 argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_scan', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
 argParser.add_argument('--inputFiles',         action='store',      nargs = '*', default=[])
-argParser.add_argument('--targetSampleName',         action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
-argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,                          help="Maximum number of simultaneous jobs.")
-argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,                         help="Run only job i")
+argParser.add_argument('--targetSampleName',   action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
+argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,  help="Maximum number of simultaneous jobs.")
+argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,  help="Run only job i")
+argParser.add_argument('--addReweights',       action='store_true',   help="Add reweights?")
 args = argParser.parse_args()
 
 #
@@ -55,8 +56,32 @@ else:
 maxN = -1
 if args.small: 
     args.targetDir += "_small"
-    maxN = 500
+    #maxN =1 # Number of files
     sample.files=sample.files[:1]
+
+# Load reweight pickle file if supposed to keep weights. 
+extra_variables = []
+if args.addReweights:
+    import pickle
+    reweight_pos = pickle.load(file(sample.reweight_pkl))
+    # Determine coefficients for storing in vector
+    reweight_coeff = reweight_pos.keys()[0].split('_')[::2]
+    # Sort Ids wrt to their position in the card file
+    all_reweight_ids = reweight_pos.keys()
+    all_reweight_ids.sort(key=lambda w: reweight_pos[w])
+    nrw = len(all_reweight_ids)
+
+    # for the ntuple
+    rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in reweight_coeff)+"]")
+    rw_vector.nMax  = nrw
+    extra_variables.append(rw_vector)
+
+def interpret_weight(weight_id):
+    str_s = weight_id.split('_')
+    res={}
+    for i in range(len(str_s)/2):
+        res[str_s[2*i]] = float(str_s[2*i+1].replace('m','-').replace('p','.'))
+    return res
 
 output_directory = os.path.join(skim_output_directory, 'gen', args.targetDir, sample.name) 
 if not os.path.exists( output_directory ): 
@@ -84,6 +109,7 @@ def varnames( vec_vars ):
 variables  = ["run/I", "lumi/I", "evt/l"]
 # MET
 variables += ["GenMet_pt/F", "GenMet_phi/F"]
+
 # jet vector
 jet_read_vars       =  "pt/F,eta/F,phi/F"
 jet_read_varnames   =  varnames( jet_read_vars )
@@ -106,6 +132,8 @@ variables     += ["Z_pt/F", "Z_phi/F", "Z_eta/F", "Z_mass/F", "Z_cosThetaStar/F"
 # gamma vector
 gamma_read_varnames= [ 'pt', 'phi', 'eta', 'mass']
 variables     += ["gamma_pt/F", "gamma_phi/F", "gamma_eta/F", "gamma_mass/F"]
+if args.addReweights:
+    variables.append('rw_nominal/F')
 
 def fill_vector( event, collection_name, collection_varnames, objects):
     setattr( event, "n"+collection_name, len(objects) )
@@ -120,6 +148,19 @@ def filler( event ):
     event.evt, event.lumi, event.run = reader.evt
 
     if reader.position % 100==0: logger.info("At event %i/%i", reader.position, reader.nEvents)
+
+    if args.addReweights:
+        event.nrw = nrw
+        lhe_weights = reader.products['lhe'].weights()
+        for weight in lhe_weights:
+            # Store nominal weight (First position!) 
+            if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
+            if not weight.id in all_reweight_ids: continue
+            pos = reweight_pos[weight.id]
+            event.rw_w[pos] = weight.wgt
+            interpreted_weight = interpret_weight(weight.id) 
+            for var in reweight_coeff:
+                getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
 
     # All gen particles
     gp      = reader.products['gp']
@@ -202,7 +243,7 @@ output_file = ROOT.TFile( output_filename, 'recreate')
 output_file.cd()
 maker = TreeMaker(
     sequence  = [ filler ],
-    variables = [ TreeVariable.fromString(x) for x in variables ],
+    variables = [ TreeVariable.fromString(x) for x in variables ] + extra_variables,
     treeName = "Events"
     )
 
