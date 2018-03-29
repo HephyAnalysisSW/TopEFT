@@ -1,153 +1,154 @@
 #!/bin/sh
 # 2016 backgrounds
  
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZToLLNuNu_ext # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo3LNu_amcatnlo # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo3LNu # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTWToLNu_ext TTWToLNu_ext2 # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTHnobb_pow # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tWll # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tZq_ll_ext # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo4L # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZZ # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWZ # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZZ # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWW # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZGTo2LG_ext # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WGToLNuG # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTGJets TTGJets_ext # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTTT # SPLIT20
-#
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTLep_pow #SPLIT40
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample GGHZZ4L #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TGJets TGJets_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZToLLNuNu_m1to10 #SPLIT2
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample VHToNonbb #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWDoubleTo2L #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WpWpJJ #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZ_LO #SPLIT20
-#
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_DiLepton TTJets_DiLepton_ext #SPLIT30
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_SingleLeptonFromT TTJets_SingleLeptonFromT_ext #SPLIT30
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_SingleLeptonFromTbar TTJets_SingleLeptonFromTbar_ext #SPLIT30
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50 # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M10to50_LO # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_LO_ext # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --LHEHTCut=70 --sample  DYJetsToLL_M50_LO_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_LO #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTHbb_ext3 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTTT #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo4L #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample THQ #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT70to100 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT100to200 DYJetsToLL_M50_HT100to200_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT200to400 DYJetsToLL_M50_HT200to400_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT400to600 DYJetsToLL_M50_HT400to600_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT600to800 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT800to1200 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT1200to2500 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT2500toInf #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT100to200 DYJetsToLL_M5to50_HT100to200_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT200to400 DYJetsToLL_M5to50_HT200to400_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT400to600 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT600toInf DYJetsToLL_M5to50_HT600toInf_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WJetsToLNu #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WJetsToLNu_LO #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TT_pow #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TT_pow_ext3 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTSemiLep_pow #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TToLeptons_sch_amcatnlo #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_sch_amcatnlo #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tch_powheg #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tch_powheg #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tWch_noFullyHad_ext TBar_tWch_noFullyHad #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tWch_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tWch_noFullyHad_ext T_tWch_noFullyHad #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tWch_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWTo2L2Nu #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo2L2Nu #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo2L2Q #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZJToLLLNu #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo2L2Q #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample VVTo2L2Nu VVTo2L2Nu_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZ WZ_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZ ZZ_ext #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tTW_LO #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZToLLNuNu_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo3LNu_amcatnlo # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo3LNu WZTo3LNu_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo3LNu_mllmin01 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTWToLNu_ext TTWToLNu_ext2 # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTHnobb_pow # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tWll # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tZq_ll_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo4L # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZZ # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWZ # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZZ # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWW # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZGTo2LG_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WGToLNuG # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTGJets TTGJets_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTTT # SPLIT20
+
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTLep_pow #SPLIT40
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample GGHZZ4L #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TGJets TGJets_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZToLLNuNu_m1to10 #SPLIT2
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample VHToNonbb #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWDoubleTo2L #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WpWpJJ #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTZ_LO #SPLIT20
+
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_DiLepton TTJets_DiLepton_ext #SPLIT30
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_SingleLeptonFromT TTJets_SingleLeptonFromT_ext #SPLIT30
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_SingleLeptonFromTbar TTJets_SingleLeptonFromTbar_ext #SPLIT30
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50 # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M10to50_LO # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_LO_ext # SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --LHEHTCut=70 --sample  DYJetsToLL_M50_LO_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets_LO #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTHbb_ext3 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTTT #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo4L #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample THQ #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT70to100 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT100to200 DYJetsToLL_M50_HT100to200_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT200to400 DYJetsToLL_M50_HT200to400_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT400to600 DYJetsToLL_M50_HT400to600_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT600to800 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT800to1200 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT1200to2500 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M50_HT2500toInf #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT100to200 DYJetsToLL_M5to50_HT100to200_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT200to400 DYJetsToLL_M5to50_HT200to400_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT400to600 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample DYJetsToLL_M5to50_HT600toInf DYJetsToLL_M5to50_HT600toInf_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WJetsToLNu #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WJetsToLNu_LO #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTJets #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TT_pow #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TT_pow_ext3 #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TTSemiLep_pow #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TToLeptons_sch_amcatnlo #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_sch_amcatnlo #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tch_powheg #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tch_powheg #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tWch_noFullyHad_ext TBar_tWch_noFullyHad #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample TBar_tWch_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tWch_noFullyHad_ext T_tWch_noFullyHad #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample T_tWch_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WWTo2L2Nu #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo2L2Nu #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZTo2L2Q #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZJToLLLNu #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZTo2L2Q #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample VVTo2L2Nu VVTo2L2Nu_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample WZ WZ_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ZZ ZZ_ext #SPLIT20
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample tTW_LO #SPLIT20
 #
 ## 2016 0j signals
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC2A_0p200000_DC2V_0p200000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p500000_DC1V_0p500000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_1p000000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000 # SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 #SPLIT20
-#python cmgPostProcessing.py --skim trilep --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC2A_0p200000_DC2V_0p200000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p500000_DC1V_m1p000000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p500000_DC1V_0p500000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_1p000000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000 # SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 #SPLIT20
+#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_v21 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 #SPLIT20
 
 
 ## 2016 MET/JetHT/HTMHT data 
 #
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --processingEra TopEFT_PP_v21 --sample  MET_Run2016H_03Feb2017_v3 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016B_03Feb2017_v2 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016C_03Feb2017 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016D_03Feb2017 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016E_03Feb2017 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016F_03Feb2017 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016G_03Feb2017 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016H_03Feb2017_v2 #SPLIT20
+#python cmgPostProcessing.py  --skim singlelep --year 2016 --processingEra TopEFT_PP_v21 --sample  MET_Run2016H_03Feb2017_v3 #SPLIT20
 
 ## 2016 trilep data 
 #
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016H_03Feb2017_v3 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016B_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016C_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016D_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016E_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016F_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016G_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016H_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleMuon_Run2016H_03Feb2017_v3 #SPLIT20
+
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016B_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016C_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016D_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016E_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016F_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016G_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016H_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016H_03Feb2017_v3 #SPLIT20
+
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016B_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016C_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016D_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016E_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016F_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016G_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016H_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016H_03Feb2017_v3 #SPLIT20
+
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016B_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016C_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016D_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016E_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016F_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016G_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016H_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016H_03Feb2017_v3 #SPLIT20
 #
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  DoubleEG_Run2016H_03Feb2017_v3 #SPLIT20
-#
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  MuonEG_Run2016H_03Feb2017_v3 #SPLIT20
-#
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleMuon_Run2016H_03Feb2017_v3 #SPLIT20
-##
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016B_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016C_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016D_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016E_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016F_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016G_03Feb2017 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT20
-#python cmgPostProcessing.py  --triggerSelection --skim trilep --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016B_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016C_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016D_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016E_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016F_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016G_03Feb2017 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016H_03Feb2017_v2 #SPLIT20
+python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2016 --processingEra TopEFT_PP_2016_v21 --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT20
 
 ## 2017 data 
 #python cmgPostProcessing.py  --triggerSelection --skim trilep --year 2017 --processingEra TopEFT_PP_2017_v20 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT20

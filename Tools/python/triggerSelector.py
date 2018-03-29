@@ -23,7 +23,7 @@ class triggerSelector:
             self.emm    = ["HLT_mme"]
 
         else:
-            raise NotImplementedError
+            raise NotImplementedError("Trigger selection %r not implemented"%year)
 
         # define which triggers should be used for which dataset
         self.DoubleMuon     = "(%s)"%"||".join(self.mmm + self.mm)

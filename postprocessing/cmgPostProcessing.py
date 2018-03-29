@@ -68,9 +68,10 @@ def get_parser():
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
+    argParser.add_argument('--remakeTTVLeptonMVA',          action='store_true',                                                    default=True,                       help="Remake TTV lepton MVA?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
-    argParser.add_argument('--year',                        action='store',                     type=int,                           default=2016, choices=[2016,2017],  help="Which year?")
+    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
 
     return argParser
 
@@ -242,6 +243,9 @@ try:    #Avoid trouble with race conditions in multithreading
 except:
     pass
 
+if options.remakeTTVLeptonMVA:
+    from TopEFT.Tools.leptonMVA import leptonMVA
+    mva = leptonMVA(options.year)
 
 if isTiny:
     #branches to be kept for data and MC
@@ -339,8 +343,9 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync: lepton_branches_read += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagCSV/F,jetBTagCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I'
-lepton_branches_store = lepton_branches_read
+if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+# For the moment store all the branches that we read
+lepton_branches_store = lepton_branches_read+',mvaTTV/F'
 
 # store this extra Id information
 extra_lep_ids = ['tight', 'FO', 'tight_SS', 'FO_SS']
@@ -504,6 +509,11 @@ def filler( event ):
     ele_selector = eleSelector( "loose", year = options.year )
     leptons      = getLeptons(r, collVars=lepton_vars_read, mu_selector = mu_selector, ele_selector = ele_selector)
     leptons.sort(key = lambda p:-p['pt'])
+
+    # remake lepton TTV MVA 
+    if options.remakeTTVLeptonMVA:
+        for lep in leptons:
+            lep['mvaTTV'] = mva(lep)
 
     # Store leptons
     event.nlep = len(leptons)
