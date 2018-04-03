@@ -33,7 +33,7 @@ class leptonMVA:
                 MVAVar("pTRel", lambda lep: lep['jetPtRelv2']),
                 MVAVar("ptRatio", lambda lep: min(lep['jetPtRatiov2'], 1.5)),
                 MVAVar("relIso", lambda lep: lep['relIso03']),
-                MVAVar("deepCsvClosestJet", lambda lep: max( lep['jetBTagCSV'] ,0.)),
+                MVAVar("deepCsvClosestJet", lambda lep: max( lep['jetBTagDeepCSV'] ,0.)),
                 MVAVar("sip3d",lambda lep: lep['sip3d']),
                 MVAVar("dxy",lambda lep: log(abs(lep['dxy']))),
                 MVAVar("dz", lambda lep: log(abs(lep['dz']))),
@@ -59,7 +59,7 @@ class leptonMVA:
                 MVAVar("pTRel", lambda lep: lep['jetPtRelv2']),
                 MVAVar("ptRatio", lambda lep: min(lep['jetPtRatiov2'], 1.5)),
                 MVAVar("relIso", lambda lep: lep['relIso03']),
-                MVAVar("deepCsvClosestJet", lambda lep: max( lep['jetBTagCSV'] ,0.)),
+                MVAVar("deepCsvClosestJet", lambda lep: max( lep['jetBTagDeepCSV'] ,0.)),
                 MVAVar("sip3d",lambda lep: lep['sip3d']),
                 MVAVar("dxy",lambda lep: log(abs(lep['dxy']))),
                 MVAVar("dz", lambda lep: log(abs(lep['dz']))),
@@ -89,16 +89,16 @@ class leptonMVA:
         if abs(lep['pdgId'])==11:
             for mvavar in self.el_vars:
                 mvavar.var[0] = mvavar.func(lep)
-                print 'e', mvavar.name, mvavar.func(lep)
-            print 'e mva', self.el_reader.EvaluateMVA("mvaTTV")  
-            print
+#                print 'e', mvavar.name, mvavar.func(lep)
+#            print 'e mva', self.el_reader.EvaluateMVA("mvaTTV")  
+#            print
             return self.el_reader.EvaluateMVA("mvaTTV")
         elif abs(lep['pdgId'])==13:
             for mvavar in self.mu_vars:
                 mvavar.var[0] = mvavar.func(lep)
-                print 'm', mvavar.name, mvavar.func(lep)
-            print 'mu mva', self.mu_reader.EvaluateMVA("mvaTTV")  
-            print
+#                print 'm', mvavar.name, mvavar.func(lep)
+#            print 'mu mva', self.mu_reader.EvaluateMVA("mvaTTV")  
+#            print
             return self.mu_reader.EvaluateMVA("mvaTTV")
         else:
             raise NotImplementedError

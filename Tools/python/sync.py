@@ -21,10 +21,10 @@ def print_leptons( leps ):
     for i_lep, lep in enumerate( leps ):
         logger.sync( "lepton %2i pdgId %+2i tight %i pt/eta/phi %7.3f/%+3.2f/%+3.2f MVA %+7.6f"%( i_lep, lep['pdgId'], lep['tight'], lep['pt'], lep['eta'], lep['phi'], lep['mvaTTV'] ) )
         if abs(lep['pdgId'])==13:
-            logger.sync( " "*20 + "trkMult %4.3f mRelIsoCh %4.3f mRelIsoNeu %4.3f ptrel %4.3f ptratio %4.3f iso03 %4.3f jetCSV %4.3f sip3d %4.3f segmComp %4.3f", \
-                lep['trackMult'], lep['miniRelIsoCharged'], lep['miniRelIsoNeutral'], lep['jetPtRelv2'], lep['jetPtRatiov2'], lep['relIso03'], lep['jetBTagCSV'], lep['sip3d'], lep['segmentCompatibility'] )
+            logger.sync( " "*20 + "trkMult %6.5f mRelIsoCh %6.5f mRelIsoNeu %6.5f ptrel %6.5f ptratio %6.5f iso03 %6.5f jetDeepCSV %6.5f sip3d %6.5f segmComp %6.5f", \
+                lep['trackMult'], lep['miniRelIsoCharged'], lep['miniRelIsoNeutral'], lep['jetPtRelv2'], lep['jetPtRatiov2'], lep['relIso03'], lep['jetBTagDeepCSV'], lep['sip3d'], lep['segmentCompatibility'] )
             logger.sync( " "*20 + "mediumMuonId %i", lep['mediumMuonId'] )
         if abs(lep['pdgId'])==11:
             logger.sync( " "*20 + "convVeto %i tightCharge %i lostHits %i", lep['convVeto'], lep['tightCharge'], lep['lostHits'] )
-            logger.sync( " "*20 + "trkMult %4.3f mRelIsoCh %4.3f mRelIsoNeu %4.3f ptrel %4.3f ptratio %4.3f iso03 %4.3f jetCSV %4.3f sip3d %4.3f eleMVA %4.3f", \
-                lep['trackMult'], lep['miniRelIsoCharged'], lep['miniRelIsoNeutral'], lep['jetPtRelv2'], lep['jetPtRatiov2'], lep['relIso03'], lep['jetBTagCSV'], lep['sip3d'], lep['mvaIdSpring16'] )
+            logger.sync( " "*20 + "trkMult %6.5f mRelIsoCh %6.5f mRelIsoNeu %6.5f ptrel %6.5f ptratio %6.5f iso03 %6.5f jetDeepCSV %6.5f sip3d %6.5f eleMVA %6.5f", \
+                lep['trackMult'], lep['miniRelIsoCharged'], lep['miniRelIsoNeutral'], lep['jetPtRelv2'], lep['jetPtRatiov2'], lep['relIso03'], lep['jetBTagDeepCSV'], lep['sip3d'], lep['mvaIdSpring16'] )

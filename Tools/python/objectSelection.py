@@ -84,6 +84,8 @@ lepton_selections = ['loose', 'tight', 'FO', 'tight_SS', 'FO_SS']
 # muons 
 def muonSelector( lepton_selection, year):
 
+    tight_mva_threshold = 0.8
+
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about muon selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
 
@@ -103,12 +105,12 @@ def muonSelector( lepton_selection, year):
         def func(l):
             return \
                 loose_(l) \
-                and l["mediumMuonId"]>=1\
-                and l["relIso03"]<0.15\
-                and l["sip3d"]<4.0\
-                and l['lostHits']<=1
+                and l["mvaTTV"] > tight_mva_threshold
+                #and l["mediumMuonId"]>=1\
+                #and l["relIso03"]<0.15\
+                #and l["sip3d"]<4.0\
+                #and l['lostHits']<=1
                 ## -> future
-                # and l["mvaTTV"] > tight_mva_threshold
 
     elif lepton_selection == 'FO':
         loose_ = muonSelector( 'loose', year )
@@ -160,7 +162,7 @@ def triggerEmulatorSelector(l):
 
 
 def eleSelector( lepton_selection, year ):
-
+    tight_mva_threshold = 0.8
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
 
@@ -183,7 +185,8 @@ def eleSelector( lepton_selection, year ):
             def func(l):
                 return \
                     loose_(l) \
-                    and l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=4
+                    and l["mvaTTV"] > tight_mva_threshold
+                    #and l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=4
                     #and l["relIso03"]<0.15
                     #and l["relIso03"] < 0.15\
                     #and l["sip3d"]<4.0\
@@ -199,17 +202,16 @@ def eleSelector( lepton_selection, year ):
                 loose_ = eleSelector( 'loose', year)
                 return \
                     loose_(l) \
-                    and l["relIso03"] < 0.15\
-                    and l["sip3d"]<4.0\
-                    and l['convVeto']\
-                    and l['lostHits']<=1\
-                    and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["dPhiScTrkIn"])<0.0588  and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.0355  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) )\
-                    and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
-                # future -->
-                #and l["mvaTTV"] > tight_mva_threshold
+                    and l["mvaTTV"] > tight_mva_threshold
+                    #and l["relIso03"] < 0.15\
+                    #and l["sip3d"]<4.0\
+                    #and l['convVeto']\
+                    #and l['lostHits']<=1\
+                    #and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["dPhiScTrkIn"])<0.0588  and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.0355  and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) )\
+                    #and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
 
     elif lepton_selection == 'FO':
         loose_ = eleSelector( 'loose', year)

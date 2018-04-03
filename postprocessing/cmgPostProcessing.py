@@ -343,7 +343,7 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F'
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from TopEFT.Tools.helpers import checkRootFile
 

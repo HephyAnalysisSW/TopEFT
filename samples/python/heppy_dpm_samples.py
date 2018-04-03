@@ -156,7 +156,7 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as hep
 data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
 
 # Summer16 MC
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v1_3.pkl'
+mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v1_4.pkl'
 robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
 mc_dpm_directories = robert_2016_1l_v1
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
