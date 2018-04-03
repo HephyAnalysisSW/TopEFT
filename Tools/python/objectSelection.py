@@ -78,7 +78,6 @@ def getGenPartsAll(c):
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
-tight_mva_threshold = 0.85
 lepton_selections = ['loose', 'tight', 'FO', 'tight_SS', 'FO_SS']
 
 # muons 
@@ -162,7 +161,9 @@ def triggerEmulatorSelector(l):
 
 
 def eleSelector( lepton_selection, year ):
+
     tight_mva_threshold = 0.8
+
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
 
