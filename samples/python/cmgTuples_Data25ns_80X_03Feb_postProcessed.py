@@ -20,7 +20,8 @@ logger.info("Loading data samples from directory %s", os.path.join(data_director
 
 dirs = {}
 for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
-    runTag = 'Run2016' + run + '_03Feb2017' + version + '_TriggerStrategy2018'
+    #runTag = 'Run2016' + run + '_03Feb2017' + version + '_TriggerStrategy2018'
+    runTag = 'Run2016' + run + '_03Feb2017' + version
     dirs["DoubleEG_Run2016"         + run + version ] = ["DoubleEG_"          + runTag ]
     dirs["DoubleMuon_Run2016"       + run + version ] = ["DoubleMuon_"        + runTag ]
     dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag ]

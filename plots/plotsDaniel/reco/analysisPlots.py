@@ -31,6 +31,7 @@ argParser.add_argument('--reweightPtZToSM', action='store_true', help='Reweight 
 argParser.add_argument('--plot_directory',     action='store',      default='80X_v20')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
+argParser.add_argument('--WZpowheg',           action='store_true', default=False,             help="Use WZ powheg sample" )
 args = argParser.parse_args()
 
 #
@@ -46,16 +47,17 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
+if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
 if args.normalize: args.plot_directory += "_normalize"
 if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
@@ -453,6 +455,30 @@ def getCosThetaStar( event, sample ):
 
 sequence.append( getCosThetaStar )
 
+def getM3l( event, sample ):
+    # get the invariant mass of the 3l system
+    l = []
+    for i in range(3):
+        l.append(ROOT.TLorentzVector())
+        l[i].SetPtEtaPhiM(event.lep_pt[i], event.lep_eta[i], event.lep_phi[i],0)
+    event.threelmass = (l[0] + l[1] + l[2]).M()
+
+sequence.append( getM3l )
+
+def getWpt( event, sample):
+
+    # get the lepton and met
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+
+    # get the W boson candidate
+    W   = lepton + met
+    event.W_pt = W.Pt()
+
+sequence.append( getWpt )
+
 def getLeptonSelection( mode ):
   if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
   elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
@@ -488,12 +514,17 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZ_mc ]
     else:
-        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare, TTLep_pow, DY_HT_LO ]
+        if args.WZpowheg:
+            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_powheg, rare, TTLep_pow, DY_HT_LO, singleTop ]
+        else:
+            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_amcatnlo, rare, TTLep_pow, DY_HT_LO, singleTop ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
+      if args.WZpowheg and sample in [WZ_powheg]:
+        sample.scale          = lumi_scale * 4.666/4.42965 # get same x-sec as amc@NLO
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
       sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F']
@@ -544,7 +575,14 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[25,0,500],
+        binning=[20,0,400],
+    ))
+    
+    plots.append(Plot(
+        name = "W_pt",
+        texX = 'p_{T}(W) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample:event.W_pt,
+        binning=[20,0,400],
     ))
     
     plots.append(Plot(
@@ -563,6 +601,13 @@ for index, mode in enumerate(allModes):
         name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[4,0,400],
+    ))
+    
+    plots.append(Plot(
+        name = "invM_3l",
+        texX = 'M(3l) (GeV)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.threelmass,
+        binning=[25,0,500],
     ))
     
     plots.append(Plot(

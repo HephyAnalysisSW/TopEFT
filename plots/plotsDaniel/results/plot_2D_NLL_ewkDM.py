@@ -6,6 +6,9 @@ from functools                      import partial
 
 from RootTools.core.standard        import *
 
+data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
+
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
 from TopEFT.Tools.niceColorPalette  import niceColorPalette
 from TopEFT.Tools.helpers           import getCouplingFromName
@@ -14,7 +17,6 @@ from TopEFT.Tools.resultsDB             import resultsDB
 from TopEFT.Tools.u_float               import u_float
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
-
 
 
 # Plot style
@@ -32,6 +34,7 @@ argParser.add_argument('--model', action='store', choices=["ewkDM", "dim6top_LO"
 argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
+argParser.add_argument("--prefit",         action='store_true', help="Use pre-fit NLL?")
 argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 
 args = argParser.parse_args()
@@ -75,9 +78,11 @@ cardDir += "_lowUnc"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.plane]))
 
+print limitDir
 resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)
 
 fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
+
 
 # get the absolute post fit NLL value of pure ttZ
 if args.model == "ewkDM":
@@ -85,7 +90,10 @@ if args.model == "ewkDM":
 elif args.model == "dim6top_LO":
     ttZ_res = resDB.getDicts({"signal":dim6top_central.name})[0]
 
-ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
+if args.prefit:
+    ttZ_NLL_abs = float(ttZ_res["NLL_prefit"])
+else:
+    ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
 
 print "Max Likelihood ttZ SM"
 print "{:10.2f}".format(ttZ_NLL_abs)
@@ -165,7 +173,10 @@ for i,s in enumerate(signals):
         #res = getResult(s)
         print s.name
         if type(res) == type({}):
-            limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+            if args.prefit:
+                limit = float(res["NLL_prefit"]) - ttZ_NLL_abs
+            else:
+                limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
             if limit >= 0:
                 # good result
@@ -257,6 +268,12 @@ hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
 hist.GetZaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
+if args.prefit:
+    postFix += "_prefit"
+if args.useXSec:
+    postFix += "_useXSec"
+if args.useShape:
+    postFix += "_useShape"
 if args.smooth:
     hist.Smooth()
     postFix += "_smooth"
@@ -325,6 +342,7 @@ if not os.path.isdir(plotDir):
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
 
-debug.Draw("ap0")
-cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
+if False:
+    debug.Draw("ap0")
+    cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
 

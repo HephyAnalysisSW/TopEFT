@@ -77,6 +77,8 @@ def get_parser():
 
 options = get_parser().parse_args()
 
+triggerSF = triggerEfficiency(options.year)
+
 # Logging
 import TopEFT.Tools.logger as logger
 logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job[0]))

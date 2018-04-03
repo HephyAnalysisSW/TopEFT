@@ -134,12 +134,12 @@ def triggerEmulatorSelector(l):
 
     ECSc = abs(l["etaSc"])>1.479
 
-    if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
-    if abs(l["dPhiScTrkIn"])        >= (0.04+0.03*ECSc):     return False
-    if abs(l["dEtaScTrkIn"])        >= (0.01-0.002*ECSc):    return False
+    if l["full5x5_sigmaIetaIeta"]   >= (0.00998+0.01922*ECSc):   return False
+    if abs(l["dPhiScTrkIn"])        >= (0.0816-0.0422*ECSc):     return False
+    if abs(l["dEtaScTrkIn"])        >= (0.00308+0.00297*ECSc):    return False
     if l["eInvMinusPInv"]           <= -0.05:                return False
-    if l["eInvMinusPInv"]           >= (0.01-0.005*ECSc):    return False
-    if l["hadronicOverEm"]          >= (0.10-0.03*ECSc):     return False
+    if l["eInvMinusPInv"]           >= (0.0129-0.0*ECSc):    return False
+    if l["hadronicOverEm"]          >= (0.0414+0.0227*ECSc):     return False
     return True
 
 

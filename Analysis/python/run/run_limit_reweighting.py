@@ -4,19 +4,20 @@ import os
 import argparse
 from RootTools.core.Sample import Sample
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',       action='store', default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
-argParser.add_argument("--signal",         action='store', default='dipole',          nargs='?', choices=["dipoles", "currents"], help="which signal scan?")
-argParser.add_argument("--model",         action='store', default='dim6top_LO',          nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal model?")
-argParser.add_argument("--only",           action='store', default=None,            nargs='?',                                                                                           help="pick only one signal point?")
-argParser.add_argument("--scale",          action='store', default=1.0, type=float, nargs='?',                                                                                           help="scaling all yields")
-argParser.add_argument("--overwrite",      default = False, action = "store_true", help="Overwrite existing output files")
-argParser.add_argument("--popFromSR",      default = False, action = "store", help="Remove one signal region?")
+argParser.add_argument('--logLevel',       action='store',      default='INFO',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
+argParser.add_argument("--signal",         action='store',      default='dipole',       nargs='?', choices=["dipoles", "currents"], help="which signal scan?")
+argParser.add_argument("--model",          action='store',      default='dim6top_LO',   nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal model?")
+argParser.add_argument("--only",           action='store',      default=None,           nargs='?',                                                                                           help="pick only one signal point?")
+argParser.add_argument("--scale",          action='store',      default=1.0,            type=float,nargs='?',                                                                                help="scaling all yields")
+argParser.add_argument("--overwrite",      action='store_true', default = False,        help="Overwrite existing output files")
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
-argParser.add_argument("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+argParser.add_argument("--controlRegion",  action='store',      default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
-argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+argParser.add_argument("--year",           action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+
 
 args = argParser.parse_args()
 
@@ -27,11 +28,11 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 from math                               import sqrt
@@ -329,12 +330,13 @@ def wrapper(s):
         res = resDB.getDicts(key)[0]
         logger.info("Found result for %s, reusing", s.name)
     else:
-        # calculate the limit
-        #limit = c.calcLimit(cardFileName)#, options="--run blind")
+        # We don't calculate limits here, but just in case we find a way how to do it, put placeholders here
         res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
-        c.calcNuisances(cardFileName)
+        # Don't extract all the nuisances by default
+        if args.calcNuisances:
+            c.calcNuisances(cardFileName)
         # extract the NLL
-        nll = c.calcNLL(cardFileName, options="--fastScan")
+        nll = c.physicsModel(cardFileName, options="--fastScan") # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
         else:
@@ -348,17 +350,8 @@ def wrapper(s):
     print "{:>15}{:>15}{:>15}".format("Pre-fit", "Post-fit r=1", "Best fit")
     print "{:15.2f}{:15.2f}{:15.2f}".format(float(res["NLL_prefit"]), float(res["NLL_prefit"])+float(res["dNLL_postfit_r1"]), float(res["NLL_prefit"])+float(res["dNLL_bestfit"]))
     
-    #if res: 
-    #    try:
-    #        print "Result: %r obs %5.3f exp %5.3f -1sigma %5.3f +1sigma %5.3f"%(s.name, res['-1.000'], res['0.500'], res['0.160'], res['0.840'])
-    #        return sConfig, res
-    #    except:
-    #        print "Problem with limit: %r" + str(res)
-    #        return None
-
 
 from TopEFT.samples.gen_fwlite_benchmarks import *
-#jobs = allSamples_dim6top
 if args.model == "dim6top_LO":
     if args.signal == "dipoles":
         jobs = [dim6top_central] + dim6top_dipoles
@@ -379,10 +372,7 @@ if args.only is not None:
         jobNames = [ x.name for x in jobs ]
         print jobNames[145]
         print len(jobs)
-        #try:
         wrapper(jobs[jobNames.index(args.only)])
-        #except ValueError:
-        #    logger.info("Couldn't find sample %s", args.only)
     exit(0)
 
 results = map(wrapper, jobs)

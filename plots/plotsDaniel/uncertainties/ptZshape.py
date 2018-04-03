@@ -37,7 +37,23 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 sample  = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
 sample2 = Sample.fromDirectory(name="TTZ_NLO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu_ext'])
 
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
+
+dirs = {}
+dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
+dirs['WZTo3LNu']     = ['WZTo3LNu']
+directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
+
+sample  = Sample.fromDirectory(name="WZTo3LNu_amcatnlo", treeName="Events", isData=False, color=color.TTJets, texName="WZ MG (NLO)", directory=directories['WZTo3LNu_amcatnlo'])
+sample2 = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData=False, color=color.TTJets, texName="WZ powheg (NLO)", directory=directories['WZTo3LNu'])
+
+
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
+WZselection = cutInterpreter.cutString('trilep-looseVeto-Zcand-lepSelTTZ-njet0p-btag0-onZloose')
+
+selection = WZselection
+
 weight_central  = "weight"
 weight_reweight = "weight * reweightTopPt"
 
@@ -70,9 +86,11 @@ h_CTS_central_NLO.style = styles.lineStyle( ROOT.kOrange, width=2, errors=True )
 h_CTS_reweight_NLO.style = styles.lineStyle( ROOT.kGreen+1, width=2, errors=True )
 
 
-h_central.legendText = "t#bar{t}Z (LO)"
+#h_central.legendText = "t#bar{t}Z (LO)"
+h_central.legendText = "WZ MG (NLO)"
 h_reweight.legendText = "t#bar{t}Z (LO), p_{T}(t) reweighted"
-h_central_NLO.legendText = "t#bar{t}Z, Z#rightarrowll (NLO)"
+#h_central_NLO.legendText = "t#bar{t}Z, Z#rightarrowll (NLO)"
+h_central_NLO.legendText = "WZ powheg (NLO)"
 h_reweight_NLO.legendText = "t#bar{t}Z, Z#rightarrowll (NLO), p_{T}(t) rew."
 
 h_CTS_central.legendText = "t#bar{t}Z (LO)"
@@ -94,37 +112,39 @@ def drawObjects( ):
 
 #plots = [[ h_central ], [ h_reweight ]]
 #plots = [[ h_central ], [ h_central_NLO ]]
-plots = [[ h_central_NLO ], [ h_reweight_NLO ]]
+plots = [[ h_central ], [ h_central_NLO ]]
 
 plotting.draw(
-    Plot.fromHisto("Z_pt_topPtReweighted_NLO",
+    Plot.fromHisto("WZ_Z_pt",
                 plots,
                 texX = "p_{T}(Z) (GeV)"
             ),
     plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/topPt/",
     logX = False, logY = True, #sorting = True, 
-    yRange = (0.008,3.),
+    #yRange = (0.008,3.),
+    yRange = (0.03, 150.),
     #yRange = (0.03, [0.001,0.5]),
     ratio = {'yRange': (0.88, 1.12)},
+    #ratio = {'yRange': (0.5, 1.5)},
     scaling = {0:1},
     drawObjects = drawObjects()
 )
 
-plots = [[ h_CTS_central ], [ h_CTS_reweight ]]
-#plots = [[ h_CTS_central ], [ h_CTS_central_NLO ]]
-#plots = [[ h_CTS_central_NLO ], [ h_CTS_reweight_NLO ]]
-
-plotting.draw(
-    Plot.fromHisto("cosThetaStar_topPtReweighted",
-                plots,
-                texX = "cos(#theta*)"
-            ),
-    plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/topPt/",
-    logX = False, logY = True, #sorting = True, 
-    yRange = (0.008,3.),
-    #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.88, 1.12)},
-    scaling = {0:1},
-    drawObjects = drawObjects()
-)
+#plots = [[ h_CTS_central ], [ h_CTS_reweight ]]
+##plots = [[ h_CTS_central ], [ h_CTS_central_NLO ]]
+##plots = [[ h_CTS_central_NLO ], [ h_CTS_reweight_NLO ]]
+#
+#plotting.draw(
+#    Plot.fromHisto("cosThetaStar_topPtReweighted",
+#                plots,
+#                texX = "cos(#theta*)"
+#            ),
+#    plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/topPt/",
+#    logX = False, logY = True, #sorting = True, 
+#    yRange = (0.008,3.),
+#    #yRange = (0.03, [0.001,0.5]),
+#    ratio = {'yRange': (0.88, 1.12)},
+#    scaling = {0:1},
+#    drawObjects = drawObjects()
+#)
 
