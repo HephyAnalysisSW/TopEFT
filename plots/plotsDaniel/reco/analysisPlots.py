@@ -479,6 +479,13 @@ def getWpt( event, sample):
 
 sequence.append( getWpt )
 
+def getLooseLeptonMult( event, sample ):
+    leptons = [getObjDict(event, 'lep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId','mediumMuonId'], i) for i in range(len(event.lep_pt))]
+    lepLoose = [ l for l in leptons if l['pt'] > 10 and ((l['mediumMuonId'] and abs(l['pdgId'])==13) or abs(l['pdgId'])==11)  ]
+    event.nLepLoose = len(lepLoose)
+
+sequence.append( getLooseLeptonMult )
+
 def getLeptonSelection( mode ):
   if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
   elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
@@ -814,6 +821,12 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nJetSelected/I" ), #nJetSelected
+      binning=[5,2.5,7.5],
+    ))
+    
+    plots.append(Plot(
+      texX = 'N_{l, loose}', texY = 'Number of Events',
+      name = 'nLepLoose', attribute = lambda event, sample: event.nLepLoose,
       binning=[5,2.5,7.5],
     ))
     
