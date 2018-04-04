@@ -104,8 +104,8 @@ def muonSelector( lepton_selection, year):
         def func(l):
             return \
                 loose_(l) \
+                and l["mediumMuonId"]>=1\
                 and l["mvaTTV"] > tight_mva_threshold
-                #and l["mediumMuonId"]>=1\
                 #and l["relIso03"]<0.15\
                 #and l["sip3d"]<4.0\
                 #and l['lostHits']<=1
