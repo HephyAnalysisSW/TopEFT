@@ -27,9 +27,6 @@ from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, el
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 
-#from TopEFT.Tools.leptonTrackingEfficiency   import leptonTrackingEfficiency
-#leptonTrackingSF        = leptonTrackingEfficiency()
-
 # for syncing
 import TopEFT.Tools.sync as sync
 
@@ -145,6 +142,10 @@ if isData and options.triggerSelection:
 # Trigger SF
 from TopEFT.Tools.triggerEfficiency          import triggerEfficiency
 triggerSF = triggerEfficiency(options.year)
+
+# Tracking SF
+from TopEFT.Tools.leptonTrackingEfficiency import leptonTrackingEfficiency
+leptonTrackingSF = leptonTrackingEfficiency()
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -369,7 +370,7 @@ if isMC:
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
-    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F', 'reweightTrigger/F', 'reweightTriggerUp/F', 'reweightTriggerDown/F'])
+    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F', 'reweightTrigger/F', 'reweightTriggerUp/F', 'reweightTriggerDown/F', 'reweightLeptonTrackingSF/F','reweightLeptonTrackingSFUp/F', 'reweightLeptonTrackingSFDown/F'])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -478,6 +479,9 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
+        event.reweightLeptonTrackingSF      = 0
+        event.reweightLeptonTrackingSFUp    = 0
+        event.reweightLeptonTrackingSFDown  = 0
         event.reweightTrigger       = 0
         event.reweightTriggerUp     = 0
         event.reweightTriggerDown   = 0
@@ -540,6 +544,18 @@ def filler( event ):
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
     if isMC and len(tightLeptons)>0:
+        
+        event.reweightLeptonTrackingSF      = 1.
+        event.reweightLeptonTrackingSFUp    = 1.
+        event.reweightLeptonTrackingSFDown  = 1.
+
+        for l in tightLeptons:
+            eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
+            trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
+            event.reweightLeptonTrackingSF      *= trackingSF
+            event.reweightLeptonTrackingSFUp    *= (trackingSF + trackingSF_err)
+            event.reweightLeptonTrackingSFDown  *= (trackingSF - trackingSF_err)
+            
         trigg, trigg_err = triggerSF.getSF(tightLeptons)
         event.reweightTrigger       = trigg
         event.reweightTriggerUp     = trigg + trigg_err

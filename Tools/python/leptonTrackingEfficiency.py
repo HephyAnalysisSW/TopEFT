@@ -6,9 +6,9 @@ import os, math
 import logging
 logger = logging.getLogger(__name__)
 
-e_file   = '$CMSSW_BASE/src/StopsDilepton/Tools/data/leptonSFData/egammaEffi.txt_EGM2D.root'
+e_file   = '$CMSSW_BASE/src/TopEFT/Tools/data/leptonSFData/egammaEffi.txt_EGM2D.root'
 e_key    = "EGamma_SF2D"
-m_file   = '$CMSSW_BASE/src/StopsDilepton/Tools/data/leptonSFData/Tracking_EfficienciesAndSF_BCDEFGH.root'
+m_file   = '$CMSSW_BASE/src/TopEFT/Tools/data/leptonSFData/Tracking_EfficienciesAndSF_BCDEFGH.root'
 m_key    = "ratio_eff_eta3_dr030e030_corr"
 
 class leptonTrackingEfficiency:
@@ -39,12 +39,17 @@ class leptonTrackingEfficiency:
                 logger.warning( "Supercluster eta out of bounds: %3.2f (need %3.2f <= eta <=% 3.2f)", eta, self.e_etaMin, self.e_etaMax )
                 eta = self.e_etaMin
 
-            if pt>self.e_ptMax: pt=self.e_ptMax - 1 
-            elif pt<=self.e_ptMin: pt=self.e_ptMin + 1
-            val = self.e_sf.GetBinContent( self.e_sf.FindBin(eta, pt) )
-            if pt > 80: addUnc = 0.01 * val # Additional 1% on ele with pt > 80
+            if pt > self.e_ptMax: 
+                pt_forVal = self.e_ptMax - 1 
+            elif pt <= self.e_ptMin:
+                pt_forVal = self.e_ptMin + 1
+            else:
+                pt_forVal = pt
+            val     = self.e_sf.GetBinContent( self.e_sf.FindBin(eta, pt_forVal) )
+            valErr  = self.e_sf.GetBinError( self.e_sf.FindBin(eta, pt_forVal) )
+            
+            if pt > 80 or pt < 20: addUnc = 0.01 * val # Additional 1% on ele with pt > 80
             else: addUnc = 0.
-            valErr = self.e_sf.GetBinError( self.e_sf.FindBin(eta, pt) )
             
             valErr = math.sqrt(valErr**2 + addUnc**2)
 
