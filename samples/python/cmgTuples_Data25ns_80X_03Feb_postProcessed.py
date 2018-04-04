@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 # Data directory
 try:    data_directory = sys.modules['__main__'].data_directory
 except:
-    #from TopEFT.Tools.user import data_directory
-    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    from TopEFT.Tools.user import data_directory
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory

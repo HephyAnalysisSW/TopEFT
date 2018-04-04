@@ -478,6 +478,10 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
+        event.reweightTrigger       = 0
+        event.reweightTriggerUp     = 0
+        event.reweightTriggerDown   = 0
+
     elif isData:
         event.weight = 1
     else:

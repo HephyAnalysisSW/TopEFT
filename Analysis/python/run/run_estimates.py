@@ -3,7 +3,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
-parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
 parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data"], help="Choose which sample to run the estimates for")
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 (options, args) = parser.parse_args()
@@ -31,12 +31,8 @@ from RootTools.core.standard import *
 from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 import TopEFT.Tools.logger as logger
@@ -67,6 +63,8 @@ if options.controlRegion:
         setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(0,0)})
     elif options.controlRegion == 'nbtag0-njet0p':
         setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
+    elif options.controlRegion == 'nbtag0-njet1p':
+        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
     else:
         raise NotImplementedError
 
