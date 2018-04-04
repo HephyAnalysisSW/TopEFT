@@ -41,12 +41,13 @@ dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWTo
 dirs['rare']            = ["WGToLNuG","WWZ","WZZ","ZGTo2LG_ext","ZZTo4L","ZZZ", "ZZTo2L2Nu", "ZZTo2L2Q"] # should be complete
 
 dirs['TTLep_pow']       = ['TTLep_pow']
-dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg']
+dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_powheg']
 
 dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_ext_lheHT70','DYJetsToLL_M50_HT70to100', 'DYJetsToLL_M50_HT100to200_comb', 'DYJetsToLL_M50_HT200to400_comb', 'DYJetsToLL_M50_HT400to600_comb', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT1200to2500', 'DYJetsToLL_M50_HT2500toInf']
 dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext'] #,'DYJetsToLL_M10to50_LO']
 
-dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_HT_LO'] + dirs['singleTop']
+#dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_HT_LO'] + dirs['singleTop']
+dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
 dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
 
@@ -77,7 +78,7 @@ TTW             = Sample.fromDirectory(name="TTW",              treeName="Events
 TZQ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,               texName="tZq",                                directory=directories['TZQ'])
 rare            = Sample.fromDirectory(name="rare",             treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
 DY_LO           = Sample.fromDirectory(name="DY_LO",            treeName="Events", isData=False, color=color.DY,                texName="DY (LO)",                              directory=directories['DY_LO'])
-DY_HT_LO           = Sample.fromDirectory(name="DY_HT_LO",            treeName="Events", isData=False, color=ROOT.kBlue+1,                texName="DY HT (LO)",                              directory=directories['DY_HT_LO'])
+DY_HT_LO        = Sample.fromDirectory(name="DY_HT_LO",         treeName="Events", isData=False, color=ROOT.kBlue+1,                texName="DY HT (LO)",                              directory=directories['DY_HT_LO'])
 nonprompt       = Sample.fromDirectory(name="nonprompt",        treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt",                            directory=directories['nonprompt'])
 TTLep_pow       = Sample.fromDirectory(name="TTLep_pow",        treeName="Events", isData=False, color=color.TTJets,         texName="t#bar{t}(2l)",                            directory=directories['TTLep_pow'])
 singleTop       = Sample.fromDirectory(name="singleTop",        treeName="Events", isData=False, color=color.singleTop,         texName="t/#bar{t}",                            directory=directories['singleTop'])

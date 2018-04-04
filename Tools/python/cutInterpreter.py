@@ -11,7 +11,7 @@ mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
     #"looseLeptonVeto":   "Sum$(lep_pt>15&&lep_relIso03<0.4)==2",
-    "dilep":             "nlep==2",
+    "dilep":             "nGoodLeptons==2",
     "SSdilep":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])>0",
 #    "lepSelTTW":         "lep_pt[1]>25&&(
     "dilepOFOS":         "nGoodElectrons==1&&nGoodMuons==1&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
@@ -23,7 +23,8 @@ special_cuts = {
     "quadlep":           "nGoodLeptons==4",
     "Zcand":             "Z_mass>0",
 #    "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
-    "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight>0&&lep_relIso03<0.15)>0 && Sum$(lep_pt>20&&lep_tight>0&&lep_relIso03<0.15)>1 && Sum$(lep_pt>10&&lep_tight>0&&lep_relIso03<0.15)>2",
+#    "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight>0&&lep_relIso03<0.15)>0 && Sum$(lep_pt>20&&lep_tight>0&&lep_relIso03<0.15)>1 && Sum$(lep_pt>10&&lep_tight>0&&lep_relIso03<0.15)>2",
+    "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>0 && Sum$(lep_pt>20&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>1 && Sum$(lep_pt>10&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>2",
     "lepSelTTG":         "lep_pt[0]>40&&lep_pt[1]>20",
     "lepSelTTZ4l":       "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&lep_pt[3]>10",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
