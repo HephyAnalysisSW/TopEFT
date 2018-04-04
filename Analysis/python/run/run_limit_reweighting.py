@@ -13,7 +13,7 @@ argParser.add_argument("--overwrite",      action='store_true', default = False,
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
-argParser.add_argument("--controlRegion",  action='store',      default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+argParser.add_argument("--controlRegion",  action='store',      default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
 argParser.add_argument("--year",           action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
@@ -70,6 +70,8 @@ if args.controlRegion:
         setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(0,0)})
     elif args.controlRegion == 'nbtag0-njet0p':
         setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
+    elif args.controlRegion == 'nbtag0-njet1p':
+        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
     else:
         raise NotImplementedError
 else:
