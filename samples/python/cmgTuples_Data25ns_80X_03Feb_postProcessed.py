@@ -13,7 +13,7 @@ except:
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_v20/trilep'
+except: postProcessing_directory = 'TopEFT_PP_2016_mva_v2/trilep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 

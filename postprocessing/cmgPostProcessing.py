@@ -26,7 +26,8 @@ from TopEFT.Tools.addJERScaling              import addJERScaling
 from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, eleSelector, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
-
+from TopEFT.Tools.puProfileCache             import puProfile
+from TopEFT.Tools.user                       import results_directory
 # for syncing
 import TopEFT.Tools.sync as sync
 
@@ -162,12 +163,20 @@ else:
 
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
-    mcProfile = "Summer16"
-    # nTrueIntReweighting
-    nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
-    nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
-    nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
-        
+    if options.year == 2016:
+        mcProfile = "Summer16"
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
+    elif options.year == 2017:
+        # keep the weight name for now. Should we update to a more general one?
+        mcProfile = "Fall17"
+        puProfiles = puProfile( source_sample = samples[0] )
+        mcHist = puProfiles.cachedTemplate( selection="(1)", weight='genWeight', overwrite=False )
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcProfile, mcHist=mcHist)
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcProfile, mcHist=mcHist)
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcProfile, mcHist=mcHist)
+
 # top pt reweighting
 # Decision based on sample name -> whether TTJets or TTLep is in the sample name
 isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow") or sample.name.startswith("TTZ")

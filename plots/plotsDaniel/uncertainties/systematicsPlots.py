@@ -26,7 +26,7 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',          action='store',      default='INFO',     nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--signal',            action='store',      default='None',        nargs='?', choices=['None', 'ewkDM'], help="Add signal to plot")
 argParser.add_argument('--noData',            action='store_true', default=False,       help='also plot data?')
-argParser.add_argument('--plot_directory',    action='store',      default='systematicsPlots_80X_v1')
+argParser.add_argument('--plot_directory',    action='store',      default='systematicsPlots_80X_mva_v2')
 argParser.add_argument('--selection',         action='store',            default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--selectSys',         action='store',      default='all')
 #argParser.add_argument('--noMultiThreading',  action='store_true', default='False', help="noMultiThreading?") # Need no multithreading when doing batch-to-natch
@@ -55,7 +55,7 @@ bJetSelectionM  = "nBTag"
 jet_systematics    = ['JECUp','JECDown']# 'JERDown','JECVUp','JECVDown']
 met_systematics    = ['UnclusteredEnUp', 'UnclusteredEnDown']
 jme_systematics    = jet_systematics + met_systematics
-weight_systematics = ['PU36fbUp', 'PU36fbDown', 'BTagDeepCSV_SF_b_Down', 'BTagDeepCSV_SF_b_Up', 'BTagDeepCSV_SF_l_Down', 'BTagDeepCSV_SF_l_Up']
+weight_systematics = ['PU36fbUp', 'PU36fbDown', 'BTagDeepCSV_SF_b_Down', 'BTagDeepCSV_SF_b_Up', 'BTagDeepCSV_SF_l_Down', 'BTagDeepCSV_SF_l_Up', 'TriggerUp','TriggerDown', 'LeptonTrackingSFDown', 'LeptonTrackingSFUp']
 
 
 if args.selectSys != "all" and args.selectSys != "combine": all_systematics = [args.selectSys if args.selectSys != 'None' else None]
@@ -70,6 +70,8 @@ sys_pairs = [\
 #   ('JER',         'JERUp', 'JERDown'),
     ('BTag_b',      'BTagDeepCSV_SF_b_Down', 'BTagDeepCSV_SF_b_Up' ),
     ('BTag_l',      'BTagDeepCSV_SF_l_Down', 'BTagDeepCSV_SF_l_Up'),
+    ('trigger',     'TriggerDown', 'TriggerUp'),
+    ('tracker',     'LeptonTrackingSFDown', 'LeptonTrackingSFUp')
 ]
 
 #
@@ -118,9 +120,9 @@ except: pass
 # Make samples, will be searched for in the postProcessing directory
 #
 
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
 signals = []
@@ -178,12 +180,23 @@ def addSys( selectionString , sys = None ):
 
 
 def weightMC( sys = None ):
-    if sys is None:                 return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightBTagDeepCSV_SF, "weight*reweightPU36fb*reweightBTagDeepCSV_SF")
-    elif 'PU' in sys:               return (lambda event, sample:event.weight*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweight"+sys)
-    elif 'BTag' in sys:             return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweightBTagDeepCSV_SF*reweight"+sys)
-    elif sys in weight_systematics: return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweightBTagDeepCSV_SF*reweight"+sys)
-    elif sys in jme_systematics :   return weightMC( sys = None )
-    else:                           raise ValueError( "Systematic %s not known"%sys )
+    # weights used right now: PU, BTag, trigger, tracking
+    if sys is None:
+        return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightBTagDeepCSV_SF*event.reweightTrigger*event.reweightLeptonTrackingSF,"weight * reweightPU36fb * reweightBTagDeepCSV_SF * reweightTrigger * reweightLeptonTrackingSF")
+    elif 'PU' in sys:
+        return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightTrigger*event.reweightLeptonTrackingSF*getattr(event, "reweight"+sys), "weight * reweightBTagDeepCSV_SF * reweightTrigger * reweightLeptonTrackingSF * reweight"+sys)
+    elif 'BTag' in sys:
+        return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightTrigger*event.reweightLeptonTrackingSF*getattr(event, "reweight"+sys), "weight * reweightPU36fb * reweightTrigger * reweightLeptonTracking * reweight"+sys)
+    elif 'Trigger' in sys:
+        return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightBTagDeepCSV_SF*event.reweightLeptonTrackingSF*getattr(event, "reweight"+sys), "weight * reweightPU36fb * reweightBTagDeepCSV_SF * reweightLeptonTracking * reweight"+sys)
+    elif 'Tracking' in sys:
+        return (lambda event, sample:event.weight*event.reweightPU36fb*event.reweightBTagDeepCSV_SF*event.reweightTrigger*getattr(event, "reweight"+sys), "weight * reweightPU36fb * reweightBTagDeepCSV_SF * reweightTrigger * reweight"+sys)
+    #elif sys in weight_systematics:
+    #    return (lambda event, sample:event.weight*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*getattr(event, "reweight"+sys), "weight*reweightPU36fb*reweightBTagDeepCSV_SF*reweight"+sys)
+    elif sys in jme_systematics :
+        return weightMC( sys = None )
+    else:
+        raise ValueError( "Systematic %s not known"%sys )
     
 #
 # Read variables and sequences
@@ -199,7 +212,7 @@ def getLeptonSelection( mode ):
   elif mode=="mumue":   return "nGoodMuons==2&&nGoodElectrons==1"
   elif mode=="muee":    return "nGoodMuons==1&&nGoodElectrons==2"
   elif mode=="eee":     return "nGoodMuons==0&&nGoodElectrons==3"
-  elif mode=="all":     return "nlep==3"
+  elif mode=="all":     return "nGoodLeptons==3"
 
 
 #
@@ -232,7 +245,7 @@ for index, mode in enumerate(allModes):
     logger.info('Lumi scale is ' + str(lumi_scale))
 
     TTZ_mc = TTZtoLLNuNu
-    mc    = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare, nonprompt ]
+    mc    = [ TTZ_mc , TTW, TZQ, TTX, WZ_powheg, rare, nonprompt ]
 
     if args.small:
         for sample in mc:# + ([data_sample] if type(data_sample)!=type([]) else data_sample):
@@ -241,7 +254,7 @@ for index, mode in enumerate(allModes):
     for sample in mc:
         sample.scale           = lumi_scale
         sample.style           = styles.fillStyle(sample.color, lineColor = sample.color)
-        sample.read_variables  = ['reweightBTagDeepCSV_SF/F','reweightPU36fb/F','nTrueInt/F']
+        sample.read_variables  = ['reweightBTagDeepCSV_SF/F','reweightPU36fb/F','nTrueInt/F', 'reweightTrigger/F', 'reweightLeptonTrackingSF/F', 'Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I']
         sample.read_variables += ["reweight%s/F"%s    for s in weight_systematics]
         sample.read_variables += ["nJetSelected_%s/I"%s   for s in jet_systematics]
         sample.read_variables += ["nBTag_%s/I"%s      for s in jet_systematics]
@@ -252,6 +265,9 @@ for index, mode in enumerate(allModes):
         #s.read_variables = ['reweightBTagCSVv2_SF/F','reweightPU36fb/F','nTrueInt/F']
         #s.weight         = lambda event, sample: event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb
         s.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
+
+    for sample in [data_sample]:
+        sample.read_variables  = ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I']
 
     # Use some defaults
     Plot.setDefaults( selectionString = cutInterpreter.cutString(args.selection) )
@@ -341,28 +357,17 @@ for index, mode in enumerate(allModes):
     
     ZptBinning = [0, 100, 200, 400, 800]
 
-    #Zpt_data  = Plot( 
-    #    name            = "Z_pt_data",
-    #    texX            = 'p_{T}(Z) (GeV)', 
-    #    texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Events",
-    #    stack           = stack_data, 
-    #    attribute       = TreeVariable.fromString( "Z_pt/F" ),
-    #    binning         = Binning.fromThresholds( ZptBinning ),
-    #    weight          = data_weight,
-    #    )
-    #plots.append( Zpt_data )
-    
-    Zpt_data  = Plot(
+    Zpt_data  = Plot( 
         name            = "Z_pt_data",
-        texX            = 'p_{T}(Z) (GeV)',
+        texX            = 'p_{T}(Z) (GeV)', 
         texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Events",
-        stack           = stack_data,
+        stack           = stack_data, 
         attribute       = TreeVariable.fromString( "Z_pt/F" ),
         binning         = Binning.fromThresholds( ZptBinning ),
-        #weight          = data_weight,
+        weight          = data_weight,
         )
     plots.append( Zpt_data )
-
+    
     Zpt_mc  = {sys: Plot(
         name            = "Z_pt" if sys is None else "Z_pt_mc_%s" % sys,
         texX            = 'p_{T}(Z) (GeV)',
@@ -375,15 +380,38 @@ for index, mode in enumerate(allModes):
         ) for sys in all_systematics }
     plots.extend( Zpt_mc.values() )
 
-    metBinning = [0,80,130,180,230,280,320,420,520,800]
+    ZptBinning_fine = range(0,650,50)
+    
+    Zpt_data_fine  = Plot(
+        name            = "Z_pt_data_fine",
+        texX            = 'p_{T}(Z) (GeV)',
+        texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Events",
+        stack           = stack_data,
+        attribute       = TreeVariable.fromString( "Z_pt/F" ),
+        binning         = Binning.fromThresholds( ZptBinning_fine ),
+        weight          = data_weight,
+        )
+    plots.append( Zpt_data_fine )
+
+    Zpt_mc_fine  = {sys: Plot(
+        name            = "Z_pt_fine" if sys is None else "Z_pt_mc_%s" % sys,
+        texX            = 'p_{T}(Z) (GeV)',
+        texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Events",
+        stack           = sys_stacks[sys],
+        attribute       = TreeVariable.fromString('Z_pt/F'),
+        binning         = Binning.fromThresholds( ZptBinning_fine ),
+        selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
+        weight          = weightMC( sys = sys )[0],
+        ) for sys in all_systematics }
+    plots.extend( Zpt_mc_fine.values() )
 
     met_data  = Plot( 
         name            = "met_data",
         texX            = 'E_{T}^{miss} (GeV)', 
-        texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Event",
+        texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Event / 50 GeV",
         stack           = stack_data, 
         attribute       = TreeVariable.fromString( "met_pt/F" ),
-        binning         = Binning.fromThresholds( metBinning ),
+        binning         = [10,0,500],
         weight          = data_weight,
         )
     plots.append( met_data )
@@ -391,47 +419,126 @@ for index, mode in enumerate(allModes):
     met_mc  = {sys: Plot(
         name            = "met_pt" if sys is None else "met_pt_mc_%s" % sys,
         texX            = 'E_{T}^{miss} (GeV)',
-        texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Event",
+        texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Event / 50 GeV",
         stack           = sys_stacks[sys],
         attribute       = TreeVariable.fromString('met_pt/F') if sys not in met_systematics else TreeVariable.fromString( "met_pt_%s/F" % sys ),
-        binning         = Binning.fromThresholds( metBinning ),
+        binning         = [10,0,500],
         selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
         weight          = weightMC( sys = sys )[0],
         ) for sys in all_systematics }
     plots.extend( met_mc.values() )
 
-    metBinning2 = [0,20,40,60,80] if args.selection.count('metInv') else [80,100,120,140,160,200,500] if args.selection.count('met80') else [0,80,100,120,140,160,200,500]
 
-    met2_data  = Plot(
-        name            = "met2_data",
-        texX            = 'E_{T}^{miss} (GeV)',
-        texY            = 'Number of Events / 20 GeV' if args.normalizeBinWidth else "Number of Event",
+    massBinning = range(80,102,2)
+
+    mass_data  = Plot(
+        name            = "mass_data",
+        texX            = 'M(ll) (GeV)',
+        texY            = 'Number of Events / 2 GeV' if args.normalizeBinWidth else "Number of Event",
         stack           = stack_data,
-        attribute       = TreeVariable.fromString( "met_pt/F" ),
-        binning         = Binning.fromThresholds( metBinning2 ),
+        attribute       = TreeVariable.fromString( "Z_mass/F" ),
+        binning         = Binning.fromThresholds( massBinning ),
         weight          = data_weight,
         )
-    plots.append( met2_data )
+    plots.append( mass_data )
 
-    met2_mc  = {sys: Plot(
-        name            = "met2_pt" if sys is None else "met2_pt_mc_%s" % sys,
-        texX            = 'E_{T}^{miss} (GeV)',
-        texY            = 'Number of Events / 20 GeV' if args.normalizeBinWidth else "Number of Event",
+    mass_mc  = {sys: Plot(
+        name            = "Z_mass" if sys is None else "met_pt_mc_%s" % sys,
+        texX            = 'M(ll) (GeV)',
+        texY            = 'Number of Events / 2 GeV' if args.normalizeBinWidth else "Number of Event",
         stack           = sys_stacks[sys],
-        attribute       = TreeVariable.fromString('met_pt/F') if sys not in met_systematics else TreeVariable.fromString( "met_pt_%s/F" % sys ),
-        binning         = Binning.fromThresholds( metBinning2 ),
+        attribute       = TreeVariable.fromString('Z_mass/F'),
+        binning         = Binning.fromThresholds( massBinning ),
         selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
         weight          = weightMC( sys = sys )[0],
         ) for sys in all_systematics }
-    plots.extend( met2_mc.values() )
+    plots.extend( mass_mc.values() )
+
+    # leptons
+
+    Zl1_pt_data  = Plot(
+        name            = "Zl1_pt_data",
+        texX            = 'p_{T}(l_{1,Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = stack_data,
+#        attribute       = TreeVariable.fromString('lep_pt[Z_l1_index/I]/F'),
+        attribute       = lambda event, sample:event.lep_pt[event.Z_l1_index],
+        binning         = [40,0,400],
+        weight          = data_weight,
+        )
+    plots.append( Zl1_pt_data )
+
+    Zl1_pt_mc  = {sys: Plot(
+        name            = "Zl1_pt",
+        texX            = 'p_{T}(l_{1,Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = sys_stacks[sys],
+#        attribute       = TreeVariable.fromString('lep_pt[Z_l1_index/I]/F'),
+        attribute       = lambda event, sample:event.lep_pt[event.Z_l1_index],
+        binning         = [40,0,400],
+        selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
+        weight          = weightMC( sys = sys )[0],
+        ) for sys in all_systematics }
+    plots.extend( Zl1_pt_mc.values() )
+
+    Zl2_pt_data  = Plot(
+        name            = "Zl2_pt_data",
+        texX            = 'p_{T}(l_{2,Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = stack_data,
+        attribute       = lambda event, sample:event.lep_pt[event.Z_l2_index],
+        binning         = [20,0,200],
+        weight          = data_weight,
+        )
+    plots.append( Zl2_pt_data )
+
+    Zl2_pt_mc  = {sys: Plot(
+        name            = "Zl2_pt",
+        texX            = 'p_{T}(l_{2,Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = sys_stacks[sys],
+        attribute       = lambda event, sample:event.lep_pt[event.Z_l2_index],
+        binning         = [20,0,200],
+        selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
+        weight          = weightMC( sys = sys )[0],
+        ) for sys in all_systematics }
+    plots.extend( Zl2_pt_mc.values() )
+
+    nonZl1_pt_data  = Plot(
+        name            = "nonZl1_pt_data",
+        texX            = 'p_{T}(l_{1,non-Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = stack_data,
+        attribute       = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+        binning         = [20,0,200],
+        weight          = data_weight,
+        )
+    plots.append( nonZl1_pt_data )
+
+    nonZl1_pt_mc  = {sys: Plot(
+        name            = "nonZl1_pt",
+        texX            = 'p_{T}(l_{1,non-Z}) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = sys_stacks[sys],
+        attribute       = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+        binning         = [20,0,200],
+        selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
+        weight          = weightMC( sys = sys )[0],
+        ) for sys in all_systematics }
+    plots.extend( nonZl1_pt_mc.values() )
 
     plotConfigs = [\
             [ nbtags_mc, nbtags_data, -1],
             [ njets_mc, njets_data, -1],
             [ cosThetaStar_mc, cosThetaStar_data, 1],
             [ Zpt_mc, Zpt_data, 1 ],
-            [ met_mc, met_data, 50],
-            [ met2_mc, met2_data, 20],
+            [ Zpt_mc_fine, Zpt_data_fine, -1 ],
+            [ met_mc, met_data, 1],
+            [ mass_mc, mass_data, -1],
+            [ Zl1_pt_mc, Zl1_pt_data, -1],
+            [ Zl2_pt_mc, Zl2_pt_data, -1],
+            [ nonZl1_pt_mc, nonZl1_pt_data, -1],
+
     ]
 
     result_file = os.path.join(plot_directory, args.plot_directory, mode, args.selection, 'results.pkl')
@@ -499,19 +606,26 @@ for index, mode in enumerate(allModes):
 
             # Adding in quadrature
             for k in h_sys.keys():
+                print k
                 for ib in range( 1 + h_rel_err.GetNbinsX() ):
+                  print h_sys[k].GetBinContent(ib)
                   h_rel_err.SetBinContent(ib, h_rel_err.GetBinContent(ib) + h_sys[k].GetBinContent(ib)**2 )
 
             # In case one wants to add uncertainties to specific backgrounds (like x-sec), that can be done here
             if True:
                 for ib in range(1 + h_rel_err.GetNbinsX() ):
+                    counts = [ shapeHists[x].GetBinContent(ib) for x in mc ]
+                    totalCount = sum(counts)
+                    print "Count in bin %s: %.2f"%(ib, totalCount)
                     shapeUnc = [ 0 ]
                     shapeUnc.append( (0.50*shapeHists[rare].GetBinContent(ib))**2 )
-                    shapeUnc.append( (0.10*shapeHists[WZ].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.11*shapeHists[WZ_powheg].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.30*shapeHists[nonprompt].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TTX].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TZQ].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TTZ_mc].GetBinContent(ib))**2 ) # mockup for PDF and scale
+                    shapeUnc.append( (0.025*(totalCount))**2 )
+                    #shapeUnc.append( (0.5*(totalCount))**2 )
                     h_rel_err.SetBinContent(ib, h_rel_err.GetBinContent(ib) + sum( shapeUnc ) )
 
             # take sqrt

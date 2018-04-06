@@ -44,8 +44,7 @@ default_nBTags      = (1, -1)
 default_metMin      = 0
 
 
-#### TRIGGER WEIGHTS NEED TO BE ADDED ASAP. MVA v3 ff should have the correct weights ##########
-default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None}
+default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF', 'reweightTrigger', 'reweightLeptonTrackingSF'], 'selectionModifier':None}
 default_parameters   = {
             'mllMin':        default_mllMin,
             'metMin':        default_metMin,
@@ -154,11 +153,12 @@ class Setup:
                 elif k=='reweight':
                     res.sys[k] = list(set(res.sys[k]+sys[k])) #Add with unique elements
                     for upOrDown in ['Up','Down']:
-                      if 'reweightPU36fb'+upOrDown             in res.sys[k]: res.sys[k].remove('reweightPU36fb')
-                      if 'reweightTrigger'+upOrDown in res.sys[k]: res.sys[k].remove('reweightTrigger')
-                      if 'reweightBTagDeepCSV_SF_b_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
-                      if 'reweightBTagDeepCSV_SF_l_'+upOrDown         in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
-                      if 'reweightLeptonSF'+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF')
+                      if 'reweightPU36fb'+upOrDown                  in res.sys[k]: res.sys[k].remove('reweightPU36fb')
+                      if 'reweightTrigger'+upOrDown                 in res.sys[k]: res.sys[k].remove('reweightTrigger')
+                      if 'reweightBTagDeepCSV_SF_b_'+upOrDown       in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
+                      if 'reweightBTagDeepCSV_SF_l_'+upOrDown       in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
+                      if 'reweightLeptonTrackingSF'+upOrDown        in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF')
+                      if 'reweightLeptonSF'+upOrDown                in res.sys[k]: res.sys[k].remove('reweightLeptonSF')
                 else:
                     res.sys[k] = sys[k] # if sys[k] else res.sys[k]
 

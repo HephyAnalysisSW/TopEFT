@@ -29,10 +29,10 @@ import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 
-postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 from math                               import sqrt
@@ -155,6 +155,10 @@ elif year == 20167:
     PDFset = "NNPDF30"
     TTZ_sample = "TTZ_NLO"
     logger.info("Will use PDF and scale uncertainties based on 2016.")
+
+# always use PDF4LHC set for now, only included in Fall17
+TTZ_sample = "TTZ_NLO_17"
+PDFset = "PDF4LHC15_nlo_100"
 
 PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%PDFset
 PDF_cache   = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PDF", ["region", "channel", "PDFset"])

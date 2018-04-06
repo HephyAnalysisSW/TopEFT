@@ -20,41 +20,44 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_2017_v14/dilep/"
+  postProcessing_directory = "TopEFT_PP_2017_mva_v2/trilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 
 dirs = {}
-dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu", "TTZToLLNuNu_m1to10"]
+dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_amc"]
 
 # all inclusive right now
-dirs["WW"]              = ["WW"]
-dirs["WZ"]              = ["WZ"]
-dirs["ZZ"]              = ["ZZ"]
+dirs["WZ_amcatnlo"]     = ["WZTo3LNu_fxfx"]
 
-dirs["TTW"]             = ["TTWToLNu"]
+dirs['TTW']             = ["TTWToLNu_fxfx"]
+dirs['TTX']             = ["TTGJets", "TTHnobb_pow"] # should be complete
+dirs['TZQ']             = ["TZQToLL"]
 
 dirs['TTLep_pow']       = ['TTLep_pow']
 dirs['DY']              = ['DYJetsToLL_M50'] #amc@NLO
 #dirs['DY_LO']           = ['DYJetsToLL_M50_LO','DYJetsToLL_M10to50_LO']
+dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_comb_lheHT100','DYJetsToLL_M50_HT100to200', 'DYJetsToLL_M50_HT200to400', 'DYJetsToLL_M50_HT400to600', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT2500toInf']
+dirs['DY_LO']           = ['DYJetsToLL_M50_LO_comb']
 
-dirs['nonprompt']       = ['TTLep_pow']
+
+dirs['nonprompt']       = ['TTLep_pow', 'DYJetsToLL_M50_LO_comb']
 
 #dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
 
-dirs['rare']            = ["WW","ZZ"] # almost everything missing
+dirs['rare']            = ["WWW","WZZ","ZZTo4L_comb"] # not complete yet
 
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-TTZtoLLNuNu_17      = Sample.fromDirectory(name="TTZtoLLNuNu_17",       treeName="Events", isData=False, color=color.TTZtoLLNuNu,       texName="t#bar{t}Z (l#bar{l}/#nu#bar{#nu})",    directory=directories['TTZtoLLNuNu'])
-WW_17               = Sample.fromDirectory(name="WW_17",                treeName="Events", isData=False, color=color.WW,                texName="WW",                                   directory=directories['WW'])
-WZ_17               = Sample.fromDirectory(name="WZ_17",                treeName="Events", isData=False, color=color.WZ,                texName="WZ",                                   directory=directories['WZ'])
-ZZ_17               = Sample.fromDirectory(name="ZZ_17",                treeName="Events", isData=False, color=color.ZZ,                texName="ZZ",                                   directory=directories['ZZ'])
-DY_17               = Sample.fromDirectory(name="DY_17",                treeName="Events", isData=False, color=color.DY,                texName="DY (LO)",                              directory=directories['DY'])
-TTW_17              = Sample.fromDirectory(name="TTW_17",               treeName="Events", isData=False, color=color.TTW,               texName="t#bar{t}W",                                   directory=directories['TTW'])
-TTLep_pow_17        = Sample.fromDirectory(name="TTLep_pow_17",         treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}",                             directory=directories['TTLep_pow'])
-nonprompt_17        = Sample.fromDirectory(name="nonprompt",            treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt",                            directory=directories['nonprompt'])
-rare_17             = Sample.fromDirectory(name="rare",                 treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
+TTZtoLLNuNu_17      = Sample.fromDirectory(name="TTZtoLLNuNu_17",   treeName="Events", isData=False, color=color.TTZtoLLNuNu,       texName="t#bar{t}Z (l#bar{l}/#nu#bar{#nu})",    directory=directories['TTZtoLLNuNu'])
+DY_HT_LO_17         = Sample.fromDirectory(name="DY_HT_LO_17",      treeName="Events", isData=False, color=color.DY,                texName="DY HT (LO)",                           directory=directories['DY_HT_LO'])
+TTX_17              = Sample.fromDirectory(name="TTX_17",           treeName="Events", isData=False, color=ROOT.kRed-10,            texName="t(t)X",                                directory=directories['TTX'])
+TTW_17              = Sample.fromDirectory(name="TTW_17",           treeName="Events", isData=False, color=color.TTW,               texName="t#bar{t}W",                            directory=directories['TTW'])
+TZQ_17              = Sample.fromDirectory(name="TZQ_17",           treeName="Events", isData=False, color=ROOT.kOrange+7,    texName="tZq",                                  directory=directories['TZQ'])
+TTLep_pow_17        = Sample.fromDirectory(name="TTLep_pow_17",     treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}",                             directory=directories['TTLep_pow'])
+nonprompt_17        = Sample.fromDirectory(name="nonprompt_17",     treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt",                            directory=directories['nonprompt'])
+rare_17             = Sample.fromDirectory(name="rare_17",          treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
+WZ_amcatnlo_17      = Sample.fromDirectory(name="WZ_17",            treeName="Events", isData=False, color=color.WZ,                texName="WZ",                                   directory=directories['WZ_amcatnlo'])
 
