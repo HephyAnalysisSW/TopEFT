@@ -12,7 +12,7 @@ except: from TopEFT.Tools.user import data_directory
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_2017_v19/dilep'
+except: postProcessing_directory = 'TopEFT_PP_2017_mva_v2/trilep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -20,14 +20,19 @@ dirs = {}
 
 for (run, version) in [('B',''),('C',''),('D',''),('E',''),('F','')]:
     runTag = 'Run2017' + run + '_17Nov2017' + version
-    dirs["DoubleEG_Run2017"   + run + version ] = ["DoubleEG_"    + runTag ]
+    dirs["DoubleEG_Run2017"         + run + version ] = ["DoubleEG_"          + runTag ]
     dirs["DoubleMuon_Run2017"       + run + version ] = ["DoubleMuon_"        + runTag ]
+    dirs["SingleElectron_Run2017"   + run + version ] = ["SingleElectron_"    + runTag ]
+    dirs["SingleMuon_Run2017"       + run + version ] = ["SingleMuon_"        + runTag ]
+    dirs["MuonEG_Run2017"           + run + version ] = ["MuonEG_"            + runTag ]
+    runTag = 'Run2017' + run + '_17Nov2017' + version
 
 def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
-for pd in ['DoubleEG','DoubleMuon']:
+
+for pd in ['SingleElectron','SingleMuon', 'MuonEG', 'DoubleMuon', 'DoubleEG']:
     merge(pd, 'Run2017BC',   ['Run2017B', 'Run2017C'])
     merge(pd, 'Run2017EF',   ['Run2017E', 'Run2017F'])
     merge(pd, 'Run2017DEF',  ['Run2017D', 'Run2017E', 'Run2017F'])
@@ -43,24 +48,20 @@ def getSample(pd, runName, lumi):
     sample.lumi = lumi
     return sample
 
-DoubleEG_Run2017BC    = getSample('DoubleEG',   'Run2017BC',       (1.)*1000)
-DoubleMuon_Run2017BC  = getSample('DoubleMuon',       'Run2017BC',       (1.)*1000)
 
-DoubleEG_Run2017D     = getSample('DoubleEG', 'Run2017D',       (1.)*1000)
-DoubleMuon_Run2017D   = getSample('DoubleMuon',     'Run2017D',       (1.)*1000)
-
-DoubleEG_Run2017DEF   = getSample('DoubleEG',   'Run2017DEF',       (1.)*1000)
-DoubleMuon_Run2017DEF = getSample('DoubleMuon',       'Run2017DEF',       (1.)*1000)
-
-DoubleEG_Run2017EF    = getSample('DoubleEG',   'Run2017EF',       (1.)*1000)
-DoubleMuon_Run2017EF  = getSample('DoubleMuon',       'Run2017EF',       (1.)*1000)
-
-DoubleEG_Run2017      = getSample('DoubleEG',   'Run2017',       (1.)*1000)
-DoubleMuon_Run2017    = getSample('DoubleMuon',       'Run2017',       (1.)*1000)
+DoubleEG_Run2017                = getSample('DoubleEG',         'Run2017',       41.*1000)
+DoubleMuon_Run2017              = getSample('DoubleMuon',       'Run2017',       41.*1000)
+SingleElectron_Run2017          = getSample('SingleElectron',   'Run2017',       41.*1000)
+SingleMuon_Run2017              = getSample('SingleMuon',       'Run2017',       41.*1000)
+MuonEG_Run2017                  = getSample('MuonEG',           'Run2017',       41.*1000)
 
 allSamples_Data25ns_2017 = []
-allSamples_Data25ns_2017+= [DoubleMuon_Run2017, DoubleEG_Run2017]#, MET_Run2017]
+allSamples_Data25ns_2017 += [SingleMuon_Run2017, SingleElectron_Run2017, MuonEG_Run2017, DoubleEG_Run2017, DoubleMuon_Run2017]
+
+Run2017 = Sample.combine("Run2017", [SingleMuon_Run2017, SingleElectron_Run2017, MuonEG_Run2017, DoubleEG_Run2017, DoubleMuon_Run2017], texName = "Data 2017")
+Run2017.lumi = 41.*1000
 
 for s in allSamples_Data25ns_2017:
   s.color   = ROOT.kBlack
   s.isData  = True
+

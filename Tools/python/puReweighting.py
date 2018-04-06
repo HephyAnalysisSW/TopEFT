@@ -23,7 +23,7 @@ def extendHistoTo(h, hc):
     return res
 
 #Define a functor that returns a reweighting-function according to the era
-def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15"):
+def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15", mcHist=None):
 
     # Data
     fileNameData = "$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/%s.root" % data
@@ -42,6 +42,8 @@ def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15"):
     #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Spring16.root", 'MC'), histoData)
     if mc=='Summer16':
         mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Summer16.root", 'pileup'), histoData)
+    elif mc=='Fall17':
+        mcProfile = extendHistoTo(mcHist, histoData)
     else:
         raise ValueError( "Don't know about MC PU profile %s" %mc )
 

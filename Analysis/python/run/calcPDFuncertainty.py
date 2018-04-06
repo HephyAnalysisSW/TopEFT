@@ -5,7 +5,7 @@ parser.add_option("--noMultiThreading",     dest="noMultiThreading",      defaul
 parser.add_option("--selectWeight",         dest="selectWeight",       default=None,                action="store",      help="select weight?")
 parser.add_option("--PDFset",               dest="PDFset",              default="NNPDF30", choices=["NNPDF30", "PDF4LHC15_nlo_100"], help="select the PDF set")
 parser.add_option("--selectRegion",         dest="selectRegion",          default=None, type="int",    action="store",      help="select region?")
-parser.add_option("--sample",               dest='sample',  action='store', default='TTZ_NLO_16',    choices=["TTZ_LO_16", "TTZ_NLO_16", "TTZ_NLO_17"], help="which sample?")
+parser.add_option("--sample",               dest='sample',  action='store', default='TTZ_NLO_16',    choices=["TTZ_LO_16", "TTZ_NLO_16", "TTZ_NLO_17", "WZ_pow_16"], help="which sample?")
 parser.add_option("--small",                action='store_true', help="small?")
 parser.add_option("--combine",              action='store_true', help="Combine results?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
@@ -26,7 +26,7 @@ from TopEFT.Analysis.regions        import regionsE, noRegions
 from TopEFT.Tools.u_float           import u_float 
 from TopEFT.Tools.resultsDB     import resultsDB
 from TopEFT.Analysis.Region         import Region 
-from TopEFT.Analysis.Setup          import Setup
+from TopEFT.Analysis.Setup_frozen          import Setup
 
 #RootTools
 from RootTools.core.standard import *
@@ -43,15 +43,17 @@ year = 2017 if options.sample.count("17") else 2016
 setup = Setup(year=year)
 
 ##Summer16 samples
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
+dirs['WZTo3LNu_comb']   = ['WZTo3LNu_comb']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-TTZ_LO_16  = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
-TTZ_NLO_16 = Sample.fromDirectory(name="TTZ_NLO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu_ext'])
+TTZ_LO_16   = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
+TTZ_NLO_16  = Sample.fromDirectory(name="TTZ_NLO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu_ext'])
+WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=False, color=color.TTJets, texName="WZ (powheg)", directory=directories['WZTo3LNu_comb'])
 
 ## Fall17 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
@@ -68,6 +70,8 @@ elif options.sample == "TTZ_NLO_16":
     sample = TTZ_NLO_16
 elif options.sample == "TTZ_NLO_17":
     sample = TTZ_NLO_17
+elif options.sample == "WZ_pow_16":
+    sample = WZ_pow_16
 if options.small:
     sample.reduceFiles( to = 1 )
 
@@ -116,6 +120,17 @@ elif options.sample == "TTZ_NLO_17":
         aS_indices      = [576, 577]
     else:
         raise NotImplementedError
+
+elif options.sample == "WZ_pow_16":
+    if PDFset == "NNPDF30":
+        PDFType         = "replicas"
+        centralWeight   = "genWeight" # sample produced with NNPDF30, so no central LHEweight saved apart from genWeight
+        PDF_indices     = range(9,109)
+        aS_indices      = [109,110]
+    else:
+        # CT10nlo and MMHT2014nlo68clas118 also included
+        raise NotImplementedError
+
 else:
     raise NotImplementedError
 
@@ -125,7 +140,7 @@ if not options.selectWeight:
     scale_variations= [ "abs(LHEweight_wgt[%i])"%(i) for i in scale_indices ]
     PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ]
     aS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in aS_indices ]
-    variations      = PDF_variations + aS_variations
+    variations      = scale_variations + PDF_variations + aS_variations
 else:
     variations  = [ "abs(LHEweight_wgt[%s])"%(options.selectWeight) ]
 
@@ -181,6 +196,8 @@ if not options.combine:
             for var in variations:
                 jobs.append((region, channel, setup.systematicClone(sys={'reweight':[var]})))
     
+    logger.info("Created %s jobs",len(jobs))
+    
     if options.noMultiThreading: 
         results = map(wrapper, jobs)
     else:
@@ -189,6 +206,8 @@ if not options.combine:
         results = pool.map(wrapper, jobs)
         pool.close()
         pool.join()
+    
+    logger.info("All done.")
 
 if options.combine:
     for channel in ['all']:#allChannels:
@@ -253,7 +272,9 @@ if options.combine:
 
                 deltas_as.append(sigma_reweight_acc.val)
 
-            delta_sigma_alphaS = 1.5 * ( deltas_as[0] - deltas_as[1] ) / 2.
+            if PDFset.count("NNPDF"): scale = 1.5
+            else: scale = 1.0
+            delta_sigma_alphaS = scale * ( deltas_as[0] - deltas_as[1] ) / 2.
 
             # add alpha_s and PDF in quadrature
             delta_sigma_total = math.sqrt( delta_sigma_alphaS**2 + delta_sigma**2 )
