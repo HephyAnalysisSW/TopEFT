@@ -46,7 +46,7 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
+    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='DEBUG',                    help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu'],               help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
@@ -145,7 +145,7 @@ triggerSF = triggerEfficiency(options.year)
 
 # Tracking SF
 from TopEFT.Tools.leptonTrackingEfficiency import leptonTrackingEfficiency
-leptonTrackingSF = leptonTrackingEfficiency()
+leptonTrackingSF = leptonTrackingEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -479,12 +479,12 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
-        event.reweightLeptonTrackingSF      = 0
-        event.reweightLeptonTrackingSFUp    = 0
-        event.reweightLeptonTrackingSFDown  = 0
-        event.reweightTrigger       = 0
-        event.reweightTriggerUp     = 0
-        event.reweightTriggerDown   = 0
+        event.reweightLeptonTrackingSF      = 1
+        event.reweightLeptonTrackingSFUp    = 1
+        event.reweightLeptonTrackingSFDown  = 1
+        event.reweightTrigger       = 1
+        event.reweightTriggerUp     = 1
+        event.reweightTriggerDown   = 1
 
     elif isData:
         event.weight = 1
@@ -543,12 +543,8 @@ def filler( event ):
             for var in lep_convinience_vars:
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
-    if isMC and len(tightLeptons)>0:
+    if options.year==2016 and isMC and len(tightLeptons)>0:
         
-        event.reweightLeptonTrackingSF      = 1.
-        event.reweightLeptonTrackingSFUp    = 1.
-        event.reweightLeptonTrackingSFDown  = 1.
-
         for l in tightLeptons:
             eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
             trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])

@@ -26,7 +26,6 @@ python cmgPostProcessing.py --overwrite --skim trilep --year 2017 --processingEr
 #ZGTo2LG_ext
 #WGToLNuG
 
-
 # Nonprompt
 python cmgPostProcessing.py --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_mva_v2 --sample TTLep_pow   #SPLIT20
 python cmgPostProcessing.py --overwrite --skim trilep --year 2017 --processingEra TopEFT_PP_2017_mva_v2 --sample T_sch_lep  #SPLIT20

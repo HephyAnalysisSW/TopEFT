@@ -12,24 +12,29 @@ m_file   = '$CMSSW_BASE/src/TopEFT/Tools/data/leptonSFData/Tracking_Efficiencies
 m_key    = "ratio_eff_eta3_dr030e030_corr"
 
 class leptonTrackingEfficiency:
-    def __init__(self):
+    def __init__(self, year):
 
-        self.e_sf = getObjFromFile(os.path.expandvars(e_file),   e_key)
-        assert self.e_sf, "Could not load ele SF histo %s from file %s."%( e_key, e_file )
+        self.year = year
 
-        self.e_ptMax = self.e_sf.GetYaxis().GetXmax()
-        self.e_ptMin = self.e_sf.GetYaxis().GetXmin()
+        if self.year == 2016:
+            self.e_sf = getObjFromFile(os.path.expandvars(e_file),   e_key)
+            assert self.e_sf, "Could not load ele SF histo %s from file %s."%( e_key, e_file )
 
-        self.e_etaMax = self.e_sf.GetXaxis().GetXmax()
-        self.e_etaMin = self.e_sf.GetXaxis().GetXmin()
+            self.e_ptMax = self.e_sf.GetYaxis().GetXmax()
+            self.e_ptMin = self.e_sf.GetYaxis().GetXmin()
 
-        self.m_sf = getObjFromFile(os.path.expandvars(m_file),   m_key)
-        assert self.m_sf, "Could not load muon SF histo %s from file %s."%( m_key, m_file )
+            self.e_etaMax = self.e_sf.GetXaxis().GetXmax()
+            self.e_etaMin = self.e_sf.GetXaxis().GetXmin()
 
-        self.m_etaMax = self.m_sf.GetXaxis().GetXmax()
-        self.m_etaMin = self.m_sf.GetXaxis().GetXmin()
+            self.m_sf = getObjFromFile(os.path.expandvars(m_file),   m_key)
+            assert self.m_sf, "Could not load muon SF histo %s from file %s."%( m_key, m_file )
+
+            self.m_etaMax = self.m_sf.GetXaxis().GetXmax()
+            self.m_etaMin = self.m_sf.GetXaxis().GetXmin()
 
     def getSF(self, pdgId, pt, eta):
+
+        if self.year!=2016: return (1,0)
 
         if abs(pdgId)==11:
             if not eta<=self.e_etaMax:
