@@ -32,10 +32,10 @@ class leptonTrackingEfficiency:
     def getSF(self, pdgId, pt, eta):
 
         if abs(pdgId)==11:
-            if not eta<=self.e_etaMax:
+            if not (eta<=self.e_etaMax):
                 logger.warning( "Supercluster eta out of bounds: %3.2f (need %3.2f <= eta <=% 3.2f)", eta, self.e_etaMin, self.e_etaMax )
                 eta = self.e_etaMax
-            if not eta>=self.e_etaMin:
+            if not (eta>=self.e_etaMin):
                 logger.warning( "Supercluster eta out of bounds: %3.2f (need %3.2f <= eta <=% 3.2f)", eta, self.e_etaMin, self.e_etaMax )
                 eta = self.e_etaMin
 

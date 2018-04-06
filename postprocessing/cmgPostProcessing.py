@@ -172,7 +172,7 @@ if isMC:
         # keep the weight name for now. Should we update to a more general one?
         mcProfile = "Fall17"
         puProfiles = puProfile( source_sample = samples[0] )
-        mcHist = puProfiles.cachedTemplate( selection="(1)", weight='genWeight', overwrite=False )
+        mcHist = puProfiles.cachedTemplate( selection="(1)", weight='genWeight', overwrite=False ) # use genWeight for amc@NLO samples. No problems encountered so far
         nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcProfile, mcHist=mcHist)
         nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcProfile, mcHist=mcHist)
         nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcProfile, mcHist=mcHist)
