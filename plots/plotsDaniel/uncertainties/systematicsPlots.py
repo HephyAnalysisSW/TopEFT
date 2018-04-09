@@ -26,7 +26,7 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',          action='store',      default='INFO',     nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--signal',            action='store',      default='None',        nargs='?', choices=['None', 'ewkDM'], help="Add signal to plot")
 argParser.add_argument('--noData',            action='store_true', default=False,       help='also plot data?')
-argParser.add_argument('--plot_directory',    action='store',      default='systematicsPlots_80X_mva_v2')
+argParser.add_argument('--plot_directory',    action='store',      default='mva_v2')
 argParser.add_argument('--selection',         action='store',            default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--selectSys',         action='store',      default='all')
 #argParser.add_argument('--noMultiThreading',  action='store_true', default='False', help="noMultiThreading?") # Need no multithreading when doing batch-to-natch
@@ -36,7 +36,10 @@ argParser.add_argument('--runLocal',             action='store_true',     help='
 argParser.add_argument('--isChild',           action='store_true', default=False)
 argParser.add_argument('--normalizeBinWidth', action='store_true', default=False,       help='normalize wider bins?')
 argParser.add_argument('--dryRun',            action='store_true', default=False,       help='do not launch subjobs')
+argParser.add_argument("--year",              action='store', type=int,      default=2016, choices = [ 2016, 2017 ], help='Which year?')
 args = argParser.parse_args()
+
+print args.year
 
 #
 # Logger
@@ -93,6 +96,7 @@ if not args.isChild and (args.selectSys == "all" or args.selectSys == "combine")
                + (" --logLevel=" + args.logLevel)\
                + (" --selectSys=" + str(sys))\
                + (" --signal=" + args.signal)\
+               + (" --year=" + str(args.year))\
                + (" --normalizeBinWidth" if args.normalizeBinWidth else "")
     if args.selectSys == 'combine':
         jobs.append(command)
@@ -113,7 +117,8 @@ if args.signal == "DM":           args.plot_directory += "_DM"
 if args.signal == "T2tt":         args.plot_directory += "_T2tt"
 if args.small:                    args.plot_directory += "_small"
 
-try: os.makedirs(os.path.join(plot_directory, args.plot_directory, mode, args.selection))
+print args.year
+try: os.makedirs(os.path.join(plot_directory, 'systematicsPlots', str(args.year), args.plot_directory))
 except: pass
 
 #
@@ -124,6 +129,12 @@ postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+
+postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+
 
 signals = []
 if   args.signal == "ewkDM":
@@ -225,28 +236,42 @@ for index, mode in enumerate(allModes):
 
     logger.info('Working on mode ' + str(mode))
 
-    data_sample = Run2016
-    data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
+    if args.year == 2016:
+        data_sample = Run2016
+        data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
+    elif args.year == 2017:
+        data_sample = Run2017
+        data_sample.setSelectionString([getFilterCut(isData=True, year=2017), getLeptonSelection(mode)])
 
     lumi_scale = data_sample.lumi/1000
     data_sample.texName = "data"
     data_sample.read_variables = ['weight/F']
     data_sample.style   = styles.errorStyle( ROOT.kBlack )
 
-    #for d in data_sample:
-    #    d.texName = "data"
-    #    d.read_variables = ['weight/F']
-    #    d.style   = styles.errorStyle( ROOT.kBlack )
-    #    lumi_scale = sum(d.lumi for d in data_sample)/float(len(data_sample))/1000
-
     data_weight = lambda event, sample: event.weight
     data_weight_string = "weight"
 
     logger.info('Lumi scale is ' + str(lumi_scale))
 
-    TTZ_mc = TTZtoLLNuNu
-    mc    = [ TTZ_mc , TTW, TZQ, TTX, WZ_powheg, rare, nonprompt ]
+    if args.year == 2016:
+        TTZ_mc  = TTZtoLLNuNu
+        TTW_mc  = TTW
+        TZQ_mc  = TZQ
+        TTX_mc  = TTX
+        WZ_mc   = WZ_powheg
+        rare_mc = rare
+        non_mc  = nonprompt
+        
+    elif args.year == 2017:
+        TTZ_mc  = TTZtoLLNuNu_17
+        TTW_mc  = TTW_17
+        TZQ_mc  = TZQ_17
+        TTX_mc  = TTX_17
+        WZ_mc   = WZ_amcatnlo_17
+        rare_mc = rare_17
+        non_mc  = nonprompt_17
 
+    mc    = [ TTZ_mc , TTW_mc, TZQ_mc, TTX_mc, WZ_mc, rare_mc, non_mc ]
     if args.small:
         for sample in mc:# + ([data_sample] if type(data_sample)!=type([]) else data_sample):
             sample.reduceFiles( to = 1 )
@@ -258,7 +283,7 @@ for index, mode in enumerate(allModes):
         sample.read_variables += ["reweight%s/F"%s    for s in weight_systematics]
         sample.read_variables += ["nJetSelected_%s/I"%s   for s in jet_systematics]
         sample.read_variables += ["nBTag_%s/I"%s      for s in jet_systematics]
-        sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
+        sample.setSelectionString([getFilterCut(isData=False, year=args.year), getLeptonSelection(mode)])
 
     for s in signals:
         s.scale          = lumi_scale
@@ -383,7 +408,7 @@ for index, mode in enumerate(allModes):
     ZptBinning_fine = range(0,650,50)
     
     Zpt_data_fine  = Plot(
-        name            = "Z_pt_data_fine",
+        name            = "Z_pt_fine_data",
         texX            = 'p_{T}(Z) (GeV)',
         texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Events",
         stack           = stack_data,
@@ -394,7 +419,7 @@ for index, mode in enumerate(allModes):
     plots.append( Zpt_data_fine )
 
     Zpt_mc_fine  = {sys: Plot(
-        name            = "Z_pt_fine" if sys is None else "Z_pt_mc_%s" % sys,
+        name            = "Z_pt_fine" if sys is None else "Z_pt_fine_mc_%s" % sys,
         texX            = 'p_{T}(Z) (GeV)',
         texY            = 'Number of Events / 50 GeV' if args.normalizeBinWidth else "Number of Events",
         stack           = sys_stacks[sys],
@@ -406,7 +431,7 @@ for index, mode in enumerate(allModes):
     plots.extend( Zpt_mc_fine.values() )
 
     met_data  = Plot( 
-        name            = "met_data",
+        name            = "met_pt_data",
         texX            = 'E_{T}^{miss} (GeV)', 
         texY            = 'Number of Events' if args.normalizeBinWidth else "Number of Event / 50 GeV",
         stack           = stack_data, 
@@ -432,7 +457,7 @@ for index, mode in enumerate(allModes):
     massBinning = range(80,102,2)
 
     mass_data  = Plot(
-        name            = "mass_data",
+        name            = "Z_mass_data",
         texX            = 'M(ll) (GeV)',
         texY            = 'Number of Events / 2 GeV' if args.normalizeBinWidth else "Number of Event",
         stack           = stack_data,
@@ -443,7 +468,7 @@ for index, mode in enumerate(allModes):
     plots.append( mass_data )
 
     mass_mc  = {sys: Plot(
-        name            = "Z_mass" if sys is None else "met_pt_mc_%s" % sys,
+        name            = "Z_mass" if sys is None else "Z_mass_mc_%s" % sys,
         texX            = 'M(ll) (GeV)',
         texY            = 'Number of Events / 2 GeV' if args.normalizeBinWidth else "Number of Event",
         stack           = sys_stacks[sys],
@@ -455,6 +480,31 @@ for index, mode in enumerate(allModes):
     plots.extend( mass_mc.values() )
 
     # leptons
+
+    l1_pt_data  = Plot(
+        name            = "l1_pt_data",
+        texX            = 'p_{T}(leading-l) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = stack_data,
+#        attribute       = TreeVariable.fromString('lep_pt[0]/F'),
+        attribute       = lambda event, sample:event.lep_pt[0],
+        binning         = [40,0,400],
+        weight          = data_weight,
+        )
+    plots.append( l1_pt_data )
+
+    l1_pt_mc  = {sys: Plot(
+        name            = "l1_pt" if sys is None else "l1_pt_mc_%s" % sys,
+        texX            = 'p_{T}(leading-l) (GeV)',
+        texY            = 'Number of Events / 10 GeV',
+        stack           = sys_stacks[sys],
+#        attribute       = TreeVariable.fromString('lep_pt[0]/F'),
+        attribute       = lambda event, sample:event.lep_pt[0],
+        binning         = [40,0,400],
+        selectionString = addSys(cutInterpreter.cutString(args.selection), sys),
+        weight          = weightMC( sys = sys )[0],
+        ) for sys in all_systematics }
+    plots.extend( l1_pt_mc.values() )
 
     Zl1_pt_data  = Plot(
         name            = "Zl1_pt_data",
@@ -469,7 +519,7 @@ for index, mode in enumerate(allModes):
     plots.append( Zl1_pt_data )
 
     Zl1_pt_mc  = {sys: Plot(
-        name            = "Zl1_pt",
+        name            = "Zl1_pt" if sys is None else "Zl1_pt_mc_%s" % sys,
         texX            = 'p_{T}(l_{1,Z}) (GeV)',
         texY            = 'Number of Events / 10 GeV',
         stack           = sys_stacks[sys],
@@ -493,7 +543,7 @@ for index, mode in enumerate(allModes):
     plots.append( Zl2_pt_data )
 
     Zl2_pt_mc  = {sys: Plot(
-        name            = "Zl2_pt",
+        name            = "Zl2_pt"  if sys is None else "Zl2_pt_mc_%s" % sys,
         texX            = 'p_{T}(l_{2,Z}) (GeV)',
         texY            = 'Number of Events / 10 GeV',
         stack           = sys_stacks[sys],
@@ -516,7 +566,7 @@ for index, mode in enumerate(allModes):
     plots.append( nonZl1_pt_data )
 
     nonZl1_pt_mc  = {sys: Plot(
-        name            = "nonZl1_pt",
+        name            = "nonZl1_pt"  if sys is None else "nonZl1_pt_mc_%s" % sys,
         texX            = 'p_{T}(l_{1,non-Z}) (GeV)',
         texY            = 'Number of Events / 10 GeV',
         stack           = sys_stacks[sys],
@@ -535,14 +585,17 @@ for index, mode in enumerate(allModes):
             [ Zpt_mc_fine, Zpt_data_fine, -1 ],
             [ met_mc, met_data, 1],
             [ mass_mc, mass_data, -1],
+            [ l1_pt_mc, l1_pt_data, -1],
             [ Zl1_pt_mc, Zl1_pt_data, -1],
             [ Zl2_pt_mc, Zl2_pt_data, -1],
             [ nonZl1_pt_mc, nonZl1_pt_data, -1],
 
     ]
 
-    result_file = os.path.join(plot_directory, args.plot_directory, mode, args.selection, 'results.pkl')
-    try: os.makedirs(os.path.join(plot_directory, args.plot_directory, mode, args.selection))
+    print args.year
+    result_dir  = os.path.join(plot_directory, "systematicsPlots", str(args.year), args.plot_directory, mode, args.selection)
+    result_file = os.path.join(result_dir, 'results.pkl')
+    try: os.makedirs(result_dir)
     except: pass
 
     ## get the norm etc - not needed for ttZ!
@@ -585,6 +638,8 @@ for index, mode in enumerate(allModes):
                 print "Couldn't find central histogram! Taking %s insted."%plot_mc.keys()[0]
                 shapeHists = {comp:plot_mc[plot_mc.keys()[0]].histos[0][comp] for comp in mc}
 
+            print shapeHists
+
             #Calculating systematics
             h_summed = {k: plot_mc[k].histos_added[0][0].Clone() for k in plot_mc.keys()}
 
@@ -618,11 +673,13 @@ for index, mode in enumerate(allModes):
                     totalCount = sum(counts)
                     print "Count in bin %s: %.2f"%(ib, totalCount)
                     shapeUnc = [ 0 ]
-                    shapeUnc.append( (0.50*shapeHists[rare].GetBinContent(ib))**2 )
-                    shapeUnc.append( (0.11*shapeHists[WZ_powheg].GetBinContent(ib))**2 )
-                    shapeUnc.append( (0.30*shapeHists[nonprompt].GetBinContent(ib))**2 )
-                    shapeUnc.append( (0.10*shapeHists[TTX].GetBinContent(ib))**2 )
-                    shapeUnc.append( (0.10*shapeHists[TZQ].GetBinContent(ib))**2 )
+                    print rare_mc
+                    print rare_mc.name
+                    shapeUnc.append( (0.50*shapeHists[rare_mc].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.11*shapeHists[WZ_mc].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.30*shapeHists[non_mc].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.10*shapeHists[TTX_mc].GetBinContent(ib))**2 )
+                    shapeUnc.append( (0.10*shapeHists[TZQ_mc].GetBinContent(ib))**2 )
                     shapeUnc.append( (0.10*shapeHists[TTZ_mc].GetBinContent(ib))**2 ) # mockup for PDF and scale
                     shapeUnc.append( (0.025*(totalCount))**2 )
                     #shapeUnc.append( (0.5*(totalCount))**2 )
@@ -675,7 +732,7 @@ for index, mode in enumerate(allModes):
             #print "plot.histos[0][pos_top].Integral()", pos_top,plot.histos 
             #print "plot.histos[0][pos_top].Integral()", plot.histos[0][pos_top].Integral()    
             for log in [False, True]:
-                plotDir = os.path.join(plot_directory, args.plot_directory, mode + ("_log" if log else "") + "_scaled", args.selection)
+                plotDir = os.path.join(plot_directory, 'systematicsPlots', str(args.year), args.plot_directory, mode + ("_log" if log else "") + "_scaled", args.selection)
                 if args.showOnly: plotDir = os.path.join(plotDir, "only_" + args.showOnly)
                 plotting.draw(plot,
                     plot_directory = plotDir,
