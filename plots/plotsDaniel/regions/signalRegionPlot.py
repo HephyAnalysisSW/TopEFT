@@ -52,15 +52,16 @@ uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF',
 
 Nbins = len(regions)
 
-isData = False
-lumiStr = 77
+isData = True
+lumiStr = 35.9
 
 cardName = "ewkDM_ttZ_ll"
-cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
-#subDir = "nbtag0-njet0p"
-subDir = ""
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_80fb_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
+#cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
+cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p250000"
+subDir = "nbtag0-njet1p"
+#subDir = ""
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
+#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"

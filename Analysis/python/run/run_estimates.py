@@ -7,6 +7,7 @@ parser.add_option("--controlRegion",  action='store', default='', choices = ['',
 parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
+parser.add_option("--overwrite", action='store_true', help="Overwrite?")
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -32,9 +33,15 @@ from RootTools.core.standard import *
 from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
-postProcessing_directory = "TopEFT_PP_2016_mva_v1/trilep/"
+## 2016
+postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
+## 2017
+postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
@@ -44,9 +51,9 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 allRegions = regionsE + noRegions
 
 from TopEFT.Analysis.Setup              import Setup
-year = int(options.year)
+year                    = int(options.year)
 setup                   = Setup(year=year)
-estimators = estimatorList(setup)
+estimators              = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
 setup.reweightRegions   = regionsReweight
 
@@ -86,7 +93,7 @@ if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystemati
 
 def wrapper(args):
         e,r,channel,setup = args
-        res = e.cachedEstimate(r, channel, setup, save=True)
+        res = e.cachedEstimate(r, channel, setup, save=True, overwrite=options.overwrite)
         return (e.uniqueKey(r, channel, setup), res )
 
 jobs=[]
@@ -95,6 +102,8 @@ if options.sample not in ["Data", "TTZ", "pseudoData"]:
     estimators = estimators.constructEstimatorList([options.sample]) if options.sample else estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
 else:
     estimators = []
+
+logger.info("Starting estimates for sample %s", setup.samples[options.sample]['3mu'].name)
 
 for setup in setups:
 

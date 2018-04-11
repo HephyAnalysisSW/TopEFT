@@ -14,6 +14,7 @@ argParser.add_argument("--useXSec",        action='store_true', help="Use the x-
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
 argParser.add_argument("--controlRegion",  action='store',      default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+argParser.add_argument("--includeCR",      action='store_true', help="Do simultaneous SR and CR fit")
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
 argParser.add_argument("--year",           action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
@@ -29,11 +30,16 @@ import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+## 2016
 postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
+## 2017
+postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+
 
 from math                               import sqrt
 from copy                               import deepcopy
@@ -75,14 +81,24 @@ if args.controlRegion:
     else:
         raise NotImplementedError
 else:
-    subDir = ''
+    if args.includeCR:
+        subDir                  = 'SRandCR'
+        setupCR                 = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        estimatorsCR            = estimatorList(setupCR)
+        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+        setupCR.reweightRegions = regionsReweight
+    else:
+        subDir = ''
 
 estimators = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
 setup.reweightRegions   = regionsReweight
 #setup.regions           = regionsE #already defined in Setup
 
-setups = [setup]
+if args.includeCR:
+    setups = [setupCR, setup]
+else:
+    setups = [setup]
 
 cardDir = "regionsE_%s"%(year)
 if args.useXSec:
@@ -185,14 +201,6 @@ def wrapper(s):
     c = cardFileWriter.cardFileWriter()
     c.releaseLocation = combineReleaseLocation
 
-    ## Make it less likely that database write access is concurrent
-    #if "worker" in os.path.expandvars("$HOSTNAME") or True:
-    #    import random
-    #    import time
-    #    waitTime = random.random()*20
-    #    logger.info("Waiting for %s seconds to avoid database problems.", waitTime)
-    #    time.sleep(waitTime)
-
     for coup in nonZeroCouplings:
         try:
             modification_dict[coup] = getCouplingFromName(s.name, coup)
@@ -283,7 +291,6 @@ def wrapper(s):
                             source_gen = dim6top_central
                         elif args.model == "ewkDM":
                             source_gen = ewkDM_central
-                        #target_gen = s
 
                         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
                         f = signalReweighting.cachedReweightingFunc( setup.genSelection )
