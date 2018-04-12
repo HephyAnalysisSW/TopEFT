@@ -40,9 +40,9 @@ class triggerSelector:
 
     def getSelection(self, PD):
         found = False
-        cutString = ""
+        cutString = "("
         if PD == "MC":
-            return "||".join([self.DoubleMuon, self.DoubleEG, self.MuonEG, self.SingleMuon, self.SingleElectron])
+            return "(%s)"%"||".join([self.DoubleMuon, self.DoubleEG, self.MuonEG, self.SingleMuon, self.SingleElectron])
         else:
             for x in reversed(self.PDHierarchy):
                 if found:
@@ -51,4 +51,4 @@ class triggerSelector:
                     found = True
                     cutString = getattr(self, x)
 
-            return cutString
+            return cutString+")"

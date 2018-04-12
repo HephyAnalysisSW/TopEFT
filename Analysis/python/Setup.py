@@ -24,6 +24,7 @@ from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
 from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
 from TopEFT.Tools.objectSelection import getFilterCut
+from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
 
 #to run on data
@@ -288,14 +289,17 @@ class Setup:
             res['cuts'].append(chStr)
 
             if channel is not "2l_incl":
-                res['cuts'].append('nlep==3')
-
+                res['cuts'].append('nGoodLeptons==3')
                 res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
         res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
+        # apply triggers in MC
+        if not dataMC == 'Data':
+            tr = triggerSelector(self.year)
+            res['cuts'].append(tr.getSelection("MC"))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

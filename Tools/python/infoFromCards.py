@@ -160,34 +160,25 @@ def applyNuisance(cardFile, estimate, res, binName):
     scaledRes2   = scaledRes*(1+res.sigma/res.val*getPull(nuisanceFile, 'Stat_' + binNumber + '_' + estimate.name)) if scaledRes.val > 0 else scaledRes
     return scaledRes2
 
-def applyAllNuisances(cardFile, estimate, res, binName):
-    if not estimate in ['DY','multiBoson','TTZ','TTJetsG','TTJetsNG','TTJetsF','other']: return res
-    if estimate == "TTZ":
-        uncName     = 'ttZ'
-    elif estimate == 'TTJetsG':
-        uncName     = 'topGaus'
-    elif estimate == 'TTJetsNG':
-        uncName     = 'topNonGaus'
-    elif estimate == 'TTJetsF':
-        uncName     = 'topFakes'
+def applyAllNuisances(cardFile, estimate, res, binName, nuisances):
+    if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt']: return res
+    if estimate == "WZ":
+        uncName = estimate+'_xsec'
+    elif estimate == "TZQ":
+        uncName = "tZq"
+    elif estimate == "TTX":
+        uncName = "ttX"
     else:
         uncName      = estimate
-    nuisanceFile = cardFile.replace('.txt','_nuisances_full.txt')
+    # use r=1 fits for now
+    nuisanceFile = cardFile.replace('.txt','_nuisances_r1_full.txt')
     binNumber    = getBinNumber(cardFile, binName)
-    scaledRes    = res*(1+getPreFitUncFromCard(cardFile, estimate, uncName, binName)*getPull(nuisanceFile, uncName))
-    #scaledRes    = res*math.exp(getPreFitUncFromCard(cardFile, estimate, uncName, binName)*getPull(nuisanceFile, uncName))
-    #print "{:10}{:10.3f}".format("SF", scaledRes.val)
+    if estimate == "signal" or estimate == "TTW":
+        scaledRes = res
+    else:
+        scaledRes    = res*(1+getPreFitUncFromCard(cardFile, estimate, uncName, binName)*getPull(nuisanceFile, uncName))
     scaledRes2   = scaledRes*(1+getPreFitUncFromCard(cardFile, estimate, 'Stat_' + binNumber + '_' + estimate, binName))**getPull(nuisanceFile, 'Stat_' + binNumber + '_' + estimate) if scaledRes.val > 0 else scaledRes
-    #scaledRes2   = scaledRes*math.exp(getPreFitUncFromCard(cardFile, estimate, 'Stat_' + binNumber + '_' + estimate, binName)*getPull(nuisanceFile, 'Stat_' + binNumber + '_' + estimate)) if scaledRes.val > 0 else scaledRes
-    #print "{:10}{:10.3f}".format("stat",scaledRes2.val)
-    allNuisances = ["unclEn","JER","leptonSF","PU","Lumi","PDF","SFb","topPt","JEC","trigger","SFl"]
+    allNuisances = nuisances#["unclEn","JER","leptonSF","PU","Lumi","PDF","SFb","topPt","JEC","trigger","SFl"]
     for n in allNuisances:
-        #if getPreFitUncFromCard(cardFile, estimate, n, binName)*getPull(nuisanceFile, n) < -1.:
-        #    scaledRes2 = scaledRes2*math.exp(getPreFitUncFromCard(cardFile, estimate, n, binName)*getPull(nuisanceFile, n)) if scaledRes.val > 0 else scaledRes
-        #if getPreFitUncFromCard(cardFile, estimate, n, binName)*getPull(nuisanceFile, n) < 0. and False:
-        #    scaledRes2 = scaledRes2*1/(1-getPreFitUncFromCard(cardFile, estimate, n, binName)*getPull(nuisanceFile, n)) if scaledRes.val > 0 else scaledRes
-        #else:
         scaledRes2 = scaledRes2*(1+getPreFitUncFromCard(cardFile, estimate, n, binName))**getPull(nuisanceFile, n) if scaledRes.val > 0 else scaledRes
-        #scaledRes2 = scaledRes2*math.exp(getPreFitUncFromCard(cardFile, estimate, n, binName)*getPull(nuisanceFile, n)) if scaledRes.val > 0 else scaledRes
-        #print "{:10}{:10.3f}".format(n, scaledRes2.val)
     return scaledRes2

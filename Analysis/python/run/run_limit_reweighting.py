@@ -258,29 +258,31 @@ def wrapper(s):
                         expected = e.cachedEstimate(r, channel, setup)
                         c.specifyExpectation(binname, name, round(expected.val,3) if expected.val > 0 else 0.01)
 
-                        if expected.val>0:
-                            if not args.statOnly:
-                                c.specifyUncertainty('PU',          binname, name, 1+round(e.PUSystematic( r, channel, setup).val,3)) #1.01 
-                                c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
-                                c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                                c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                                c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
-                                c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
-                                c.specifyUncertainty('scale',       binname, name, 1.01) 
-                                c.specifyUncertainty('PDF',         binname, name, 1.01)
+                        if not args.statOnly:
+                            c.specifyUncertainty('PU',          binname, name, 1+round(e.PUSystematic( r, channel, setup).val,3)) #1.01 
+                            c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
+                            c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
+                            c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
+                            c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
+                            c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
+                            c.specifyUncertainty('scale',       binname, name, 1.01) 
+                            c.specifyUncertainty('PDF',         binname, name, 1.01)
 
-                                if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
-                                if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
-                                if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
-                                if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                                if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
-                                if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
+                            if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
+                            if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
+                            if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
+                            if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
+                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
 
 
-                            #MC bkg stat (some condition to neglect the smaller ones?)
-                            uname = 'Stat_'+binname+'_'+name
-                            c.addUncertainty(uname, 'lnN')
+                        #MC bkg stat (some condition to neglect the smaller ones?)
+                        uname = 'Stat_'+binname+'_'+name
+                        c.addUncertainty(uname, 'lnN')
+                        if expected.val > 0:
                             c.specifyUncertainty(uname, binname, name, round(1+expected.sigma/expected.val,3) )
+                        else:
+                            c.specifyUncertainty(uname, binname, name, 1.01 )
 
                     obs = observation.cachedEstimate(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
