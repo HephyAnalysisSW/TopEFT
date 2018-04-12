@@ -166,7 +166,6 @@ if year == 2016:
 elif year == 2017:
     PDFset = "NNPDF30"
     TTZ_sample = "TTZ_NLO_17"
-    raise NotImplementedError
 elif year == 20167:
     PDFset = "NNPDF30"
     TTZ_sample = "TTZ_NLO"

@@ -18,6 +18,7 @@ parser.add_option('--logLevel',             dest="logLevel",              defaul
 parser.add_option('--signal',               action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
+parser.add_option("--year",                 action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -54,14 +55,19 @@ uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF',
 Nbins = len(regions)
 
 isData = True
-lumiStr = 35.9
+if options.year == '2016':
+    lumiStr = 35.9
+elif options.year == '2017':
+    lumiStr = 41.3
+else:
+    lumiStr = 77.2
 
 cardName = "ewkDM_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
 cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p250000"
 subDir = "nbtag0-njet1p"
 #subDir = ""
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%subDir
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
@@ -128,7 +134,10 @@ for i, r in enumerate(regions):
 for i, r in enumerate(regions):
     binName             = "Bin%s"%i
     hists['observed'].SetBinContent(i+1, getObservationFromCard(cardFile, binName).val)
-    hists['observed'].legendText = 'pseudo-data'
+    if not isData:
+        hists['observed'].legendText = 'pseudo-data'
+    else:
+        hists['observed'].legendText = 'Data'
     
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
@@ -217,7 +226,7 @@ def setBinLabels( hist ):
     for i in range(1, hist.GetNbinsX()+1):
         hist.GetXaxis().SetBinLabel(i, "%s"%i)
 
-drawObjects = drawObjects( isData=isData, lumi=lumiStr) + boxes + drawLabels( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes + drawLabels( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
 for p in processes:
@@ -235,7 +244,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_%sfb"%(subDir,cardName,int(lumiStr))
+plotName = "%s%s_signalRegions_%s"%(subDir,cardName,options.year)
 if options.postFit:
     plotName += "_postFit"
 
