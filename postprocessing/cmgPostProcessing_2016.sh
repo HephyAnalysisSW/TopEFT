@@ -46,17 +46,24 @@ python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --process
 
 python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample WZTo2L2Q #SPLIT10
 
+## Stops Dilepton
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToLLNuNu_m1to10
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToQQ
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample VVTo2L2Nu VVTo2L2Nu_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZ WZ_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZ ZZ_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZTo2L2Q
+
 ## Others (not used atm, no need to run)
+
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample GGHZZ4L #SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample TGJets TGJets_ext #SPLIT10
-#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample TTZToLLNuNu_m1to10 #SPLIT2
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample VHToNonbb #SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample WWDoubleTo2L #SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample WpWpJJ #SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample WWTo2L2Nu #SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample ZZTo2L2Nu #SPLIT10
-#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample ZZTo2L2Q #SPLIT10
-#python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample VVTo2L2Nu VVTo2L2Nu_ext #SPLIT10
 
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample DYJetsToLL_M50 # SPLIT10
 #python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v1 --sample DYJetsToLL_M10to50_LO # SPLIT10
