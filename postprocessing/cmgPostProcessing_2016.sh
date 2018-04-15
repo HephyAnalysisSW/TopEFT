@@ -46,6 +46,15 @@ python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processi
 
 python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q #SPLIT10
 
+## Stops Dilepton
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToLLNuNu_m1to10
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToQQ
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample VVTo2L2Nu VVTo2L2Nu_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZ WZ_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZ ZZ_ext
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q
+python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZTo2L2Q
+
 ## Others (not used atm, no need to run)
 #python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample GGHZZ4L #SPLIT10
 #python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TGJets TGJets_ext #SPLIT10
@@ -83,6 +92,7 @@ python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processi
 python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700 #SPLIT10
 python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000 #SPLIT10
 python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000 #SPLIT10
+
 
 
 ## 2016 MET/JetHT/HTMHT data 

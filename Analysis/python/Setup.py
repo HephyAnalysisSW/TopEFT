@@ -13,12 +13,18 @@ from TopEFT.Tools.user import analysis_results
 from TopEFT.Tools.helpers import getObjFromFile
 
 ##define samples
+# 2016
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+# 2017
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+
 
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
 from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
 from TopEFT.Tools.objectSelection import getFilterCut
+from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
 
 #to run on data
@@ -91,19 +97,38 @@ class Setup:
         self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
 
         # defining seperate samples. should not be necessary, but just for the sake of sanity. Add switch for eras
-        MMM = Run2016
-        EEE = Run2016 
-        MME = Run2016
-        EEM = Run2016
+        if year == 2017:
+            MMM = Run2017
+            EEE = Run2017
+            MME = Run2017
+            EEM = Run2017
+        else:
+            ## use 2016 samples as default (we do combine on card file level)
+            MMM = Run2016
+            EEE = Run2016 
+            MME = Run2016
+            EEM = Run2016
+
         # MC
-        TTZSample           = TTZtoLLNuNu
-        WZSample            = WZ_amcatnlo
-        TTXSample           = TTX
-        TTWSample           = TTW
-        TZQSample           = TZQ
-        rareSample          = rare
-        nonpromptSample     = nonprompt
-        pseudoDataSample    = pseudoData
+        if year == 2017:
+            TTZSample           = TTZtoLLNuNu_17
+            WZSample            = WZ_amcatnlo_17 # no powheg yet
+            TTXSample           = TTX_17
+            TTWSample           = TTW_17
+            TZQSample           = TZQ_17
+            rareSample          = rare_17
+            nonpromptSample     = nonprompt_17
+            pseudoDataSample    = pseudoData_17
+        else:
+            ## use 2016 samples as default (we do combine on card file level)
+            TTZSample           = TTZtoLLNuNu
+            WZSample            = WZ_powheg # might update to powheg?
+            TTXSample           = TTX
+            TTWSample           = TTW
+            TZQSample           = TZQ
+            rareSample          = rare
+            nonpromptSample     = nonprompt
+            pseudoDataSample    = pseudoData
 
 
         self.samples = {
@@ -264,14 +289,17 @@ class Setup:
             res['cuts'].append(chStr)
 
             if channel is not "2l_incl":
-                res['cuts'].append('nlep==3')
-
+                res['cuts'].append('nGoodLeptons==3')
                 res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
 
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
         res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
+        # apply triggers in MC
+        if not dataMC == 'Data':
+            tr = triggerSelector(self.year)
+            res['cuts'].append(tr.getSelection("MC"))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}
