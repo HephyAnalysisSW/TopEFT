@@ -129,6 +129,7 @@ if __name__ == "__main__":
     def f(x,y,z):
         return (x+y-z)**3 
     data = [ (f(x,y,z),x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
+    # 3rd order parametrization
     p = HyperPoly( data, 3)
     print "chi2/ndof", p.chi2_ndof()
     print "String:", p.root_func_string()
