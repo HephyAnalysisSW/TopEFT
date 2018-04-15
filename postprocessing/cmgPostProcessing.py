@@ -164,18 +164,16 @@ else:
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
     if options.year == 2016:
-        mcProfile = "Summer16"
-        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
-        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
-        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc="Summer16")
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc="Summer16")
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc="Summer16")
     elif options.year == 2017:
         # keep the weight name for now. Should we update to a more general one?
-        mcProfile = "Fall17"
         puProfiles = puProfile( source_sample = samples[0] )
         mcHist = puProfiles.cachedTemplate( selection="( 1 )", weight='genWeight', overwrite=False ) # use genWeight for amc@NLO samples. No problems encountered so far
-        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcProfile, mcHist=mcHist)
-        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcProfile, mcHist=mcHist)
-        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcProfile, mcHist=mcHist)
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcHist)
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcHist)
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcHist)
 
 # top pt reweighting
 # Decision based on sample name -> whether TTJets or TTLep is in the sample name

@@ -145,7 +145,7 @@ reader = sample.fwliteReader( products = products )
 
 def filler( event ):
 
-    event.evt, event.lumi, event.run = reader.evt
+    event.run, event.lumi, event.evt = reader.evt
 
     if reader.position % 100==0: logger.info("At event %i/%i", reader.position, reader.nEvents)
 

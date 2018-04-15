@@ -22,6 +22,14 @@ if __name__ == "__main__":
 fwlite_ttZ_ll_LO_scan     = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan", "/ttZ0j_rwgt_patch_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_24March18-fc63c38760bbac18778f1ee1fe68cd42/USER", "phys03", dbFile = dbFile)
 fwlite_ttZ_ll_LO_scan.reweight_pkl = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/ttZ0j_rwgt_patch_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.pkl"
 
+# TTZ 931 gen with weights - high stats!
+fwlite_ttZ_ll_LO_highStat_scan     = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_highStat_scan", "/ttZ0j_rwgt_patch_625_highStat_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_07April18-37d73f7f997f18e72dbfd34806877f87/USER", "phys03", dbFile = dbFile)
+fwlite_ttZ_ll_LO_highStat_scan.reweight_pkl = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/ttZ0j_rwgt_patch_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.pkl"
+
+# TTZ 931 gen with weights - current plane high stats!
+fwlite_ttZ_ll_LO_currentplane_highStat_scan     = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_currentplane_highStat_scan", "/ttZ0j_rwgt_patch_currentplane_highStat_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_07April18-b9d79c4e9bec84f06f452ff39977163a/USER", "phys03", dbFile = dbFile)
+fwlite_ttZ_ll_LO_currentplane_highStat_scan.reweight_pkl = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/ttZ0j_rwgt_patch_currentplane_highStat_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.pkl"
+
 #fwlite_ttZ_ll_LO_scan_old = FWLiteSample.fromDAS("fwlite_ttZ_ll_LO_scan_old", "/ttZ0j_rwgt_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball/schoef-dim6top_21March18_lxplus-444e65ebb502b0f6da416595c061e0bb/USER", "phys03", dbFile=None)
 
 # FWLite TTZ benchmarks, first shot with approx same x-Sec of 0.5pb

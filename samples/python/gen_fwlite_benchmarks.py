@@ -17,7 +17,8 @@ import glob
 
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 # Robert first ttZ_ll dim6top scan
-dim6top_ttZ_ll_LO_scan = Sample.fromDirectory("dim6top_ttZ_ll_LO_scan", texName = "ttZ (scan)", directory = [os.path.join( gen_dir, "fwlite_ttZ_ll_LO_scan")])
+#dim6top_ttZ_ll_LO_scan = Sample.fromDirectory("dim6top_ttZ_ll_LO_scan", texName = "ttZ (scan)", directory = [os.path.join( gen_dir, "fwlite_ttZ_ll_LO_scan")])
+dim6top_ttZ_ll_LO_scan = Sample.fromDirectory("dim6top_ttZ_ll_LO_scan", texName = "ttZ (scan)", directory = [os.path.join( gen_dir, "fwlite_ttZ_ll_LO_highStat_scan")])
 
 # Robert GENSIM 0j benchmarks 09Nov17 (used for analysis development)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
