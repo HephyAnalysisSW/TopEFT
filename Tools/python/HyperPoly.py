@@ -32,6 +32,8 @@ import itertools
 
 class HyperPoly:
 
+    min_abs_float = 1e-10
+
     # Initialize with data ( w, c1, ..., cN )
     def __init__( self, data, order):
 
@@ -58,7 +60,7 @@ class HyperPoly:
     def makePoly( self, order ):
     
         # We have Binomial( n + o - 1, o ) coefficients for n variables at order o
-        ncoeff = {o:int(scipy.special.binom(self.nvar + o - 1, o)) for o in xrange(order+1)}
+        #ncoeff = {o:int(scipy.special.binom(self.nvar + o - 1, o)) for o in xrange(order+1)}
         # Total number of DOF
         self.ndof = HyperPoly.get_ndof( self.nvar, order )
         # Order of combinations (with replacements) and ascending in 'order'
@@ -76,41 +78,62 @@ class HyperPoly:
         A = np.empty( [self.ndof, self.ndof ] )
         for d in range(self.ndof):
             for e in range(self.ndof):
-                if e > d:
+                if d > e:
                     A[d][e] = A[e][d]
                 else:
                     A[d][e] = self.expectation(self.combination[d] + self.combination[e]) 
 
-        print A
-        print b
+        #print A
+        #print b
         # Solve
         self.w_coeff = np.linalg.solve(A, b)
 
-#    def eval( self, c ):
-#        if not len(c) == self.nvar:
-#            raise ValueError( "Polynomial degree is %i. Got argument '%r'" % (self.nvar, c ) )
-#        return sum( np.prod( [ c[elem] for elem in combination ] ) for n in range(self.ndof) ) 
-
-         
     def wEXT_expectation(self, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( wEXT_meas*i_meas*j_meas*k_meas... )
         '''
-        print self.c[0], combination, [self.c[n][elem] for elem in combination], np.prod( [self.c[n][elem] for elem in combination] ) 
         return sum( [ self.w[n]*np.prod( [ self.c[n][elem] for elem in combination ] ) for n in xrange(self.N) ] ) / float(self.N)
 
     def expectation(self, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( i_meas*j_meas*k_meas... )
         '''
-        #print self.c[0], combination, [self.c[n][elem] for elem in combination], np.prod( [self.c[n][elem] for elem in combination] ) 
         return sum( [ np.prod( [ self.c[n][elem] for elem in combination ] ) for n in range(self.N) ]) / float(self.N)
 
+    def eval( self, *args ):
+        ''' Evaluate parametrization
+        '''
+        if not len(args) == self.nvar:
+            raise ValueError( "Polynomial degree is %i. Got %i arguments." % (self.nvar, len(args) ) )
+        return sum( self.w_coeff[n] * np.prod( [ args[elem] for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
+    
+    def chi2( self ):
+        return sum( [ (self.eval(*self.c[n]) - self.w[n])**2 for n in range(self.N) ] )
+    
+    def chi2_ndof( self ):
+        return self.chi2()/float(self.ndof)
+         
+    def root_func_string(self):
+        substrings = []
+        for n in range(self.ndof):
+            if abs(self.w_coeff[n])>self.min_abs_float:
+                sub_substring = []
+                if abs(1-self.w_coeff[n])>self.min_abs_float:
+                    sub_substring.append( ('%f'%self.w_coeff[n]).rstrip('0') )
+                for var in range(self.nvar):
+                    power = self.combination[n].count( var )
+                    if power>0:
+                        sub_substring.append( "x%i" % var if power==1 else "x%i**%i" % (var, power)  )
+                substrings.append( "*".join(sub_substring) ) 
+        return  ( "+".join( filter( lambda s: len(s)>0, substrings) ) ).replace("+-","-")
 
 if __name__ == "__main__":
-    #def f(x,y,z):
-    #    return 1+x*y+x**2+y**2 +27*x*y*z
-    #data = [ (f(x,y,z),x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
-    #p = HyperPoly( data, 3)
-    def f(x):
-        return 1+x
-    data = [ (f(x),x) for x in range(-3,3) ]
-    p = HyperPoly( data, 1)
+    def f(x,y,z):
+        return (x+y-z)**3 
+    data = [ (f(x,y,z),x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
+    p = HyperPoly( data, 3)
+    print "chi2/ndof", p.chi2_ndof()
+    print "String:", p.root_func_string()
+
+    #def f(x):
+    #    return x 
+    #data = [ (f(x),x) for x in range(0,5) ]
+    #p = HyperPoly( data, 1)
