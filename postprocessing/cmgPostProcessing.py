@@ -27,7 +27,11 @@ from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, el
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.puProfileCache             import puProfile
+
+from TopEFT.Tools.mt2Calculator              import mt2Calculator
 from TopEFT.Tools.user                       import results_directory
+mt2Calc = mt2Calculator()
+
 # for syncing
 import TopEFT.Tools.sync as sync
 
@@ -421,6 +425,10 @@ if options.keepPhotons:
     new_variables.extend( ['photonJetdR/F','photonLepdR/F'] )
     new_variables.extend( ['TTGJetsEventType/I'] )
 
+# variables for dilepton stop
+new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F' ] )
+
+
 if addSystematicVariations:
     read_variables += map(TreeVariable.fromString, [\
     "met_JetEnUp_Pt/F", "met_JetEnUp_Phi/F", "met_JetEnDown_Pt/F", "met_JetEnDown_Phi/F", "met_JetResUp_Pt/F", "met_JetResUp_Phi/F", "met_JetResDown_Pt/F", "met_JetResDown_Phi/F", 
@@ -431,6 +439,7 @@ if addSystematicVariations:
         if 'Unclustered' not in var: new_variables.extend( ['nJetSelected_'+var+'/I', 'nBTag_'+var+'/I','ht_'+var+'/F'] )
         new_variables.extend( ['met_pt_'+var+'/F', 'met_phi_'+var+'/F', 'metSig_'+var+'/F'] )
         if options.keepPhotons: new_variables.extend( ['met_pt_photonEstimated_'+var+'/F', 'met_phi_photonEstimated_'+var+'/F', 'metSig_photonEstimated_'+var+'/F'] )
+        new_variables.extend( ['dl_mt2ll_'+var+'/F', 'dl_mt2bb_'+var+'/F', 'dl_mt2blbl_'+var+'/F'] )
     # Btag weights Method 1a
     for var in btagEff_CSVv2.btagWeightNames:
         if var!='MC':
@@ -715,6 +724,47 @@ def filler( event ):
         for var in btagEff_DeepCSV.btagWeightNames:
             if var!='MC':
                 setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
+    
+    
+    # dilepton stop variables
+    for i in metVariants:
+        mt2Calc.reset()
+        if len(tightLeptons)>1:
+            l1 = ROOT.TLorentzVector()
+            l1.SetPtEtaPhiM(tightLeptons[0]['pt'], tightLeptons[0]['eta'], tightLeptons[0]['phi'], 0 )
+            l2 = ROOT.TLorentzVector()
+            l2.SetPtEtaPhiM(tightLeptons[1]['pt'], tightLeptons[1]['eta'], tightLeptons[1]['phi'], 0 )
+            dl = l1+l2
+            event.dl_pt   = dl.Pt()
+            event.dl_eta  = dl.Eta()
+            event.dl_phi  = dl.Phi()
+            event.dl_mass = dl.M()
+            mt2Calc.setLeptons(l1.Pt(), l1.Eta(), l1.Phi(), l2.Pt(), l2.Eta(), l2.Phi())
+            mt2Calc.setMet(getattr(event, 'met_pt'+i), getattr(event, 'met_phi'+i))
+            setattr(event, "dl_mt2ll"+i, mt2Calc.mt2ll())
+
+            bj0, bj1 = None, None
+            if len(selected_jets)>=2:
+                bj0, bj1 = (bJetsDeepCSV+nonBJetsDeepCSV)[:2]
+                mt2Calc.setBJets(bj0['pt'], bj0['eta'], bj0['phi'], bj1['pt'], bj1['eta'], bj1['phi'])
+                setattr(event, "dl_mt2bb"+i,   mt2Calc.mt2bb())
+                setattr(event, "dl_mt2blbl"+i, mt2Calc.mt2blbl())
+
+            if addSystematicVariations:
+                for var in ['JECUp', 'JECDown', 'JERUp', 'JERDown', 'UnclusteredEnUp', 'UnclusteredEnDown']:
+                    mt2Calc.setMet( getattr(event, "met_pt"+i+"_"+var), getattr(event, "met_phi"+i+"_"+var) )
+                    setattr(event, "dl_mt2ll"+i+"_"+var,  mt2Calc.mt2ll())
+                    if not 'Unclustered' in var:
+                        if len(jets_sys[var])>=2:
+                            bj0_, bj1_ = (bjets_sys[var]+nonBjets_sys[var])[:2]
+                        else:
+                            bj0_, bj1_ = None, None
+                    else:
+                        bj0_, bj1_ = bj0, bj1
+                    if bj0_ and bj1_:
+                        mt2Calc.setBJets(bj0_['pt'], bj0_['eta'], bj0_['phi'], bj1_['pt'], bj1_['eta'], bj1_['phi'])
+                        setattr(event, 'dl_mt2bb'  +i+'_'+var, mt2Calc.mt2bb())
+                        setattr(event, 'dl_mt2blbl'+i+'_'+var, mt2Calc.mt2blbl())
 
     # gen information on extra leptons
     if isMC and not options.skipGenMatching:
