@@ -726,7 +726,7 @@ def filler( event ):
                 setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
     
     
-    # dilepton stop variables
+    # dilepton stop variables calculated from tight leptons. 
     for i in metVariants:
         mt2Calc.reset()
         if len(tightLeptons)>1:
