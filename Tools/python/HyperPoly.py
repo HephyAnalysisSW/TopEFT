@@ -49,8 +49,6 @@ from TopEFT.Tools.helpers import timeit as timeit
 
 class HyperPoly:
 
-    min_abs_float = 1e-14
-
     @staticmethod
     def get_ndof( nvar, order ):
         ''' Compute the number of d.o.f. of the polynomial by summing up o in the formula for combinations with repetitions of order o in nvar variables'''
@@ -128,6 +126,7 @@ class HyperPoly:
         return self.chi2()/float(self.ndof)
          
     def root_func_string(self):
+        min_abs_float = 1e-14
         substrings = []
         for n in range(self.ndof):
             if abs(self.w_coeff[n])>self.min_abs_float:
