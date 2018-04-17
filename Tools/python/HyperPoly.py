@@ -154,20 +154,26 @@ class HyperPoly:
         return  ( "+".join( filter( lambda s: len(s)>0, substrings) ) ).replace("+-","-")
 
 if __name__ == "__main__":
-    def f(x,y,z):
-        return (x+y-z)**3 
-    param_points = [ (x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
-    weights     = [ f(*p) for p in param_points]
 
     # 3rd order parametrization
-
     p = HyperPoly(3)
+
+    param_points = [ (x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
     p.initialize( param_points )
-    coeff = p.get_parametrization( weights ) 
+    
+    def f1(x,y,z):
+        return (x+y-z)**3
+    weights     = [ f1(*point) for point in param_points]
+    coeff = p.get_parametrization( weights )
+
     print "chi2/ndof", p.chi2_ndof(coeff, weights)
     print "String:", p.root_func_string(coeff)
 
-    #def f(x):
-    #    return x 
-    #data = [ (f(x),x) for x in range(0,5) ]
-    #p = HyperPoly( data, 1)
+    def f2(x,y,z):
+        return (x-z)**3 + y
+    weights     = [ f2(*point) for point in param_points]
+    coeff = p.get_parametrization( weights )
+
+    print "chi2/ndof", p.chi2_ndof(coeff, weights)
+    print "String:", p.root_func_string(coeff)
+
