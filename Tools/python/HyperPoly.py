@@ -2,10 +2,12 @@
 Multi-dimensional polonomial parametrization.
 
 Given a list of values w for data-points (c1, ..., cN) in the form  
-[ (w, c1, ..., cN), ... ]
+[ (c1, ..., cN), ... ]
 a polyonomial parametrization
 w(c) = w_0 + w_i c_i + w_ij c_ij + ... 
 is constructed. The w_0, w_i, w_ij, ... are defined by the chi2 minimum.
+The instance is initialized with the base_point coordinates in parameter space.
+The parametrization coefficients are evaluated for a given set of weights corresponding to the base_points.
 
 Math:
 
@@ -54,39 +56,43 @@ class HyperPoly:
         ''' Compute the number of d.o.f. of the polynomial by summing up o in the formula for combinations with repetitions of order o in nvar variables'''
         return sum( [ int(scipy.special.binom(nvar + o - 1, o)) for o in xrange(order+1) ] )
 
-    # Initialize with data ( w, c1, ..., cN )
-    def __init__( self, data, order):
+    def __init__( self, order ):
+        self.order       = order
+        self.initialized = False
+
+    # Initialize with data ( c1, ..., cN )
+    def initialize( self, param_points):
+
+        # Let's not allow re-initialization.
+        if self.initialized:
+            raise RuntimeError( "Already initialized!" )
 
         # Make sure dimensionality of data is consistent
-        if not len(set( map( len, data ) )) == 1:
-            raise ValueError( "Input data is not consistent. Need a list of iterables of the same size." )
+        if not len(set( map( len, param_points ) )) == 1:
+            raise ValueError( "'param_points' are not consistent. Need a list of iterables of the same size." )
 
         # Length of the dataset
-        self.N   = len( data )
-        # Values 
-        self.w   = map( lambda x:operator.getitem(x,0), data )
+        self.N   = len( param_points )
         # Coordinates
-        self.c   = map( lambda x:operator.getitem(x,slice(1,None)), data )
+        self.param_points = param_points 
         # Number of variables
-        self.nvar = len( data[0] ) - 1
+        self.nvar = len( param_points[0] ) 
 
-        logger.debug( "Make parametrization of polynomial in %i variables to order %i" % (self.nvar, order ) )
+        logger.debug( "Make parametrization of polynomial in %i variables to order %i" % (self.nvar, self.order ) )
 
         # We have Binomial( n + o - 1, o ) coefficients for n variables at order o
-        #ncoeff = {o:int(scipy.special.binom(self.nvar + o - 1, o)) for o in xrange(order+1)}
+        # ncoeff = {o:int(scipy.special.binom(self.nvar + o - 1, o)) for o in xrange(order+1)}
         # Total number of DOF
-        self.ndof = HyperPoly.get_ndof( self.nvar, order )
+        self.ndof = HyperPoly.get_ndof( self.nvar, self.order )
         # Order of combinations (with replacements) and ascending in 'order'
         self.combination  = {}
         counter = 0
-        for o in xrange(order+1):
+        for o in xrange(self.order+1):
             for comb in itertools.combinations_with_replacement( xrange(self.nvar), o ):
                 self.combination[counter] = comb
                 counter += 1
 
         # Now we solve A.x = b for a system of dimension DOF
-        # Fill b
-        b = np.array( [ self.wEXT_expectation( self.combination[d] ) for d in range(self.ndof) ] )
         # Fill A
         A = np.empty( [self.ndof, self.ndof ] )
         for d in range(self.ndof):
@@ -96,43 +102,50 @@ class HyperPoly:
                 else:
                     A[d][e] = self.expectation(self.combination[d] + self.combination[e]) 
 
-        #print A
-        #print b
-        # Solve
-        #self.w_coeff = timeit(np.linalg.solve)(A, b)
-        self.w_coeff = np.linalg.solve(A, b)
+        # Invert (Yes, n^3. But ... only the inhomongeneity depends on the weights, so Ainv is universal for the sample!)
 
-    def wEXT_expectation(self, combination ):
+        self.Ainv = timeit(np.linalg.inv)(A)
+        self.initialized = True
+
+    def get_parametrization( self, weights ): 
+        ''' Obtain the parametrization for given weights
+        '''
+        if len(weights)!=self.N:
+            raise ValueError( "Need %i weights that correspond to the same number of param_points. Got %i." % (self.N, len(weights)) )
+        b = np.array( [ self.wEXT_expectation( weights, self.combination[d] ) for d in range(self.ndof) ] )
+        return np.dot(self.Ainv, b)
+
+    def wEXT_expectation(self, weights, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( wEXT_meas*i_meas*j_meas*k_meas... )
         '''
-        return sum( [ self.w[n]*np.prod( [ self.c[n][elem] for elem in combination ] ) for n in xrange(self.N) ] ) / float(self.N)
+        return sum( [ weights[n]*np.prod( [ self.param_points[n][elem] for elem in combination ] ) for n in xrange(self.N) ] ) / float(self.N)
 
     def expectation(self, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( i_meas*j_meas*k_meas... )
         '''
-        return sum( [ np.prod( [ self.c[n][elem] for elem in combination ] ) for n in range(self.N) ]) / float(self.N)
+        return sum( [ np.prod( [ self.param_points[n][elem] for elem in combination ] ) for n in range(self.N) ]) / float(self.N)
 
-    def eval( self, *args ):
+    def eval( self, coefficients, *point ):
         ''' Evaluate parametrization
         '''
-        if not len(args) == self.nvar:
-            raise ValueError( "Polynomial degree is %i. Got %i arguments." % (self.nvar, len(args) ) )
-        return sum( self.w_coeff[n] * np.prod( [ args[elem] for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
+        if not len(point) == self.nvar:
+            raise ValueError( "Polynomial degree is %i. Got %i arguments." % (self.nvar, len(point) ) )
+        return sum( coefficients[n] * np.prod( [ point[elem] for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
+   
+    def chi2( self, coefficients, weights):
+        return sum( [ (self.eval(coefficients, *self.param_points[n]) - weights[n])**2 for n in range(self.N) ] )
     
-    def chi2( self ):
-        return sum( [ (self.eval(*self.c[n]) - self.w[n])**2 for n in range(self.N) ] )
-    
-    def chi2_ndof( self ):
-        return self.chi2()/float(self.ndof)
+    def chi2_ndof( self, coefficients, weights):
+        return self.chi2( coefficients, weights )/float(self.ndof)
          
-    def root_func_string(self):
-        min_abs_float = 1e-14
+    def root_func_string(self, coefficients):
+        min_abs_float = 1e-10
         substrings = []
         for n in range(self.ndof):
-            if abs(self.w_coeff[n])>self.min_abs_float:
+            if abs(coefficients[n])>min_abs_float:
                 sub_substring = []
-                if abs(1-self.w_coeff[n])>self.min_abs_float:
-                    sub_substring.append( ('%f'%self.w_coeff[n]).rstrip('0') )
+                if abs(1-coefficients[n])>min_abs_float:
+                    sub_substring.append( ('%f'%coefficients[n]).rstrip('0') )
                 for var in range(self.nvar):
                     power = self.combination[n].count( var )
                     if power>0:
@@ -143,11 +156,16 @@ class HyperPoly:
 if __name__ == "__main__":
     def f(x,y,z):
         return (x+y-z)**3 
-    data = [ (f(x,y,z),x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
+    param_points = [ (x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
+    weights     = [ f(*p) for p in param_points]
+
     # 3rd order parametrization
-    p = HyperPoly( data, 3)
-    print "chi2/ndof", p.chi2_ndof()
-    print "String:", p.root_func_string()
+
+    p = HyperPoly(3)
+    p.initialize( param_points )
+    coeff = p.get_parametrization( weights ) 
+    print "chi2/ndof", p.chi2_ndof(coeff, weights)
+    print "String:", p.root_func_string(coeff)
 
     #def f(x):
     #    return x 

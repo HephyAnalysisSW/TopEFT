@@ -74,8 +74,9 @@ if args.addReweights:
     extra_variables.append(rw_vector)
 
     # coefficients for the weight parametrization
-    param_vector    = TreeVariable.fromString( "p[C/F]" )
+    param_vector      = TreeVariable.fromString( "p[C/F]" )
     param_vector.nMax = HyperPoly.get_ndof(weightInfo.nvar, args.interpolationOrder)
+    hyperPoly         = HyperPoly( args.interpolationOrder )
     extra_variables.append(param_vector)
     extra_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
 
@@ -155,26 +156,32 @@ def filler( event ):
     if args.addReweights:
         event.nrw = weightInfo.nid
         lhe_weights = reader.products['lhe'].weights()
-        weight_data = []
+        weights      = []
+        param_points = []
         for weight in lhe_weights:
             # Store nominal weight (First position!) 
             if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
             if not weight.id in weightInfo.id: continue
             pos = weightInfo.data[weight.id]
             event.rw_w[pos] = weight.wgt
+            weights.append( weight.wgt )
             interpreted_weight = interpret_weight(weight.id) 
             for var in weightInfo.variables:
                 getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
             # weight data for interpolation
-            weight_data.append( (weight.wgt,) + tuple(interpreted_weight[var] for var in weightInfo.variables) )
+            if not hyperPoly.initialized: param_points.append( tuple(interpreted_weight[var] for var in weightInfo.variables) )
 
-        # Get interpolation
-        p = HyperPoly(weight_data, args.interpolationOrder)
-        event.np = p.ndof
-        event.chi2_ndof = p.chi2_ndof()
+        # Initialize
+        if not hyperPoly.initialized: hyperPoly.initialize( param_points )
+        coeff = hyperPoly.get_parametrization( weights )
+
+        # = HyperPoly(weight_data, args.interpolationOrder)
+        event.np = hyperPoly.ndof
+        event.chi2_ndof = hyperPoly.chi2_ndof(coeff, weights)
+        #logger.debug( "chi2_ndof %f coeff %r", event.chi2_ndof, coeff )
         logger.debug( "chi2_ndof %f", event.chi2_ndof )
-        for n in xrange(p.ndof):
-            event.p_C[n] = p.w_coeff[n]
+        for n in xrange(hyperPoly.ndof):
+            event.p_C[n] = coeff[n]
 
     # All gen particles
     gp      = reader.products['gp']
