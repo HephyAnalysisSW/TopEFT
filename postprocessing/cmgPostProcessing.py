@@ -180,9 +180,7 @@ if isMC:
 isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow") or sample.name.startswith("TTZ")
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
-
     from TopEFT.Tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
-
     logger.info( "Sample will have top pt reweighting." )
     topPtReweightingFunc = getUnscaledTopPairPtReweightungFunction(selection = "dilep")
     # Compute x-sec scale factor on unweighted events

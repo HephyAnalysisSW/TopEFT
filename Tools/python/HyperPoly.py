@@ -1,28 +1,42 @@
-''' Multi-dimensional polonomial parametrization.
+''' 
+Multi-dimensional polonomial parametrization.
+
 Given a list of values w for data-points (c1, ..., cN) in the form  
 [ (w, c1, ..., cN), ... ]
 a polyonomial parametrization
 w(c) = w_0 + w_i c_i + w_ij c_ij + ... 
 is constructed. The w_0, w_i, w_ij, ... are defined by the chi2 minimum.
+
+Math:
+
+Write a polyonimal parametrization as w(c) = w_0 + w_i c_i + w_ij c_ij + w_ijk c_ijk + ...
+where ijkl... is summed over all combinations with repetitions.
+Define the notation: < ijk > = 1/N sum_data( c_i*c_j*c_k ) etc.
+Now differentiate chi2 = <(w - wEXT)**2> wrt to the w_0, w_i, ...
+This gives equations of the form
+< ( w - wEXT ) >  = 0    
+< ( w - wEXT ) m >  = 0  
+< ( w - wEXT ) mn >  = 0 
+... etc.
+
+up to 2nd order:
+1. w_0      + w_i <i>   + w_ij <ij>   - < wEXT >    = 0 
+2. w_0 <m>  + w_i <im>  + w_ij <ijm>  - < wEXT m >  = 0
+3. w_0 <mn> + w_i <imn> + w_ij <ijmn> - < wEXT mn > = 0
+
+up to 4nd order:
+1. < ( w - wEXT ) >  = 0         w_0        + w_i <i>     + w_ij <ij>     + w_ijk <ijk>     + w_ijkl <ijkl>     = <wEXT >
+2. < ( w - wEXT ) m >  = 0       w_0 <m>    + w_i <im>    + w_ij <ijm>    + w_ijk <ijkm>    + w_ijkl <ijklm>    = <wEXT m>
+3. < ( w - wEXT ) mn >  = 0      w_0 <mn>   + w_i <imn>   + w_ij <ijmn>   + w_ijk <ijkmn>   + w_ijkl <ijklmn>   = <wEXT mn>
+4. < ( w - wEXT ) mno >  = 0     w_0 <mnk>  + w_i <imnk>  + w_ij <ijmnk>  + w_ijk <ijkmno>  + w_ijkl <ijklmno>  = <wEXT mno>
+5. < ( w - wEXT ) mnop >  = 0    w_0 <mnkl> + w_i <imnkl> + w_ij <ijmnkl> + w_ijk <ijkmnop> + w_ijkl <ijklmnop> = <wEXT mnop>
+
+The class implements the general case of a n-th order polynomial.
 '''
 
-# Equations
-
-#< ijk > = 1/N sum_data( c_i*c_j*c_k ) etc.
-
-# chi2 = <(w - wEXT)**2>
-
-# w(c) = w_0 + w_i c_i + w_ij c_ij + w_ijk c_ijk + ...
-
-# < ( w - wEXT ) >  = 0    ->     w_0      + w_i <i>   + w_ij <ij>   - < wEXT >    = 0 -> w_0 = <wEXT> - w_i <i> - w_ij <ij>
-# < ( w - wEXT ) m >  = 0  ->     w_0 <m>  + w_i <im>  + w_ij <ijm>  - < wEXT m >  = 0
-# < ( w - wEXT ) mn >  = 0 ->     w_0 <mn> + w_i <imn> + w_ij <ijmn> - < wEXT mn > = 0
-
-#1. < ( w - wEXT ) >  = 0         w_0        + w_i <i>     + w_ij <ij>     + w_ijk <ijk>     + w_ijkl <ijkl>     = <wEXT >
-#2. < ( w - wEXT ) m >  = 0       w_0 <m>    + w_i <im>    + w_ij <ijm>    + w_ijk <ijkm>    + w_ijkl <ijklm>    = <wEXT m>
-#3. < ( w - wEXT ) mn >  = 0      w_0 <mn>   + w_i <imn>   + w_ij <ijmn>   + w_ijk <ijkmn>   + w_ijkl <ijklmn>   = <wEXT mn>
-#4. < ( w - wEXT ) mno >  = 0     w_0 <mnk>  + w_i <imnk>  + w_ij <ijmnk>  + w_ijk <ijkmno>  + w_ijkl <ijklmno>  = <wEXT mno>
-#5. < ( w - wEXT ) mnop >  = 0    w_0 <mnkl> + w_i <imnkl> + w_ij <ijmnkl> + w_ijk <ijkmnop> + w_ijkl <ijklmnop> = <wEXT mnop>
+# Logger
+import logging
+logger = logging.getLogger(__name__)
 
 # General imports
 import operator
@@ -30,9 +44,17 @@ import numpy as np
 import scipy.special
 import itertools
 
+# Helpers
+from TopEFT.Tools.helpers import timeit as timeit
+
 class HyperPoly:
 
-    min_abs_float = 1e-10
+    min_abs_float = 1e-14
+
+    @staticmethod
+    def get_ndof( nvar, order ):
+        ''' Compute the number of d.o.f. of the polynomial by summing up o in the formula for combinations with repetitions of order o in nvar variables'''
+        return sum( [ int(scipy.special.binom(nvar + o - 1, o)) for o in xrange(order+1) ] )
 
     # Initialize with data ( w, c1, ..., cN )
     def __init__( self, data, order):
@@ -50,15 +72,8 @@ class HyperPoly:
         # Number of variables
         self.nvar = len( data[0] ) - 1
 
-        # Make parametrization
-        self.makePoly( order )
+        logger.debug( "Make parametrization of polynomial in %i variables to order %i" % (self.nvar, order ) )
 
-    @staticmethod
-    def get_ndof( nvar, order ):
-        return sum( [ int(scipy.special.binom(nvar + o - 1, o)) for o in xrange(order+1) ] )
-
-    def makePoly( self, order ):
-    
         # We have Binomial( n + o - 1, o ) coefficients for n variables at order o
         #ncoeff = {o:int(scipy.special.binom(self.nvar + o - 1, o)) for o in xrange(order+1)}
         # Total number of DOF
@@ -86,6 +101,7 @@ class HyperPoly:
         #print A
         #print b
         # Solve
+        #self.w_coeff = timeit(np.linalg.solve)(A, b)
         self.w_coeff = np.linalg.solve(A, b)
 
     def wEXT_expectation(self, combination ):

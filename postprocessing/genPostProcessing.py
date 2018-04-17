@@ -18,7 +18,8 @@ from RootTools.core.standard             import *
 from TopEFT.Tools.user                   import skim_output_directory
 from TopEFT.Tools.GenSearch              import GenSearch
 from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
-
+from TopEFT.Tools.HyperPoly              import HyperPoly
+from TopEFT.Tools.WeightInfo             import WeightInfo
 #
 # Arguments
 # 
@@ -34,6 +35,7 @@ argParser.add_argument('--targetSampleName',   action='store',      default=None
 argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,  help="Maximum number of simultaneous jobs.")
 argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,  help="Run only job i")
 argParser.add_argument('--addReweights',       action='store_true',   help="Add reweights?")
+argParser.add_argument('--interpolationOrder', action='store',      nargs='?', type=int, default=2,  help="Interpolation order for EFT weights.")
 args = argParser.parse_args()
 
 #
@@ -53,28 +55,29 @@ else:
     samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
     sample = getattr( samples, args.sample )
 
-maxN = -1
+maxEvents = -1
 if args.small: 
     args.targetDir += "_small"
-    #maxN =1 # Number of files
+    maxEvents=100 # Number of files
     sample.files=sample.files[:1]
 
 # Load reweight pickle file if supposed to keep weights. 
 extra_variables = []
 if args.addReweights:
-    import pickle
-    reweight_pos = pickle.load(file(sample.reweight_pkl))
+    weightInfo = WeightInfo( sample.reweight_pkl )
     # Determine coefficients for storing in vector
-    reweight_coeff = reweight_pos.keys()[0].split('_')[::2]
     # Sort Ids wrt to their position in the card file
-    all_reweight_ids = reweight_pos.keys()
-    all_reweight_ids.sort(key=lambda w: reweight_pos[w])
-    nrw = len(all_reweight_ids)
 
-    # for the ntuple
-    rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in reweight_coeff)+"]")
-    rw_vector.nMax  = nrw
+    # weights for the ntuple
+    rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in weightInfo.variables)+"]")
+    rw_vector.nMax  = weightInfo.nid
     extra_variables.append(rw_vector)
+
+    # coefficients for the weight parametrization
+    param_vector    = TreeVariable.fromString( "p[C/F]" )
+    param_vector.nMax = HyperPoly.get_ndof(weightInfo.nvar, args.interpolationOrder)
+    extra_variables.append(param_vector)
+    extra_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
 
 def interpret_weight(weight_id):
     str_s = weight_id.split('_')
@@ -150,17 +153,28 @@ def filler( event ):
     if reader.position % 100==0: logger.info("At event %i/%i", reader.position, reader.nEvents)
 
     if args.addReweights:
-        event.nrw = nrw
+        event.nrw = weightInfo.nid
         lhe_weights = reader.products['lhe'].weights()
+        weight_data = []
         for weight in lhe_weights:
             # Store nominal weight (First position!) 
             if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
-            if not weight.id in all_reweight_ids: continue
-            pos = reweight_pos[weight.id]
+            if not weight.id in weightInfo.id: continue
+            pos = weightInfo.data[weight.id]
             event.rw_w[pos] = weight.wgt
             interpreted_weight = interpret_weight(weight.id) 
-            for var in reweight_coeff:
+            for var in weightInfo.variables:
                 getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
+            # weight data for interpolation
+            weight_data.append( (weight.wgt,) + tuple(interpreted_weight[var] for var in weightInfo.variables) )
+
+        # Get interpolation
+        p = HyperPoly(weight_data, args.interpolationOrder)
+        event.np = p.ndof
+        event.chi2_ndof = p.chi2_ndof()
+        logger.debug( "chi2_ndof %f", event.chi2_ndof )
+        for n in xrange(p.ndof):
+            event.p_C[n] = p.w_coeff[n]
 
     # All gen particles
     gp      = reader.products['gp']
@@ -260,7 +274,7 @@ while reader.run( ):
     maker.run()
 
     counter += 1
-    if counter == maxN:  break
+    if counter == maxEvents:  break
 
 logger.info( "Done with running over %i events.", reader.nEvents )
 
