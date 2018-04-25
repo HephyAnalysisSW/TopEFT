@@ -51,7 +51,7 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
+    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='DEBUG',                    help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu'],               help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
@@ -150,7 +150,7 @@ triggerSF = triggerEfficiency(options.year)
 
 # Tracking SF
 from TopEFT.Tools.leptonTrackingEfficiency import leptonTrackingEfficiency
-leptonTrackingSF = leptonTrackingEfficiency()
+leptonTrackingSF = leptonTrackingEfficiency(options.year)
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -168,27 +168,23 @@ else:
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
     if options.year == 2016:
-        mcProfile = "Summer16"
-        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc=mcProfile)
-        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc=mcProfile)
-        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc=mcProfile)
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2016_36000_XSecCentral", mc="Summer16")
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2016_36000_XSecDown",    mc="Summer16")
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2016_36000_XSecUp",      mc="Summer16")
     elif options.year == 2017:
         # keep the weight name for now. Should we update to a more general one?
-        mcProfile = "Fall17"
         puProfiles = puProfile( source_sample = samples[0] )
         mcHist = puProfiles.cachedTemplate( selection="( 1 )", weight='genWeight', overwrite=False ) # use genWeight for amc@NLO samples. No problems encountered so far
-        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcProfile, mcHist=mcHist)
-        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcProfile, mcHist=mcHist)
-        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcProfile, mcHist=mcHist)
+        nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc=mcHist)
+        nTrueInt36fb_puRWDown    = getReweightingFunction(data="PU_2017_42400_XSecDown",    mc=mcHist)
+        nTrueInt36fb_puRWUp      = getReweightingFunction(data="PU_2017_42400_XSecUp",      mc=mcHist)
 
 # top pt reweighting
 # Decision based on sample name -> whether TTJets or TTLep is in the sample name
 isTT = sample.name.startswith("TTJets") or sample.name.startswith("TTLep") or sample.name.startswith("TT_pow") or sample.name.startswith("TTZ")
 doTopPtReweighting = isTT and options.doTopPtReweighting
 if doTopPtReweighting:
-
     from TopEFT.Tools.topPtReweighting import getUnscaledTopPairPtReweightungFunction, getTopPtDrawString, getTopPtsForReweighting
-
     logger.info( "Sample will have top pt reweighting." )
     topPtReweightingFunc = getUnscaledTopPairPtReweightungFunction(selection = "dilep")
     # Compute x-sec scale factor on unweighted events
@@ -497,12 +493,12 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
-        event.reweightLeptonTrackingSF      = 0
-        event.reweightLeptonTrackingSFUp    = 0
-        event.reweightLeptonTrackingSFDown  = 0
-        event.reweightTrigger       = 0
-        event.reweightTriggerUp     = 0
-        event.reweightTriggerDown   = 0
+        event.reweightLeptonTrackingSF      = 1
+        event.reweightLeptonTrackingSFUp    = 1
+        event.reweightLeptonTrackingSFDown  = 1
+        event.reweightTrigger       = 1
+        event.reweightTriggerUp     = 1
+        event.reweightTriggerDown   = 1
 
     elif isData:
         event.weight = 1
@@ -561,12 +557,8 @@ def filler( event ):
             for var in lep_convinience_vars:
                 setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
-    if isMC and len(tightLeptons)>0:
+    if options.year==2016 and isMC and len(tightLeptons)>0:
         
-        event.reweightLeptonTrackingSF      = 1.
-        event.reweightLeptonTrackingSFUp    = 1.
-        event.reweightLeptonTrackingSFDown  = 1.
-
         for l in tightLeptons:
             eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
             trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])

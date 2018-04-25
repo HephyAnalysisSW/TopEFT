@@ -221,5 +221,5 @@ if __name__ == "__main__":
     import TopEFT.Tools.logger as logger
     logger = logger.get_logger('DEBUG')
 
-    walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2/JetHT')
-    cmg_directories = walker.walk_dpm_cmgdirectories('.', maxN = 1,  path_substrings = [ 'Run2016B' ] )
+    walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/ewkDM_ttZ_ll/')
+    cmg_directories = walker.walk_dpm_cmgdirectories('.', maxN = 1 )

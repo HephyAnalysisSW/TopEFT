@@ -9,6 +9,7 @@ cd $CMSSW_BASE/src
 #
 #git clone git@github.com:GhentAnalysis/PlotsSMS StopsDilepton/PlotsSMS
 git clone git@github.com:GhentAnalysis/RootTools
+git clone git@github.com:TTXPheno/TTXPheno
 scram b -j9
 
 #
