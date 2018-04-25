@@ -169,11 +169,11 @@ if __name__ == "__main__":
     print "chi2/ndof", p.chi2_ndof(coeff, weights)
     print "String:", p.root_func_string(coeff)
 
-    def f2(x,y,z):
-        return (x-z)**3 + y
-    weights     = [ f2(*point) for point in param_points]
-    coeff = p.get_parametrization( weights )
+    #def f2(x,y,z):
+    #    return (x-z)**3 + y
+    #weights     = [ f2(*point) for point in param_points]
+    #coeff = p.get_parametrization( weights )
 
-    print "chi2/ndof", p.chi2_ndof(coeff, weights)
-    print "String:", p.root_func_string(coeff)
+    #print "chi2/ndof", p.chi2_ndof(coeff, weights)
+    #print "String:", p.root_func_string(coeff)
 
