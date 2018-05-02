@@ -26,10 +26,11 @@ special_cuts = {
     "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight>0)>0 && Sum$(lep_pt>20&&lep_tight>0)>1 && Sum$(lep_pt>10&&lep_tight>0)>2",
 #    "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>0 && Sum$(lep_pt>20&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>1 && Sum$(lep_pt>10&&lep_tight>0&&(abs(lep_pdgId)==11||(abs(lep_pdgId)==13&&lep_mediumMuonId)))>2",
     "lepSelTTG":         "lep_pt[0]>40&&lep_pt[1]>20",
-    "lepSelTTZ4l":       "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&lep_pt[3]>10",
+    "lepSelQuad":        "Sum$(lep_pt>40&&lep_tight>0)>0 && Sum$(lep_pt>10&&lep_tight>0)>3 ",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
     "onZ":               "abs(Z_mass-91.2)<10",
+    "onZZ":              "abs(Z_mass-91.2)<20&&abs(Z2_mass-91.2)<20",
     "onZloose":          "abs(Z_mass-91.2)<15",
     "offZ":              "abs(Z_mass-91.2)>10",
   }

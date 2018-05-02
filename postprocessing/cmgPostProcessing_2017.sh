@@ -58,7 +58,7 @@
 #python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT20
 #
 #python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017C_17Nov2017 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017D_17Nov2017 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017E_17Nov2017 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --skim dilep --year 2017 --processingEra TopEFT_PP_2017_mva_v3 --sample MuonEG_Run2017F_17Nov2017 #SPLIT20
