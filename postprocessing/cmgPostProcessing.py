@@ -21,13 +21,17 @@ from RootTools.core.standard import *
 import TopEFT.Tools.user as user
 
 # Tools for systematics
-from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar, getGenZ, getGenPhoton
+from TopEFT.Tools.helpers                    import closestOSDLMassToMZ, checkRootFile, writeObjToFile, deltaR, bestDRMatchInCollection, deltaPhi, mZ, cosThetaStar, getGenZ, getGenPhoton, getSortedZCandidates, getMinDLMass
 from TopEFT.Tools.addJERScaling              import addJERScaling
 from TopEFT.Tools.objectSelection            import getLeptons, muonSelector, eleSelector, lepton_branches_data, lepton_branches_mc
 from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, isBJet, isAnalysisJet, getGoodPhotons, getGenPartsAll, getAllJets
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.puProfileCache             import puProfile
+
+from TopEFT.Tools.mt2Calculator              import mt2Calculator
 from TopEFT.Tools.user                       import results_directory
+mt2Calc = mt2Calculator()
+
 # for syncing
 import TopEFT.Tools.sync as sync
 
@@ -86,6 +90,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 # Flags 
 isDiLep     =   options.skim.lower().startswith('dilep')
 isTriLep    =   options.skim.lower().startswith('trilep')
+isQuadLep    =   options.skim.lower().startswith('quadlep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
 isInclusive =   options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
@@ -98,6 +103,8 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+if isQuadLep:
+    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
 if isInclusive:
@@ -204,7 +211,7 @@ if addSystematicVariations:
         sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_Moriond17_B_H.csv'
     elif options.year == 2017:
         effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_CSVv2_eta.pkl'
-        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_94XSF_V1_B_F.csv'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/CSVv2_94XSF_V2_B_F.csv'
     btagEff_CSVv2   = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
     # DeepCSV
@@ -213,7 +220,7 @@ if addSystematicVariations:
         sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
     elif options.year == 2017:
         effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_deepCSV_eta.pkl'
-        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_94XSF_V1_B_F.csv'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_94XSF_V2_B_F.csv'
     btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
@@ -408,7 +415,10 @@ new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
+new_variables.extend( ['Z2_l1_index/I', 'Z2_l2_index/I'] )
 new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F'] )
+new_variables.extend( ['Z2_pt/F', 'Z2_eta/F', 'Z2_phi/F', 'Z2_lldPhi/F', 'Z2_lldR/F',  'Z2_mass/F', 'Z2_cosThetaStar/F'] )
+
 
 if options.keepPhotons: 
     new_variables.extend( ['nPhotonGood/I','photon_pt/F','photon_eta/F','photon_phi/F','photon_idCutBased/I'] )
@@ -416,6 +426,10 @@ if options.keepPhotons:
     new_variables.extend( ['met_pt_photonEstimated/F','met_phi_photonEstimated/F','metSig_photonEstimated/F'] )
     new_variables.extend( ['photonJetdR/F','photonLepdR/F'] )
     new_variables.extend( ['TTGJetsEventType/I'] )
+
+# variables for dilepton stop
+new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'totalLeptonCharge/I' ] )
+
 
 if addSystematicVariations:
     read_variables += map(TreeVariable.fromString, [\
@@ -427,6 +441,7 @@ if addSystematicVariations:
         if 'Unclustered' not in var: new_variables.extend( ['nJetSelected_'+var+'/I', 'nBTag_'+var+'/I','ht_'+var+'/F'] )
         new_variables.extend( ['met_pt_'+var+'/F', 'met_phi_'+var+'/F', 'metSig_'+var+'/F'] )
         if options.keepPhotons: new_variables.extend( ['met_pt_photonEstimated_'+var+'/F', 'met_phi_photonEstimated_'+var+'/F', 'metSig_photonEstimated_'+var+'/F'] )
+        new_variables.extend( ['dl_mt2ll_'+var+'/F', 'dl_mt2bb_'+var+'/F', 'dl_mt2blbl_'+var+'/F'] )
     # Btag weights Method 1a
     for var in btagEff_CSVv2.btagWeightNames:
         if var!='MC':
@@ -565,6 +580,25 @@ def filler( event ):
     # Identify best Z from tight leptons 
     #(event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
     (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(tightLeptons)
+
+    # get variables used in 4l analysis
+    if len(tightLeptons)>1:
+        minDLMass, allMasses = getMinDLMass(tightLeptons)
+        event.min_dl_mass = minDLMass[0]
+    if len(tightLeptons)>3:
+        allZCands = getSortedZCandidates(tightLeptons)
+        if len(allZCands)>1:
+            event.Z2_mass       = allZCands[1][0]
+            event.Z2_l1_index   = tightLeptons[allZCands[1][1]]['index']
+            event.Z2_l2_index   = tightLeptons[allZCands[1][2]]['index']
+        else:
+            event.Z2_mass       = -1
+            event.Z2_l1_index   = -1
+            event.Z2_l2_index   = -1
+
+
+    event.totalLeptonCharge = sum( [ l['pdgId']/abs(l['pdgId']) for l in tightLeptons ] )
+
     nonZ_tightLepton_indices = [ i for i in range(len(tightLeptons)) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
     event.Z_l1_index    = tightLeptons[Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
     event.Z_l2_index    = tightLeptons[Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
@@ -589,6 +623,23 @@ def filler( event ):
         # get the Z and lepton (negative charge) vectors
         lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
         event.cosThetaStar = cosThetaStar(event.Z_mass, event.Z_pt, event.Z_eta, event.Z_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
+
+    # dirty copy of above method for 2nd Z
+    if event.Z2_mass>=0:
+        if leptons[event.Z2_l1_index]['pdgId']*leptons[event.Z2_l2_index]['pdgId']>0 or abs(leptons[event.Z2_l1_index]['pdgId'])!=abs(leptons[event.Z2_l2_index]['pdgId']): raise RuntimeError( "not a Z! Should never happen" )
+        Z_l1 = ROOT.TLorentzVector()
+        Z_l1.SetPtEtaPhiM(leptons[event.Z2_l1_index]['pt'], leptons[event.Z2_l1_index]['eta'], leptons[event.Z2_l1_index]['phi'], 0 )
+        Z_l2 = ROOT.TLorentzVector()
+        Z_l2.SetPtEtaPhiM(leptons[event.Z2_l2_index]['pt'], leptons[event.Z2_l2_index]['eta'], leptons[event.Z2_l2_index]['phi'], 0 )
+        Z = Z_l1 + Z_l2
+        event.Z2_pt   = Z.Pt()
+        event.Z2_eta  = Z.Eta()
+        event.Z2_phi  = Z.Phi()
+        event.Z2_lldPhi = deltaPhi(leptons[event.Z2_l1_index]['phi'], leptons[event.Z2_l2_index]['phi'])
+        event.Z2_lldR   = deltaR(leptons[event.Z2_l1_index], leptons[event.Z2_l2_index])
+
+        lm_index = event.Z2_l1_index if event.lep_pdgId[event.Z2_l1_index] > 0 else event.Z2_l2_index
+        event.Z2_cosThetaStar = cosThetaStar(event.Z2_mass, event.Z2_pt, event.Z2_eta, event.Z2_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
     # Jets and lepton jet cross-cleaning    
     allJets      = getAllJets(r, tightLeptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
@@ -707,6 +758,47 @@ def filler( event ):
         for var in btagEff_DeepCSV.btagWeightNames:
             if var!='MC':
                 setattr(event, 'reweightBTagDeepCSV_'+var, btagEff_DeepCSV.getBTagSF_1a( var, bJetsDeepCSV, filter( lambda j: abs(j['eta'])<2.4, nonBJetsDeepCSV ) ) )
+    
+    
+    # dilepton stop variables calculated from tight leptons. 
+    for i in metVariants:
+        mt2Calc.reset()
+        if len(tightLeptons)>1:
+            l1 = ROOT.TLorentzVector()
+            l1.SetPtEtaPhiM(tightLeptons[0]['pt'], tightLeptons[0]['eta'], tightLeptons[0]['phi'], 0 )
+            l2 = ROOT.TLorentzVector()
+            l2.SetPtEtaPhiM(tightLeptons[1]['pt'], tightLeptons[1]['eta'], tightLeptons[1]['phi'], 0 )
+            dl = l1+l2
+            event.dl_pt   = dl.Pt()
+            event.dl_eta  = dl.Eta()
+            event.dl_phi  = dl.Phi()
+            event.dl_mass = dl.M()
+            mt2Calc.setLeptons(l1.Pt(), l1.Eta(), l1.Phi(), l2.Pt(), l2.Eta(), l2.Phi())
+            mt2Calc.setMet(getattr(event, 'met_pt'+i), getattr(event, 'met_phi'+i))
+            setattr(event, "dl_mt2ll"+i, mt2Calc.mt2ll())
+
+            bj0, bj1 = None, None
+            if len(selected_jets)>=2:
+                bj0, bj1 = (bJetsDeepCSV+nonBJetsDeepCSV)[:2]
+                mt2Calc.setBJets(bj0['pt'], bj0['eta'], bj0['phi'], bj1['pt'], bj1['eta'], bj1['phi'])
+                setattr(event, "dl_mt2bb"+i,   mt2Calc.mt2bb())
+                setattr(event, "dl_mt2blbl"+i, mt2Calc.mt2blbl())
+
+            if addSystematicVariations:
+                for var in ['JECUp', 'JECDown', 'JERUp', 'JERDown', 'UnclusteredEnUp', 'UnclusteredEnDown']:
+                    mt2Calc.setMet( getattr(event, "met_pt"+i+"_"+var), getattr(event, "met_phi"+i+"_"+var) )
+                    setattr(event, "dl_mt2ll"+i+"_"+var,  mt2Calc.mt2ll())
+                    if not 'Unclustered' in var:
+                        if len(jets_sys[var])>=2:
+                            bj0_, bj1_ = (bjets_sys[var]+nonBjets_sys[var])[:2]
+                        else:
+                            bj0_, bj1_ = None, None
+                    else:
+                        bj0_, bj1_ = bj0, bj1
+                    if bj0_ and bj1_:
+                        mt2Calc.setBJets(bj0_['pt'], bj0_['eta'], bj0_['phi'], bj1_['pt'], bj1_['eta'], bj1_['phi'])
+                        setattr(event, 'dl_mt2bb'  +i+'_'+var, mt2Calc.mt2bb())
+                        setattr(event, 'dl_mt2blbl'+i+'_'+var, mt2Calc.mt2blbl())
 
     # gen information on extra leptons
     if isMC and not options.skipGenMatching:

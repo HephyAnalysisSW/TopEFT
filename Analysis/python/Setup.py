@@ -60,12 +60,13 @@ default_parameters   = {
         }
 
 class Setup:
-    def __init__(self, year=2017):
+    def __init__(self, year=2017, nonprompt=False):
         self.name       = "defaultSetup"
         self.channels   = ["all"]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
         self.year       = year
+        self.nonprompt  = nonprompt
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]
@@ -264,33 +265,50 @@ class Setup:
               res['cuts'].append('Z_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
-            presel_2l     = "(nGoodLeptons>=2)"  
+            presel_2l     = "(nGoodLeptons>=2)"
+            # Standard preselections
             presel3mu     = "(nGoodMuons==3&&nGoodElectrons==0)"
             presel2mu1e   = "(nGoodMuons==2&&nGoodElectrons==1)"
             presel2e1mu   = "(nGoodMuons==1&&nGoodElectrons==2)"
             presel3e      = "(nGoodMuons==0&&nGoodElectrons==3)"
             allPresels    = [presel3mu,presel2mu1e,presel2e1mu,presel3e]
-
+            # Preselections for FOs (a bit akward)
+            FO3mu   = "(Sum$(lep_FO>0&&abs(lep_pdgId)==13)==3 && Sum$(lep_FO>0&&abs(lep_pdgId)==11)==0)"
+            FO2mu1e = "(Sum$(lep_FO>0&&abs(lep_pdgId)==13)==2 && Sum$(lep_FO>0&&abs(lep_pdgId)==11)==1)"
+            FO1mu2e = "(Sum$(lep_FO>0&&abs(lep_pdgId)==13)==1 && Sum$(lep_FO>0&&abs(lep_pdgId)==11)==2)"
+            FO3e    = "(Sum$(lep_FO>0&&abs(lep_pdgId)==13)==0 && Sum$(lep_FO>0&&abs(lep_pdgId)==11)==3)"
+            allFO   = [FO3mu,FO2mu1e,FO1mu2e,FO3e]
+            
             #Z window
             assert zWindow in ['offZ', 'onZ', 'allZ'], "zWindow must be one of onZ, offZ, allZ. Got %r"%zWindow
             if zWindow == 'onZ':                     res['cuts'].append(getZCut(zWindow, self.zMassRange))
             if zWindow == 'offZ' and channel!="EMu": res['cuts'].append(getZCut(zWindow, self.zMassRange))  # Never use offZ when in emu channel, use allZ instead
 
             #lepton channel
-            assert channel in allChannels+["2l_incl"], "channel must be one of "+",".join(allChannels)+". Got %r."%channel
+            assert channel in allChannels+["2l_incl"]+allFO, "channel must be one of "+",".join(allChannels)+". Got %r."%channel
 
-            if channel=="3mu":        chStr = presel3mu
-            elif channel=="2mu1e":    chStr = presel2mu1e
-            elif channel=="2e1mu":    chStr = presel2e1mu
-            elif channel=="3e":       chStr = presel3e
-            elif channel=="2l_incl":  chStr = presel_2l
-            elif channel=="all":      chStr = "("+'||'.join(allPresels)+')'
+            if not self.nonprompt:
+                if channel=="3mu":        chStr = presel3mu
+                elif channel=="2mu1e":    chStr = presel2mu1e
+                elif channel=="2e1mu":    chStr = presel2e1mu
+                elif channel=="3e":       chStr = presel3e
+                elif channel=="all":      chStr = "("+'||'.join(allPresels)+')'
+            else:
+                if channel=="3mu":        chStr = FO3mu
+                elif channel=="2mu1e":    chStr = FO2mu1e
+                elif channel=="2e1mu":    chStr = FO2e1mu
+                elif channel=="3e":       chStr = FO3e
+                elif channel=="all":      chStr = "("+'||'.join(allFO)+')'
 
             res['cuts'].append(chStr)
 
-            if channel is not "2l_incl":
+            if channel is not "2l_incl" and not self.nonprompt:
                 res['cuts'].append('nGoodLeptons==3')
+                # update with more accurate cut string for lepton selection
+                #res['cuts'].append("Sum$(lep_pt>40&&lep_tight>0)>0 && Sum$(lep_pt>20&&lep_tight>0)>1 && Sum$(lep_pt>10&&lep_tight>0)>2")
                 res['cuts'].append("lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10")
+            elif self.nonprompt:
+                res['cuts'].append("Sum$(lep_pt>40&&lep_FO>0)>0 && Sum$(lep_pt>20&&lep_FO>0)>1 && Sum$(lep_pt>10&&lep_FO>0)==3")
 
 
         # Need a better solution for the Setups for different eras

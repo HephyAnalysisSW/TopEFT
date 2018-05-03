@@ -1,5 +1,14 @@
 #!/bin/sh
 
+## 4l channel
+
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample TTZToLLNuNu_ext # SPLIT10
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample ZZTo4L # SPLIT10
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample ZZZ # SPLIT10
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample WZZ # SPLIT10
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample WWZ # SPLIT10
+python cmgPostProcessing.py --skim quadlep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v3 --sample WWW # SPLIT10
+
 ### Summer 16 MC ###
 ## TTZ 
 #python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToLLNuNu_ext # SPLIT10
@@ -47,13 +56,13 @@
 #python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q #SPLIT10
 
 ## Stops Dilepton
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToLLNuNu_m1to10 #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToQQ #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample VVTo2L2Nu VVTo2L2Nu_ext #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZ WZ_ext #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZ ZZ_ext #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q #SPLIT10
-python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZTo2L2Q #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToLLNuNu_m1to10 #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample TTZToQQ #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample VVTo2L2Nu VVTo2L2Nu_ext #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZ WZ_ext #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZ ZZ_ext #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample WZTo2L2Q #SPLIT10
+#python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample ZZTo2L2Q #SPLIT10
 
 ## Others (not used atm, no need to run)
 #python cmgPostProcessing.py --skim dilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v2 --sample GGHZZ4L #SPLIT10

@@ -84,8 +84,6 @@ class btagEfficiency:
         # Input files
         if not (sfFile and effFile):
             raise NotImplementedError("MC truth efficiency and/or SF files not defined!")
-        print sfFile
-        print effFile
         self.scaleFactorFile = sfFile
         self.mcEfficiencyFile = effFile
 
