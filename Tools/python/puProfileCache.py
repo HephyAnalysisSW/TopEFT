@@ -53,8 +53,8 @@ class puProfile:
         key = {"selection":selection, "weight":weight, "source":self.source_sample.name}
         if (self.cache and self.cache.contains(key)) and not overwrite:
             result = self.cache.get(key)
-            logger.info( "Loaded MC PU profile from %s for %s : %r"%(self.cache.database_file, key, result) )
-            logger.debug( "With properties %s : %s"%( key, result) )
+            logger.info( "Loaded MC PU profile from %s"%(self.cache.database_file) )
+            logger.debug( "Key used: %s result: %r"%(key, result) )
         elif self.cache:
             logger.info( "Obtain PU profile for %s"%( key, ) )
             result = self.makeTemplate( selection = selection, weight = weight)
@@ -62,7 +62,7 @@ class puProfile:
                 result = self.cache.addData( key, result, overwrite=save )
                 logger.info( "Adding PU profile to cache for %s : %r" %( key, result) )
             else:
-                logger.info( "Couldn't create PU profile to cache for %s : %r" %( key, result) )
+                logger.warning( "Couldn't create PU profile to cache for %s : %r" %( key, result) )
         else:
             result = self.makeTemplate( selection = selection, weight = weight)
         return result

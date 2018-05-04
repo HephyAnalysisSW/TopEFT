@@ -51,14 +51,15 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='DEBUG',                    help="Log level for logging")
+    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=logChoices,     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu'],               help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',                         action='store',         nargs='*',  type=int,                           default=[],                         help="Run only job i")
+    argParser.add_argument('--job',                         action='store',                     type=int,                           default=None,                       help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
+    argParser.add_argument('--fileBasedSplitting',          action='store_true',                                                                                        help="Split njobs according to files")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
     argParser.add_argument('--targetDir',                   action='store',         nargs='?',  type=str,                           default=user.postprocessing_output_directory, help="Name of the directory the post-processed files will be saved")
     argParser.add_argument('--processingEra',               action='store',         nargs='?',  type=str,                           default='TopEFT_PP_v4',             help="Name of the processing era")
@@ -81,7 +82,7 @@ options = get_parser().parse_args()
 
 # Logging
 import TopEFT.Tools.logger as logger
-logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job[0]))
+logFile = '/tmp/%s_%s_%s_njob%s.txt'%(options.skim, '_'.join(options.samples), os.environ['USER'], str(0 if options.nJobs==1 else options.job) )
 logger  = logger.get_logger(options.logLevel, logFile = logFile, add_sync_level = options.sync)
 
 import RootTools.core.logger as logger_rt
@@ -168,6 +169,10 @@ elif len(samples)==1:
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
 
+if options.fileBasedSplitting:
+    len_orig = len(sample.files)
+    sample = sample.split( n=options.nJobs, nSub=options.job)
+    logger.info( "fileBasedSplitting: Run over %i/%i files for job %i/%i.", len(sample.files), len_orig, options.job, options.nJobs)
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
     if options.year == 2016:
@@ -850,24 +855,32 @@ treeMaker_parent = TreeMaker(
     )
 
 # Split input in ranges
-if options.nJobs>1:
+if options.nJobs>1 and not options.fileBasedSplitting:
     eventRanges = reader.getEventRanges( nJobs = options.nJobs )
 else:
     eventRanges = reader.getEventRanges( maxNEvents = options.eventsPerJob, minJobs = options.minNJobs )
 
-logger.info( "Splitting into %i ranges of %i events on average.",  len(eventRanges), (eventRanges[-1][1] - eventRanges[0][0])/len(eventRanges) )
+logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s",  
+        len(eventRanges), 
+        (eventRanges[-1][1] - eventRanges[0][0])/len(eventRanges), 
+        'Yes' if options.fileBasedSplitting else 'No')
 
 #Define all jobs
 jobs = [(i, eventRanges[i]) for i in range(len(eventRanges))]
 
 filename, ext = os.path.splitext( os.path.join(output_directory, sample.name + '.root') )
 
+if options.fileBasedSplitting and len(eventRanges)>1:
+    raise RuntimeError("Using fileBasedSplitting but have more than one event range!")
+
 clonedEvents = 0
 convertedEvents = 0
 outputLumiList = {}
 for ievtRange, eventRange in enumerate( eventRanges ):
 
-    if len(options.job)>0 and not ievtRange in options.job: continue
+    
+    if not options.fileBasedSplitting and options.nJobs>1:
+        if ievtRange != options.job: continue
 
     logger.info( "Processing range %i/%i from %i to %i which are %i events.",  ievtRange, len(eventRanges), eventRange[0], eventRange[1], eventRange[1]-eventRange[0] )
 
@@ -929,7 +942,7 @@ logger.info( "Converted %i events of %i, cloned %i",  convertedEvents, reader.nE
 
 # Storing JSON file of processed events
 if isData:
-    jsonFile = filename+'_%s.json'%(0 if options.nJobs==1 else options.job[0])
+    jsonFile = filename+'_%s.json'%(0 if options.nJobs==1 else options.job)
     LumiList( runsAndLumis = outputLumiList ).writeJSON(jsonFile)
     logger.info( "Written JSON file %s",  jsonFile )
 
