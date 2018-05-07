@@ -55,7 +55,7 @@ def get_parser():
     argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--samples',                     action='store',         nargs='*',  type=str,                           default=['WZTo3LNu'],               help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
-    argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=300000,                     help="Maximum number of events per job (Approximate!).")
+    argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=30000000,                   help="Maximum number of events per job (Approximate!).") # mul by 100
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=None,                       help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
@@ -172,7 +172,8 @@ else:
 if options.fileBasedSplitting:
     len_orig = len(sample.files)
     sample = sample.split( n=options.nJobs, nSub=options.job)
-    logger.info( "fileBasedSplitting: Run over %i/%i files for job %i/%i.", len(sample.files), len_orig, options.job, options.nJobs)
+    logger.info( "fileBasedSplitting: Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig, options.job, options.nJobs))
+    logger.debug( "fileBasedSplitting: Files to be run over:\n%s", "\n".join(sample.files) )
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
     if options.year == 2016:
@@ -860,10 +861,11 @@ if options.nJobs>1 and not options.fileBasedSplitting:
 else:
     eventRanges = reader.getEventRanges( maxNEvents = options.eventsPerJob, minJobs = options.minNJobs )
 
-logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s",  
+logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s. Job number %i",  
         len(eventRanges), 
         (eventRanges[-1][1] - eventRanges[0][0])/len(eventRanges), 
-        'Yes' if options.fileBasedSplitting else 'No')
+        'Yes' if options.fileBasedSplitting else 'No',
+        options.job)
 
 #Define all jobs
 jobs = [(i, eventRanges[i]) for i in range(len(eventRanges))]
@@ -885,7 +887,7 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     logger.info( "Processing range %i/%i from %i to %i which are %i events.",  ievtRange, len(eventRanges), eventRange[0], eventRange[1], eventRange[1]-eventRange[0] )
 
     # Check whether file exists
-    outfilename = filename+'_'+str(ievtRange)+ext
+    outfilename = filename+'_'+str(options.job)+ext
     if os.path.isfile(outfilename):
         logger.info( "Output file %s found.", outfilename)
         if not checkRootFile(outfilename, checkForObjects=["Events"]):

@@ -21,15 +21,16 @@ if __name__ == '__main__':
     # Logging
     import TopEFT.Tools.logger as logger_
     logger = logger_.get_logger(options.logLevel, logFile = None )
-
+    
     overwrite = options.overwrite
+    multithreading = options.multithreading
     maxN = options.maxN
 
 else:
     # Logging
     import logging
     logger = logging.getLogger(__name__)
-
+    multithreading = False
     overwrite = False 
     maxN =      -1
 
@@ -43,7 +44,7 @@ import pickle
 
 class heppy_mapper:
 
-    def __init__(self, heppy_samples, dpm_directories, cache_file):
+    def __init__(self, heppy_samples, dpm_directories, cache_file, multithreading=True):
         # Read cache file, if exists
         if os.path.exists( cache_file ) and not overwrite:
             self.sample_map = pickle.load( file(cache_file) )
@@ -94,7 +95,7 @@ class heppy_mapper:
                 else:
                     normalization, files = walker.combine_cmg_directories(\
                             cmg_directories = {dpm_directory:self.cmg_directories[data_path][dpm_directory] for data_path, dpm_directory in heppy_sample.candidate_directories }, 
-                            multithreading = not options.nomultithreading, 
+                            multithreading = multithreading, 
                         )
                     logger.info( "Sample %s: Found a total of %i files with normalization %3.2f", heppy_sample.name, len(files), normalization)
                     tmp_files = []
@@ -153,32 +154,32 @@ data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run
 robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
 data_dpm_directories = robert_2016_1l_v1
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
+data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
 # Summer16 MC
 mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v1_4.pkl'
 robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
 mc_dpm_directories = robert_2016_1l_v1
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, mc_cache_file)
+mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, mc_cache_file, multithreading=multithreading)
 
 # Private signal MC with 0 jets (LO) and 0 lepton requirement
 signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_2016_0l_v1.pkl'
 robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_0l_v1']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttX0j_signal_samples
-signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file)
+signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading)
 
 # Data 2017, 17Nov2017
 data_cache_file_2017 = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2017_data_94X_1l_v9.pkl'
 robert_1l_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v9']
 data_dpm_directories = robert_1l_94X
 from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
-data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017)
+data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017, multithreading=multithreading)
 
 # Fall17 MC
 Fall17_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10.pkl'
 robert_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v10']
 mc_dpm_directories = robert_94X
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
-Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, Fall17_cache_file)
+Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, Fall17_cache_file, multithreading=multithreading)
