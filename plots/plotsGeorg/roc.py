@@ -4,6 +4,7 @@ import os
 
 # RootTools
 from RootTools.core.standard import *
+from array import array
 
 # User specific 
 from TopEFT.Tools.user import plot_directory
@@ -22,6 +23,9 @@ reader = sample.treeReader(  map( TreeVariable.fromString, variables ) )
 #roc data
 rocdata=[]
 effdata=[]
+p=array('d')
+x=array('d')
+y=array('d')
 
 #match Id Signal
 matchIdSignal=[6,23,24,25,37]
@@ -62,7 +66,22 @@ while reader.run():
     if counter>1000000: break
 
 for a in range(0,100,1):
-    p=a/100.
-    effdata.append([p, eS(p, rocdata, matchIdSignal),1-eB(p, rocdata, matchIdSignal)])
-    print p, eS(p, rocdata, matchIdSignal),1-eB(p, rocdata, matchIdSignal)
+    p.append(a/100.)  
+    x.append(eS(p[a], rocdata, matchIdSignal))
+    y.append(1-eB(p[a], rocdata, matchIdSignal))
+    effdata.append([p[a], x[a], y[a]])
+    print p[a], x[a], y[a]
 
+# TGraph
+c=ROOT.TCanvas()
+n=len(x)
+g=ROOT.TGraph(n,x,y)
+g.Draw()
+g.SetTitle( 'roc curve' )
+g.GetXaxis().SetTitle( 'eS' )
+g.GetYaxis().SetTitle( '1-eB' )
+g.SetLineColor( 1 )
+g.SetLineWidth( 0 )
+g.SetMarkerColor( 4 )
+g.SetMarkerStyle( 5 )
+c.Print(os.path.join(plot_directory, 'roc_plot.png'))
