@@ -65,14 +65,25 @@ while reader.run():
 
     if counter>1000000: break
 
-for a in range(0,100,1):
-    p.append(a/100.)  
-    x.append(eS(p[a], rocdata, matchIdSignal))
-    y.append(1-eB(p[a], rocdata, matchIdSignal))
-    effdata.append([p[a], x[a], y[a]])
-    print p[a], x[a], y[a]
+npmin=10
+npmax=100
+nmax=0
+xymax=0.
+for np in range(npmin,npmax,1):
+    i=np-npmin
+    p.append(np/100.)  
+    x.append(eS(p[i], rocdata, matchIdSignal))
+    y.append(1-eB(p[i], rocdata, matchIdSignal))
+    effdata.append([p[i], x[i], y[i]])
+    if ((x[i]*y[i])>xymax):
+        xymax=x[i]*y[i]
+        nmax=i
+    print p[i], x[i], y[i]
+print "maximum at: ", p[nmax], x[nmax], y[nmax]
 
 # TGraph
+#plot_directory_ = os.path.join(plot_directory, 'roc_plots')
+#plot_directory=plot_directory_
 c=ROOT.TCanvas()
 n=len(x)
 g=ROOT.TGraph(n,x,y)
@@ -84,4 +95,7 @@ g.SetLineColor( 1 )
 g.SetLineWidth( 0 )
 g.SetMarkerColor( 4 )
 g.SetMarkerStyle( 5 )
+nmaxtext=ROOT.TLatex()
+nmaxtext.SetTextSize(0.04)
+nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" % p[nmax])
 c.Print(os.path.join(plot_directory, 'roc_plot.png'))
