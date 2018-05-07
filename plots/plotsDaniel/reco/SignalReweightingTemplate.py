@@ -129,15 +129,15 @@ if __name__ == "__main__":
     # reweighting class
     cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
     
-    source_gen = ewkDM_ttZ_ll_gen
-    target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
+    #source_gen = ewkDM_ttZ_ll_gen
+    #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
     #target_gen = ewkDM_ttZ_ll_gen_DC2A_0p200000_DC2V_0p200000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_1p000000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
     
-    #source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
-    #target_gen = dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00
+    source_gen = dim6top_all[0]
+    target_gen = dim6top_dipoles[313]
     #target_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
 
     signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = target_gen, cacheDir = cacheDir)
