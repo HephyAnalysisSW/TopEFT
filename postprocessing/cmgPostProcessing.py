@@ -173,6 +173,7 @@ if options.fileBasedSplitting:
     len_orig = len(sample.files)
     sample = sample.split( n=options.nJobs, nSub=options.job)
     logger.info( "fileBasedSplitting: Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig, options.job, options.nJobs))
+    logger.debug( "fileBasedSplitting: Files to be run over:\n%s", "\n".join(sample.files) )
 if isMC:
     from TopEFT.Tools.puReweighting import getReweightingFunction
     if options.year == 2016:
