@@ -4,6 +4,7 @@ import os
 
 # RootTools
 from RootTools.core.standard import *
+from array import array
 
 # User specific 
 from TopEFT.Tools.user import plot_directory
@@ -22,6 +23,9 @@ reader = sample.treeReader(  map( TreeVariable.fromString, variables ) )
 #roc data
 rocdata=[]
 effdata=[]
+p=array('d')
+x=array('d')
+y=array('d')
 
 #match Id Signal
 matchIdSignal=[6,23,24,25,37]
@@ -61,8 +65,37 @@ while reader.run():
 
     if counter>1000000: break
 
-for a in range(0,100,1):
-    p=a/100.
-    effdata.append([p, eS(p, rocdata, matchIdSignal),1-eB(p, rocdata, matchIdSignal)])
-    print p, eS(p, rocdata, matchIdSignal),1-eB(p, rocdata, matchIdSignal)
+npmin=10
+npmax=100
+nmax=0
+xymax=0.
+for np in range(npmin,npmax,1):
+    i=np-npmin
+    p.append(np/100.)  
+    x.append(eS(p[i], rocdata, matchIdSignal))
+    y.append(1-eB(p[i], rocdata, matchIdSignal))
+    effdata.append([p[i], x[i], y[i]])
+    if ((x[i]*y[i])>xymax):
+        xymax=x[i]*y[i]
+        nmax=i
+    print p[i], x[i], y[i]
+print "maximum at: ", p[nmax], x[nmax], y[nmax]
 
+# TGraph
+#plot_directory_ = os.path.join(plot_directory, 'roc_plots')
+#plot_directory=plot_directory_
+c=ROOT.TCanvas()
+n=len(x)
+g=ROOT.TGraph(n,x,y)
+g.Draw()
+g.SetTitle( 'roc curve' )
+g.GetXaxis().SetTitle( 'eS' )
+g.GetYaxis().SetTitle( '1-eB' )
+g.SetLineColor( 1 )
+g.SetLineWidth( 0 )
+g.SetMarkerColor( 4 )
+g.SetMarkerStyle( 5 )
+nmaxtext=ROOT.TLatex()
+nmaxtext.SetTextSize(0.04)
+nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" % p[nmax])
+c.Print(os.path.join(plot_directory, 'roc_plot.png'))
