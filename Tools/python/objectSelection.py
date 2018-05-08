@@ -222,34 +222,34 @@ def eleSelector( lepton_selection, year ):
                 and triggerEmulatorSelector(l) 
 
     elif lepton_selection == 'FO_4l':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
                 and l["pt"] >= 10\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
-                and ( ( l["mvaTTV"] < mva_threshold_4l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 ) or l["mvaTTV"] >= mva_threshold_4l )
+                and ( ( l["mvaTTV"] < mva_threshold_4l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_4l )
 
     elif lepton_selection == 'FO_3l':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
                 and l["pt"] >= 10\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
-                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 ) or l["mvaTTV"] >= mva_threshold_3l )
+                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_3l )
 
     elif lepton_selection == 'FO_SS':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
                 and l["pt"] >= 10\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
-                and ( ( l["mvaTTV"] < mva_threshold_SS and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 ) or l["mvaTTV"] >= mva_threshold_SS )
+                and ( ( l["mvaTTV"] < mva_threshold_SS and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_SS )
 
     elif lepton_selection == 'tight_4l':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
@@ -258,7 +258,7 @@ def eleSelector( lepton_selection, year ):
                 and l["mvaTTV"] >= mva_threshold_4l
 
     elif lepton_selection == 'tight_3l':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
@@ -267,7 +267,7 @@ def eleSelector( lepton_selection, year ):
                 and l["mvaTTV"] >= mva_threshold_3l
 
     elif lepton_selection == 'tight_SS':
-        loose_ = muonSelector( 'loose', year )
+        loose_ = eleSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
@@ -281,7 +281,7 @@ def eleSelector( lepton_selection, year ):
 
     return func
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
