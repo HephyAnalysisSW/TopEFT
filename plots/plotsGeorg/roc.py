@@ -34,23 +34,22 @@ matchIdSignal=[6,23,24,25,37]
 def eS(p, rocdata, matchIdSignal):
     ntruth=0.
     ntruthid=0.
-    for i in range(len(rocdata)):
-        if rocdata[i][1]>=p:
+    for data in rocdata:
+        if data[0] in matchIdSignal:
             ntruth+=1.
-            if rocdata[i][0] in matchIdSignal:
+            if data[1]>=p:
                 ntruthid+=1.
     return 0. if ntruth==0. else  ntruthid/ntruth
 
 def eB(p, rocdata, matchIdSignal):
     ntruth=0.
     ntruthid=0.
-    for i in range(len(rocdata)):
-        if rocdata[i][1]<p:
+    for data in rocdata:
+        if data[0] not in matchIdSignal:
             ntruth+=1.
-            if rocdata[i][0] not in matchIdSignal:
+            if data[1]>=p:
                 ntruthid+=1.
     return 0. if ntruth==0. else  ntruthid/ntruth
-
 
  
 # loop
@@ -69,7 +68,7 @@ npmin=10
 npmax=100
 nmax=0
 xymax=0.
-for np in range(npmin,npmax,1):
+for np in xrange(npmin,npmax,1):
     i=np-npmin
     p.append(np/100.)  
     x.append(eS(p[i], rocdata, matchIdSignal))
@@ -92,17 +91,16 @@ g.SetTitle( 'roc curve' )
 g.GetXaxis().SetTitle( 'eS' )
 g.GetYaxis().SetTitle( '1-eB' )
 g.SetLineColor( 1 )
-g.SetLineWidth( 0 )
+g.SetLineWidth( 1 )
 g.SetMarkerColor( 4 )
 g.SetMarkerStyle( 5 )
 nmaxtext=ROOT.TLatex()
 nmaxtext.SetTextSize(0.04)
 nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" % p[nmax])
-f1=ROOT.TF1("f1","[2]-([3]-[0]*(TMath::Exp([1]*x)))",0,1)
-f1.SetParLimits(2,0.8,0.9)
-f1.SetParLimits(0,0.8,0.9)
-f1.SetParLimits(3,0.8,0.9)
-
-g.Fit("f1","R")
+#f1=ROOT.TF1("f1","[2]-([3]-[0]*(TMath::Exp([1]*x)))",0,1)
+#f1.SetParLimits(2,0.8,0.9)
+#f1.SetParLimits(0,0.8,0.9)
+#f1.SetParLimits(3,0.8,0.9)
+#g.Fit("f1","R")
 
 c.Print(os.path.join(plot_directory, 'roc_plot.png'))
