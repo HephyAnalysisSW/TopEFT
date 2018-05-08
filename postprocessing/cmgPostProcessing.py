@@ -549,25 +549,21 @@ def filler( event ):
     # Store leptons
     event.nlep = len(leptons)
 
-    #print
-    #print "all loose leptons"
-    #print leptons
-
-    # Clean electrons based on loose
+    # Clean electrons based on loose definition, keep muons
     looseElectrons  = filter( lambda l:abs(l['pdgId'])==11, leptons)
     looseMuons      = filter( lambda l:abs(l['pdgId'])==13, leptons)
     
-    notCleanElectrons = []
+    eleMuOverlapIndices = []
     for m in looseMuons:
         for e in looseElectrons:
             if deltaR(m,e) < 0.05:
-                notCleanElectrons.append( leptons.index(e) )
+                eleMuOverlapIndices.append( leptons.index(e) )
 
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
         for lep_id in extra_lep_ids:
             lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
-        lep['cleanEle'] = 1 if iLep not in notCleanElectrons else 0
+        lep['cleanEle'] = 1 if iLep not in eleMuOverlapIndices else 0
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
     
