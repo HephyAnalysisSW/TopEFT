@@ -661,6 +661,8 @@ def filler( event ):
             lm = Z_l1 if leptons[Z_l1_index_4l]['pdgId'] > 0 else Z_l2
             setattr(event, "Z%s_cosThetaStar_4l"%(i+1),  cosThetaStar(Z_mass, Z.Pt(), Z.Eta(), Z.Phi(), lm.Pt(), lm.Eta(), lm.Phi() ))
             Z_vectors.append(Z)
+    
+    # also get the higgs candidate just for fun
     if len(Z_vectors)>1:
         H = Z_vectors[0] + Z_vectors[1]
         event.Higgs_mass = H.M()
