@@ -67,7 +67,6 @@ def get_parser():
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
@@ -410,13 +409,6 @@ read_variables += [\
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
 
-if options.leptonConvinience:
-    lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
-    if isMC: lep_convinience_branches.extend(['l{n}_mcMatchId/I', 'l{n}_mcMatchAny/I'])
-    lep_convinience_vars     = [s.split('_')[1].split('/')[0] for s in lep_convinience_branches ]
-    for i in range(1,5):
-        new_variables.extend( [var.format(n=i) for var in lep_convinience_branches] )
-
 new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
 
 # Z related observables
@@ -587,11 +579,6 @@ def filler( event ):
     event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, tightLeptons))
     event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, tightLeptons))
     event.nGoodLeptons   = event.nGoodMuons + event.nGoodElectrons 
-    # Lepton convinience
-    if options.leptonConvinience:
-        for i in range(min(4, len(tightLeptons))):
-            for var in lep_convinience_vars:
-                setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
  
     if options.year==2016 and isMC and len(tightLeptons)>0:
         
