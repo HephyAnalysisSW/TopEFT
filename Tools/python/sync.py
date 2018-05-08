@@ -19,7 +19,7 @@ def print_jets( jets ):
 
 def print_leptons( leps ):
     for i_lep, lep in enumerate( leps ):
-        logger.sync( "lepton %2i pdgId %+2i tight %i pt/eta/phi %7.3f/%+3.2f/%+3.2f MVA %+7.6f"%( i_lep, lep['pdgId'], lep['tight'], lep['pt'], lep['eta'], lep['phi'], lep['mvaTTV'] ) )
+        logger.sync( "lepton %2i pdgId %+2i tight %i pt/eta/phi %7.3f/%+3.2f/%+3.2f MVA %+7.6f"%( i_lep, lep['pdgId'], lep['tight_4l'], lep['pt'], lep['eta'], lep['phi'], lep['mvaTTV'] ) )
         if abs(lep['pdgId'])==13:
             logger.sync( " "*20 + "trkMult %6.5f mRelIsoCh %6.5f mRelIsoNeu %6.5f ptrel %6.5f ptratio %6.5f iso03 %6.5f jetDeepCSV %6.5f sip3d %6.5f segmComp %6.5f", \
                 lep['trackMult'], lep['miniRelIsoCharged'], lep['miniRelIsoNeutral'], lep['jetPtRelv2'], lep['jetPtRatiov2'], lep['relIso03'], lep['jetBTagDeepCSV'], lep['sip3d'], lep['segmentCompatibility'] )

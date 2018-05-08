@@ -364,10 +364,10 @@ new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
 if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
-lepton_branches_store = lepton_branches_read+',mvaTTV/F'
+lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I'
 
 # store this extra Id information
-extra_lep_ids = ['tight', 'FO', 'tight_SS', 'FO_SS']
+extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%lep_id
@@ -551,15 +551,39 @@ def filler( event ):
 
     # Store leptons
     event.nlep = len(leptons)
+
+    #print
+    #print "all loose leptons"
+    #print leptons
+
+    # Clean electrons based on loose
+    looseElectrons  = filter( lambda l:abs(l['pdgId'])==11, leptons)
+    looseMuons      = filter( lambda l:abs(l['pdgId'])==13, leptons)
+    
+    notCleanElectrons = []
+    for m in looseMuons:
+        for e in looseElectrons:
+            if deltaR(m,e) < 0.05:
+                notCleanElectrons.append( leptons.index(e) )
+
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
         for lep_id in extra_lep_ids:
             lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
+        lep['cleanEle'] = 1 if iLep not in notCleanElectrons else 0
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
+    
+    # Making the various lepton collections. leptons is the loose collection and is kept.
+    leptonCollections = {'loose':leptons}
+    for lep_id in extra_lep_ids:
+        leptonCollections[lep_id] = filter(  lambda l: l[lep_id] and l['cleanEle'], leptons )
+        setattr(event, "nLeptons_%s"%lep_id, len(leptonCollections[lep_id]))
+        setattr(event, "nMuons_%s"%lep_id, len(ilter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
+        setattr(event, "nElectrons_%s"%lep_id, len(ilter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
 
     # Storing tight lepton counters
-    tightLeptons         = filter(  lambda l: l['tight'], leptons )
+    tightLeptons         = filter(  lambda l: l['tight_4l'], leptons ) ############# JUST AS TEST ############
     event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, tightLeptons))
     event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, tightLeptons))
     event.nGoodLeptons   = event.nGoodMuons + event.nGoodElectrons 
@@ -861,7 +885,7 @@ if options.nJobs>1 and not options.fileBasedSplitting:
 else:
     eventRanges = reader.getEventRanges( maxNEvents = options.eventsPerJob, minJobs = options.minNJobs )
 
-logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s. Job number %i",  
+logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s. Job number %s",  
         len(eventRanges), 
         (eventRanges[-1][1] - eventRanges[0][0])/len(eventRanges), 
         'Yes' if options.fileBasedSplitting else 'No',
