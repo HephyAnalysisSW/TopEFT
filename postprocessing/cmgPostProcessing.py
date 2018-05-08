@@ -716,7 +716,7 @@ def filler( event ):
     sync.print_met( r.met_pt, r.met_phi ) 
     sync.print_leptons( leptons )
     sync.print_jets( selected_jets )
-    logger.sync( "Summary: tight mu %i tight ele %i njets %i nbtags %i",  event.nGoodMuons, event.nGoodElectrons, event.nJetSelected, event.nBTag)
+    logger.sync( "Summary: tight_SS mu %i tight_SS ele %i njets %i nbtags %i",  event.nMuons_tight_SS, event.nElectrons_tight_SS, event.nJetSelected, event.nBTag)
     logger.sync( "#"*30 )
 
     # Systematics
