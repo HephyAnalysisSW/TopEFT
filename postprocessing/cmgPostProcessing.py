@@ -571,8 +571,8 @@ def filler( event ):
     for lep_id in extra_lep_ids:
         leptonCollections[lep_id] = filter(  lambda l: l[lep_id] and l['cleanEle'], leptons )
         setattr(event, "nLeptons_%s"%lep_id, len(leptonCollections[lep_id]))
-        setattr(event, "nMuons_%s"%lep_id, len(ilter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
-        setattr(event, "nElectrons_%s"%lep_id, len(ilter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
+        setattr(event, "nMuons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
+        setattr(event, "nElectrons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
 
     # Storing tight lepton counters
     tightLeptons         = filter(  lambda l: l['tight_4l'], leptons ) ############# JUST AS TEST ############
