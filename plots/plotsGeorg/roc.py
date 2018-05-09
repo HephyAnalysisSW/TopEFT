@@ -57,7 +57,7 @@ for sample in samplelist:
     xdata=[]
     ydata=[]
     nmaxdata=[]
-    
+    plotdata=["|pdgId|=11","|pdgId=11|, pt>=25"]
     # reader class
     reader = sample.treeReader(  map( TreeVariable.fromString, variables ) )
 
@@ -70,7 +70,7 @@ for sample in samplelist:
             rocdata[0].append([abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16)]) 
             #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
 
-            if abs(reader.event.lep_pt)>=25:
+            if reader.event.lep_pt>=25:
                 rocdata[1].append([abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16)])
                 #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
             counter+=1
@@ -105,27 +105,31 @@ for sample in samplelist:
     #Draw TGraph
     c=ROOT.TCanvas()
     mg=ROOT.TMultiGraph()
+    mg.Draw("APL")
     g=[]
     nmaxtext=ROOT.TLatex()
     for i in xrange(len(rocdata)):
         p=pdata[i]
         x=xdata[i]
         y=ydata[i]
+        gname=plotdata[i]
         nmax=nmaxdata[i]
         n=len(x)
         g.append(ROOT.TGraph(n,x,y))
+        g[i].SetName(gname)
+        g[i].SetTitle(gname)
         g[i].SetLineColor( 1 )
         g[i].SetLineWidth( 1 )
-        g[i].SetMarkerColor( 4 )
+        g[i].SetMarkerColor( 4+2*i )
         g[i].SetMarkerStyle( 5 )
-        g[i].GetPoint(nmaxdata[i], x, y)
+        g[i].Draw("ALP")
         nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%f1.2" %p[nmax])
-        g[i].Draw()
         mg.Add(g[i])
     mg.Draw("APL")
-    mg.SetTitle( 'roc curve'+sample.texName )
+    mg.SetTitle( 'roc curve - '+sample.texName )
     mg.GetXaxis().SetTitle( 'eS' )
     mg.GetYaxis().SetTitle( '1-eB' )
+    c.BuildLegend()
     if not os.path.exists(plot_directory): 
         os.makedirs(plot_directory)
     c.Print(os.path.join(plot_directory, sample.texName+'_roc_plot.png'))
