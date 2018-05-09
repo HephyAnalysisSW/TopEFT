@@ -344,6 +344,8 @@ def getFilterCut(isData=False, isFastSim = False, year = 2016):
         if year == 2017:
             filters = ["Flag_goodVertices", "Flag_globalTightHalo2016Filter", "Flag_HBHENoiseFilter", "Flag_HBHENoiseIsoFilter", "Flag_EcalDeadCellTriggerPrimitiveFilter", "Flag_BadPFMuonFilter", "Flag_BadChargedCandidateFilter", "Flag_ecalBadCalibFilter"]
             filterCut = "&&".join(filters)
+            if isData:
+                filterCut += "&&Flag_eeBadScFilter"
         else:
             filterCut            = "Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_EcalDeadCellTriggerPrimitiveFilter"
             filterCut            += "&&Flag_badChargedHadronSummer2016&&Flag_badMuonSummer2016"
