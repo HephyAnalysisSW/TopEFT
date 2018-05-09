@@ -18,6 +18,7 @@ samplelist=[]
 #sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
 samplelist.append(Sample.fromFiles( "small", texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree"))
 samplelist.append(Sample.fromFiles( "small", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree"))
+samplelist.append(Sample.fromFiles( "small", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root","/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree"))
 
 
 # variables to read
@@ -94,7 +95,7 @@ for sample in samplelist:
             if ((x[i]*y[i])>xymax):
                 xymax=x[i]*y[i]
                 nmax=i
-            print p[i], x[i], y[i]
+            #print p[i], x[i], y[i]
         print "maximum at: ", p[nmax], x[nmax], y[nmax]
         pdata.append(p)
         xdata.append(x)
@@ -122,7 +123,7 @@ for sample in samplelist:
         g[i].Draw()
         mg.Add(g[i])
     mg.Draw("APL")
-    mg.SetTitle( 'roc curve '+sample.texName )
+    mg.SetTitle( 'roc curve'+sample.texName )
     mg.GetXaxis().SetTitle( 'eS' )
     mg.GetYaxis().SetTitle( '1-eB' )
     if not os.path.exists(plot_directory): 
