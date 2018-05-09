@@ -15,6 +15,7 @@ from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue, delt
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
 from TopEFT.Tools.triggerSelector import triggerSelector
+from TopEFT.samples.color         import color
 
 #
 # Arguments
@@ -28,12 +29,13 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v3')
+argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v4')
 argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet2p-btag0-onZZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
 argParser.add_argument('--DYincl',              action='store_true', default=False,             help="Use inclusive DY sample (for dilep)" )
+argParser.add_argument('--year',                action='store',      default=2017,   type=int,  help="Which year?" )
 args = argParser.parse_args()
 
 
@@ -63,22 +65,30 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+
+if args.year == 2016:
+    data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v3/quadlep/"
+    dirs = {}
+    dirs['TTZ']     = ['TTZToLLNuNu_ext']
+    dirs['ZZ']      = ['ZZTo4L']
+    dirs['rare']    = ['WWW', 'WWZ', 'WZZ', 'ZZZ']
 
 
-# load MC from here for now
-
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v3/quadlep/"
-dirs = {}
-dirs['TTZ']     = ['TTZToLLNuNu_ext']
-dirs['ZZ']      = ['ZZTo4L']
-dirs['rare']    = ['WWW', 'WWZ', 'WZZ', 'ZZZ']
+else:
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+    # load MC from here for now
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    dirs = {}
+    dirs['TTZ']     = ['TTZToLLNuNu_amc']
+    dirs['ZZ']      = ['ZZTo4L_comb']
+    dirs['rare']    = ['WWW_4F', 'WWZ_4F', 'WZZ', 'ZZZ']
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 ZZ = Sample.fromDirectory(name="ZZ", treeName="Events", isData=False, color=color.ZZ, texName="ZZ (4l)", directory=directories['ZZ'])
@@ -176,12 +186,12 @@ def drawPlots(plots, mode, dataMCScale):
 
 # define 3l selections
 def getLeptonSelection( mode ):
-    if   mode=="mumumumu":  return "nGoodMuons==4&&nGoodElectrons==0"
-    elif mode=="mumumue":   return "nGoodMuons==3&&nGoodElectrons==1"
-    elif mode=="mumuee":    return "nGoodMuons==2&&nGoodElectrons==2"
-    elif mode=="mueee":     return "nGoodMuons==1&&nGoodElectrons==3"
-    elif mode=="eeee":      return "nGoodMuons==0&&nGoodElectrons==4"
-    elif mode=='all':       return "nGoodMuons+nGoodElectrons==4"
+    if   mode=="mumumumu":  return "nMuons_tight_4l==4&&nElectrons_tight_4l==0"
+    elif mode=="mumumue":   return "nMuons_tight_4l==3&&nElectrons_tight_4l==1"
+    elif mode=="mumuee":    return "nMuons_tight_4l==2&&nElectrons_tight_4l==2"
+    elif mode=="mueee":     return "nMuons_tight_4l==1&&nElectrons_tight_4l==3"
+    elif mode=="eeee":      return "nMuons_tight_4l==0&&nElectrons_tight_4l==4"
+    elif mode=='all':       return "nMuons_tight_4l+nElectrons_tight_4l==4"
 
 # reweighting 
 if args.reweightPtZToSM:
@@ -215,18 +225,18 @@ read_variables =    ["weight/F",
                     "jet[pt/F,eta/F,phi/F,btagCSV/F,DFb/F,DFbb/F,id/I]", "njet/I","nJetSelected/I",
                     "lep[mediumMuonId/I,pt/F,eta/F,phi/F,pdgId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,mvaTTV/F]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
-                    "Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_index/I", "Z2_l1_index/I", "Z2_l2_index/I", 
-                    "Z_phi/F","Z_pt/F", "Z_mass/F", "Z_eta/F","Z_lldPhi/F", "Z_lldR/F",
-                    "Z2_phi/F","Z2_pt/F", "Z2_mass/F", "Z2_eta/F",
+                    "Z1_l1_index_4l/I", "Z1_l2_index_4l/I", "nonZ1_l1_index_4l/I", "nonZ1_l2_index_4l/I", "Z2_l1_index_4l/I", "Z2_l2_index_4l/I", 
+                    "Z1_phi_4l/F","Z1_pt_4l/F", "Z1_mass_4l/F", "Z1_eta_4l/F","Z1_lldPhi_4l/F", "Z1_lldR_4l/F", "Z1_cosThetaStar_4l/F",
+                    "Z2_phi_4l/F","Z2_pt_4l/F", "Z2_mass_4l/F", "Z2_eta_4l/F", "Z2_cosThetaStar_4l/F",
                     ]
 
 sequence = []
 
 def getDPhiZLep( event, sample ):
-    event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
+    event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ1_l1_index_4l], event.Z2_phi_4l)
 
 def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan') #nJetSelected
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z2_phi_4l) if event.njet>0 and event.Z1_mass_4l>0 else float('nan') #nJetSelected
 
 def getSelectedJets( event, sample ):
     jetVars     = ['eta','pt','phi','btagCSV','DFbb', 'DFb', 'id']
@@ -286,7 +296,7 @@ def getCPVars( event, sample ):
                 mw_had = mjj
 
     # asign the b quarks accordingly
-    leptonCharge = -event.lep_pdgId[event.nonZ_l1_index]/abs(event.lep_pdgId[event.nonZ_l1_index])
+    leptonCharge = -event.lep_pdgId[event.nonZ1_l1_index_4l]/abs(event.lep_pdgId[event.nonZ1_l1_index_4l])
     if leptonCharge > 0:
         b       = bjets[leptonicTopJetIndex]
         bbar    = bjets[hadTopJetIndices[0]]
@@ -298,7 +308,7 @@ def getCPVars( event, sample ):
     jet         = nonbjets[hadTopJetIndices[1]]
     lepton      = ROOT.TLorentzVector()
     met         = ROOT.TLorentzVector()
-    lepton.SetPtEtaPhiM( event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    lepton.SetPtEtaPhiM( event.lep_pt[event.nonZ1_l1_index_4l], event.lep_eta[event.nonZ1_l1_index_4l], event.lep_phi[event.nonZ1_l1_index_4l], 0)
     met.SetPtEtaPhiM( event.met_pt, 0, event.met_phi, 0)
     
     event.mt_had = mt_had
@@ -348,7 +358,7 @@ def getL( event, sample):
     # get the lepton and met
     lepton  = ROOT.TLorentzVector()
     met     = ROOT.TLorentzVector()
-    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ1_l1_index_4l], event.lep_eta[event.nonZ1_l1_index_4l], event.lep_phi[event.nonZ1_l1_index_4l], 0)
     met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
 
     # get the W boson candidate
@@ -375,7 +385,7 @@ def reconstructLeptonicTop( event, sample ):
     MW = 80.385
     Mt = 172.5
     
-    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ1_l1_index_4l], event.lep_eta[event.nonZ1_l1_index_4l], event.lep_phi[event.nonZ1_l1_index_4l], 0)
     met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
 
     # get the b from the top decay, assume back-to-back of the tops
@@ -432,21 +442,21 @@ def reconstructLeptonicTop( event, sample ):
 
 def getCosThetaStar( event, sample ):
     # get the negative-charge lepton from Z
-    lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+    lm_index = event.Z1_l1_index_4l if event.lep_pdgId[event.Z1_l1_index_4l] > 0 else event.Z1_l2_index_4l
     
     # get the Z and lepton vectors
     Z   = ROOT.TVector3()
     l   = ROOT.TVector3()
 
     # set the values
-    Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
+    Z.SetPtEtaPhi(event.Z1_pt_4l,               event.Z1_eta_4l,                event.Z1_phi_4l)
     l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
 
     # get cos(theta)
     cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
     
     # get beta and gamma
-    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+    gamma   = sqrt(1+event.Z1_pt_4l**2/event.Z1_mass_4l**2 * cosh(event.Z1_eta_4l)**2 )
     beta    = sqrt( 1 - 1/gamma**2 )
     
     cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
@@ -454,21 +464,21 @@ def getCosThetaStar( event, sample ):
 
 def getZ2CosThetaStar( event, sample ):
     # get the negative-charge lepton from Z
-    lm_index = event.Z2_l1_index if event.lep_pdgId[event.Z2_l1_index] > 0 else event.Z2_l2_index
+    lm_index = event.Z2_l1_index_4l if event.lep_pdgId[event.Z2_l1_index_4l] > 0 else event.Z2_l2_index_4l
 
     # get the Z and lepton vectors
     Z   = ROOT.TVector3()
     l   = ROOT.TVector3()
 
     # set the values
-    Z.SetPtEtaPhi(event.Z2_pt,               event.Z2_eta,                event.Z2_phi)
+    Z.SetPtEtaPhi(event.Z2_pt_4l,               event.Z2_eta_4l,                event.Z2_phi_4l)
     l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
 
     # get cos(theta)
     cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
 
     # get beta and gamma
-    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+    gamma   = sqrt(1+event.Z2_pt_4l**2/event.Z2_mass_4l**2 * cosh(event.Z2_eta_4l)**2 )
     beta    = sqrt( 1 - 1/gamma**2 )
 
     cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
@@ -505,10 +515,10 @@ allModes   = ['mumumumu','mumumue','mumuee', 'mueee', 'eeee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-        data_sample = Run2016
+        data_sample = Run2016 if args.year == 2016 else Run2017
         data_sample.texName = "data"
 
-        data_sample.setSelectionString([getFilterCut(isData=True, year=2016), getLeptonSelection(mode)])
+        data_sample.setSelectionString([getFilterCut(isData=True, year=args.year), getLeptonSelection(mode)])
         data_sample.name           = "data"
         data_sample.read_variables = ["evt/I","run/I"]
         data_sample.style          = styles.errorStyle(ROOT.kBlack)
@@ -523,11 +533,14 @@ for index, mode in enumerate(allModes):
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
-      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger/F', 'reweightLeptonTrackingSF/F', 'nTrueInt/F', 'reweightPU36fb/F']
-
-      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger*event.reweightLeptonTrackingSF*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
-      tr = triggerSelector(2016)
-      sample.setSelectionString([getFilterCut(isData=False, year=2016), getLeptonSelection(mode), tr.getSelection("MC")])
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger_tight_4l/F', 'reweightLeptonTrackingSF_tight_4l/F', 'nTrueInt/F', 'reweightPU36fb/F']
+      
+      if args.year == 2016:
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightLeptonTrackingSF_tight_4l*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
+      else:
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
+      tr = triggerSelector(args.year)
+      sample.setSelectionString([getFilterCut(isData=False, year=args.year), getLeptonSelection(mode), tr.getSelection("MC")])
 
     if not args.noData:
       stack = Stack(mc, data_sample)
@@ -577,25 +590,25 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
-        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[20,0,400],
     ))
     
     plots.append(Plot(
         name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
-        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[16,0,800],
     ))
     
     plots.append(Plot(
         name = 'Z_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[3,0,600],
     ))
     
     plots.append(Plot(
         name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
-        attribute = TreeVariable.fromString( "Z_pt/F" ),
+        attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[4,0,400],
     ))
     
@@ -608,7 +621,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         texX = '#Delta#phi(ll)', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "Z_lldPhi/F" ),
+        attribute = TreeVariable.fromString( "Z1_lldPhi_4l/F" ),
         binning=[10,0,pi],
     ))
 
@@ -617,28 +630,28 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = "lZ1_pt",
         texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
+        attribute = lambda event, sample:event.lep_pt[event.Z1_l1_index_4l],
         binning=[30,0,300],
     ))
 
     plots.append(Plot(
         name = "lZ1_eta",
         texX = 'eta(l_{1,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_eta[event.Z_l1_index],
+        attribute = lambda event, sample:event.lep_eta[event.Z1_l1_index_4l],
         binning=[40,-4.,4.],
     ))
 
     plots.append(Plot(
         name = "lZ1_phi",
         texX = '#phi(l_{1,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_phi[event.Z_l1_index],
+        attribute = lambda event, sample:event.lep_phi[event.Z1_l1_index_4l],
         binning=[40,-3.2,3.2],
     ))
 
     plots.append(Plot(
         name = "lZ1_pdgId",
         texX = 'PDG ID (l_{1,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_pdgId[event.Z_l1_index],
+        attribute = lambda event, sample:event.lep_pdgId[event.Z1_l1_index_4l],
         binning=[30,-15,15],
     ))
 
@@ -646,7 +659,7 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = "lZ2_pt",
         texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
+        attribute = lambda event, sample:event.lep_pt[event.Z1_l2_index_4l],
         binning=[20,0,200],
     ))
 
@@ -654,21 +667,21 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = "lZ2_eta",
         texX = 'eta(l_{2,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_eta[event.Z_l2_index],
+        attribute = lambda event, sample:event.lep_eta[event.Z1_l2_index_4l],
         binning=[40,-4.,4.],
     ))
 
     plots.append(Plot(
         name = "lZ2_phi",
         texX = '#phi(l_{2,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_phi[event.Z_l2_index],
+        attribute = lambda event, sample:event.lep_phi[event.Z1_l2_index_4l],
         binning=[40,-3.2,3.2],
     ))
 
     plots.append(Plot(
         name = "lZ2_pdgId",
         texX = 'PDG ID (l_{2,Z})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_pdgId[event.Z_l2_index],
+        attribute = lambda event, sample:event.lep_pdgId[event.Z1_l2_index_4l],
         binning=[30,-15,15],
     ))
     
@@ -676,28 +689,28 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         name = 'lnonZ1_pt',
         texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 10 GeV',
-        attribute = lambda event, sample:event.lep_pt[event.nonZ_l1_index],
+        attribute = lambda event, sample:event.lep_pt[event.nonZ1_l1_index_4l],
         binning=[30,0,300],
     ))
 
     plots.append(Plot(
         name = "lnonZ1_eta",
         texX = 'eta(l_{1,extra})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_eta[event.nonZ_l1_index],
+        attribute = lambda event, sample:event.lep_eta[event.nonZ1_l1_index_4l],
         binning=[40,-4.,4.],
     ))
 
     plots.append(Plot(
         name = "lnonZ1_phi",
         texX = '#phi(l_{1,extra})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_phi[event.nonZ_l1_index],
+        attribute = lambda event, sample:event.lep_phi[event.nonZ1_l1_index_4l],
         binning=[40,-3.2,3.2],
     ))
 
     plots.append(Plot(
         name = "lnonZ1_pdgId",
         texX = 'PDG ID (l_{1,extra})', texY = 'Number of Events',
-        attribute = lambda event, sample:event.lep_pdgId[event.nonZ_l1_index],
+        attribute = lambda event, sample:event.lep_pdgId[event.nonZ1_l1_index_4l],
         binning=[30,-15,15],
     ))
 
@@ -706,13 +719,13 @@ for index, mode in enumerate(allModes):
 
     plots.append(Plot(
         texX = 'M(ll) (GeV)', texY = 'Number of Events / 2 GeV',
-        attribute = TreeVariable.fromString( "Z_mass/F" ),
+        attribute = TreeVariable.fromString( "Z1_mass_4l/F" ),
         binning=[20,70,110],
     ))
 
     plots.append(Plot(
         texX = 'M(ll) 2nd OS pair (GeV)', texY = 'Number of Events / 2 GeV',
-        attribute = TreeVariable.fromString( "Z2_mass/F" ),
+        attribute = TreeVariable.fromString( "Z2_mass_4l/F" ),
         binning=[20,70,110],
     ))
     
@@ -724,7 +737,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
       texX = 'N_{l, loose}', texY = 'Number of Events',
-      name = 'nLepLoose', attribute = lambda event, sample: event.nLepLoose,
+      name = 'nLepLoose', attribute = lambda event, sample: event.nlep,
       binning=[5,2.5,7.5],
     ))
 
@@ -766,13 +779,13 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         name = "cosThetaStar", texX = 'cos#theta(Z1,l-)', texY = 'Number of Events / 0.2',
-        attribute = lambda event, sample:event.cosThetaStar,
+        attribute = lambda event, sample:event.Z1_cosThetaStar_4l,
         binning=[10,-1,1],
     ))
     
     plots.append(Plot(
         name = "Z2_cosThetaStar", texX = 'cos#theta(Z2,l-)', texY = 'Number of Events / 0.2',
-        attribute = lambda event, sample:event.Z2_cosThetaStar,
+        attribute = lambda event, sample:event.Z2_cosThetaStar_4l,
         binning=[10,-1,1],
     ))
     
