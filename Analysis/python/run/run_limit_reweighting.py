@@ -99,6 +99,8 @@ if args.includeCR:
     setups = [setupCR, setup]
 else:
     setups = [setup]
+if args.include4l:
+    setups += [setup4l]
 
 cardDir = "regionsE_%s"%(year)
 if args.useXSec:

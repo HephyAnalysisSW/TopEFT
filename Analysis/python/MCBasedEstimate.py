@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 from TopEFT.Analysis.Region import Region
 from TopEFT.Tools.u_float import u_float
 from TopEFT.Analysis.SystematicEstimator import SystematicEstimator
-from TopEFT.Analysis.SetupHelpers import channels
+from TopEFT.Analysis.SetupHelpers import trilepChannels, quadlepChannels
 
 
 class MCBasedEstimate(SystematicEstimator):
@@ -21,20 +21,23 @@ class MCBasedEstimate(SystematicEstimator):
         ''' Concrete implementation of abstract method 'estimate' as defined in Systematic
         '''
 
-        logger.debug( "MC prediction for %s channel %s" %(self.name, channel) )
+        logger.debug( "MC prediction for %s channel %s" %(self.name, channel.name) )
 
-        if channel=='all':
+        if channel.name=='all':
             # 'all' is the total of all contributions
-            return sum([self.cachedEstimate(region, c, setup) for c in channels])
+            if setup.nLeptons == 3: channels = trilepChannels
+            elif setup.nLeptons == 4: channels = quadlepChannels
+            else: raise NotImplementedError
+            return sum([self.cachedEstimate(region, c.name, setup) for c in channels])
 
-        elif channel=='SF':
-            # 'all' is the total of all contributions
-            return sum([self.cachedEstimate(region, c, setup) for c in ['MuMu', 'EE']])
+        #elif channel=='SF':
+        #    # 'all' is the total of all contributions
+        #    return sum([self.cachedEstimate(region, c, setup) for c in ['MuMu', 'EE']])
 
         else:
-            preSelection = setup.preselection('MC', channel=channel, isFastSim = self.isFastSim)
+            preSelection = setup.preselection('MC', nElectrons=channel.nE, nMuons=channel.nM, isFastSim = self.isFastSim)
             cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
             weight = preSelection['weightStr']
 
             logger.debug( "Using cut %s and weight %s"%(cut, weight) )
-            return setup.lumi[channel]/1000.*u_float(**self.sample[channel].getYieldFromDraw(selectionString = cut, weightString = weight) )
+            return setup.lumi/1000.*u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )

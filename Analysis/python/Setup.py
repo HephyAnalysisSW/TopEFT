@@ -22,7 +22,7 @@ from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
 from TopEFT.Analysis.SystematicEstimator import jmeVariations, metVariations
-from TopEFT.Analysis.SetupHelpers import getZCut, channels, allChannels
+from TopEFT.Analysis.SetupHelpers import getZCut, channel, trilepChannels, quadlepChannels
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
@@ -64,7 +64,7 @@ default_parameters   = {
 class Setup:
     def __init__(self, year=2017, nLeptons=3, nonprompt=False):
         self.name       = "defaultSetup"
-        self.channels   = ["all"]
+        self.channels   = [channel(-1,-1)]
         self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
         self.year       = year

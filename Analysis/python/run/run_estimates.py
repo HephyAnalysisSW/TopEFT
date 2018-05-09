@@ -52,10 +52,11 @@ allRegions = regionsE + noRegions
 
 from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
-setup                   = Setup(year=year)
+setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
 setup.reweightRegions   = regionsReweight
+setup.channels          = [channel(-1,-1)]
 
 # go orthogonal in Njet and Nbjet if needed
 if options.controlRegion:
@@ -83,6 +84,9 @@ reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "re
 modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 setups = [setup]
+
+setup4l = Setup(year=year, nLeptons=4)
+
 if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystematics):
     for r in reweights:
         setups.append(setup.systematicClone(sys={"reweight":[r]}))
@@ -94,7 +98,7 @@ if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystemati
 def wrapper(args):
         e,r,channel,setup = args
         res = e.cachedEstimate(r, channel, setup, save=True, overwrite=options.overwrite)
-        return (e.uniqueKey(r, channel, setup), res )
+        return (e.uniqueKey(r, channel.name, setup), res )
 
 jobs=[]
 
