@@ -30,7 +30,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v4')
-argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet2p-btag0-onZZ')
+argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet0p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
@@ -184,13 +184,14 @@ def drawPlots(plots, mode, dataMCScale):
         copyIndexPHP = True,
       )
 
-# define 3l selections
+# define 4l selections
+offZ2 = "&&abs(Z2_mass_4l-91.2)>20" if args.selection.count("offZ2") else ""
 def getLeptonSelection( mode ):
-    if   mode=="mumumumu":  return "nMuons_tight_4l==4&&nElectrons_tight_4l==0"
+    if   mode=="mumumumu":  return "nMuons_tight_4l==4&&nElectrons_tight_4l==0" + offZ2
     elif mode=="mumumue":   return "nMuons_tight_4l==3&&nElectrons_tight_4l==1"
-    elif mode=="mumuee":    return "nMuons_tight_4l==2&&nElectrons_tight_4l==2"
+    elif mode=="mumuee":    return "nMuons_tight_4l==2&&nElectrons_tight_4l==2" + offZ2
     elif mode=="mueee":     return "nMuons_tight_4l==1&&nElectrons_tight_4l==3"
-    elif mode=="eeee":      return "nMuons_tight_4l==0&&nElectrons_tight_4l==4"
+    elif mode=="eeee":      return "nMuons_tight_4l==0&&nElectrons_tight_4l==4" + offZ2
     elif mode=='all':       return "nMuons_tight_4l+nElectrons_tight_4l==4"
 
 # reweighting 
@@ -226,7 +227,7 @@ read_variables =    ["weight/F",
                     "lep[mediumMuonId/I,pt/F,eta/F,phi/F,pdgId/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,mvaTTV/F]", "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     "Z1_l1_index_4l/I", "Z1_l2_index_4l/I", "nonZ1_l1_index_4l/I", "nonZ1_l2_index_4l/I", "Z2_l1_index_4l/I", "Z2_l2_index_4l/I", 
-                    "Z1_phi_4l/F","Z1_pt_4l/F", "Z1_mass_4l/F", "Z1_eta_4l/F","Z1_lldPhi_4l/F", "Z1_lldR_4l/F", "Z1_cosThetaStar_4l/F",
+                    "Z1_phi_4l/F","Z1_pt_4l/F", "Z1_mass_4l/F", "Z1_eta_4l/F","Z1_lldPhi_4l/F", "Z1_lldR_4l/F", "Z1_cosThetaStar_4l/F","Higgs_mass/F",
                     "Z2_phi_4l/F","Z2_pt_4l/F", "Z2_mass_4l/F", "Z2_eta_4l/F", "Z2_cosThetaStar_4l/F",
                     ]
 
@@ -485,7 +486,7 @@ def getZ2CosThetaStar( event, sample ):
     event.Z2_cosThetaStar = cosThetaStar
 
 
-sequence += [ getCosThetaStar, getZ2CosThetaStar ]
+#sequence += [ getCosThetaStar, getZ2CosThetaStar ]
 
 def getM3l( event, sample ):
     # get the invariant mass of the 3l system
@@ -514,6 +515,7 @@ allPlots   = {}
 allModes   = ['mumumumu','mumumue','mumuee', 'mueee', 'eeee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
+    logger.info("Working on mode %s", mode)
     if not args.noData:
         data_sample = Run2016 if args.year == 2016 else Run2017
         data_sample.texName = "data"
@@ -524,7 +526,7 @@ for index, mode in enumerate(allModes):
         data_sample.style          = styles.errorStyle(ROOT.kBlack)
         lumi_scale                 = data_sample.lumi/1000
 
-    if args.noData: lumi_scale = 35.9
+    if args.noData: lumi_scale = 35.9 if args.year == 2016 else 41.0
     weight_ = lambda event, sample: event.weight
 
     mc             = [ ZZ, TTZ, rare ]
@@ -554,7 +556,7 @@ for index, mode in enumerate(allModes):
             sample.reduceFiles( to = 1 )
 
     # Use some defaults
-    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='both')
 
     plots = []
     
@@ -595,19 +597,19 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
+        name = 'Z1_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[16,0,800],
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
+        name = 'Z1_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[3,0,600],
     ))
     
     plots.append(Plot(
-        name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
+        name = 'Z1_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
         attribute = TreeVariable.fromString( "Z1_pt_4l/F" ),
         binning=[4,0,400],
     ))
@@ -724,15 +726,27 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-        texX = 'M(ll) 2nd OS pair (GeV)', texY = 'Number of Events / 2 GeV',
+        texX = 'M(ll) 2nd OS pair (GeV)', texY = 'Number of Events / 8 GeV',
         attribute = TreeVariable.fromString( "Z2_mass_4l/F" ),
-        binning=[20,70,110],
+        binning=[20,40,200],
+    ))
+    
+    plots.append(Plot(
+        texX = 'M(ZZ) (GeV)', texY = 'Number of Events / 10 GeV',
+        attribute = TreeVariable.fromString( "Higgs_mass/F" ),
+        binning=[22,80,300],
     ))
     
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nJetSelected/I" ), #nJetSelected
       binning=[8,-0.5,7.5],
+    ))
+    
+    plots.append(Plot(
+      texX = 'N_{b-tag}', texY = 'Number of Events',
+      attribute = TreeVariable.fromString( "nBTag/I" ),
+      binning=[4,-0.5,3.5],
     ))
     
     plots.append(Plot(
@@ -778,9 +792,15 @@ for index, mode in enumerate(allModes):
     ))
     
     plots.append(Plot(
-        name = "cosThetaStar", texX = 'cos#theta(Z1,l-)', texY = 'Number of Events / 0.2',
+        name = "Z1_cosThetaStar", texX = 'cos#theta(Z1,l-)', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.Z1_cosThetaStar_4l,
         binning=[10,-1,1],
+    ))
+    
+    plots.append(Plot(
+        name = "Z1_cosThetaStar_coarse", texX = 'cos#theta(Z1,l-)', texY = 'Number of Events / 0.2',
+        attribute = lambda event, sample:event.Z1_cosThetaStar_4l,
+        binning=[5,-1,1],
     ))
     
     plots.append(Plot(
