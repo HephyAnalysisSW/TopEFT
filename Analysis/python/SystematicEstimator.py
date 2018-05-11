@@ -155,7 +155,7 @@ class SystematicEstimator:
                 # This only works if the reweightRegions are aligned!!
                 #print "in", r
                 val     = self.cachedEstimate(r, channel, setup)
-                weight  = f(r.vals['Z_pt'][0], r.vals['cosThetaStar'][0])
+                weight  = f(r.vals[Z_pt_var][0], r.vals[cosTS_var][0])
                 ref += val*weight
             #else:
             #    print "out", r

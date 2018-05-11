@@ -1,3 +1,11 @@
+'''
+Setup for 2l/3l/4l ttV selections.
+Can use different lepton IDs, cuts etc for different channels.
+Still missing:
+- most of the 2l channel cuts/selections
+- additional cuts for 4l channel (dl mass etc)
+'''
+
 #Standard import
 import copy
 
@@ -55,6 +63,7 @@ default_parameters   = {
             'metMin':        default_metMin,
             'zWindow1':      default_zWindow1,
             'zWindow2':      default_zWindow2,
+            'zMassRange':    zMassRange,
             'nJets':         default_nJets,
             'nBTags':        default_nBTags,
         }
@@ -88,7 +97,6 @@ class Setup:
         self.uncertaintyColumns = ["region", "channel", "PDFset"]
 
         self.analysis_results = analysis_results
-        self.zMassRange       = zMassRange
         self.prefixes         = []
         self.externalCuts     = []
 
@@ -129,7 +137,7 @@ class Setup:
             ZZSample            = ZZ
             rareSample          = rare_17
             rare_noZZSample     = rare_noZZ
-            nonpromptSample     = nonprompt_17
+            nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
         else:
             ## use 2016 samples as default (we do combine on card file level)
@@ -141,7 +149,7 @@ class Setup:
             ZZSample            = ZZ
             rareSample          = rare
             rare_noZZSample     = rare_noZZ
-            nonpromptSample     = nonprompt
+            nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
 
 
@@ -222,7 +230,7 @@ class Setup:
         return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, hadronicSelection = False, **self.parameters)
 
     def selection(self, dataMC,
-                        mllMin, metMin, zWindow1, zWindow2,
+                        mllMin, metMin, zWindow1, zWindow2, zMassRange,
                         nJets, nBTags,
                         nElectrons=-1, nMuons=-1,
                         hadronicSelection = False,  isFastSim = False):
@@ -298,10 +306,15 @@ class Setup:
 
             # two different cases: Z_mass for 3l, Z1_mass_4l and Z2_mass_4l for 4l
             if nLeptons == 3:
-                res['cuts'].append(getZCut(zWindow1, "Z_mass", self.zMassRange))
+                res['cuts'].append(getZCut(zWindow1, "Z_mass", zMassRange))
             elif nLeptons == 4:
-                res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", self.zMassRange))
-                res['cuts'].append(getZCut(zWindow2, "Z2_mass_4l", self.zMassRange))
+                res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
+                if nMuons%2 == 0:
+                    logger.info("Z window 2 off Z, nMuons %s", nMuons)
+                    res['cuts'].append(getZCut("offZ", "Z2_mass_4l", zMassRange))
+                else:
+                    logger.info("Z window 2 all Z, nMuons %s", nMuons)
+                    res['cuts'].append(getZCut("allZ", "Z2_mass_4l", zMassRange))
             # no Z-mass cut for 2l case
 
             res['cuts'].append(chStr)

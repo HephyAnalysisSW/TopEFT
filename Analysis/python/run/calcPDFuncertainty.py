@@ -11,6 +11,7 @@ parser.add_option("--combine",              action='store_true', help="Combine r
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--skipCentral',          dest="skipCentral", default = False, action = "store_true", help="Skip central weights")
+parser.add_option('--btagWZ',               dest="btagWZ", default = False, action = "store_true", help="Get the uncertainties for b-tag extrapolation of WZ")
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -21,12 +22,12 @@ import pickle
 import math
 
 # Analysis
-from TopEFT.Analysis.SetupHelpers   import channels, allChannels
-from TopEFT.Analysis.regions        import regionsE, noRegions
+from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels
+from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions
 from TopEFT.Tools.u_float           import u_float 
-from TopEFT.Tools.resultsDB     import resultsDB
+from TopEFT.Tools.resultsDB         import resultsDB
 from TopEFT.Analysis.Region         import Region 
-from TopEFT.Analysis.Setup_frozen          import Setup
+from TopEFT.Analysis.Setup          import Setup
 
 #RootTools
 from RootTools.core.standard import *
@@ -40,26 +41,31 @@ logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
 year = 2017 if options.sample.count("17") else 2016
-setup = Setup(year=year)
+setup = Setup(year=year, nLeptons=3)
+if options.btagWZ:
+    setup.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
+
 
 ##Summer16 samples
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v4/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
 dirs['WZTo3LNu_comb']   = ['WZTo3LNu_comb']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-TTZ_LO_16   = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
+#TTZ_LO_16   = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
 TTZ_NLO_16  = Sample.fromDirectory(name="TTZ_NLO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu_ext'])
 WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=False, color=color.TTJets, texName="WZ (powheg)", directory=directories['WZTo3LNu_comb'])
 
 ## Fall17 samples
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
+#data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+#postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
+data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
 dirs = {}
-dirs['TTZToLLNuNu'] = ['TTZToLLNuNu']
+dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 TTZ_NLO_17 = Sample.fromDirectory(name="TTZ_NLO_17", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu'])
 
@@ -75,10 +81,13 @@ elif options.sample == "WZ_pow_16":
 if options.small:
     sample.reduceFiles( to = 1 )
 
-allRegions = regionsE + noRegions
+if options.btagWZ:
+    allRegions = btagRegions + noRegions
+else:
+    allRegions = regionsE + noRegions
 regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
 
-setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow':'allZ'})
+setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
 setup.verbose     = True
 
 # use more inclusive selection in terms of lepton multiplicity in the future?
@@ -150,7 +159,7 @@ scale_systematics = {}
 
 cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%(PDFset)
 
-estimate = MCBasedEstimate(name=sample.name, sample={channel:sample for channel in allChannels})
+estimate = MCBasedEstimate(name=sample.name, sample=sample )
 estimate.initCache(cacheDir)
 
 ## Results DB for scale and PDF uncertainties
@@ -167,22 +176,23 @@ which gives the 68% CL
 '''
 
 def wrapper(args):
-        r,channel,setup = args
-        res = estimate.cachedEstimate(r, channel, setup, save=True, overwrite=options.overwrite)
-        return (estimate.uniqueKey(r, channel, setup), res )
+        r, c, setup = args
+        res = estimate.cachedEstimate(r, c, setup, save=True, overwrite=options.overwrite)
+        return (estimate.uniqueKey(r, c, setup), res )
 
 jobs=[]
 
 # remove all so to avoid unnecessary concurrency. All will be calculated as sum of the individual channels later
-seperateChannels = allChannels
-seperateChannels.pop(allChannels.index('all'))
+seperateChannels = allTrilepChannels
+allTrilepChannelNames = [ c.name for c in allTrilepChannels ]
+seperateChannels.pop(allTrilepChannelNames.index('all'))
 
 if not options.skipCentral:
     # First run over seperate channels
-    jobs.append((noRegions[0], 'all', setupIncl))
+    jobs.append((noRegions[0], channel(-1,-1), setupIncl))
     for var in variations:
-        for channel in seperateChannels:
-            jobs.append((noRegions[0], channel, setupIncl.systematicClone(sys={'reweight':[var]})))
+        for c in seperateChannels:
+            jobs.append((noRegions[0], c, setupIncl.systematicClone(sys={'reweight':[var]})))
 
 ## then one can sum up over all (currently done in the combine step)
 #for var in variations:
@@ -190,14 +200,14 @@ if not options.skipCentral:
 
 
 if not options.combine:
-    for channel in seperateChannels:
+    for c in seperateChannels:
         for region in regions:
-            jobs.append((region, channel, setup))
+            jobs.append((region, c, setup))
             for var in variations:
-                jobs.append((region, channel, setup.systematicClone(sys={'reweight':[var]})))
+                jobs.append((region, c, setup.systematicClone(sys={'reweight':[var]})))
     
     logger.info("Created %s jobs",len(jobs))
-    
+
     if options.noMultiThreading: 
         results = map(wrapper, jobs)
     else:
@@ -210,7 +220,7 @@ if not options.combine:
     logger.info("All done.")
 
 if options.combine:
-    for channel in ['all']:#allChannels:
+    for c in ['all']:#allChannels:
     
         for region in regions:
             
@@ -220,14 +230,14 @@ if options.combine:
             # central yield inclusive and in region
             sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
             sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
-            sigma_central       = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[LHEweight_original]}))
-            sigma_centralWeight = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[centralWeight]}))
+            sigma_central       = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[LHEweight_original]}))
+            sigma_centralWeight = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[centralWeight]}))
 
             for var in scale_variations:
                 simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
                 norm = sigma_incl_central/simga_incl_reweight
                 
-                sigma_reweight  = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[var]}))
+                sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
                 sigma_reweight_acc = sigma_reweight * norm
                 
                 unc = abs( ( sigma_reweight_acc - sigma_central) / sigma_central )
@@ -241,7 +251,7 @@ if options.combine:
                 norm = sigma_incl_central/simga_incl_reweight
                 norm_centralWeight = sigma_incl_central/sigma_incl_centralWeight
 
-                sigma_reweight  = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[var]}))
+                sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
                 sigma_reweight_acc = sigma_reweight * norm
 
                 ## For replicas, just get a list of all sigmas, sort it and then get the 68% interval
@@ -267,7 +277,7 @@ if options.combine:
                 simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
                 norm = sigma_incl_central/simga_incl_reweight
                 
-                sigma_reweight  = estimate.cachedEstimate(region, channel, setup.systematicClone(sys={'reweight':[var]}))
+                sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
                 sigma_reweight_acc = sigma_reweight * norm
 
                 deltas_as.append(sigma_reweight_acc.val)
@@ -282,7 +292,7 @@ if options.combine:
             # make it relative wrt central value in region
             delta_sigma_rel = delta_sigma_total/sigma_central.val
 
-            logger.info("Calculated PDF and alpha_s uncertainties for region %s in channel %s"%(region, channel))
+            logger.info("Calculated PDF and alpha_s uncertainties for region %s in channel %s"%(region, c.name))
             logger.info("Central x-sec: %s", sigma_central)
             logger.info("Delta x-sec using PDF variations: %s", delta_sigma)
             logger.info("Delta x-sec using alpha_S variations: %s", delta_sigma_alphaS)
@@ -291,9 +301,9 @@ if options.combine:
             logger.info("Relative scale uncertainty: %s", scale_rel)
             
             # Store results
-            PDF_cache.add({"region":region, "channel":channel, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
-            scale_cache.add({"region":region, "channel":channel, "PDFset":None}, scale_rel, overwrite=True)
+            PDF_cache.add({"region":region, "channel":c, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
+            scale_cache.add({"region":region, "channel":c, "PDFset":None}, scale_rel, overwrite=True)
 
-            print region, channel
-            PDF_cache.get({"region":region, "channel":channel, "PDFset":options.PDFset})
-            scale_cache.get({"region":region, "channel":channel, "PDFset":None})
+            print region, c.name
+            PDF_cache.get({"region":region, "channel":c, "PDFset":options.PDFset})
+            scale_cache.get({"region":region, "channel":c, "PDFset":None})
