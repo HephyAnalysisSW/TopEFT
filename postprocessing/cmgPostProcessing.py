@@ -579,6 +579,16 @@ def filler( event ):
     if isMC:
         for tight_id in tight_lep_ids:
 
+            
+            # initialize the weights with 0 to not run into problems with nan handeling in root
+            setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      0)
+            setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    0)
+            setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  0)
+
+            setattr(event, "reweightTrigger_%s"%tight_id,        0)
+            setattr(event, "reweightTriggerUp_%s"%tight_id,      0)
+            setattr(event, "reweightTriggerDown_%s"%tight_id,    0)
+            
             # tracking SFs only for 2016 so far
             if options.year == 2016:
                 reweightSF      = 1

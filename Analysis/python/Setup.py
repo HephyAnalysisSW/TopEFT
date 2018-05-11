@@ -28,13 +28,11 @@ from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
 
 #to run on data
-dataLumi2016 = {'3mu':Run2016.lumi, '3e':Run2016.lumi, '2mu1e':Run2016.lumi, '2e1mu':Run2016.lumi}
-lumi1617 = Run2016.lumi + 41290
-dataLumi20167 = {'3mu':lumi1617, '3e':lumi1617, '2mu1e':lumi1617, '2e1mu':lumi1617}
-dataLumi2017 = {'3mu':41290, '3e':41290, '2mu1e':41290, '2e1mu':41290}
-dataLumi201678 = {'3mu':150000, '3e':150000, '2mu1e':150000, '2e1mu':150000}
-
-dataHighLumi = {'3mu':3e6, '3e':3e6, '2mu1e':3e6, '2e1mu':3e6}
+dataLumi2016        = Run2016.lumi
+dataLumi2017        = 41290
+dataLumi201617      = dataLumi2016 + dataLumi2017
+dataLumi20161718    = 150000
+dataHighLumi        = 3e6
 
 #10/fb to run on MC
 #lumi = {c:10000 for c in channels}
@@ -65,7 +63,6 @@ class Setup:
     def __init__(self, year=2017, nLeptons=3, nonprompt=False):
         self.name       = "defaultSetup"
         self.channels   = [channel(-1,-1)]
-        self.regions    = regionsE
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
         self.year       = year
         self.nLeptons   = nLeptons
@@ -85,7 +82,7 @@ class Setup:
         self.nonprompt  = nonprompt
         self.leptonId = FO_ID if self.nonprompt else tight_ID
 
-        self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF', 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId], 'selectionModifier':None}
+        self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]
@@ -96,7 +93,7 @@ class Setup:
         self.externalCuts     = []
 
         #Default cuts and requirements. Those three things below are used to determine the key in the cache!
-        self.parameters   = default_parameters 
+        self.parameters   = copy.deepcopy(default_parameters)
         self.sys          = self.default_sys 
         if year == 2017:
             self.lumi         = dataLumi2017
@@ -105,11 +102,11 @@ class Setup:
             self.lumi         = dataLumi2016
             self.dataLumi     = dataLumi2016
         elif year == 20167:
-            self.lumi         = dataLumi20167
-            self.dataLumi     = dataLumi20167
+            self.lumi         = dataLumi201617
+            self.dataLumi     = dataLumi201617
         elif year == "run2":
-            self.lumi         = dataLumi201678
-            self.dataLumi     = dataLumi201678
+            self.lumi         = dataLumi20161718
+            self.dataLumi     = dataLumi20161718
         elif year == "HLLHC":
             self.lumi         = dataHighLumi
             self.dataLumi     = dataHighLumi
@@ -129,7 +126,9 @@ class Setup:
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
+            ZZSample            = ZZ
             rareSample          = rare_17
+            rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonprompt_17
             pseudoDataSample    = pseudoData_17
         else:
@@ -139,7 +138,9 @@ class Setup:
             TTXSample           = TTX
             TTWSample           = TTW
             TZQSample           = TZQ
+            ZZSample            = ZZ
             rareSample          = rare
+            rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonprompt
             pseudoDataSample    = pseudoData
 
@@ -152,8 +153,8 @@ class Setup:
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,
             'rare':         rareSample,
-            #'ZZ':           ZZSample,
-            #'rare_nonZZ':   rare_nonZZ,
+            'ZZ':           ZZSample,
+            'rare_noZZ':    rare_noZZSample,
             'nonprompt':    nonpromptSample,
             'pseudoData':   pseudoDataSample,
             'Data' :        data,
