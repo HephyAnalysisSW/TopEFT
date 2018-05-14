@@ -44,6 +44,7 @@ variables = [
 plots = [ 
     {'name':'MVA', 'var':'lep_mvaIdSpring16', 'binning':[200,-1,1]},
     {'name':'etaSC', 'var':'lep_etaSc', 'binning':[150,-3,3]},
+    {'name':'pt', 'var':'lep_pt', 'binning':[300,0,300]},
 ]
 
 
@@ -82,7 +83,7 @@ for sample in samplelist:
         counter+=1
 
         for p in plots:
-           if abs(reader.event.lep_pdgId) in  PdgId:
+           if (abs(reader.event.lep_pdgId) in  PdgId) and (abs(reader.event.lep_pt)>=25):
                 p['histo'].Fill(getattr(reader.event, p['var']))
                 p['samplehistos'][i].Fill(getattr(reader.event, p['var']))
                 if abs(reader.event.lep_mcMatchId) in matchIdSignal:
