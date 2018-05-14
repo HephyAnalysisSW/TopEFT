@@ -53,10 +53,12 @@ for p in plots:
     p['samplehistos']=[]
     p['sample_prompt']=[]
     p['sample_non-prompt']=[]
+    p['sample_fake']=[]
     for sample in samplelist:
         p['samplehistos'].append(ROOT.TH1F(p['name']+" samplehisto "+sample.texName, sample.texName, *(p['binning'])))
         p['sample_prompt'].append(ROOT.TH1F(p['name']+" prompt "+sample.texName, "prompt ("+sample.texName+")", *(p['binning'])))
         p['sample_non-prompt'].append(ROOT.TH1F(p['name']+" non-prompt "+sample.texName, "non-prompt ("+sample.texName+")", *(p['binning'])))
+        p['sample_fake'].append(ROOT.TH1F(p['name']+" fake"+sample.texName, "fake ("+sample.texName+")", *(p['binning'])))
 
 i=0
 for sample in samplelist:
@@ -69,6 +71,7 @@ for sample in samplelist:
 
     #match Id for prompt leptons
     matchIdSignal=[6,23,24,25,37]
+    matchIdFake=[]
     #selected PdgID
     PdgId=[11]
     particletype="electron"
@@ -84,9 +87,11 @@ for sample in samplelist:
                 p['samplehistos'][i].Fill(getattr(reader.event, p['var']))
                 if abs(reader.event.lep_mcMatchId) in matchIdSignal:
                     p['sample_prompt'][i].Fill(getattr(reader.event, p['var']))
+                elif abs(reader.event.lep_mcMatchId) in matchIdFake:
+                    p['sample_fake'][i].Fill(getattr(reader.event, p['var'])) 
                 else:
                     p['sample_non-prompt'][i].Fill(getattr(reader.event, p['var']))
-
+                    #if reader.event.lep_mvaIdSpring16 >= 0.99: print reader.event.lep_mcMatchId
            #if counter>1000: break
     i+=1
 
@@ -118,10 +123,17 @@ for p in plots:
     p['sample_prompt'][i].SetFillColor(4)
     p['sample_prompt'][i].SetLineColor(1)
     hs2.Add(p['sample_prompt'][i])
+
     p['sample_non-prompt'][i].Scale(1./p['sample_non-prompt'][i].Integral())
     p['sample_non-prompt'][i].SetFillColor(7)
     p['sample_non-prompt'][i].SetLineColor(1)
     hs2.Add(p['sample_non-prompt'][i])
+
+    #p['sample_fake'][i].Scale(1./p['sample_fake'][i].Integral())
+    #p['sample_fake'][i].SetFillColor(2)
+    #p['sample_fake'][i].SetLineColor(1)
+    #hs2.Add(p['sample_fake'][i])
+
     hs2.Draw('hist')
     hs2.SetTitle(particletype+' - '+p['name'])
     hs2.GetXaxis().SetTitle(p['var'])
