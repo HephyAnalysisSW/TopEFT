@@ -24,25 +24,39 @@ samplelist.append(Sample.fromFiles( "small", texName = "TTJets_SingleLeptonFromT
 
 # variables to read
 
-variables = [ "run/I", "lumi/I", "evt/l", "lep_trackerHits/I", "lep_innerTrackChi2/F", "lep_pdgId/I", "lep_segmentCompatibility/F", "lep_sigmaIEtaIEta/F", "lep_etaSc/F", "lep_mcMatchPdgId/I", "lep_mcMatchId/I", "lep_mvaIdSpring16/F", "lep_pt/F" ]
+variables = [
+"run/I", 
+"lumi/I",
+"evt/l", 
+"lep_trackerHits/I", 
+"lep_innerTrackChi2/F", 
+"lep_pdgId/I", 
+"lep_segmentCompatibility/F", 
+"lep_sigmaIEtaIEta/F", 
+"lep_etaSc/F", 
+"lep_mcMatchPdgId/I", 
+"lep_mcMatchId/I", 
+"lep_mvaIdSpring16/F", 
+"lep_pt/F"
+]
 
 #define plots
 plots = [ 
-    {'name':'electronMVA', 'var':'lep_mvaIdSpring16', 'binning':[100,0,1]},
-    #{'name':'trackerHits', 'var':'lep_trackerHits', 'binning':[30,0,30]},
+    {'name':'MVA', 'var':'lep_mvaIdSpring16', 'binning':[200,-1,1]},
+    {'name':'etaSC', 'var':'lep_etaSc', 'binning':[150,-3,3]},
 ]
 
 
 # declare histogram
 for p in plots:
-    p['histo'] = ROOT.TH1F(p['var'], p['var'], *(p['binning']))
+    p['histo'] = ROOT.TH1F(p['name'], p['var'], *(p['binning']))
     p['samplehistos']=[]
     p['sample_prompt']=[]
     p['sample_non-prompt']=[]
     for sample in samplelist:
-        p['samplehistos'].append(ROOT.TH1F(p['var'], sample.texName, *(p['binning'])))
-        p['sample_prompt'].append(ROOT.TH1F(p['var'], "prompt ("+sample.texName+")", *(p['binning'])))
-        p['sample_non-prompt'].append(ROOT.TH1F(p['var'], "non-prompt ("+sample.texName+")", *(p['binning'])))
+        p['samplehistos'].append(ROOT.TH1F(p['name']+" samplehisto "+sample.texName, sample.texName, *(p['binning'])))
+        p['sample_prompt'].append(ROOT.TH1F(p['name']+" prompt "+sample.texName, "prompt ("+sample.texName+")", *(p['binning'])))
+        p['sample_non-prompt'].append(ROOT.TH1F(p['name']+" non-prompt "+sample.texName, "non-prompt ("+sample.texName+")", *(p['binning'])))
 
 i=0
 for sample in samplelist:
@@ -57,6 +71,8 @@ for sample in samplelist:
     matchIdSignal=[6,23,24,25,37]
     #selected PdgID
     PdgId=[11]
+    particletype="electron"
+
     counter=0
     while reader.run():
         #print "run %i, lumi %i, event %i pdgId %i %6.5f" % (reader.event.run, reader.event.lumi, reader.event.evt, reader.event.lep_pdgId, reader.event.lep_segmentCompatibility) 
@@ -74,10 +90,10 @@ for sample in samplelist:
            #if counter>1000: break
     i+=1
 
-c=ROOT.TCanvas()
-c.Divide(2,1,0.01,0.01,0)
-
 for p in plots:
+    c=ROOT.TCanvas()
+    c.Divide(2,1,0.01,0.01,0)
+
     #pad 1
     c.cd(1)
     hs1=ROOT.THStack()
@@ -88,30 +104,32 @@ for p in plots:
         hs1.Add(histo)
         j+=1
     hs1.Draw('hist') 
-    hs1.SetTitle(p['name'])
+    hs1.SetTitle(particletype+' - '+p['name'])
     hs1.GetXaxis().SetTitle(p['var'])
     hs1.GetYaxis().SetTitle("number of events")
-    c.GetPad(1).SetLogy()
+    if p['var']=="lep_mvaIdSpring16": c.GetPad(1).SetLogy() 
     c.GetPad(1).BuildLegend(0.11,0.85,0.66,0.95,"").SetTextSize(0.03)
 
     #pad 2
     c.cd(2)
     hs2=ROOT.THStack()
     i=1
+    p['sample_prompt'][i].Scale(1./p['sample_prompt'][i].Integral())
     p['sample_prompt'][i].SetFillColor(4)
     p['sample_prompt'][i].SetLineColor(1)
     hs2.Add(p['sample_prompt'][i])
+    p['sample_non-prompt'][i].Scale(1./p['sample_non-prompt'][i].Integral())
     p['sample_non-prompt'][i].SetFillColor(7)
     p['sample_non-prompt'][i].SetLineColor(1)
     hs2.Add(p['sample_non-prompt'][i])
     hs2.Draw('hist')
-    hs2.SetTitle(p['name'])
+    hs2.SetTitle(particletype+' - '+p['name'])
     hs2.GetXaxis().SetTitle(p['var'])
     hs2.GetYaxis().SetTitle("number of events")
-    c.GetPad(2).SetLogy()
+    if p['var']=="lep_mvaIdSpring16": c.GetPad(2).SetLogy()
     c.GetPad(2).BuildLegend(0.11,0.85,0.86,0.95,"").SetTextSize(0.03)
 
-c.Print(os.path.join(plot_directory, p['name']+ '_stacked_plot.png'))
+    c.Print(os.path.join(plot_directory, particletype+'_'+p['name']+ '_stacked_plot.png'))
 
 
 
