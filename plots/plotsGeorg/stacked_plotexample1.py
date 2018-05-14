@@ -76,7 +76,7 @@ for p in plots:
     hs.GetXaxis().SetTitle(p['var'])
     hs.GetYaxis().SetTitle("number of events")
     c.SetLogy()
-    c.BuildLegend(0.05,0.75,0.3,0.95,"")
+    c.BuildLegend(0.15,0.75,0.4,0.95,"")
     c.Print(os.path.join(plot_directory, p['name']+ '_stacked_plot.png'))
 
 
