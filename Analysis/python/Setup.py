@@ -225,15 +225,15 @@ class Setup:
     def weightString(self):
         return "*".join([self.sys['weight']] + (self.sys['reweight'] if self.sys['reweight'] else []))
 
-    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False):
+    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False, short=False):
         '''Get preselection  cutstring.'''
-        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, hadronicSelection = False, **self.parameters)
+        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, short=short, hadronicSelection = False, **self.parameters)
 
     def selection(self, dataMC,
                         mllMin, metMin, zWindow1, zWindow2, zMassRange,
                         nJets, nBTags,
                         nElectrons=-1, nMuons=-1,
-                        hadronicSelection = False,  isFastSim = False):
+                        hadronicSelection = False,  isFastSim = False, short=False):
         '''Define full selection
            dataMC: 'Data' or 'MC'
            nElectrons, nMuons: Number of E and M. -1: all
@@ -324,18 +324,24 @@ class Setup:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>20&&lep_%s>0)>1 && Sum$(lep_pt>10&&lep_%s>0)>2"%(self.leptonId, self.leptonId, self.leptonId)) #check if this is good enough
+                # need to veto 4l events to remove overlap
+                baseline4l = Setup(self.year, nLeptons=4)
+                baseline4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
+                for c in quadlepChannels:
+                    res['cuts'].append("!(%s)"%baseline4l.preselection(dataMC, nElectrons=c.nE, nMuons=c.nM, short=True)['cut'])
             elif nLeptons==4:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>10&&lep_%s>0)>3"%(self.leptonId, self.leptonId)) #check if this is good enough
+                res['cuts'].append("min_dl_mass>12&&totalLeptonCharge==0")
             else:
                 raise NotImplementedError("nLeptons has to be 2 or 3 or 4. That's already more than enough to think about.")
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
-        res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
+        if not short: res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         # apply triggers in MC
         if not dataMC == 'Data':
             tr = triggerSelector(self.year)
-            res['cuts'].append(tr.getSelection("MC"))
+            if not short: res['cuts'].append(tr.getSelection("MC"))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}
