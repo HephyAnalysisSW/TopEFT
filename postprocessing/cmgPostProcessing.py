@@ -417,7 +417,7 @@ for lep_id in extra_lep_ids: new_variables.extend( ['nLeptons_%s/I'%lep_id, 'nMu
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
-new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F', 'Higgs_mass/F'] )
+new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F', 'Higgs_mass/F', 'Z_fromTight/I'] )
 new_variables.extend( ['Z1_l1_index_4l/I', 'Z1_l2_index_4l/I', 'Z2_l1_index_4l/I', 'Z2_l2_index_4l/I', 'nonZ1_l1_index_4l/I', 'nonZ1_l2_index_4l/I'] )
 for i in [1,2]:
     new_variables.extend( ['Z%i_pt_4l/F'%i, 'Z%i_eta_4l/F'%i, 'Z%i_phi_4l/F'%i, 'Z%i_lldPhi_4l/F'%i, 'Z%i_lldR_4l/F'%i,  'Z%i_mass_4l/F'%i, 'Z%i_cosThetaStar_4l/F'%i] )
@@ -623,11 +623,27 @@ def filler( event ):
     
     # We only care about (and expect) the leading one Z candidate in the 3l analysis
     (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(leptonCollections["tight_3l"])
-    nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["tight_3l"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
-    event.Z_l1_index    = leptonCollections["tight_3l"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
-    event.Z_l2_index    = leptonCollections["tight_3l"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
-    event.nonZ_l1_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
-    event.nonZ_l2_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
+    # If we can't find a Z candidate from the tight leptons, look at the FOs
+    if not event.Z_mass>=0:
+        # this is the case for the non-prompt estimation.
+        # need the corrected pt here for leptons that are not tight
+        leptonCollections["FO_3l_forZ"] = copy.deepcopy(leptonCollections["FO_3l"])
+        for l in leptonCollections["FO_3l_forZ"]:
+            if not l['tight_3l']: l['pt'] = l['pt'] * 0.85 / l['jetPtRatiov2']
+        (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(leptonCollections["FO_3l_forZ"])
+        nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["FO_3l_forZ"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+        event.Z_l1_index    = leptonCollections["FO_3l_forZ"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+        event.Z_l2_index    = leptonCollections["FO_3l_forZ"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+        event.nonZ_l1_index = leptonCollections["FO_3l_forZ"][nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+        event.nonZ_l2_index = leptonCollections["FO_3l_forZ"][nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
+    else:
+        # this is the case for signal events
+        event.Z_fromTight = 1
+        nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["tight_3l"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+        event.Z_l1_index    = leptonCollections["tight_3l"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+        event.Z_l2_index    = leptonCollections["tight_3l"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+        event.nonZ_l1_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+        event.nonZ_l2_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
 
     # Store Z information 
     if event.Z_mass>=0:

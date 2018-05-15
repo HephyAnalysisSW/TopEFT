@@ -307,6 +307,7 @@ class Setup:
             # two different cases: Z_mass for 3l, Z1_mass_4l and Z2_mass_4l for 4l
             if nLeptons == 3:
                 res['cuts'].append(getZCut(zWindow1, "Z_mass", zMassRange))
+                if not self.nonprompt: res['cuts'].append("Z_fromTight")
             elif nLeptons == 4:
                 res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
                 if nMuons%2 == 0:
@@ -324,11 +325,13 @@ class Setup:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>20&&lep_%s>0)>1 && Sum$(lep_pt>10&&lep_%s>0)>2"%(self.leptonId, self.leptonId, self.leptonId)) #check if this is good enough
-                # need to veto 4l events to remove overlap
-                baseline4l = Setup(self.year, nLeptons=4)
-                baseline4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
-                for c in quadlepChannels:
-                    res['cuts'].append("!(%s)"%baseline4l.preselection(dataMC, nElectrons=c.nE, nMuons=c.nM, short=True)['cut'])
+                res['cuts'].append("!(nLeptons_tight_4l>=4)") # make sure to remove full overlap with 4l. This is enought, what is below shouldn't be necessary.
+                if self.nonprompt: res['cuts'].append("nLeptons_tight_3l<3")
+                ## need to veto 4l events to remove overlap
+                #baseline4l = Setup(self.year, nLeptons=4)
+                #baseline4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
+                #for c in quadlepChannels:
+                #    res['cuts'].append("!(%s)"%baseline4l.preselection(dataMC, nElectrons=c.nE, nMuons=c.nM, short=True)['cut'])
             elif nLeptons==4:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>10&&lep_%s>0)>3"%(self.leptonId, self.leptonId)) #check if this is good enough
                 res['cuts'].append("min_dl_mass>12&&totalLeptonCharge==0")
