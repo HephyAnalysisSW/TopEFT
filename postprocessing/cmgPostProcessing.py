@@ -57,7 +57,7 @@ def get_parser():
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=30000000,                   help="Maximum number of events per job (Approximate!).") # mul by 100
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',                         action='store',                     type=int,                           default=None,                       help="Run only job i")
+    argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--fileBasedSplitting',          action='store_true',                                                                                        help="Split njobs according to files")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
@@ -685,9 +685,19 @@ def filler( event ):
         event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[0]]['index'] if len(nonZ_tightLepton_indices_4l)>0 else -1
         event.nonZ1_l2_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[1]]['index'] if len(nonZ_tightLepton_indices_4l)>1 else -1
 
+    # Now comes the cumbersome part. Do the right jet/lepton x-cleaning. Either use loose leptons (4l case), 3l_FO leptons (3l case) or SS_FO leptons (SS case).
+    # We should be careful about what happens for OS DL events (stops dilepton analysis)
+    if len(leptonCollections["tight_4l"]) >= 4:
+        cleaningCollection = "loose"
+    elif len(leptonCollections["FO_3l"]) >= 3:
+        cleaningCollection = "FO_3l"
+    elif len(leptonCollections["FO_SS"]) >= 2:
+        cleaningCollection = "FO_SS"
+    else:
+        cleaningCollection = "FO_SS" # Could also do something else here
 
-   # Jets and lepton jet cross-cleaning. Clean with loosest FO definition
-    allJets      = getAllJets(r, leptonCollections["FO_4l"], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    # Jets and lepton jet cross-cleaning.
+    allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
         if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
