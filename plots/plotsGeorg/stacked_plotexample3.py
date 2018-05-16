@@ -5,6 +5,7 @@ import os
 # RootTools
 from RootTools.core.standard import *
 
+# adapted from RootTools (added fillstyle)
 def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
     def func( histo ):
         lc = lineColor if lineColor is not None else color
