@@ -48,7 +48,7 @@ class GenSearch:
     #    return p
 
     def print_decay( self, p, prefix = ""):
-        print prefix+" %s(pt %3.2f, eta %3.2f, phi %3.2f)" % ( pdgToName(p.pdgId()), p.pt(), p.eta(), p.phi())
+        print prefix+" %s(pt %3.2f, eta %3.2f, phi %3.2f)" % ( pdgToName(p['pdgId']), p['pt'], p['eta'], p['phi'])
         for d in self.daughters( self.descend( p ) ):
             self.print_decay( d, prefix = prefix+'--')
 

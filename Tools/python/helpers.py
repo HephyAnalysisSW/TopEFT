@@ -356,6 +356,13 @@ def getGenPhoton(genparts):
     return g
   return None
 
+def getGenB(genparts):
+    for g in genparts:
+        if abs(g['pdgId']) != 5:        continue
+        if g['status'] != 23:   continue
+        return g
+    return None
+
 def timeit(method):
     import time
     def timed(*args, **kw):

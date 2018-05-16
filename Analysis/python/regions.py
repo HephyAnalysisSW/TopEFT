@@ -37,6 +37,7 @@ regionsReweight4l   = getRegions2D("Z1_pt_4l", [0, 50, 100, 150, 200, 250, 300, 
 
 ## inclusive
 noRegions = [Region("Z_pt", (0, -1)) + Region("cosThetaStar", (-1, -1))] # For TTZ CR 
+noRegionsB = [ Region("nBTag", (0,-1)) ]
 
 ## b-tag regions for WZ uncertainties
-btagRegions = [ Region("nBTags", (0,0)), Region("nBTags", (1,1)), Region("nBTags", (2,-1)) ]
+btagRegions = [ Region("nBTag", (0,0)), Region("nBTag", (1,1)), Region("nBTag", (2,-1)) ]
