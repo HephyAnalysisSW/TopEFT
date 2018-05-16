@@ -5,7 +5,20 @@ import os
 # RootTools
 from RootTools.core.standard import *
 
-# User specific 
+def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
+    def func( histo ):
+        lc = lineColor if lineColor is not None else color
+        histo.SetLineColor( lc )
+        histo.SetMarkerSize( 0 )
+        histo.SetMarkerStyle( 0 )
+        histo.SetMarkerColor( lc )
+        histo.SetFillColor( color )
+        histo.SetFillStyle( style)
+        histo.drawOption = "hist"
+        if errors: histo.drawOption+='E'
+        return 
+    return func
+
 from TopEFT.Tools.user import plot_directory
 
 # data -> replace this with importing samples when needed 
@@ -13,8 +26,10 @@ from TopEFT.Tools.user import plot_directory
 sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
 
-sample1.style =  styles.lineStyle( color= ROOT.kBlue)
-sample2.style =  styles.lineStyle( color= ROOT.kRed)
+#sample1.style =  styles.lineStyle( color= ROOT.kBlue)
+sample1.style =  fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
+#sample2.style =  styles.lineStyle( color= ROOT.kRed)
+sample2.style =  fillStyle(color=ROOT.kRed, style=3004, lineColor=ROOT.kRed)
 
 # variables to read
 read_variables = [
@@ -50,13 +65,11 @@ read_variables = [
 
 # Define stack
 mc    = [sample1,sample2]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
-mc1   = [sample1]
 stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
-stack1= Stack(mc1)
 
 # Set some defaults -> these need not be specified below for each plot
 weight = lambda event, sample: 1.  # could be e.g. weight = lambda event, sample: event.weight
-selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11&&lep_relIso03<0.1)"          # could be a complicated cut
+selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)"          # could be a complicated cut
 Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
 
 # Sequence
@@ -67,7 +80,6 @@ sequence = []
 #    event.fancy_variable = event.lep_trackerHits**2 
 #sequence.append( make_fancy_variable )
 
-# Start with an empty list
 
 def isPrompt(lepton):
     return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
@@ -84,50 +96,93 @@ def print_mcmatchId( event, sample ):
 
 #sequence.append(print_mcmatchId)
 
+
+# Start with an empty list
 plots = []
 
 # Add plots
-plots.append(Plot(name='electron MVA - QCD vs TTJets',
+plots.append(Plot(name='EleMVA',
     texX = 'electron MVA', texY = 'Number of Events',
     attribute = TreeVariable.fromString( "lep_mvaIdSpring16/F" ),
-    binning=[200,-1,1],
+    binning=[30,-1,1],
 ))
-
-plots.append(Plot( name='promptEleMVA',
+plots.append(Plot( name='EleMVAclassPrompt',
     texX = 'electron MVA', texY = 'Number of Events',
     attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isPrompt(lepton) else float('nan'),
     binning=[30,-1,1],
 ))
-
-plots.append(Plot( name='nonPromptEleMVA',
+plots.append(Plot( name='EleMVAclassNonPrompt',
     texX = 'electron MVA', texY = 'Number of Events',
     attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isNonPrompt(lepton) else float('nan'),
     binning=[30,-1,1],
 ))
-
-plots.append(Plot( name='fakeEleMVA',
+plots.append(Plot( name='EleMVAclassFake',
     texX = 'electron MVA', texY = 'Number of Events',
     attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isFake(lepton) else float('nan'),
     binning=[30,-1,1],
 ))
 
-plots.append(Plot(name='electron pt',
+plots.append(Plot(name='ElePt',
     texX = 'pt', texY = 'Number of Events',
     attribute = TreeVariable.fromString( "lep_pt/F" ),
-    binning=[100,0,300],
+    binning=[100,0,500],
 ))
-
 plots.append(Plot(name='pdgId',
     texX = 'pdgId', texY = 'Number of Events',
     attribute = TreeVariable.fromString( "lep_pdgId/I" ),
     binning=[61,-30,30],
 ))
-
-plots.append(Plot(name='convVeto',
+plots.append(Plot(name='EleEtaSc',
+    texX = 'etaSc', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_etaSc/F" ),
+    binning=[60,-3,3],
+))
+plots.append(Plot(name='EleFull5x5SigmaIetaIeta',
+    texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_full5x5_sigmaIetaIeta/F" ),
+    binning=[100,0,0.1],
+))
+plots.append(Plot(name='EleDEtaInSeed',
+    texX = 'dEtaInSeed', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_dEtaInSeed/F" ),
+    binning=[100,-4,4],
+))
+plots.append(Plot(name='EleDPhiScTrkIn',
+    texX = 'dPhiScTrkIn', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_dPhiScTrkIn/F" ),
+    binning=[100,-2,2],
+))
+plots.append(Plot(name='EleRelIso03',
+    texX = 'relIso03', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_relIso03/F" ),
+    binning=[100,0,0.11],
+))
+plots.append(Plot(name='EleEInvMinusPInv',
+    texX = 'eInvMinusPInv', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_eInvMinusPInv/F" ),
+    binning=[60,-1,1],
+))
+plots.append(Plot(name='EleLostOuterHits',
+    texX = 'lostOuterHits', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_lostOuterHits/I" ),
+    binning=[16,0,15],
+))
+plots.append(Plot(name='EleConvVeto',
     texX = 'convVeto', texY = 'Number of Events',
     attribute = TreeVariable.fromString( "lep_convVeto/I" ),
     binning=[2,0,1],
 ))
+plots.append(Plot(name='EleHadronicOverEm',
+    texX = 'hadronicOverEm', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_hadronicOverEm/F" ),
+    binning=[30,0,3],
+))
+plots.append(Plot(name='EleRho',
+    texX = 'rho', texY = 'Number of Events',
+    attribute = TreeVariable.fromString( "lep_rho/F" ),
+    binning=[100,0,5],
+))
+
 
 #plots.append(Plot( name = "fancy_variable",
 #    texX = 'Number of tracker hits squared', texY = 'Number of Events',
