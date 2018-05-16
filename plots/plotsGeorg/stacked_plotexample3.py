@@ -211,7 +211,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 # Draw a plot and make it look nice-ish
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'stacked_plots', ("log" if log else "lin"))
+    plot_directory_ = os.path.join(plot_directory, 'histogram_plots', 'stacked_samples', ("log" if log else "lin"))
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
       
