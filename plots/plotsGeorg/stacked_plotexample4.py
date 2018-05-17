@@ -22,15 +22,26 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
 
 from TopEFT.Tools.user import plot_directory
 
+from copy import deepcopy
+
 # data -> replace this with importing samples when needed 
 #sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
 sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
 
-#sample1.style =  styles.lineStyle( color= ROOT.kBlue)
-sample1.style =  fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
-#sample2.style =  styles.lineStyle( color= ROOT.kRed)
-sample2.style =  fillStyle(color=ROOT.kRed, style=3004, lineColor=ROOT.kRed)
+sample=sample1
+
+samplePrompt =    deepcopy(sample)
+sampleNonPrompt = deepcopy(sample)
+sampleFake =      deepcopy(sample)
+
+samplePrompt.texName = "Prompt"
+sampleNonPrompt.texName = "NonPrompt"
+sampleFake.texName = "Fake"
+
+samplePrompt.style =     fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
+sampleNonPrompt.style =  fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+sampleFake.style =       fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
 
 # variables to read
 read_variables = [
@@ -65,7 +76,7 @@ read_variables = [
 ]
 
 # Define stack
-mc    = [sample1,sample2]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
+mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
 stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
 # Define some parameters for plots and selection
@@ -108,93 +119,77 @@ for ecaltype in ecaltypes:
     # Add plots
     plots.append(Plot(name=plotname+'MVA',
         texX = 'electron MVA', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_mvaIdSpring16/F" ),
+        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[30,-1,1],
     ))
-    plots.append(Plot( name=plotname+'MVAclassPrompt',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isPrompt(lepton) else float('nan'),
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot( name=plotname+'MVAclassNonPrompt',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isNonPrompt(lepton) else float('nan'),
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot( name=plotname+'MVAclassFake',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isFake(lepton) else float('nan'),
-        binning=[30,-1,1],
-    ))
-
     plots.append(Plot(name=plotname+'Pt',
         texX = 'pt', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_pt/F" ),
+        attribute = lambda lepton, sample: lepton.lep_pt if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[100,0,500],
     ))
     plots.append(Plot(name=plotname+'pdgId',
         texX = 'pdgId', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_pdgId/I" ),
+        attribute = lambda lepton, sample: lepton.lep_pdgId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[61,-30,30],
     ))
     plots.append(Plot(name=plotname+'EtaSc',
         texX = 'etaSc', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_etaSc/F" ),
+        attribute = lambda lepton, sample: lepton.lep_etaSc if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[60,-3,3],
     ))
     plots.append(Plot(name=plotname+'Full5x5SigmaIetaIeta',
         texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_full5x5_sigmaIetaIeta/F" ),
+        attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[30,0,0.06],
     ))
     plots.append(Plot(name=plotname+'DEtaInSeed',
         texX = 'dEtaInSeed', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_dEtaInSeed/F" ),
+        attribute = lambda lepton, sample: lepton.lep_dEtaInSeed if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[30,-0.03,0.03],
     ))
     plots.append(Plot(name=plotname+'DPhiScTrkIn',
         texX = 'dPhiScTrkIn', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_dPhiScTrkIn/F" ),
+        attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[20,-0.2,0.2],
     ))
     plots.append(Plot(name=plotname+'RelIso03',
         texX = 'relIso03', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_relIso03/F" ),
+        attribute = lambda lepton, sample: lepton.lep_relIso03 if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[90,0,0.3],
     ))
     plots.append(Plot(name=plotname+'EInvMinusPInv',
         texX = '|1/E-1/p|', texY = 'Number of Events',
-        attribute = lambda event, sample: event.absEInvMinusPInv,
+        attribute = lambda lepton, sample: lepton.absEInvMinusPInv if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[30,0,0.15],
     ))
     plots.append(Plot(name=plotname+'LostOuterHits',
         texX = 'lostOuterHits', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_lostOuterHits/I" ),
+        attribute = lambda lepton, sample: lepton.lep_lostOuterHits if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[16,0,15],
     ))
     plots.append(Plot(name=plotname+'ConvVeto',
         texX = 'convVeto', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_convVeto/I" ),
+        attribute = lambda lepton, sample: lepton.lep_convVeto if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'HadronicOverEm',
         texX = 'hadronicOverEm', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_hadronicOverEm/F" ),
+        attribute = lambda lepton, sample: lepton.lep_hadronicOverEm if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[30,0,0.1],
     ))
     plots.append(Plot(name=plotname+'Rho',
         texX = 'rho', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_rho/F" ),
+        attribute = lambda lepton, sample: lepton.lep_rho if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[100,0,5],
     ))
     plots.append(Plot(name=plotname+'Dxy',
         texX = 'dxy', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_dxy/F" ),
+        attribute = lambda lepton, sample: lepton.lep_dxy if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[60,-0.1,0.1],
     ))
     plots.append(Plot(name=plotname+'Dz',
         texX = 'dz', texY = 'Number of Events',
-        attribute = TreeVariable.fromString( "lep_dz/F" ),
+        attribute = lambda lepton, sample: lepton.lep_dz if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
         binning=[60,-0.2,0.2],
     ))
 
@@ -224,7 +219,7 @@ for ecaltype in ecaltypes:
     # Draw a plot and make it look nice-ish
     def drawPlots(plots, dataMCScale):
       for log in [False, True]:
-        plot_directory_ = os.path.join(plot_directory, 'histogram_plots', 'stacked_samples', plotname, ("log" if log else "lin"))
+        plot_directory_ = os.path.join(plot_directory, 'histogram_plots', 'stacked_classes', plotname, ("log" if log else "lin"))
         for plot in plots:
           if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
           
