@@ -33,6 +33,7 @@ color.WG             = ROOT.kOrange-5
 color.ZG             = ROOT.kOrange-10
 color.triBoson       = ROOT.kYellow
 color.rare           = ROOT.kGreen+1
+color.rare_noZZ      = ROOT.kGreen+1
 color.WZZ            = ROOT.kYellow
 color.WWG            = ROOT.kYellow-5
 color.QCD            = 46

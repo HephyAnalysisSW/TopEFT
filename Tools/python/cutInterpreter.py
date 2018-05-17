@@ -31,7 +31,7 @@ special_cuts = {
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
     "onZ":               "abs(Z_mass-91.2)<10",
-    "tightZ":            "Z_fromTight",
+    "tightZ":            "Z_fromTight>0",
     "onZZ":              "abs(Z1_mass_4l-91.2)<20&&abs(Z2_mass_4l-91.2)<20",
     "onZ1":              "abs(Z1_mass_4l-91.2)<20",
     "offZ2":             "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.2)>20",

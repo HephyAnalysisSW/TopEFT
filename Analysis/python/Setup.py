@@ -313,7 +313,7 @@ class Setup:
             # two different cases: Z_mass for 3l, Z1_mass_4l and Z2_mass_4l for 4l
             if nLeptons == 3:
                 res['cuts'].append(getZCut(zWindow1, "Z_mass", zMassRange))
-                if not self.nonprompt: res['cuts'].append("Z_fromTight")
+                if not self.nonprompt: res['cuts'].append("Z_fromTight>0")
             elif nLeptons == 4:
                 res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
                 if nMuons%2 == 0:
@@ -336,9 +336,9 @@ class Setup:
             elif nLeptons==3:
                 lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
                 leptonSelection = [\
-                    "Sum$(%s>40&&lep_%s)>0"%(lep_pt, self.leptonId),\
-                    "Sum$(%s>20&&lep_%s)>1"%(lep_pt, self.leptonId),\
-                    "Sum$(%s>10&&lep_%s)>2"%(lep_pt, self.leptonId),\
+                    "Sum$(%s>40&&lep_%s>0)>0"%(lep_pt, self.leptonId),\
+                    "Sum$(%s>20&&lep_%s>0)>1"%(lep_pt, self.leptonId),\
+                    "Sum$(%s>10&&lep_%s>0)>2"%(lep_pt, self.leptonId),\
                                   ]
                 res['cuts'].append("&&".join(leptonSelection))
                 res['cuts'].append("!(nLeptons_tight_4l>=4)") # make sure to remove full overlap with 4l. This is enought, what is below shouldn't be necessary.

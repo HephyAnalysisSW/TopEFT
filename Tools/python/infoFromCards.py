@@ -161,8 +161,10 @@ def applyNuisance(cardFile, estimate, res, binName):
     return scaledRes2
 
 def applyAllNuisances(cardFile, estimate, res, binName, nuisances):
-    if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt']: return res
+    if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt', 'ZZ']: return res
     if estimate == "WZ":
+        uncName = estimate+'_xsec'
+    elif estimate == "WZ":
         uncName = estimate+'_xsec'
     elif estimate == "TZQ":
         uncName = "tZq"
