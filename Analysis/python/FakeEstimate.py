@@ -74,16 +74,16 @@ class FakeEstimate(SystematicEstimator):
                     # Do the combinatorics
                     looseCombinations = itertools.combinations(looseNotTight, setup.nLeptons - nTight)
                     allCombinations = [ (tight + list(x)) for x in looseCombinations ]
-                    print allCombinations
                 else:
-                    allCombinations = lep
+                    allCombinations = [lep]
 
                 for comb in allCombinations:
                     nLooseNotTight = 0
-                    for l in lep:
+                    for l in comb:
                         if l[setup.tight_ID]:
                             continue
                         else:
+                            print l['pdgId']
                             if abs(l['pdgId']) == 11: FRmap = self.elMap
                             elif abs(l['pdgId']) == 13: FRmap = self.muMap
                             else: raise NotImplementedError
