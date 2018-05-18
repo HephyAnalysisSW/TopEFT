@@ -32,7 +32,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v4/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
@@ -66,17 +66,17 @@ year = int(args.year)
 
 ## 3l setup ##
 setup                   = Setup(year, nLeptons=3)
-estimators = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare"])#, "nonprompt"])
+estimators              = estimatorList(setup)
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])#, "nonprompt"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)] # == 'all'
 setup.regions           = regionsE
 
 ## 4l setup ##
-setup4l = Setup(year=year, nLeptons=4)
+setup4l                   = Setup(year=year, nLeptons=4)
 setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
-setup4l.estimators        = estimators.constructEstimatorList(["ZZ", "rare_noZZ"])
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)] # == 'all'
 setup4l.regions           = regions4l
@@ -109,7 +109,7 @@ else:
         subDir                  = 'SRandCR'
         setupCR                 = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
         estimatorsCR            = estimatorList(setupCR)
-        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
         setupCR.reweightRegions = regionsReweight
     else:
         subDir = ''
@@ -128,7 +128,7 @@ else:
     setups = [setup]
 if args.include4l:
     setups += [setup4l]
-    cardDir += "_allChannels"
+    cardDir += "_allChannelsV7"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite

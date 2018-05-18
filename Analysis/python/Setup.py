@@ -136,7 +136,7 @@ class Setup:
             TZQSample           = TZQ_17
             ZZSample            = ZZ
             rareSample          = rare_17
-            rare_noZZSample     = rare_noZZ
+            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
             ttbarSample         = TTLep_pow_17
@@ -149,7 +149,7 @@ class Setup:
             TZQSample           = TZQ
             ZZSample            = ZZ
             rareSample          = rare
-            rare_noZZSample     = rare_noZZ
+            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
             ttbarSample         = TTLep_pow
@@ -164,7 +164,7 @@ class Setup:
             'TZQ' :         TZQSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
-            'rare_noZZ':    rare_noZZSample,
+            #'rare_noZZ':    rare_noZZSample,
             'nonprompt':    nonpromptSample,
             'ttbar':        ttbarSample,
             'pseudoData':   pseudoDataSample,

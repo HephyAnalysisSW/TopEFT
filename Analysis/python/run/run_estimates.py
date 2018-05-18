@@ -4,7 +4,7 @@ parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
-parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ", "rare_noZZ"], help="Choose which sample to run the estimates for")
+parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 parser.add_option("--overwrite", action='store_true', help="Overwrite?")
@@ -36,7 +36,7 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v4/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
@@ -57,7 +57,7 @@ from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = regionsE
@@ -88,20 +88,24 @@ reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "re
 modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 ## 4l setup ##
-setup4l = Setup(year=year, nLeptons=4)
+setup4l                   = Setup(year=year, nLeptons=4)
 setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
-setup4l.estimators        = estimators.constructEstimatorList(["ZZ", "rare_noZZ"])
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
 setup4l.regions           = regions4l
 
 # only run over 3l/4l when necessary
-if options.sample in ["ZZ", "rare_noZZ"]:
+if options.sample in []:
+    print "a"
     setups = [setup4l]
-elif options.sample in ["WZ", "TTX", "TTW", "TZQ", "rare"]:
+elif options.sample in ["WZ", "TTX", "TTW", "TZQ"]:
+    print "b"
     setups = [setup]
 else:
+    print "c"
+    # rare, ZZ, nonprompt, pseudodata, TTZ run in all SRs
     setups = [setup, setup4l]
 
 allSetups = copy.deepcopy(setups)

@@ -18,7 +18,7 @@ parser.add_option('--logLevel',             dest="logLevel",              defaul
 parser.add_option('--signal',               action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
-parser.add_option("--year",                 action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -47,7 +47,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 regions = regionsE + regions4l
 
 # processes (and names) like in the card
-processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt','ZZ', 'rare_noZZ']
+processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt','ZZ']
 
 # uncertainties like in the card
 uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'ZZ_xsec', 'rare', 'ttX', 'tZq', 'Lumi']
@@ -55,9 +55,9 @@ uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF',
 Nbins = len(regions)
 
 isData = True
-if options.year == '2016':
+if options.year == 2016:
     lumiStr = 35.9
-elif options.year == '2017':
+elif options.year == 2017:
     lumiStr = 41.3
 else:
     lumiStr = 77.2
@@ -69,7 +69,7 @@ cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p250000"
 subDir = ""
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_shape_lowUnc_allChannels/%s/ewkDM_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_shape_lowUnc_allChannelsV7/%s/ewkDM_dipoles/"%(options.year,subDir)
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -180,7 +180,7 @@ def drawLabels( regions ):
     min = 0.15
     max = 0.95
     diff = (max-min) / len(regions)
-    lines =  [(min+(3*i+0.90)*diff, 0.645,  r.texStringForVar('Z_pt'))   for i, r in enumerate(regions[:-3][::3])]
+    lines =  [(min+(3*i+0.90)*diff, 0.600,  r.texStringForVar('Z_pt'))   for i, r in enumerate(regions[:-3][::3])]
     return [tex.DrawLatex(*l) for l in lines] 
 
 def drawLabels2( regions ):
@@ -192,8 +192,12 @@ def drawLabels2( regions ):
     min = 0.15
     max = 0.95
     diff = (max-min) / len(regions)
-    lines =  [(min+(3*i+0.90)*diff, 0.885,  "N_{l}=3")   for i, r in enumerate(regions[:-3][::3])]
-    lines += [(min+(12+0.90)*diff, 0.885,  "N_{l}=4")]
+    lines =  [(min+(3*i+0.90)*diff, 0.900,  "N_{l}=3")   for i, r in enumerate(regions[:-3][::3])]
+    lines += [(min+(12+0.90)*diff, 0.900,  "N_{l}=4")]
+    lines +=  [(min+(3*i+0.90)*diff, 0.860,  "N_{b-tag}#geq1")   for i, r in enumerate(regions[:-3][::3])]
+    lines += [(min+(12+0.90)*diff, 0.860,  "N_{b-tag}#geq0")]
+    lines +=  [(min+(3*i+0.90)*diff, 0.820,  "N_{j}#geq3")   for i, r in enumerate(regions[:-3][::3])]
+    lines += [(min+(12+0.90)*diff, 0.820,  "N_{j}#geq2")]
     return [tex.DrawLatex(*l) for l in lines]
 
 
@@ -210,8 +214,9 @@ def drawDivisions(regions):
     line1 = (min+3*diff,  0.013, min+3*diff, 0.93);
     line2 = (min+6*diff, 0.013, min+6*diff, 0.93);
     line3 = (min+9*diff, 0.013, min+9*diff, 0.93);
-    line4 = (min+12*diff, 0.013, min+12*diff, 0.93);
-    return [line.DrawLineNDC(*l) for l in [line1, line2, line3, line4]] + [tex.DrawLatex(*l) for l in lines] + [tex2.DrawLatex(*l) for l in lines2]
+    line4 = (min+12*diff, 0.013, min+12*diff, 0.80-0.010*32-0.03);
+    line5 = (min+12*diff, 0.80+0.03, min+12*diff, 0.93);
+    return [line.DrawLineNDC(*l) for l in [line1, line2, line3, line4, line5]] + [tex.DrawLatex(*l) for l in lines] + [tex2.DrawLatex(*l) for l in lines2]
 
 
 def drawBinNumbers(numberOfBins):
@@ -258,7 +263,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4l_%s"%(subDir,cardName,options.year)
+plotName = "%s%s_signalRegions_incl4lV7_%s"%(subDir,cardName,options.year)
 if options.postFit:
     plotName += "_postFit"
 
@@ -269,7 +274,7 @@ plotting.draw(
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions"),
     logX = False, logY = True, sorting = True, 
-    legend = (0.75,0.85-0.010*32, 0.95, 0.85),
+    legend = (0.74,0.80-0.010*32, 0.95, 0.80),
     widths = {'x_width':700, 'y_width':600},
     yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
