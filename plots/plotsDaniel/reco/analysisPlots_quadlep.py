@@ -33,13 +33,13 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v5')
+argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v7')
 argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet0p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
 argParser.add_argument('--DYincl',              action='store_true', default=False,             help="Use inclusive DY sample (for dilep)" )
-argParser.add_argument('--year',                action='store',      default=2017,   type=int,  help="Which year?" )
+argParser.add_argument('--year',                action='store',      default=2016,   type=int,  help="Which year?" )
 args = argParser.parse_args()
 
 
@@ -71,11 +71,11 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 
 if args.year == 2016:
-    data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v6/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_ext']
     dirs['ZZ']      = ['ZZTo4L']
@@ -84,11 +84,11 @@ if args.year == 2016:
 
 else:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
     # load MC from here for now
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_amc']
     dirs['ZZ']      = ['ZZTo4L_comb']

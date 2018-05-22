@@ -21,7 +21,7 @@ special_cuts = {
     "trilepFO":          "nLeptons_FO_3l>=3&&!(nLeptons_tight_3l==3)&&!(nLeptons_tight_4l>=4)",
     "looseVeto":         "nlep==3",
     "WlepPt20":          "lep_pt[nonZ_l1_index]>20",
-    "quadlep":           "nLeptons_tight_4l==4&&min_dl_mass>12&&totalLeptonCharge==0",
+    "quadlep":           "nLeptons_tight_4l>=4&&min_dl_mass>12&&totalLeptonCharge==0",
     "Zcand":             "Z_mass>0",
 #    "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
     "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight_3l>0)>0 && Sum$(lep_pt>20&&lep_tight_3l>0)>1 && Sum$(lep_pt>10&&lep_tight_3l>0)>2",

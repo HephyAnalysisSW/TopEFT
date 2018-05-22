@@ -134,7 +134,7 @@ class Setup:
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
-            ZZSample            = ZZ
+            ZZSample            = ZZ_17
             rareSample          = rare_17
             #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC_17

@@ -7,5 +7,5 @@ data_2017= Sample.fromCMGOutput('data_2017',base_dir, chunkString='MuonEG_Run201
 
 base_dir = '/afs/hephy.at/data/dspitzbart02/cmgTuples/sync/'
 ttz_2017 = Sample.fromCMGOutput('ttz_2017',base_dir, chunkString='TTZToLLNuNu_amc', isData = True) # fake data
-
+ttbar_2017 = Sample.fromCMGOutput('ttbar_2017',base_dir, chunkString='TTLep_pow', isData = True) # fake data
 
