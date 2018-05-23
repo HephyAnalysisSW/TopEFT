@@ -155,6 +155,9 @@ triggerSF = triggerEfficiency(options.year)
 from TopEFT.Tools.leptonTrackingEfficiency import leptonTrackingEfficiency
 leptonTrackingSF = leptonTrackingEfficiency(options.year)
 
+# Lepton SF
+from TopEFT.Tools.leptonSF import leptonSF as leptonSF_
+
 #Samples: combine if more than one
 if len(samples)>1:
     sample_name =  samples[0].name+"_comb"
@@ -391,6 +394,7 @@ if isMC:
     new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
     for i in ["tight_SS","tight_3l","tight_4l"]:
         new_variables.extend(['reweightTrigger_%s/F'%i, 'reweightTriggerUp_%s/F'%i, 'reweightTriggerDown_%s/F'%i, 'reweightLeptonTrackingSF_%s/F'%i,'reweightLeptonTrackingSFUp_%s/F'%i, 'reweightLeptonTrackingSFDown_%s/F'%i])
+        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightLeptonSFUp_%s/F'%i, 'reweightLeptonSFDown_%s/F'%i])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -431,7 +435,7 @@ if options.keepPhotons:
     new_variables.extend( ['TTGJetsEventType/I'] )
 
 # variables for dilepton stop
-new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'totalLeptonCharge/I' ] )
+new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'min_dl_mass_FO_3l/F', 'min_dl_mass_loose/F', 'totalLeptonCharge/I' ] )
 
 
 if addSystematicVariations:
@@ -613,10 +617,23 @@ def filler( event ):
                 setattr(event, "reweightTriggerUp_%s"%tight_id,      trigg + trigg_err)
                 setattr(event, "reweightTriggerDown_%s"%tight_id,    trigg - trigg_err)
 
+                # get different lepton SF readers
+                leptonSF = leptonSF_(year=options.year, ID=tight_id)
+                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
+
+
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:
         minDLMass, allMasses = getMinDLMass(leptonCollections["tight_4l"])
         event.min_dl_mass = minDLMass[0]
+    if len(leptonCollections["FO_3l"])>1:
+        minDLMass, allMasses = getMinDLMass(leptonCollections["FO_3l"])
+        event.min_dl_mass_FO_3l = minDLMass[0]
+    if len(leptonCollections["loose"])>1:
+        minDLMass, allMasses = getMinDLMass(leptonCollections["loose"])
+        event.min_dl_mass_loose = minDLMass[0]
     event.totalLeptonCharge = sum( [ l['pdgId']/abs(l['pdgId']) for l in leptonCollections["tight_4l"] ] )
 
 

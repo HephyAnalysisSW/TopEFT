@@ -21,8 +21,13 @@ class FakeEstimate(SystematicEstimator):
         self.sample = sample
         self.dataMC = "Data" if sample.isData else "MC"
         self.magicNumber = 0.85
-        muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
-        elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
+        if sample.isData:
+            muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_mu_data.root")
+            elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_el_data.root")
+        else:
+            # FR maps from ttbar MC
+            muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
+            elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
         self.muMap = getObjFromFile(muFile, "passed")
         self.elMap = getObjFromFile(elFile, "passed")
         
@@ -46,7 +51,8 @@ class FakeEstimate(SystematicEstimator):
             
             tmpSample = self.sample
             
-            variables = map( TreeVariable.fromString, ["Z_pt/F", "cosThetaStar/F", "weight/F", "met_pt/F", "Z_mass/F", "nJetSelected/I", "nBTag/I", 'Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I', 'reweightPU36fb/F', 'reweightBTagDeepCSV_SF/F' ] )
+            variables = map( TreeVariable.fromString, ["run/I", "lumi/I", "evt/I", "Z_pt/F", "cosThetaStar/F", "weight/F", "met_pt/F", "Z_mass/F", "nJetSelected/I", "nBTag/I", 'Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'])
+            if not self.sample.isData: variables += map( TreeVariable.fromString, ['reweightPU36fb/F', 'reweightBTagDeepCSV_SF/F' ] )
             variables += [VectorTreeVariable.fromString('lep[pt/F,ptCorr/F,eta/F,phi/F,FO_3l/I,tight_3l/I,FO_SS/I,tight_SS/I,jetPtRatiov2/F,pdgId/I]')]
 
             tmpSample.setSelectionString([setup.preselection(self.dataMC, nElectrons=channel.nE, nMuons=channel.nM)['cut'], region.cutString()])
@@ -55,7 +61,6 @@ class FakeEstimate(SystematicEstimator):
             reader.start()
             fakeYield = u_float(0)
             while reader.run():
-                FR = 1.
                 nLep = len([ l for l in reader.event.lep_pt if l > 0])
                 lep = [getObjDict(reader.event, "lep"+'_', ["pt", "ptCorr", "eta", "phi", "FO_3l", "FO_SS", "tight_3l", "tight_SS", "pdgId","jetPtRatiov2"], i) for i in range(nLep) ]
 
@@ -67,10 +72,8 @@ class FakeEstimate(SystematicEstimator):
                 tight           = [ l for l in lep if l[setup.tight_ID] ]
                 nLooseNotTight  = len( looseNotTight )
                 nTight          = len( tight )
-                print nTight, nLooseNotTight
                
                 if len(lep) > setup.nLeptons:
-                    print "Doing gymastics"
                     # Do the combinatorics
                     looseCombinations = itertools.combinations(looseNotTight, setup.nLeptons - nTight)
                     allCombinations = [ (tight + list(x)) for x in looseCombinations ]
@@ -78,27 +81,38 @@ class FakeEstimate(SystematicEstimator):
                     allCombinations = [lep]
 
                 for comb in allCombinations:
+                    FR = 1.
                     nLooseNotTight = 0
                     for l in comb:
                         if l[setup.tight_ID]:
                             continue
                         else:
-                            print l['pdgId']
                             if abs(l['pdgId']) == 11: FRmap = self.elMap
                             elif abs(l['pdgId']) == 13: FRmap = self.muMap
                             else: raise NotImplementedError
-                            ptCorrected = l['ptCorr'] if l['ptCorr'] < 99 else 99.
+                            ptCut = 45. if self.sample.isData else 99.
+                            ptCorrected = l['ptCorr'] if l['ptCorr'] < ptCut else (ptCut-1)
+                            #print ptCorrected
                             FR_from_map = FRmap.GetBinContent(FRmap.FindBin(ptCorrected, abs(l['eta'])))
-                            FR *= FR_from_map
+                            if self.sample.isData:
+                                FR *= FR_from_map/(1-FR_from_map)
+                            else:
+                                FR *= FR_from_map
                             nLooseNotTight += 1
 
                     FR *= (-1)**(nLooseNotTight+1)
-                    allweights = [setup.sys['weight']] + setup.sys['reweight']
-                    weights = [ getattr( reader.event, w ) for w in allweights ]
-                    weight = reduce(mul, weights, 1)
-                    fakeYield += ( reader.event.weight * FR * setup.lumi/1000. )
 
-            #print fakeYield 
+                    #print reader.event.run, reader.event.lumi, reader.event.evt, nTight, nTight+nLooseNotTight, l['pdgId'], ptCorrected, l['eta'], FR
+                    allweights = [setup.sys['weight']] + setup.sys['reweight']
+
+                    if self.sample.isData:
+                        weight = 1
+                    else:
+                        weights = [ getattr( reader.event, w ) for w in allweights ]
+                        weight = reduce(mul, weights, 1)
+
+                    fakeYield += ( weight * FR * setup.lumi/1000. )
+            print fakeYield 
             #raise NotImplementedError
             return fakeYield
 
