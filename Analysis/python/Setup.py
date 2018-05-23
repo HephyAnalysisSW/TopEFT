@@ -77,19 +77,19 @@ class Setup:
         self.nLeptons   = nLeptons
         
         if nLeptons == 2:
-            tight_ID    = "tight_SS"
-            FO_ID       = "FO_SS"
+            self.tight_ID    = "tight_SS"
+            self.FO_ID       = "FO_SS"
         elif nLeptons == 3:
-            tight_ID    = "tight_3l"
-            FO_ID       = "FO_3l"
+            self.tight_ID    = "tight_3l"
+            self.FO_ID       = "FO_3l"
         elif nLeptons == 4:
-            tight_ID    = "tight_4l"
-            FO_ID       = "FO_4l"
+            self.tight_ID    = "tight_4l"
+            self.FO_ID       = "FO_4l"
         else:
             raise NotImplementedError("Can't handle 0,1,5,.. lepton cases")
 
         self.nonprompt  = nonprompt
-        self.leptonId = FO_ID if self.nonprompt else tight_ID
+        self.leptonId = self.FO_ID if self.nonprompt else self.tight_ID
 
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
 
@@ -134,11 +134,12 @@ class Setup:
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
-            ZZSample            = ZZ
+            ZZSample            = ZZ_17
             rareSample          = rare_17
-            rare_noZZSample     = rare_noZZ
+            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
+            ttbarSample         = TTLep_pow_17
         else:
             ## use 2016 samples as default (we do combine on card file level)
             TTZSample           = TTZtoLLNuNu
@@ -148,9 +149,10 @@ class Setup:
             TZQSample           = TZQ
             ZZSample            = ZZ
             rareSample          = rare
-            rare_noZZSample     = rare_noZZ
+            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
+            ttbarSample         = TTLep_pow
 
 
         # removed the channel dependence.
@@ -162,8 +164,9 @@ class Setup:
             'TZQ' :         TZQSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
-            'rare_noZZ':    rare_noZZSample,
+            #'rare_noZZ':    rare_noZZSample,
             'nonprompt':    nonpromptSample,
+            'ttbar':        ttbarSample,
             'pseudoData':   pseudoDataSample,
             'Data' :        data,
             }
@@ -300,14 +303,17 @@ class Setup:
                 chStr = "(nMuons_%s==%i&&nElectrons_%s==%i)"%(self.leptonId, nMuons, self.leptonId, nElectrons)
             else:
                 # this is for the 'all' channel
-                chStr = "nLeptons_%s==%i"%(self.leptonId, nLeptons)
+                if not self.nonprompt:
+                    chStr = "nLeptons_%s==%i"%(self.leptonId, nLeptons)
+                else:
+                    chStr = "nLeptons_%s>=%i"%(self.leptonId, nLeptons)
 
             #Z window
 
             # two different cases: Z_mass for 3l, Z1_mass_4l and Z2_mass_4l for 4l
             if nLeptons == 3:
                 res['cuts'].append(getZCut(zWindow1, "Z_mass", zMassRange))
-                if not self.nonprompt: res['cuts'].append("Z_fromTight")
+                if not self.nonprompt: res['cuts'].append("Z_fromTight>0")
             elif nLeptons == 4:
                 res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
                 if nMuons%2 == 0:
@@ -320,11 +326,21 @@ class Setup:
 
             res['cuts'].append(chStr)
 
-            res['cuts'].append('nLeptons_%s==%i'%(self.leptonId, nLeptons))
+            if not self.nonprompt:
+                res['cuts'].append('nLeptons_%s==%i'%(self.leptonId, nLeptons))
+            else:
+                res['cuts'].append('nLeptons_%s>=%i'%(self.leptonId, nLeptons))
+
             if nLeptons==2:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:
-                res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>20&&lep_%s>0)>1 && Sum$(lep_pt>10&&lep_%s>0)>2"%(self.leptonId, self.leptonId, self.leptonId)) #check if this is good enough
+                lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
+                leptonSelection = [\
+                    "Sum$(%s>40&&lep_%s>0)>0"%(lep_pt, self.leptonId),\
+                    "Sum$(%s>20&&lep_%s>0)>1"%(lep_pt, self.leptonId),\
+                    "Sum$(%s>10&&lep_%s>0)>2"%(lep_pt, self.leptonId),\
+                                  ]
+                res['cuts'].append("&&".join(leptonSelection))
                 res['cuts'].append("!(nLeptons_tight_4l>=4)") # make sure to remove full overlap with 4l. This is enought, what is below shouldn't be necessary.
                 if self.nonprompt: res['cuts'].append("nLeptons_tight_3l<3")
                 ## need to veto 4l events to remove overlap

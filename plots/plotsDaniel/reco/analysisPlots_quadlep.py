@@ -17,6 +17,10 @@ from TopEFT.Tools.cutInterpreter  import cutInterpreter
 from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.samples.color         import color
 
+# for mt2ll
+from TopEFT.Tools.mt2Calculator              import mt2Calculator
+mt2Calc = mt2Calculator()
+
 #
 # Arguments
 # 
@@ -29,13 +33,13 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v4')
+argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v7')
 argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet0p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
 argParser.add_argument('--DYincl',              action='store_true', default=False,             help="Use inclusive DY sample (for dilep)" )
-argParser.add_argument('--year',                action='store',      default=2017,   type=int,  help="Which year?" )
+argParser.add_argument('--year',                action='store',      default=2016,   type=int,  help="Which year?" )
 args = argParser.parse_args()
 
 
@@ -67,11 +71,11 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 
 if args.year == 2016:
-    data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v3/quadlep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_ext']
     dirs['ZZ']      = ['ZZTo4L']
@@ -80,11 +84,11 @@ if args.year == 2016:
 
 else:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
     # load MC from here for now
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v4/quadlep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_amc']
     dirs['ZZ']      = ['ZZTo4L_comb']
@@ -232,6 +236,27 @@ read_variables =    ["weight/F",
                     ]
 
 sequence = []
+
+def getMT2ll( event, sample ):
+    l1 = ROOT.TLorentzVector()
+    l2 = ROOT.TLorentzVector()
+    event.lep_pt[event.nonZ1_l1_index_4l]
+    l1.SetPtEtaPhiM(event.lep_pt[event.nonZ1_l1_index_4l], event.lep_eta[event.nonZ1_l1_index_4l], event.lep_phi[event.nonZ1_l1_index_4l], 0 )
+    l2.SetPtEtaPhiM(event.lep_pt[event.nonZ1_l2_index_4l], event.lep_eta[event.nonZ1_l2_index_4l], event.lep_phi[event.nonZ1_l2_index_4l], 0 )
+    mt2Calc.setLeptons(l1.Pt(), l1.Eta(), l1.Phi(), l2.Pt(), l2.Eta(), l2.Phi())
+
+    met         = ROOT.TLorentzVector()
+    met.SetPtEtaPhiM( event.met_pt, 0, event.met_phi, 0)
+
+    Z           = ROOT.TLorentzVector()
+    Z.SetPtEtaPhiM( event.Z1_pt_4l, event.Z1_eta_4l, event.Z1_phi_4l, 0)
+
+    newMet = met+Z
+
+    mt2Calc.setMet(newMet.Pt(), newMet.Phi())
+    event.dl_mt2ll_Z = mt2Calc.mt2ll()
+
+sequence += [ getMT2ll ]
 
 def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ1_l1_index_4l], event.Z2_phi_4l)
@@ -735,6 +760,13 @@ for index, mode in enumerate(allModes):
         texX = 'M(ZZ) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = TreeVariable.fromString( "Higgs_mass/F" ),
         binning=[22,80,300],
+    ))
+    
+    plots.append(Plot(
+        texX = 'M_{T2}(ll) Z estimated (GeV)', texY = 'Number of Events',
+        name = "mt2ll_Z_estimated",
+        attribute = lambda event, sample: event.dl_mt2ll_Z,
+        binning=[4,0,320],
     ))
     
     plots.append(Plot(

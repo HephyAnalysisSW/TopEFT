@@ -363,7 +363,7 @@ new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
 if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
-lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I'
+lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F'
 
 # store this extra Id information
 extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
@@ -561,6 +561,7 @@ def filler( event ):
 
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
+        lep['ptCorr'] = 0.85 * lep['pt'] / lep['jetPtRatiov2']
         for lep_id in extra_lep_ids:
             lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
         lep['cleanEle'] = 1 if iLep not in eleMuOverlapIndices else 0
@@ -629,7 +630,7 @@ def filler( event ):
         # need the corrected pt here for leptons that are not tight
         leptonCollections["FO_3l_forZ"] = copy.deepcopy(leptonCollections["FO_3l"])
         for l in leptonCollections["FO_3l_forZ"]:
-            if not l['tight_3l']: l['pt'] = l['pt'] * 0.85 / l['jetPtRatiov2']
+            if not l['tight_3l']: l['pt'] = l['ptCorr']
         (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(leptonCollections["FO_3l_forZ"])
         nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["FO_3l_forZ"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
         event.Z_l1_index    = leptonCollections["FO_3l_forZ"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
