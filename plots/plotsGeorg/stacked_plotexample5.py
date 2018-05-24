@@ -30,10 +30,14 @@ sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", f
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
 sample3 = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
 
-
 samplePrompt =    deepcopy(sample3)
 sampleNonPrompt = deepcopy(sample3)
 sampleFake =      deepcopy(sample3)
+
+samplePrompt.setSelectionString( "" )
+#samplePrompt.name = "Prompt"
+#sampleNonPrompt.name = "NonPrompt"
+#sampleFake.name = "Fake"
 
 samplePrompt.texName = "Prompt"
 sampleNonPrompt.texName = "NonPrompt"
@@ -112,13 +116,16 @@ for ecaltype in ecaltypes:
         return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
 
     def print_mcmatchId( event, sample ):
-        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample.name=="TTJetsClasses":
+        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample3:
             print event.lep_mcMatchId
 
     def print_class( event, sample ):
-        if sample.name=="TTJetsClasses":
-            print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
+        assert isPrompt(event) + isNonPrompt(event) + isFake(event)==1, "Should never happen!"
 
+        print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
+        print sample, samplePrompt, sampleNonPrompt, sampleFake
+        print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
+        print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
     sequence.append(print_class)
 
     # Start with an empty list
