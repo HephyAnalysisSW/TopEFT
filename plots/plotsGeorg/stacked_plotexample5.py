@@ -28,13 +28,12 @@ from copy import deepcopy
 #sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
 sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
-sample3 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
+sample3 = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
 
-sample=sample3
 
-samplePrompt =    deepcopy(sample)
-sampleNonPrompt = deepcopy(sample)
-sampleFake =      deepcopy(sample)
+samplePrompt =    deepcopy(sample3)
+sampleNonPrompt = deepcopy(sample3)
+sampleFake =      deepcopy(sample3)
 
 samplePrompt.texName = "Prompt"
 sampleNonPrompt.texName = "NonPrompt"
@@ -74,9 +73,9 @@ read_variables = [
 "lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
 "lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
 "lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
-"lep_isPrompt/I",
-"lep_isNonPrompt/I",
-"lep_isFake/I",
+"lep_isPromptId/I",
+"lep_isNonPromptId/I",
+"lep_isFakeId/I",
 ]
 
 # Define stack
@@ -113,28 +112,32 @@ for ecaltype in ecaltypes:
         return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
 
     def print_mcmatchId( event, sample ):
-        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample.name=="TTJets":
+        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample.name=="TTJetsClasses":
             print event.lep_mcMatchId
 
-    #sequence.append(print_mcmatchId)
+    def print_class( event, sample ):
+        if sample.name=="TTJetsClasses":
+            print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
+
+    sequence.append(print_class)
 
     # Start with an empty list
     plots = []
     # Add plots
     plots.append(Plot(name=plotname+'Prompt',
         texX = 'isPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isPrompt if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
-        binning=[10,0,1],
+        attribute = lambda lepton, sample: lepton.lep_isPromptId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'NonPrompt',
         texX = 'isNonPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isNonPrompt if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
-        binning=[10,0,1],
+        attribute = lambda lepton, sample: lepton.lep_isNonPromptId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'Fake',
         texX = 'isFake', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isFake if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
-        binning=[10,0,1],
+        attribute = lambda lepton, sample: lepton.lep_isFakeId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        binning=[2,0,1],
     ))
 
     #plots.append(Plot( name = "fancy_variable",
