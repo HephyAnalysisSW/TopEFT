@@ -57,7 +57,7 @@ def get_parser():
     argParser.add_argument('--triggerSelection',            action='store_true',                                                                                        help="Trigger selection?")
     argParser.add_argument('--eventsPerJob',                action='store',         nargs='?',  type=int,                           default=30000000,                   help="Maximum number of events per job (Approximate!).") # mul by 100
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',                         action='store',                     type=int,                           default=None,                       help="Run only job i")
+    argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--minNJobs',                    action='store',         nargs='?',  type=int,                           default=1,                          help="Minimum number of simultaneous jobs.")
     argParser.add_argument('--fileBasedSplitting',          action='store_true',                                                                                        help="Split njobs according to files")
     argParser.add_argument('--dataDir',                     action='store',         nargs='?',  type=str,                           default="/a/b/c",                   help="Name of the directory where the input data is stored (for samples read from Heppy).")
@@ -67,7 +67,6 @@ def get_parser():
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--leptonConvinience',           action='store_true',                                                                                        help="Store l1_pt, l1_eta, ... l4_xyz?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
@@ -103,9 +102,9 @@ skimConds = []
 if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
-    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
 if isQuadLep:
-    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
+    skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
 if isInclusive:
@@ -155,6 +154,9 @@ triggerSF = triggerEfficiency(options.year)
 # Tracking SF
 from TopEFT.Tools.leptonTrackingEfficiency import leptonTrackingEfficiency
 leptonTrackingSF = leptonTrackingEfficiency(options.year)
+
+# Lepton SF
+from TopEFT.Tools.leptonSF import leptonSF as leptonSF_
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -364,13 +366,14 @@ new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
 if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
-lepton_branches_store = lepton_branches_read+',mvaTTV/F'
+lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F'
 
 # store this extra Id information
-extra_lep_ids = ['tight', 'FO', 'tight_SS', 'FO_SS']
+extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
+tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
-for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%lep_id
+for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%(lep_id)
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
 lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
 new_variables+= [ 'lep[%s]' % lepton_branches_store ]
@@ -388,7 +391,10 @@ if isMC:
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
-    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F', 'reweightTrigger/F', 'reweightTriggerUp/F', 'reweightTriggerDown/F', 'reweightLeptonTrackingSF/F','reweightLeptonTrackingSFUp/F', 'reweightLeptonTrackingSFDown/F'])
+    new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
+    for i in ["tight_SS","tight_3l","tight_4l"]:
+        new_variables.extend(['reweightTrigger_%s/F'%i, 'reweightTriggerUp_%s/F'%i, 'reweightTriggerDown_%s/F'%i, 'reweightLeptonTrackingSF_%s/F'%i,'reweightLeptonTrackingSFUp_%s/F'%i, 'reweightLeptonTrackingSFDown_%s/F'%i])
+        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightLeptonSFUp_%s/F'%i, 'reweightLeptonSFDown_%s/F'%i])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -410,20 +416,15 @@ read_variables += [\
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
 
-if options.leptonConvinience:
-    lep_convinience_branches = ['l{n}_pt/F', 'l{n}_eta/F', 'l{n}_phi/F', 'l{n}_pdgId/I', 'l{n}_index/I', 'l{n}_miniRelIso/F', 'l{n}_relIso/F', 'l{n}_dxy/F', 'l{n}_dz/F' ]
-    if isMC: lep_convinience_branches.extend(['l{n}_mcMatchId/I', 'l{n}_mcMatchAny/I'])
-    lep_convinience_vars     = [s.split('_')[1].split('/')[0] for s in lep_convinience_branches ]
-    for i in range(1,5):
-        new_variables.extend( [var.format(n=i) for var in lep_convinience_branches] )
-
 new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
+for lep_id in extra_lep_ids: new_variables.extend( ['nLeptons_%s/I'%lep_id, 'nMuons_%s/I'%lep_id, 'nElectrons_%s/I'%lep_id] )
 
 # Z related observables
 new_variables.extend( ['Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I'] )
-new_variables.extend( ['Z2_l1_index/I', 'Z2_l2_index/I'] )
-new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F'] )
-new_variables.extend( ['Z2_pt/F', 'Z2_eta/F', 'Z2_phi/F', 'Z2_lldPhi/F', 'Z2_lldR/F',  'Z2_mass/F', 'Z2_cosThetaStar/F'] )
+new_variables.extend( ['Z_pt/F', 'Z_eta/F', 'Z_phi/F', 'Z_lldPhi/F', 'Z_lldR/F',  'Z_mass/F', 'cosThetaStar/F', 'Higgs_mass/F', 'Z_fromTight/I'] )
+new_variables.extend( ['Z1_l1_index_4l/I', 'Z1_l2_index_4l/I', 'Z2_l1_index_4l/I', 'Z2_l2_index_4l/I', 'nonZ1_l1_index_4l/I', 'nonZ1_l2_index_4l/I'] )
+for i in [1,2]:
+    new_variables.extend( ['Z%i_pt_4l/F'%i, 'Z%i_eta_4l/F'%i, 'Z%i_phi_4l/F'%i, 'Z%i_lldPhi_4l/F'%i, 'Z%i_lldR_4l/F'%i,  'Z%i_mass_4l/F'%i, 'Z%i_cosThetaStar_4l/F'%i] )
 
 
 if options.keepPhotons: 
@@ -434,7 +435,7 @@ if options.keepPhotons:
     new_variables.extend( ['TTGJetsEventType/I'] )
 
 # variables for dilepton stop
-new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'totalLeptonCharge/I' ] )
+new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'min_dl_mass_FO_3l/F', 'min_dl_mass_loose/F', 'totalLeptonCharge/I' ] )
 
 
 if addSystematicVariations:
@@ -551,65 +552,120 @@ def filler( event ):
 
     # Store leptons
     event.nlep = len(leptons)
+
+    # Clean electrons based on loose definition, keep muons
+    looseElectrons  = filter( lambda l:abs(l['pdgId'])==11, leptons)
+    looseMuons      = filter( lambda l:abs(l['pdgId'])==13, leptons)
+    
+    eleMuOverlapIndices = []
+    for m in looseMuons:
+        for e in looseElectrons:
+            if deltaR(m,e) < 0.05:
+                eleMuOverlapIndices.append( leptons.index(e) )
+
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
+        lep['ptCorr'] = 0.85 * lep['pt'] / lep['jetPtRatiov2']
         for lep_id in extra_lep_ids:
             lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
+        lep['cleanEle'] = 1 if iLep not in eleMuOverlapIndices else 0
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
+    
+    # Making the various lepton collections. leptons is the loose collection and is kept.
+    leptonCollections = {'loose':leptons}
+    for lep_id in extra_lep_ids:
+        leptonCollections[lep_id] = filter(  lambda l: (l[lep_id] and l['cleanEle']), leptons )
+        setattr(event, "nLeptons_%s"%lep_id, len(leptonCollections[lep_id]))
+        setattr(event, "nMuons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
+        setattr(event, "nElectrons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==11, leptonCollections[lep_id])))
 
-    # Storing tight lepton counters
-    tightLeptons         = filter(  lambda l: l['tight'], leptons )
-    event.nGoodMuons     = len(filter( lambda l:abs(l['pdgId'])==13, tightLeptons))
-    event.nGoodElectrons = len(filter( lambda l:abs(l['pdgId'])==11, tightLeptons))
-    event.nGoodLeptons   = event.nGoodMuons + event.nGoodElectrons 
-    # Lepton convinience
-    if options.leptonConvinience:
-        for i in range(min(4, len(tightLeptons))):
-            for var in lep_convinience_vars:
-                setattr( event, "l{n}_{var}".format( n=i+1, var=var), leptons[i][var] )
- 
-    if options.year==2016 and isMC and len(tightLeptons)>0:
-        
-        for l in tightLeptons:
-            eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
-            trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
-            event.reweightLeptonTrackingSF      *= trackingSF
-            event.reweightLeptonTrackingSFUp    *= (trackingSF + trackingSF_err)
-            event.reweightLeptonTrackingSFDown  *= (trackingSF - trackingSF_err)
+    # Lepton based reweighting
+    if isMC:
+        for tight_id in tight_lep_ids:
+
             
-        trigg, trigg_err = triggerSF.getSF(tightLeptons)
-        event.reweightTrigger       = trigg
-        event.reweightTriggerUp     = trigg + trigg_err
-        event.reweightTriggerDown   = trigg - trigg_err
+            # initialize the weights with 0 to not run into problems with nan handeling in root
+            setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      0)
+            setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    0)
+            setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  0)
 
-    # Identify best Z from tight leptons 
-    #(event.Z_mass, event.Z_l1_index, event.Z_l2_index) = closestOSDLMassToMZ(tightLeptons)
-    (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(tightLeptons)
+            setattr(event, "reweightTrigger_%s"%tight_id,        0)
+            setattr(event, "reweightTriggerUp_%s"%tight_id,      0)
+            setattr(event, "reweightTriggerDown_%s"%tight_id,    0)
+            
+            setattr(event, "reweightLeptonSF_%s"%tight_id,      0)
+            setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
+            setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
+            
+            # tracking SFs only for 2016 so far
+            if options.year == 2016:
+                reweightSF      = 1
+                reweightSFUp    = 1
+                reweightSFDown  = 1
+                if len(leptonCollections[tight_id]) > 0:
+                    for l in leptonCollections[tight_id]:
+                        eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
+                        trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
+                        reweightSF      *= trackingSF
+                        reweightSFUp    *= (trackingSF + trackingSF_err)
+                        reweightSFDown  *= (trackingSF - trackingSF_err)
+                    setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
+                    setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
+                    setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
 
-    # get variables used in 4l analysis
-    if len(tightLeptons)>1:
-        minDLMass, allMasses = getMinDLMass(tightLeptons)
+            # Calculate trigger SFs            
+            if len(leptonCollections[tight_id]) > 0:
+                trigg, trigg_err = triggerSF.getSF(leptonCollections[tight_id])
+                setattr(event, "reweightTrigger_%s"%tight_id,        trigg)
+                setattr(event, "reweightTriggerUp_%s"%tight_id,      trigg + trigg_err)
+                setattr(event, "reweightTriggerDown_%s"%tight_id,    trigg - trigg_err)
+
+                # get different lepton SF readers
+                leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!
+                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
+
+
+    # get variables used in 4l analysis. Only 4l collection important.
+    if len(leptonCollections["tight_4l"])>1:
+        minDLMass, allMasses = getMinDLMass(leptonCollections["tight_4l"])
         event.min_dl_mass = minDLMass[0]
-    if len(tightLeptons)>3:
-        allZCands = getSortedZCandidates(tightLeptons)
-        if len(allZCands)>1:
-            event.Z2_mass       = allZCands[1][0]
-            event.Z2_l1_index   = tightLeptons[allZCands[1][1]]['index']
-            event.Z2_l2_index   = tightLeptons[allZCands[1][2]]['index']
-        else:
-            event.Z2_mass       = -1
-            event.Z2_l1_index   = -1
-            event.Z2_l2_index   = -1
+    if len(leptonCollections["FO_3l"])>1:
+        minDLMass, allMasses = getMinDLMass(leptonCollections["FO_3l"])
+        event.min_dl_mass_FO_3l = minDLMass[0]
+    if len(leptonCollections["loose"])>1:
+        minDLMass, allMasses = getMinDLMass(leptonCollections["loose"])
+        event.min_dl_mass_loose = minDLMass[0]
+    event.totalLeptonCharge = sum( [ l['pdgId']/abs(l['pdgId']) for l in leptonCollections["tight_4l"] ] )
 
 
-    event.totalLeptonCharge = sum( [ l['pdgId']/abs(l['pdgId']) for l in tightLeptons ] )
-
-    nonZ_tightLepton_indices = [ i for i in range(len(tightLeptons)) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
-    event.Z_l1_index    = tightLeptons[Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
-    event.Z_l2_index    = tightLeptons[Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
-    event.nonZ_l1_index = tightLeptons[nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
-    event.nonZ_l2_index = tightLeptons[nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
+    ## Get the Z candidates and do business with them ##
+    
+    # We only care about (and expect) the leading one Z candidate in the 3l analysis
+    (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(leptonCollections["tight_3l"])
+    # If we can't find a Z candidate from the tight leptons, look at the FOs
+    if not event.Z_mass>=0:
+        # this is the case for the non-prompt estimation.
+        # need the corrected pt here for leptons that are not tight
+        leptonCollections["FO_3l_forZ"] = copy.deepcopy(leptonCollections["FO_3l"])
+        for l in leptonCollections["FO_3l_forZ"]:
+            if not l['tight_3l']: l['pt'] = l['ptCorr']
+        (event.Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = closestOSDLMassToMZ(leptonCollections["FO_3l_forZ"])
+        nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["FO_3l_forZ"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+        event.Z_l1_index    = leptonCollections["FO_3l_forZ"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+        event.Z_l2_index    = leptonCollections["FO_3l_forZ"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+        event.nonZ_l1_index = leptonCollections["FO_3l_forZ"][nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+        event.nonZ_l2_index = leptonCollections["FO_3l_forZ"][nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
+    else:
+        # this is the case for signal events
+        event.Z_fromTight = 1
+        nonZ_tightLepton_indices = [ i for i in range(len(leptonCollections["tight_3l"])) if i not in [Z_l1_tightLepton_index, Z_l2_tightLepton_index] ]
+        event.Z_l1_index    = leptonCollections["tight_3l"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+        event.Z_l2_index    = leptonCollections["tight_3l"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+        event.nonZ_l1_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[0]]['index'] if len(nonZ_tightLepton_indices)>0 else -1
+        event.nonZ_l2_index = leptonCollections["tight_3l"][nonZ_tightLepton_indices[1]]['index'] if len(nonZ_tightLepton_indices)>1 else -1
 
     # Store Z information 
     if event.Z_mass>=0:
@@ -630,25 +686,56 @@ def filler( event ):
         lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
         event.cosThetaStar = cosThetaStar(event.Z_mass, event.Z_pt, event.Z_eta, event.Z_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
-    # dirty copy of above method for 2nd Z
-    if event.Z2_mass>=0:
-        if leptons[event.Z2_l1_index]['pdgId']*leptons[event.Z2_l2_index]['pdgId']>0 or abs(leptons[event.Z2_l1_index]['pdgId'])!=abs(leptons[event.Z2_l2_index]['pdgId']): raise RuntimeError( "not a Z! Should never happen" )
-        Z_l1 = ROOT.TLorentzVector()
-        Z_l1.SetPtEtaPhiM(leptons[event.Z2_l1_index]['pt'], leptons[event.Z2_l1_index]['eta'], leptons[event.Z2_l1_index]['phi'], 0 )
-        Z_l2 = ROOT.TLorentzVector()
-        Z_l2.SetPtEtaPhiM(leptons[event.Z2_l2_index]['pt'], leptons[event.Z2_l2_index]['eta'], leptons[event.Z2_l2_index]['phi'], 0 )
-        Z = Z_l1 + Z_l2
-        event.Z2_pt   = Z.Pt()
-        event.Z2_eta  = Z.Eta()
-        event.Z2_phi  = Z.Phi()
-        event.Z2_lldPhi = deltaPhi(leptons[event.Z2_l1_index]['phi'], leptons[event.Z2_l2_index]['phi'])
-        event.Z2_lldR   = deltaR(leptons[event.Z2_l1_index], leptons[event.Z2_l2_index])
+    # For 4l, we need to get all (up to 2) Z candidates, which also can be different since the lepton ID is different
+    allZCands_4l = getSortedZCandidates(leptonCollections["tight_4l"])
+    Z_vectors = []
+    for i in [0,1]:
+        if len(allZCands_4l) > i:
+            (Z_mass, Z_l1_tightLepton_index, Z_l2_tightLepton_index) = allZCands_4l[i]
+            Z_l1_index_4l = leptonCollections["tight_4l"][Z_l1_tightLepton_index]['index'] if Z_l1_tightLepton_index>=0 else -1
+            Z_l2_index_4l = leptonCollections["tight_4l"][Z_l2_tightLepton_index]['index'] if Z_l2_tightLepton_index>=0 else -1
+            setattr(event, "Z%s_mass_4l"%(i+1),       Z_mass)
+            setattr(event, "Z%s_l1_index_4l"%(i+1),   Z_l1_index_4l)
+            setattr(event, "Z%s_l2_index_4l"%(i+1),   Z_l2_index_4l)
+            Z_l1 = ROOT.TLorentzVector()
+            Z_l1.SetPtEtaPhiM(leptons[Z_l1_index_4l]['pt'], leptons[Z_l1_index_4l]['eta'], leptons[Z_l1_index_4l]['phi'], 0 )
+            Z_l2 = ROOT.TLorentzVector()
+            Z_l2.SetPtEtaPhiM(leptons[Z_l2_index_4l]['pt'], leptons[Z_l2_index_4l]['eta'], leptons[Z_l2_index_4l]['phi'], 0 )
+            Z = Z_l1 + Z_l2
+            setattr(event, "Z%s_pt_4l"%(i+1),         Z.Pt())
+            setattr(event, "Z%s_eta_4l"%(i+1),        Z.Eta())
+            setattr(event, "Z%s_phi_4l"%(i+1),        Z.Phi())
+            setattr(event, "Z%s_lldPhi_4l"%(i+1),     deltaPhi(Z_l1.Phi(), Z_l2.Phi()))
+            lm = Z_l1 if leptons[Z_l1_index_4l]['pdgId'] > 0 else Z_l2
+            setattr(event, "Z%s_cosThetaStar_4l"%(i+1),  cosThetaStar(Z_mass, Z.Pt(), Z.Eta(), Z.Phi(), lm.Pt(), lm.Eta(), lm.Phi() ))
+            Z_vectors.append(Z)
+    
+    # also get the higgs candidate just for fun
+    if len(Z_vectors)>1:
+        H = Z_vectors[0] + Z_vectors[1]
+        event.Higgs_mass = H.M()
 
-        lm_index = event.Z2_l1_index if event.lep_pdgId[event.Z2_l1_index] > 0 else event.Z2_l2_index
-        event.Z2_cosThetaStar = cosThetaStar(event.Z2_mass, event.Z2_pt, event.Z2_eta, event.Z2_phi, event.lep_pt[lm_index], event.lep_eta[lm_index], event.lep_phi[lm_index] )
 
-    # Jets and lepton jet cross-cleaning    
-    allJets      = getAllJets(r, tightLeptons, ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    # take the leptons that are not from the leading Z candidate and assign them as nonZ, ignorant about if they actually form a Z candidate
+    if len(allZCands_4l)>0:
+        nonZ_tightLepton_indices_4l = [ i for i in range(len(leptonCollections['tight_4l'])) if i not in [allZCands_4l[0][1], allZCands_4l[0][2]] ]
+
+        event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[0]]['index'] if len(nonZ_tightLepton_indices_4l)>0 else -1
+        event.nonZ1_l2_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[1]]['index'] if len(nonZ_tightLepton_indices_4l)>1 else -1
+
+    # Now comes the cumbersome part. Do the right jet/lepton x-cleaning. Either use loose leptons (4l case), 3l_FO leptons (3l case) or SS_FO leptons (SS case).
+    # We should be careful about what happens for OS DL events (stops dilepton analysis)
+    if len(leptonCollections["tight_4l"]) >= 4:
+        cleaningCollection = "loose"
+    elif len(leptonCollections["FO_3l"]) >= 3:
+        cleaningCollection = "FO_3l"
+    elif len(leptonCollections["FO_SS"]) >= 2:
+        cleaningCollection = "FO_SS"
+    else:
+        cleaningCollection = "FO_SS" # Could also do something else here
+
+    # Jets and lepton jet cross-cleaning.
+    allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
         if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
@@ -685,7 +772,7 @@ def filler( event ):
     sync.print_met( r.met_pt, r.met_phi ) 
     sync.print_leptons( leptons )
     sync.print_jets( selected_jets )
-    logger.sync( "Summary: tight mu %i tight ele %i njets %i nbtags %i",  event.nGoodMuons, event.nGoodElectrons, event.nJetSelected, event.nBTag)
+    logger.sync( "Summary: tight_SS mu %i tight_SS ele %i njets %i nbtags %i",  event.nMuons_tight_SS, event.nElectrons_tight_SS, event.nJetSelected, event.nBTag)
     logger.sync( "#"*30 )
 
     # Systematics
@@ -769,11 +856,11 @@ def filler( event ):
     # dilepton stop variables calculated from tight leptons. 
     for i in metVariants:
         mt2Calc.reset()
-        if len(tightLeptons)>1:
+        if len(leptonCollections["tight_3l"])>1:
             l1 = ROOT.TLorentzVector()
-            l1.SetPtEtaPhiM(tightLeptons[0]['pt'], tightLeptons[0]['eta'], tightLeptons[0]['phi'], 0 )
             l2 = ROOT.TLorentzVector()
-            l2.SetPtEtaPhiM(tightLeptons[1]['pt'], tightLeptons[1]['eta'], tightLeptons[1]['phi'], 0 )
+            l1.SetPtEtaPhiM(leptonCollections["tight_3l"][0]['pt'], leptonCollections["tight_3l"][0]['eta'], leptonCollections["tight_3l"][0]['phi'], 0 )
+            l2.SetPtEtaPhiM(leptonCollections["tight_3l"][1]['pt'], leptonCollections["tight_3l"][1]['eta'], leptonCollections["tight_3l"][1]['phi'], 0 )
             dl = l1+l2
             event.dl_pt   = dl.Pt()
             event.dl_eta  = dl.Eta()
@@ -861,7 +948,7 @@ if options.nJobs>1 and not options.fileBasedSplitting:
 else:
     eventRanges = reader.getEventRanges( maxNEvents = options.eventsPerJob, minJobs = options.minNJobs )
 
-logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s. Job number %i",  
+logger.info( "Splitting into %i ranges of %i events on average. FileBasedSplitting: %s. Job number %s",  
         len(eventRanges), 
         (eventRanges[-1][1] - eventRanges[0][0])/len(eventRanges), 
         'Yes' if options.fileBasedSplitting else 'No',
@@ -887,7 +974,8 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     logger.info( "Processing range %i/%i from %i to %i which are %i events.",  ievtRange, len(eventRanges), eventRange[0], eventRange[1], eventRange[1]-eventRange[0] )
 
     # Check whether file exists
-    outfilename = filename+'_'+str(options.job)+ext
+    fileNumber = options.job if options.job is not None else 0
+    outfilename = filename+'_'+str(fileNumber)+ext
     if os.path.isfile(outfilename):
         logger.info( "Output file %s found.", outfilename)
         if not checkRootFile(outfilename, checkForObjects=["Events"]):

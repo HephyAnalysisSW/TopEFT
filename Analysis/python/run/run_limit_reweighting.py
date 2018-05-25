@@ -17,7 +17,8 @@ argParser.add_argument("--controlRegion",  action='store',      default='', choi
 argParser.add_argument("--includeCR",      action='store_true', help="Do simultaneous SR and CR fit")
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
-argParser.add_argument("--year",           action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+argParser.add_argument("--include4l",      action='store_true', help="Include 4l regions?")
+argParser.add_argument("--year",           action='store',      type=int, default=2016, choices = [ 2016, 2017, 20167 ], help='Which year?')
 
 
 args = argParser.parse_args()
@@ -29,14 +30,15 @@ logger = logger.get_logger(args.logLevel, logFile = None )
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
 ## 2016
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
@@ -46,7 +48,8 @@ from copy                               import deepcopy
 
 
 from TopEFT.Analysis.Setup              import Setup
-from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight
+from TopEFT.Analysis.SetupHelpers       import channel
+from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
@@ -57,8 +60,29 @@ from TopEFT.Tools.user                  import combineReleaseLocation, analysis_
 from TopEFT.Tools.cardFileWriter        import cardFileWriter
 
 year = int(args.year)
-setup                   = Setup(year)
 
+## 2l setup ##
+# not yet part of the game
+
+## 3l setup ##
+setup                   = Setup(year, nLeptons=3)
+estimators              = estimatorList(setup)
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])#, "nonprompt"])
+setup.reweightRegions   = regionsReweight
+setup.channels          = [channel(-1,-1)] # == 'all'
+setup.regions           = regionsE
+
+## 4l setup ##
+setup4l                   = Setup(year=year, nLeptons=4)
+setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
+estimators4l              = estimatorList(setup4l)
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
+setup4l.reweightRegions   = regionsReweight4l
+setup4l.channels          = [channel(-1,-1)] # == 'all'
+setup4l.regions           = regions4l
+
+
+## Include control regions in setups
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
@@ -85,20 +109,11 @@ else:
         subDir                  = 'SRandCR'
         setupCR                 = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
         estimatorsCR            = estimatorList(setupCR)
-        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
         setupCR.reweightRegions = regionsReweight
     else:
         subDir = ''
 
-estimators = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
-setup.reweightRegions   = regionsReweight
-#setup.regions           = regionsE #already defined in Setup
-
-if args.includeCR:
-    setups = [setupCR, setup]
-else:
-    setups = [setup]
 
 cardDir = "regionsE_%s"%(year)
 if args.useXSec:
@@ -106,6 +121,14 @@ if args.useXSec:
 if args.useShape:
     cardDir += "_shape"
 cardDir += "_lowUnc"
+
+if args.includeCR:
+    setups = [setupCR, setup]
+else:
+    setups = [setup]
+if args.include4l:
+    setups += [setup4l]
+    cardDir += "_allChannelsV8"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite
@@ -247,7 +270,7 @@ def wrapper(s):
 
             for r in setup.regions:
                 for channel in setup.channels:
-                    niceName = ' '.join([channel, r.__str__()])
+                    niceName = ' '.join([channel.name, r.__str__()])
                     binname = 'Bin'+str(counter)
                     counter += 1
                     c.addBin(binname, [e.name.split('-')[0] for e in setup.estimators], niceName)
@@ -259,9 +282,10 @@ def wrapper(s):
 
                         if not args.statOnly:
                             c.specifyUncertainty('PU',          binname, name, 1+round(e.PUSystematic( r, channel, setup).val,3)) #1.01 
-                            c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
-                            c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                            c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
+                            if not name.count('nonprompt'):
+                                c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
+                                c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
+                                c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
                             c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
                             c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
                             c.specifyUncertainty('scale',       binname, name, 1.01) 
@@ -316,10 +340,10 @@ def wrapper(s):
                             c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
                             c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            c.specifyUncertainty('scale_sig',   binname, "signal", round(scale_cache.get({"region":r, "channel":channel, "PDFset":None}).val,3) + 1)
-                            c.specifyUncertainty('PDF',         binname, "signal", round(PDF_cache.get({"region":r, "channel":channel, "PDFset":PDFset}).val,3) + 1)
-                            #c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
-                            #c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
+                            #c.specifyUncertainty('scale_sig',   binname, "signal", round(scale_cache.get({"region":r, "channel":channel, "PDFset":None}).val,3) + 1)
+                            #c.specifyUncertainty('PDF',         binname, "signal", round(PDF_cache.get({"region":r, "channel":channel, "PDFset":PDFset}).val,3) + 1)
+                            ##c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
+                            ##c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')

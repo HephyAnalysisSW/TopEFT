@@ -237,6 +237,7 @@ def getChunks(sample,  maxN=-1):
     return goodChunks, sumWeights
 
 def getObjFromFile(fname, hname):
+    gDir = ROOT.gDirectory.GetName()
     f = ROOT.TFile(fname)
     assert not f.IsZombie()
     f.cd()
@@ -245,6 +246,7 @@ def getObjFromFile(fname, hname):
     ROOT.gDirectory.cd('PyROOT:/')
     res = htmp.Clone()
     f.Close()
+    ROOT.gDirectory.cd(gDir+':/')
     return res
 
 def writeObjToFile(fname, obj):
@@ -355,6 +357,13 @@ def getGenPhoton(genparts):
     if g['status'] != 23:	continue					# for photons, take status 23
     return g
   return None
+
+def getGenB(genparts):
+    for g in genparts:
+        if abs(g['pdgId']) != 5:        continue
+        if g['status'] != 23:   continue
+        return g
+    return None
 
 def timeit(method):
     import time

@@ -53,7 +53,7 @@ class SystematicEstimator:
         sysForKey = setup.sys.copy()
         sysForKey['reweight'] = 'TEMP'
         reweightKey ='["' + '", "'.join(sorted([i for i in setup.sys['reweight']])) + '"]' # little hack to preserve order of list when being dumped into json
-        return region, channel, json.dumps(sysForKey, sort_keys=True).replace('"TEMP"',reweightKey), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
+        return region, channel.name, json.dumps(sysForKey, sort_keys=True).replace('"TEMP"',reweightKey), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
 
     def replace(self, i, r):
         try:
@@ -148,11 +148,14 @@ class SystematicEstimator:
     def reweight2D(self, region, channel, setup, f):
         ref = 0
         for r in setup.reweightRegions:
-            if r.vals['Z_pt'][0] >= region.vals['Z_pt'][0] and (r.vals['Z_pt'][1] <= region.vals['Z_pt'][1] or region.vals['Z_pt'][1] == -1) and r.vals['cosThetaStar'][0] >= region.vals['cosThetaStar'][0] and r.vals['cosThetaStar'][1] <= region.vals['cosThetaStar'][1]:
+            # super dirty way to get the correct pT(Z) and cos(Theta*) string
+            Z_pt_var  = [ x for x in r.vals.keys() if 'pt' in x ][0]
+            cosTS_var = [ x for x in r.vals.keys() if 'cos' in x ][0]
+            if r.vals[Z_pt_var][0] >= region.vals[Z_pt_var][0] and (r.vals[Z_pt_var][1] <= region.vals[Z_pt_var][1] or region.vals[Z_pt_var][1] == -1) and r.vals[cosTS_var][0] >= region.vals[cosTS_var][0] and r.vals[cosTS_var][1] <= region.vals[cosTS_var][1]:
                 # This only works if the reweightRegions are aligned!!
                 #print "in", r
                 val     = self.cachedEstimate(r, channel, setup)
-                weight  = f(r.vals['Z_pt'][0], r.vals['cosThetaStar'][0])
+                weight  = f(r.vals[Z_pt_var][0], r.vals[cosTS_var][0])
                 ref += val*weight
             #else:
             #    print "out", r

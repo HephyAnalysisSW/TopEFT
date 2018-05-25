@@ -4,7 +4,7 @@ parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
-parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data"], help="Choose which sample to run the estimates for")
+parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 parser.add_option("--overwrite", action='store_true', help="Overwrite?")
@@ -16,10 +16,11 @@ import os
 import sys
 import pickle
 import math
+import copy
 
 # Analysis
-from TopEFT.Analysis.SetupHelpers import channels, allChannels
-from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight
+from TopEFT.Analysis.SetupHelpers import *
+from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight, regions4l, regionsReweight4l
 from TopEFT.Tools.u_float      import u_float
 from TopEFT.Analysis.Region       import Region
 
@@ -34,12 +35,14 @@ from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
@@ -52,10 +55,12 @@ allRegions = regionsE + noRegions
 
 from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
-setup                   = Setup(year=year)
+setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
 setup.reweightRegions   = regionsReweight
+setup.channels          = [channel(-1,-1)]
+setup.regions           = regionsE
 
 # go orthogonal in Njet and Nbjet if needed
 if options.controlRegion:
@@ -82,12 +87,36 @@ setup.verbose = True
 reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
 modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
-setups = [setup]
+## 4l setup ##
+setup4l                   = Setup(year=year, nLeptons=4)
+setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
+estimators4l              = estimatorList(setup4l)
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
+setup4l.reweightRegions   = regionsReweight4l
+setup4l.channels          = [channel(-1,-1)]
+setup4l.regions           = regions4l
+
+# only run over 3l/4l when necessary
+if options.sample in []:
+    print "a"
+    setups = [setup4l]
+elif options.sample in ["WZ", "TTX", "TTW", "TZQ"]:
+    print "b"
+    setups = [setup]
+else:
+    print "c"
+    # rare, ZZ, nonprompt, pseudodata, TTZ run in all SRs
+    setups = [setup, setup4l]
+
+allSetups = copy.deepcopy(setups)
+
 if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystematics):
     for r in reweights:
-        setups.append(setup.systematicClone(sys={"reweight":[r]}))
+        for s in setups:
+            allSetups.append(s.systematicClone(sys={"reweight":[r]}))
     for m in modifiers:
-        setups.append(setup.systematicClone(sys={"selectionModifier":m}))
+        for s in setups:
+            allSetups.append(s.systematicClone(sys={"selectionModifier":m}))
 
 #signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = s, cacheDir = reweightCache)
 
@@ -103,18 +132,19 @@ if options.sample not in ["Data", "TTZ", "pseudoData"]:
 else:
     estimators = []
 
-logger.info("Starting estimates for sample %s", setup.samples[options.sample]['3mu'].name)
+logger.info("Starting estimates for sample %s", setup.samples[options.sample].name)
 
-for setup in setups:
+for setup in allSetups:
 
+    print setup.nLeptons
+    print setup.parameters
     signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
     data        = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
     observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
     for e in estimators: e.initCache(setup.defaultCacheDir())
-
+    logger.info("Cache for setup %s is located in %s", setup, setup.defaultCacheDir())
     for r in setup.regions:
         for channel in setup.channels:
-
             if options.sample == "Data":
                 jobs.append((data, r, channel, setup))
             elif options.sample == "TTZ":
@@ -123,15 +153,14 @@ for setup in setups:
                 jobs.append((observation, r, channel, setup))
             else:
                 for e in estimators:
-                    name = e.name.split('-')[0]
+                    #name = e.name.split('-')[0]
                     jobs.append((e, r, channel, setup))
 
 
 if options.sample == "TTZ":
-    for setup in [setups[0]]:
+    for setup in [allSetups[0]]:
         for rr in setup.reweightRegions:
             jobs.append((signal, rr, channel, setup))
-
 
 
 if options.noMultiThreading:
@@ -143,4 +172,4 @@ else:
     pool.close()
     pool.join()
 
-
+logger.info("Done.")

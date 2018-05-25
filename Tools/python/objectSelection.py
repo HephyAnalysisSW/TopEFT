@@ -78,15 +78,25 @@ def getGenPartsAll(c):
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
-lepton_selections = ['loose', 'tight', 'FO', 'tight_SS', 'FO_SS']
+lepton_selections = ['loose', 'FO_SS', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_3l', 'tight_4l']
 
 # muons 
 def muonSelector( lepton_selection, year):
 
-    tight_mva_threshold = 0.8
+    mva_threshold_4l = -0.4
+    mva_threshold_3l = 0.4
+    mva_threshold_SS = 0.6
+
+    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
+    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about muon selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
+
+    '''
+    All selections based on loose definition
+    '''
 
     if lepton_selection == 'loose':
         def func(l):
@@ -97,33 +107,69 @@ def muonSelector( lepton_selection, year):
                 and l["miniRelIso"]<0.4 \
                 and l["sip3d"]<8.0\
                 and abs(l["dxy"])<0.05\
-                and abs(l["dz"])<0.1
+                and abs(l["dz"])<0.1\
+                and l["pfMuonId"]
 
-    elif lepton_selection == 'tight':
+    elif lepton_selection == 'FO_4l':
         loose_ = muonSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
+                and l["pt"] >= 10\
                 and l["mediumMuonId"]>=1\
-                and l["mvaTTV"] > tight_mva_threshold
-                #and l["relIso03"]<0.15\
-                #and l["sip3d"]<4.0\
-                #and l['lostHits']<=1
-                ## -> future
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_4l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO ) or l["mvaTTV"] >= mva_threshold_4l )
 
-    elif lepton_selection == 'FO':
+    elif lepton_selection == 'FO_3l':
         loose_ = muonSelector( 'loose', year )
         def func(l):
             return \
                 loose_(l) \
-                and l["mediumMuonId"]>=1 
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO ) or l["mvaTTV"] >= mva_threshold_3l )
 
-    # No extra muon-SS cuts for FO and tight selections
     elif lepton_selection == 'FO_SS':
-        func = muonSelector('FO', year)
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_SS and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO ) or l["mvaTTV"] >= mva_threshold_SS )
+
+    elif lepton_selection == 'tight_4l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_4l
+
+    elif lepton_selection == 'tight_3l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_3l
 
     elif lepton_selection == 'tight_SS':
-        func = muonSelector('tight', year)
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_SS\
+                and l["muonInnerTrkRelErr"] <= 0.2             # assume this is the correct branch
 
     return func
 
@@ -133,39 +179,34 @@ def triggerEmulatorSelector(l):
 
     ECSc = abs(l["etaSc"])>1.479
 
-    if l["full5x5_sigmaIetaIeta"]   >= (0.00998+0.01922*ECSc):   return False
-    if abs(l["dPhiScTrkIn"])        >= (0.0816-0.0422*ECSc):     return False
-    if abs(l["dEtaScTrkIn"])        >= (0.00308+0.00297*ECSc):    return False
+    if l["full5x5_sigmaIetaIeta"]   >= (0.011+0.019*ECSc):   return False
+    if abs(l["dPhiScTrkIn"])        >= (0.04+0.03*ECSc):     return False
+    if abs(l["dEtaScTrkIn"])        >= (0.01-0.002*ECSc):    return False
     if l["eInvMinusPInv"]           <= -0.05:                return False
-    if l["eInvMinusPInv"]           >= (0.0129-0.0*ECSc):    return False
-    if l["hadronicOverEm"]          >= (0.0414+0.0227*ECSc):     return False
+    if l["eInvMinusPInv"]           >= (0.01-0.005*ECSc):    return False
+    if l["hadronicOverEm"]          >= (0.10-0.03*ECSc):     return False
     return True
-
-
-#ele_MVAID = {'M': {(0,0.8):0.837, (0.8, 1.479):0.715, (1.57, 999): 0.357}}
-#ele_MVAID = {'M': {(0,0.8):0.913286 , (0.8, 1.479):0.805013, (1.57, 999): 0.358969},
-#            'VL': {(0,0.8):-0.76, (0.8, 1.479):-0.52, (1.57, 999): -0.23}}
-#def eleMVAIDSelector( eleId ):
-#    ele_mva_WP = ele_MVAID[eleId]
-#    def func(l):
-#        abs_ele_eta = abs(l["eta"])
-#        for abs_ele_bin, mva_threshold in ele_mva_WP.iteritems():
-#            if abs_ele_eta>=abs_ele_bin[0] and abs_ele_eta<abs_ele_bin[1] and l["mvaIdSpring16"] > mva_threshold: return True
-#        return False
-#    return func
-
-#def eleCutIDSelector( ele_cut_Id = 4):
-#    def func(l):
-#        return l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=ele_cut_Id 
-#    return func
-
 
 def eleSelector( lepton_selection, year ):
 
-    tight_mva_threshold = 0.8
+    mva_threshold_4l = -0.4
+    mva_threshold_3l = 0.4
+    mva_threshold_SS = 0.6
+
+    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
+    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
+
+    eleMVA              = "mvaIdFall17noIso" if year == 2017 else "mvaIdSpring16"
+    eleMVAval1          = 0.0 if year == 2017 else -0.1
+    eleMVAval2          = 0.3 if year == 2017 else 0.8
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
+
+    '''
+    All selections based on loose definition
+    '''
 
     if lepton_selection == 'loose':
         def func(l):
@@ -177,70 +218,70 @@ def eleSelector( lepton_selection, year ):
                 and l["sip3d"]<8.0\
                 and abs(l["dxy"])<0.05\
                 and abs(l["dz"])<0.1\
-                and abs(l["lostHits"])<2\
+                and abs(l["lostHits"])<=1\
                 and triggerEmulatorSelector(l) 
 
-    elif lepton_selection == 'tight':
-        loose_ = eleSelector( 'loose', year)
-        if year == 2016:
-            def func(l):
-                return \
-                    loose_(l) \
-                    and l["mvaTTV"] > tight_mva_threshold
-                    #and l["eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz"]>=4
-                    #and l["relIso03"]<0.15
-                    #and l["relIso03"] < 0.15\
-                    #and l["sip3d"]<4.0\
-                    #and l['convVeto']\
-                    #and l['lostHits']<=1\
-                    #and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["dPhiScTrkIn"])<0.103   and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.045  and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["eInvMinusPInv"])<0.134 and (abs(l["eta"])<1.479) ) or (abs(l["eInvMinusPInv"])<0.13  and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
-        elif year == 2017:
-            def func(l):
-                loose_ = eleSelector( 'loose', year)
-                return \
-                    loose_(l) \
-                    and l["mvaTTV"] > tight_mva_threshold
-                    #and l["relIso03"] < 0.15\
-                    #and l["sip3d"]<4.0\
-                    #and l['convVeto']\
-                    #and l['lostHits']<=1\
-                    #and ( ( l["full5x5_sigmaIetaIeta"]<0.0105     and (abs(l["eta"])<1.479) ) or (l["full5x5_sigmaIetaIeta"]<0.309 and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["dEtaScTrkIn"])<0.00365 and (abs(l["eta"])<1.479) ) or (abs(l["dEtaScTrkIn"])<0.00625 and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["dPhiScTrkIn"])<0.0588  and (abs(l["eta"])<1.479) ) or (abs(l["dPhiScTrkIn"])<0.0355  and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["eInvMinusPInv"])<0.0327 and (abs(l["eta"])<1.479)) or (abs(l["eInvMinusPInv"])<0.0335  and (abs(l["eta"])>=1.479)) )\
-                    #and ( ( abs(l["hadronicOverEm"])<0.253 and (abs(l["eta"])<1.479)) or (abs(l["hadronicOverEm"])<0.0878 and (abs(l["eta"])>=1.479)) ) 
-
-    elif lepton_selection == 'FO':
-        loose_ = eleSelector( 'loose', year)
+    elif lepton_selection == 'FO_4l':
+        loose_ = eleSelector( 'loose', year )
         def func(l):
-            loose_ = eleSelector( 'loose', year)
             return \
-                loose_(l)
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_4l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_4l )
 
-    # extra ele-SS cuts for FO and tight selections
-    elif lepton_selection == 'FO_SS':
-        fo_ = eleSelector('FO', year)
+    elif lepton_selection == 'FO_3l':
+        loose_ = eleSelector( 'loose', year )
         def func(l):
-            return fo_(l)\
-                and l['convVeto']\
-                and l['lostHits']==0\
-                and l['tightCharge']==2
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_3l )
+
+    elif lepton_selection == 'FO_SS':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_SS and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_SS )
+
+    elif lepton_selection == 'tight_4l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_4l
+
+    elif lepton_selection == 'tight_3l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_3l
 
     elif lepton_selection == 'tight_SS':
-        tight_ = eleSelector('tight', year)
+        loose_ = eleSelector( 'loose', year )
         def func(l):
-            return tight_(l)\
-                and l['convVeto']\
-                and l['lostHits']==0\
-                and l['tightCharge']==2
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_SS\
+                and l["chargeConsistency"]\
+                and l["convVeto"]\
+                and l["lostHits"] == 0
+
 
     return func
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
@@ -303,6 +344,8 @@ def getFilterCut(isData=False, isFastSim = False, year = 2016):
         if year == 2017:
             filters = ["Flag_goodVertices", "Flag_globalTightHalo2016Filter", "Flag_HBHENoiseFilter", "Flag_HBHENoiseIsoFilter", "Flag_EcalDeadCellTriggerPrimitiveFilter", "Flag_BadPFMuonFilter", "Flag_BadChargedCandidateFilter", "Flag_ecalBadCalibFilter"]
             filterCut = "&&".join(filters)
+            if isData:
+                filterCut += "&&Flag_eeBadScFilter"
         else:
             filterCut            = "Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_EcalDeadCellTriggerPrimitiveFilter"
             filterCut            += "&&Flag_badChargedHadronSummer2016&&Flag_badMuonSummer2016"
