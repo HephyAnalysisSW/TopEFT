@@ -24,27 +24,40 @@ from TopEFT.Tools.user import plot_directory
 
 from copy import deepcopy
 
+# define classes
+def isPrompt(lepton):
+    return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
+
+def isNonPrompt(lepton):
+    return not isPrompt(lepton) and abs(lepton.lep_mcMatchAny) in [4, 5]
+
+def isFake(lepton):
+    return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
+
 # data -> replace this with importing samples when needed 
 #sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
-sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
-sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
-sample3 = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
+#sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
+#sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
+sample = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
 
-samplePrompt =    deepcopy(sample3)
-sampleNonPrompt = deepcopy(sample3)
-sampleFake =      deepcopy(sample3)
+samplePrompt =    deepcopy(sample)
+sampleNonPrompt = deepcopy(sample)
+sampleFake =      deepcopy(sample)
 
-samplePrompt.setSelectionString( "" )
-#samplePrompt.name = "Prompt"
-#sampleNonPrompt.name = "NonPrompt"
-#sampleFake.name = "Fake"
+samplePrompt.setSelectionString( "(lep_isPromptId==1)" )
+sampleNonPrompt.setSelectionString( "(lep_isNonPromptId==1)" )
+sampleFake.setSelectionString( "(lep_isFakeId==1)" )
+
+samplePrompt.name = "Prompt"
+sampleNonPrompt.name = "NonPrompt"
+sampleFake.name = "Fake"
 
 samplePrompt.texName = "Prompt"
 sampleNonPrompt.texName = "NonPrompt"
 sampleFake.texName = "Fake"
 
-samplePrompt.style =     fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
-sampleNonPrompt.style =  fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+samplePrompt.style =  fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+sampleNonPrompt.style =     fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
 sampleFake.style =       fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
 
 # variables to read
@@ -87,14 +100,16 @@ mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g
 stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
 # Define some parameters for plots and selection
-ecaltypes=["","EndCap","Barrel"]
+ecalTypes=["","EndCap","Barrel"]
+leptonType=11
+plotnameprefix="Ele" if leptonType==11 else "Muo" if leptonType==13 else "define lepton type"
 
-for ecaltype in ecaltypes:
-    plotname="Ele"+ecaltype
+for ecalType in ecalTypes:
+    plotname=plotnameprefix+ecalType
 
     # Set some defaults -> these need not be specified below for each plot
     weight = lambda event, sample: 1.  # could be e.g. weight = lambda event, sample: event.weight
-    selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecaltype=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecaltype=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
+    selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
     Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
 
     # Sequence
@@ -105,18 +120,8 @@ for ecaltype in ecaltypes:
         event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
     sequence.append( make_absEInvMinusPInv)
 
-
-    def isPrompt(lepton):
-        return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
-
-    def isNonPrompt(lepton):
-        return not isPrompt(lepton) and abs(lepton.lep_mcMatchAny) in [4, 5]
-
-    def isFake(lepton):
-        return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
-
     def print_mcmatchId( event, sample ):
-        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample3:
+        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample:
             print event.lep_mcMatchId
 
     def print_class( event, sample ):
@@ -126,27 +131,36 @@ for ecaltype in ecaltypes:
         print sample, samplePrompt, sampleNonPrompt, sampleFake
         print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
         print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
-    sequence.append(print_class)
+    #sequence.append(print_class)
 
     # Start with an empty list
     plots = []
     # Add plots
     plots.append(Plot(name=plotname+'Prompt',
         texX = 'isPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isPromptId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_isPromptId,
         binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'NonPrompt',
         texX = 'isNonPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isNonPromptId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
         binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'Fake',
         texX = 'isFake', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isFakeId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_isFakeId,
         binning=[2,0,1],
     ))
-
+    plots.append(Plot(name=plotname+'mcMatchId',
+        texX = 'mcMatchId', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_mcMatchId,
+        binning=[61,-30,30],
+    ))
+    plots.append(Plot(name=plotname+'mcMatchAny',
+        texX = 'mcMatchAny', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
+        binning=[61,-30,30],
+    ))
     #plots.append(Plot( name = "fancy_variable",
     #    texX = 'Number of tracker hits squared', texY = 'Number of Events',
     #    attribute = lambda event, sample: event.fancy_variable, # <--- can use any 'event' attribute, including the ones we define in 'sequence'    binning=[30,0,900],
@@ -175,7 +189,7 @@ for ecaltype in ecaltypes:
       for log in [False, True]:
         plot_directory_ = os.path.join(plot_directory, 'histogram_plots', 'controll_classes', plotname, ("log" if log else "lin"))
         for plot in plots:
-          if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+          #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
           
           plotting.draw(plot,
             plot_directory = plot_directory_,
