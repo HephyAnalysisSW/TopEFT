@@ -56,7 +56,6 @@ class FakeEstimate(SystematicEstimator):
             variables += [VectorTreeVariable.fromString('lep[pt/F,ptCorr/F,eta/F,phi/F,FO_3l/I,tight_3l/I,FO_SS/I,tight_SS/I,jetPtRatiov2/F,pdgId/I]')]
 
             tmpSample.setSelectionString([setup.preselection(self.dataMC, nElectrons=channel.nE, nMuons=channel.nM)['cut'], region.cutString()])
-            print tmpSample.selectionString
             reader = tmpSample.treeReader( variables = variables )
             reader.start()
             fakeYield = u_float(0)
@@ -72,13 +71,15 @@ class FakeEstimate(SystematicEstimator):
                 tight           = [ l for l in lep if l[setup.tight_ID] ]
                 nLooseNotTight  = len( looseNotTight )
                 nTight          = len( tight )
-               
-                if len(lep) > setup.nLeptons:
-                    # Do the combinatorics
-                    looseCombinations = itertools.combinations(looseNotTight, setup.nLeptons - nTight)
-                    allCombinations = [ (tight + list(x)) for x in looseCombinations ]
-                else:
-                    allCombinations = [lep]
+                
+                # Really get ALL possible combinations.
+                allCombinations = itertools.combinations(tight+looseNotTight, setup.nLeptons)
+                #if len(lep) > setup.nLeptons:
+                #    # Do the combinatorics
+                #    looseCombinations = itertools.combinations(looseNotTight, setup.nLeptons - nTight)
+                #    allCombinations = [ (tight + list(x)) for x in looseCombinations ]
+                #else:
+                #    allCombinations = [lep]
 
                 for comb in allCombinations:
                     FR = 1.
@@ -112,7 +113,6 @@ class FakeEstimate(SystematicEstimator):
                         weight = reduce(mul, weights, 1)
 
                     fakeYield += ( weight * FR * setup.lumi/1000. )
-            print fakeYield 
             #raise NotImplementedError
             return fakeYield
 

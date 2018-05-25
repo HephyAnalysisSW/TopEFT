@@ -91,7 +91,7 @@ else:
     postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_amc']
-    dirs['ZZ']      = ['ZZTo4L_comb']
+    dirs['ZZ']      = ['ZZTo4L_comb', 'GluGluToZZTo4e', 'GluGluToZZTo4mu']
     dirs['rare']    = ['WWW_4F', 'WWZ_4F', 'WZZ', 'ZZZ']
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}

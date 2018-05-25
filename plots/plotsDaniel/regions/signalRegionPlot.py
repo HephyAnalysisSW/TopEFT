@@ -54,7 +54,7 @@ uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF',
 
 Nbins = len(regions)
 
-isData = True
+isData = False
 if options.year == 2016:
     lumiStr = 35.9
 elif options.year == 2017:
@@ -69,7 +69,7 @@ cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p250000"
 subDir = ""
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_shape_lowUnc_allChannelsV7/%s/ewkDM_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -195,7 +195,7 @@ def drawLabels2( regions ):
     lines =  [(min+(3*i+0.90)*diff, 0.900,  "N_{l}=3")   for i, r in enumerate(regions[:-3][::3])]
     lines += [(min+(12+0.90)*diff, 0.900,  "N_{l}=4")]
     lines +=  [(min+(3*i+0.90)*diff, 0.860,  "N_{b-tag}#geq1")   for i, r in enumerate(regions[:-3][::3])]
-    lines += [(min+(12+0.90)*diff, 0.860,  "N_{b-tag}#geq0")]
+    lines += [(min+(12+0.90)*diff, 0.860,  "N_{b-tag}#geq1")]
     lines +=  [(min+(3*i+0.90)*diff, 0.820,  "N_{j}#geq3")   for i, r in enumerate(regions[:-3][::3])]
     lines += [(min+(12+0.90)*diff, 0.820,  "N_{j}#geq2")]
     return [tex.DrawLatex(*l) for l in lines]
@@ -263,7 +263,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4lV7_%s"%(subDir,cardName,options.year)
+plotName = "%s%s_signalRegions_incl4lV8_%s"%(subDir,cardName,options.year)
 if options.postFit:
     plotName += "_postFit"
 
@@ -278,7 +278,7 @@ plotting.draw(
     widths = {'x_width':700, 'y_width':600},
     yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
+    ratio = {'yRange': (0.6, 1.4), 'drawObjects':boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
