@@ -36,9 +36,9 @@ def isFake(lepton):
 
 # data -> replace this with importing samples when needed 
 #sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
-#sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
+sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
 #sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
-sample = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
+#sample = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
 
 samplePrompt =    deepcopy(sample)
 sampleNonPrompt = deepcopy(sample)
@@ -128,9 +128,8 @@ for ecalType in ecalTypes:
         assert isPrompt(event) + isNonPrompt(event) + isFake(event)==1, "Should never happen!"
 
         print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
-        print sample, samplePrompt, sampleNonPrompt, sampleFake
-        print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
-        print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
+        #print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
+        #print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
     #sequence.append(print_class)
 
     # Start with an empty list
