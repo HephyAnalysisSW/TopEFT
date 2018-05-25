@@ -7,7 +7,7 @@ def getGenMatch(lepton, genParticles):
 
     # Loop
     for p in genParticles:
-        deltaR(l, p) = dR
+        dR = deltaR(l, p)
         if dR < minDeltaR:
             match, minDeltaR = p, dR
             print match, dR
