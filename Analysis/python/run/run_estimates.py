@@ -89,7 +89,7 @@ modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 ## 4l setup ##
 setup4l                   = Setup(year=year, nLeptons=4)
-setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
+setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
 setup4l.reweightRegions   = regionsReweight4l

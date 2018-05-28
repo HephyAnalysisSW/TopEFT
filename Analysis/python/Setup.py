@@ -343,6 +343,7 @@ class Setup:
                 res['cuts'].append("&&".join(leptonSelection))
                 res['cuts'].append("!(nLeptons_tight_4l>=4)") # make sure to remove full overlap with 4l. This is enought, what is below shouldn't be necessary.
                 if self.nonprompt: res['cuts'].append("nLeptons_tight_3l<3")
+                #res['cuts'].append("min_dl_mass_FO_3l>12") #######################UPDATE
                 ## need to veto 4l events to remove overlap
                 #baseline4l = Setup(self.year, nLeptons=4)
                 #baseline4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})

@@ -37,8 +37,8 @@ from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
@@ -74,7 +74,7 @@ setup.regions           = regionsE
 
 ## 4l setup ##
 setup4l                   = Setup(year=year, nLeptons=4)
-setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(0,-1), 'zMassRange':20})
+setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
 setup4l.reweightRegions   = regionsReweight4l
@@ -128,7 +128,7 @@ else:
     setups = [setup]
 if args.include4l:
     setups += [setup4l]
-    cardDir += "_allChannelsV7"
+    cardDir += "_allChannelsV8"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite

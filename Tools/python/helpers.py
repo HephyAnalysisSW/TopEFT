@@ -237,6 +237,7 @@ def getChunks(sample,  maxN=-1):
     return goodChunks, sumWeights
 
 def getObjFromFile(fname, hname):
+    gDir = ROOT.gDirectory.GetName()
     f = ROOT.TFile(fname)
     assert not f.IsZombie()
     f.cd()
@@ -245,6 +246,7 @@ def getObjFromFile(fname, hname):
     ROOT.gDirectory.cd('PyROOT:/')
     res = htmp.Clone()
     f.Close()
+    ROOT.gDirectory.cd(gDir+':/')
     return res
 
 def writeObjToFile(fname, obj):
