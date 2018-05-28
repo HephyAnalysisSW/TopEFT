@@ -34,11 +34,17 @@ def isNonPrompt(lepton):
 def isFake(lepton):
     return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
 
-# data -> replace this with importing samples when needed 
-#sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
-sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
-#sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
-#sample = Sample.fromFiles( "TTJetsClasses", texName = "TTJets_SingleLeptonFromTbar_with_classes", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_with_classes/treeProducer/tree.root"], treeName="tree")
+# data -> replace this with importing samples when needed
+
+#TTJets files 
+sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"
+], treeName="tree")
+
+#QCD files
+#sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
+#], treeName="tree")
 
 samplePrompt =    deepcopy(sample)
 sampleNonPrompt = deepcopy(sample)
