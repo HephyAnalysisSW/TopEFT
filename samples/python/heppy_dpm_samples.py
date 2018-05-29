@@ -33,6 +33,7 @@ else:
     logger = logging.getLogger(__name__)
     multithreading = False
     overwrite = False
+    forceProxy = False
     try:
         proxyCheck = subprocess.check_output( 'voms-proxy-info' )
     except subprocess.CalledProcessError:
