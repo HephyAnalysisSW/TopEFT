@@ -29,8 +29,8 @@ logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v2/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 
 dirs = {}
 dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
@@ -49,19 +49,21 @@ trueVar = "jet_hadronFlavour"
 
 #oneTrueB = "Sum$(jet_btagDeepCSV>0.6324&&abs(%s)==5)==1"
 #moreTrueB = "Sum$(jet_btagDeepCSV>0.6324&&abs(%s)==5)>1"
-oneTrueB = "Sum$(abs(%s)==5)==1"%trueVar
-moreTrueB = "Sum$(abs(%s)==5)>1"%trueVar
+oneTrueB = "Sum$(abs(%s)==5)==1"%(trueVar)
+moreTrueB = "Sum$(abs(%s)==5)>1"%(trueVar)
+trueCs = "Sum$(abs(%s)==4)>=1&&Sum$(abs(%s)==5)==0"%(trueVar, trueVar)
 onlyTrueB = "(Sum$(jet_btagDeepCSV>0.6324)==Sum$(jet_btagDeepCSV>0.6324&&abs(%s)==5))"%trueVar
 
 oneFakeB = "Sum$(jet_btagDeepCSV>0.6324&&abs(%s)!=5)==1"%trueVar
 moreFakeB = "Sum$(jet_btagDeepCSV>0.6324&&abs(%s)!=5)>1"%trueVar
-onlyFakeB = "(Sum$(jet_btagDeepCSV>0.6324)==Sum$(jet_btagDeepCSV>0.6324&&abs(%s)!=5))"%trueVar
+#onlyFakeB = "(Sum$(jet_btagDeepCSV>0.6324)==Sum$(jet_btagDeepCSV>0.6324&&abs(%s)!=5))"%trueVar
 onlyFakeB = "Sum$(abs(%s)==5)==0"%trueVar
+onlyFakeB_noC = "Sum$(abs(%s)==5)==0&&Sum$(abs(%s)==4)==0"%(trueVar, trueVar)
 
 selection = selection
 
-weight_central  = "weight*reweightBTagDeepCSV_SF*reweightPU36fb*reweightTrigger*reweightLeptonTrackingSF*35.9"
-reweight        = weight_central + "*((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.5',trueVar)
+weight_central  = "weight*reweightBTagDeepCSV_SF*reweightPU36fb*reweightTrigger_tight_3l*reweightLeptonTrackingSF_tight_3l*35.9"
+reweight        = weight_central #+ "*((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.5',trueVar)
 
 # binning
 #binning = [10,0,500]
@@ -77,10 +79,11 @@ sample = WZ_pow
 #h_moreTrue  = sample.get1DHistoFromDraw( "Z_pt", selectionString = selection + "&&" + moreTrueB, binning = binning,  addOverFlowBin = 'upper', weightString = weight_central )
 
 h_all       = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection, binning = binning,  addOverFlowBin = 'upper', weightString = weight_central )
-h_allFake   = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection + "&&" + onlyFakeB, binning = binning,  addOverFlowBin = 'upper', weightString = reweight )
+h_allFake   = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection + "&&" + onlyFakeB_noC, binning = binning,  addOverFlowBin = 'upper', weightString = reweight )
 
 h_oneTrue   = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection + "&&" + oneTrueB, binning = binning,  addOverFlowBin = 'upper', weightString = reweight )
 h_moreTrue  = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection + "&&" + moreTrueB, binning = binning,  addOverFlowBin = 'upper', weightString = reweight )
+h_trueCs    = sample.get1DHistoFromDraw( "nBTag", selectionString = WZselection + "&&" + trueCs, binning = binning,  addOverFlowBin = 'upper', weightString = reweight )
 
 
 h_all.style         = styles.lineStyle( color.WZ, width=2, dashed=True )
@@ -90,13 +93,15 @@ h_all.style         = styles.lineStyle( color.WZ, width=2, dashed=True )
 h_allFake.style     = styles.fillStyle( ROOT.kRed )
 h_oneTrue.style     = styles.fillStyle( ROOT.kOrange+1 )
 h_moreTrue.style    = styles.fillStyle( ROOT.kGreen+1 )
+h_trueCs.style      = styles.fillStyle( ROOT.kBlue-9 )
 
 
 
 #h_central.legendText = "t#bar{t}Z (LO)"
 h_all.legendText        = "WZ powheg (NLO)"
 #h_all.legendText        = "WZ amc@NLO (NLO)"
-h_allFake.legendText    = "no true b"
+h_allFake.legendText    = "no true b, c"
+h_trueCs.legendText     = "#geq 1 true c, no b"
 h_oneTrue.legendText    = "1 true b"
 h_moreTrue.legendText    = "#geq 2 true bs"
 
@@ -113,11 +118,11 @@ def drawObjects( ):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-plots = [[ h_all ], [ h_moreTrue, h_oneTrue, h_allFake ] ]
+plots = [[ h_all ], [ h_moreTrue, h_oneTrue, h_trueCs, h_allFake ] ]
 #plots = [[ h_all ], [ h_moreTrue, h_oneTrue ] ]
 
 plotting.draw(
-    Plot.fromHisto("WZ_nbtag_reweight",
+    Plot.fromHisto("WZ_nbtag_c",
                 plots,
                 #texX = "p_{T}(Z) (GeV)"
                 texX = "n_{b-tag}"

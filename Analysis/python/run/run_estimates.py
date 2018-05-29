@@ -20,7 +20,7 @@ import copy
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers import *
-from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight, regions4l, regionsReweight4l
+from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight, regions4l, regionsReweight4l, regions4lB
 from TopEFT.Tools.u_float      import u_float
 from TopEFT.Analysis.Region       import Region
 
@@ -94,7 +94,7 @@ estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
-setup4l.regions           = regions4l
+setup4l.regions           = regions4lB
 
 # only run over 3l/4l when necessary
 if options.sample in []:

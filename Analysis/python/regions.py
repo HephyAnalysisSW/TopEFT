@@ -30,6 +30,8 @@ regionsH = getRegions2D("Z_pt", [0,100,200,400,-1], "lep_pt[Z_l2_index]", [0, 30
 
 ## 4l signal regions
 regions4l = getRegions2D("Z1_pt_4l", [0,-1], "Z1_cosThetaStar_4l", [-1,-0.6, 0.6, 1])
+regions4lB = getRegions2D("Z1_pt_4l", [0,100,200,-1], "Z1_cosThetaStar_4l", [-1, 1])
+
 
 ## regions for pT(Z), cos(Theta*) reweighting
 regionsReweight     = getRegions2D("Z_pt", [0, 50, 100, 150, 200, 250, 300, 400, 500, 100000], "cosThetaStar", [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
