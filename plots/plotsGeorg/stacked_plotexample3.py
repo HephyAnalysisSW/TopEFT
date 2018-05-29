@@ -22,10 +22,25 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
 
 from TopEFT.Tools.user import plot_directory
 
+#define classes
+def isPrompt(lepton):
+    return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
+
+def isNonPrompt(lepton):
+    return not isPrompt(lepton) and abs(lepton.lep_mcMatchAny) in [4, 5]
+
+def isFake(lepton):
+    return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
+
 # data -> replace this with importing samples when needed 
-#sample = Sample.fromFiles( "small", texName = "my first sample!", files = ["/afs/hephy.at/data/rschoefbeck01/cmgTuples/georg/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"], treeName="tree")
-sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"], treeName="tree")
-sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = ["/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"], treeName="tree")
+sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
+], treeName="tree")
+sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
+], treeName="tree")
 
 #sample1.style =  styles.lineStyle( color= ROOT.kBlue)
 sample1.style =  fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
@@ -35,12 +50,12 @@ sample2.style =  fillStyle(color=ROOT.kRed, style=3004, lineColor=ROOT.kRed)
 # variables to read
 read_variables = [
 "run/I",
-"lumi/I", 
-"evt/l", 
-"lep_trackerHits/I", 
-"lep_innerTrackChi2/F", 
-"lep_pdgId/I", 
-"lep_segmentCompatibility/F", 
+"lumi/I",
+"evt/l",
+"lep_trackerHits/I",
+"lep_innerTrackChi2/F",
+"lep_pdgId/I",
+"lep_segmentCompatibility/F",
 "lep_sigmaIEtaIEta/F",
 "lep_mcMatchPdgId/I",
 "lep_mcMatchId/I",
@@ -62,6 +77,9 @@ read_variables = [
 "lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
 "lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
 "lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
+"lep_isPromptId/I",
+"lep_isNonPromptId/I",
+"lep_isFakeId/I",
 ]
 
 # Define stack
@@ -87,16 +105,6 @@ for ecaltype in ecaltypes:
         event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
     sequence.append( make_absEInvMinusPInv)
 
-
-    def isPrompt(lepton):
-        return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
-
-    def isNonPrompt(lepton):
-        return not isPrompt(lepton) and abs(lepton.lep_mcMatchAny) in [4, 5]
-
-    def isFake(lepton):
-        return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
-
     def print_mcmatchId( event, sample ):
         if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample.name=="TTJets":
             print event.lep_mcMatchId
@@ -106,24 +114,35 @@ for ecaltype in ecaltypes:
     # Start with an empty list
     plots = []
     # Add plots
+    plots.append(Plot(name=plotname+'ClassPrompt',
+        texX = 'isPrompt', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_isPromptId,
+        binning=[2,0,1],
+    ))
+    plots.append(Plot(name=plotname+'ClassNonPrompt',
+        texX = 'isNonPrompt', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
+        binning=[2,0,1],
+    ))
+    plots.append(Plot(name=plotname+'ClassFake',
+        texX = 'isFake', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_isFakeId,
+        binning=[2,0,1],
+    ))
+    plots.append(Plot(name=plotname+'mcMatchId',
+        texX = 'mcMatchId', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_mcMatchId,
+        binning=[61,-30,30],
+    ))
+    plots.append(Plot(name=plotname+'mcMatchAny',
+        texX = 'mcMatchAny', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
+        binning=[61,-30,30],
+    ))
+
     plots.append(Plot(name=plotname+'MVA',
         texX = 'electron MVA', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "lep_mvaIdSpring16/F" ),
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot( name=plotname+'MVAclassPrompt',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isPrompt(lepton) else float('nan'),
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot( name=plotname+'MVAclassNonPrompt',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isNonPrompt(lepton) else float('nan'),
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot( name=plotname+'MVAclassFake',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if isFake(lepton) else float('nan'),
         binning=[30,-1,1],
     ))
 
