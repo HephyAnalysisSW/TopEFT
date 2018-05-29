@@ -73,8 +73,8 @@ def getGenParts(c):
     return [getObjDict(c, 'GenPart_', ['eta','pt','phi','charge', 'pdgId', 'motherId', 'grandmotherId'], i) for i in range(int(getVarValue(c, 'nGenPart')))]
 
 genVars = ['eta', 'pt', 'phi', 'mass', 'charge', 'status', 'pdgId', 'motherId', 'grandmotherId', 'nDaughters', 'daughterIndex1', 'daughterIndex2', 'nMothers', 'motherIndex1', 'motherIndex2', 'isPromptHard'] 
-def getGenPartsAll(c):
-    return [getObjDict(c, 'genPartAll_', genVars, i) for i in range(int(getVarValue(c, 'ngenPartAll')))]
+def getGenPartsAll(c, collection="genPartAll", genVars=genVars):
+    return [getObjDict(c, '%s_'%collection, genVars, i) for i in range(getattr(c, 'n%s'%collection))]
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 

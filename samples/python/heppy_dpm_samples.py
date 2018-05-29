@@ -29,9 +29,16 @@ if __name__ == '__main__':
 else:
     # Logging
     import logging
+    import subprocess
     logger = logging.getLogger(__name__)
     multithreading = False
-    overwrite = False 
+    overwrite = False
+    try:
+        proxyCheck = subprocess.check_output( 'voms-proxy-info' )
+    except subprocess.CalledProcessError:
+        forceProxy = True
+    #if proxyCheck.startswith("Error: Could not find or load main class error"): 
+    #    forceProxy = True
     maxN =      -1
 
 # TopEFT
@@ -146,7 +153,11 @@ class heppy_mapper:
 from RootTools.core.helpers import renew_proxy
 # Make proxy in afs to allow batch jobs to run
 proxy_path = os.path.expandvars('$HOME/private/.proxy')
-proxy = renew_proxy( proxy_path )
+if not forceProxy:
+    proxy = renew_proxy( proxy_path )
+else:
+    logger.info("Not checking your proxy. Asuming you know it's still valid.")
+    proxy = proxy_path
 logger.info( "Using proxy %s"%proxy )
 
 # Data 2016, 03Feb2017

@@ -30,7 +30,7 @@ def getSubDir(dataset, path):
     else :                             
       return m.group(1)+"_"+m.group(2)
 
-def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration = "Summer16"):
+def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration = "Summer16", forceProxy=False):
     ''' Load CMG tuple from local directory
     '''
 
@@ -77,7 +77,11 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
             user = os.environ['USER']
             # Make proxy in afs to allow batch jobs to run
             proxy_path = os.path.expandvars('$HOME/private/.proxy')
-            proxy = renew_proxy( proxy_path )
+            if not forceProxy:
+                proxy = renew_proxy( proxy_path )
+            else:
+                proxy = proxy_path
+                logger.info("Not checking your proxy. Asuming you know it's still valid.")
             logger.info( "Using proxy %s"%proxy )
 
             if module is not None:
