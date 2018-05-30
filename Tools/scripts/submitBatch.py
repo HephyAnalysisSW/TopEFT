@@ -51,8 +51,7 @@ parser.add_option("--qos", dest="qos",
 parser.add_option("--opts", dest="opts",
                   help="Give a string for any extra options", default = host_info['def_opts'] )
 parser.add_option('--dpm', dest="dpm", default=False, action='store_true', help="Use dpm?")
-
-parser.add_option('--logLevel', action='store', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
+parser.add_option('--logLevel',  choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], default='INFO', help="Log level for logging" )
 
 (options,args) = parser.parse_args()
 
@@ -151,6 +150,10 @@ voms-proxy-info -all
     batch_job = file(batch_job_file, "w")
     batch_job.write(template)
     batch_job.close()
+
+    logger.debug("Local batch job file: %s", batch_job_file)
+    logger.debug("Batch job:\n%s", template)
+
     return
 
 def getCommands( line ):
