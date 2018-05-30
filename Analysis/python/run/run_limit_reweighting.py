@@ -49,7 +49,7 @@ from copy                               import deepcopy
 
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.SetupHelpers       import channel
-from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l
+from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
@@ -76,10 +76,10 @@ setup.regions           = regionsE
 setup4l                   = Setup(year=year, nLeptons=4)
 setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
-setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)] # == 'all'
-setup4l.regions           = regions4l
+setup4l.regions           = regions4lB
 
 
 ## Include control regions in setups

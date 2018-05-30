@@ -73,6 +73,7 @@ def get_parser():
     argParser.add_argument('--remakeTTVLeptonMVA',          action='store_true',                                                    default=True,                       help="Remake TTV lepton MVA?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
+    argParser.add_argument('--forceProxy',                  action='store_true',                                                                                        help="Don't check certificate")
     argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
 
     return argParser
@@ -122,7 +123,7 @@ if options.sync:
     from TopEFT.samples.sync import *
     samples = map( eval, options.samples ) 
 else:
-    samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration) for s in options.samples ]
+    samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration, forceProxy=options.forceProxy) for s in options.samples ]
     logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
 if len(samples)==0:

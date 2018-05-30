@@ -29,7 +29,7 @@ import pickle
 import math
 
 # Analysis
-from TopEFT.Analysis.regions        import regionsE, noRegions, regions4l
+from TopEFT.Analysis.regions        import regionsE, noRegions, regions4l, regions4lB
 from TopEFT.Tools.u_float           import u_float
 from TopEFT.Analysis.Region         import Region
 from TopEFT.Tools.infoFromCards     import *
@@ -44,7 +44,7 @@ logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
 # regions like in the cards
-regions = regionsE + regions4l
+regions = regionsE + regions4lB
 
 # processes (and names) like in the card
 processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt','ZZ']
@@ -64,12 +64,13 @@ else:
 
 cardName = "ewkDM_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
-cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p250000"
+cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
+#cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -130,7 +131,7 @@ for i, r in enumerate(regions):
     if options.signal:
         hists['BSM'].SetBinContent(i+1, getEstimateFromCard(cardFile_signal, "signal", binName).val + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, 0.1)
-        hists['BSM'].legendText = "C_{1,A}=0, C_{1,V}=-1 "
+        hists['BSM'].legendText = "C_{2,A}=0.15, C_{2,V}=0.15 "
 
 for i, r in enumerate(regions):
     binName             = "Bin%s"%i
@@ -263,7 +264,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4lV8_%s"%(subDir,cardName,options.year)
+plotName = "%s%s_signalRegions_incl4lV8B_%s"%(subDir,cardName,options.year)
 if options.postFit:
     plotName += "_postFit"
 

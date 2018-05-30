@@ -29,7 +29,8 @@ samplelist=[]
 samplelist.append(Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
 "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root",
 "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
 ], treeName="tree"))
 
 # variables to read

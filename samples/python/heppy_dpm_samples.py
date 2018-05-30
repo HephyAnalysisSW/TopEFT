@@ -29,9 +29,17 @@ if __name__ == '__main__':
 else:
     # Logging
     import logging
+    import subprocess
     logger = logging.getLogger(__name__)
     multithreading = False
-    overwrite = False 
+    overwrite = False
+    forceProxy = False
+    try:
+        proxyCheck = subprocess.check_output( 'voms-proxy-info' )
+    except subprocess.CalledProcessError:
+        forceProxy = True
+    #if proxyCheck.startswith("Error: Could not find or load main class error"): 
+    #    forceProxy = True
     maxN =      -1
 
 # TopEFT
@@ -146,7 +154,11 @@ class heppy_mapper:
 from RootTools.core.helpers import renew_proxy
 # Make proxy in afs to allow batch jobs to run
 proxy_path = os.path.expandvars('$HOME/private/.proxy')
-proxy = renew_proxy( proxy_path )
+if not forceProxy:
+    proxy = renew_proxy( proxy_path )
+else:
+    logger.info("Not checking your proxy. Asuming you know it's still valid.")
+    proxy = proxy_path
 logger.info( "Using proxy %s"%proxy )
 
 # Data 2016, 03Feb2017
@@ -178,7 +190,7 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as hep
 data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017, multithreading=multithreading)
 
 # Fall17 MC
-Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10.pkl'
+Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10_2.pkl'
 robert_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v10', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v10']
 mc_dpm_directories = robert_94X
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples

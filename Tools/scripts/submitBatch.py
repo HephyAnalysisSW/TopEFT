@@ -91,7 +91,7 @@ def make_batch_job( batch_job_file, batch_job_title, batch_output_dir , command 
     if host == 'heplx':
         template =\
 """\
-#!/bin/sh
+#!/bin/sh -x
 #SBATCH -J {batch_job_title}
 #SBATCH -D {pwd}
 #SBATCH -o {batch_output_dir}batch-test.%j.out

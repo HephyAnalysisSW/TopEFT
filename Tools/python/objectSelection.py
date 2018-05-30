@@ -73,8 +73,8 @@ def getGenParts(c):
     return [getObjDict(c, 'GenPart_', ['eta','pt','phi','charge', 'pdgId', 'motherId', 'grandmotherId'], i) for i in range(int(getVarValue(c, 'nGenPart')))]
 
 genVars = ['eta', 'pt', 'phi', 'mass', 'charge', 'status', 'pdgId', 'motherId', 'grandmotherId', 'nDaughters', 'daughterIndex1', 'daughterIndex2', 'nMothers', 'motherIndex1', 'motherIndex2', 'isPromptHard'] 
-def getGenPartsAll(c):
-    return [getObjDict(c, 'genPartAll_', genVars, i) for i in range(int(getVarValue(c, 'ngenPartAll')))]
+def getGenPartsAll(c, collection="genPartAll", genVars=genVars):
+    return [getObjDict(c, '%s_'%collection, genVars, i) for i in range(getattr(c, 'n%s'%collection))]
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
@@ -282,7 +282,7 @@ def eleSelector( lepton_selection, year ):
     return func
 
 lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I'
-lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I'
+lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I,mcPt/F'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
 

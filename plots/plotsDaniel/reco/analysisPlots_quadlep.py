@@ -34,7 +34,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v7')
-argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet0p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
+argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet1p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
@@ -91,7 +91,7 @@ else:
     postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_amc']
-    dirs['ZZ']      = ['ZZTo4L_comb', 'GluGluToZZTo4e', 'GluGluToZZTo4mu']
+    dirs['ZZ']      = ['ZZTo4L_comb', 'GluGluToZZTo4e', 'GluGluToZZTo4mu', 'GluGluToZZTo2e2mu']
     dirs['rare']    = ['WWW_4F', 'WWZ_4F', 'WZZ', 'ZZZ']
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
