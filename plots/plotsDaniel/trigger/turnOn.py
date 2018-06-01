@@ -71,27 +71,27 @@ def turnon_func(x, par):
 
 
 
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
+#postProcessing_directory = "TopEFT_PP_v14/trilep/"
+#from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+#
+##postProcessing_directory = "TopEFT_PP_v14/singlelep/"
+##from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
+#
+#data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
 #postProcessing_directory = "TopEFT_PP_v14/singlelep/"
-#from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed_trigger import *
+#from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
+#
+#data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
+##from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_v14/singlelep/"
-from  TopEFT.samples.cmgTuples_MET_Data25ns_80X_03Feb_postProcessed import *
-
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v1/singlelep/"
-#from  TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
-
-data_directory = '/afs/hephy.at/data/rschoefbeck02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v19/singlelep/"
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_mva_v7/singlelep/"
 from TopEFT.samples.cmgTuples_MET_Data25ns_92X_Run2017_12Sep2017_postProcessed import *
 #from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = 'TopEFT_PP_2017_Fall17_v2/trilep'
+postProcessing_directory = 'TopEFT_PP_2017_mva_v7/trilep'
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 # presel for measuring efficiencies in single lep datasets
@@ -104,7 +104,10 @@ channels = {'1e':'abs(lep_pdgId[0])==11', '1mu':'abs(lep_pdgId[0])==13', 'all':'
 channels = {'1e':'abs(lep_pdgId[0])==11&&abs(lep_pdgId[1])==13', '1mu':'abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==11', 'all':'(1)'}
 
 channels = {'3pl':'nlep>=3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
-channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
+#channels = {'3pl':'nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10'}
+#channels = {'3pl':'nLeptons_tight_3l==3 && Sum$(lep_pt>40&&lep_tight_3l>0)>0 && Sum$(lep_pt>20&&lep_tight_3l>0)>1 && Sum$(lep_pt>10&&lep_tight_3l>0)>2'}
+channels = {'3pl':'nLeptons_tight_3l<3 && nLeptons_FO_3l==3 && Sum$(lep_pt>40&&lep_FO_3l>0)>0 && Sum$(lep_pt>20&&lep_FO_3l>0)>1 && Sum$(lep_pt>10&&lep_FO_3l>0)>2'}
+#channels = {'3pl':'nLeptons_tight_3l<3 && nLeptons_FO_3l>=3'}
 
 # SS or OS
 # SS cut: (lep_pdgId[0]*lep_pdgId[1])>0
@@ -258,7 +261,8 @@ JetHT_sample.setSelectionString("( !HLT_HTMHT_had&&!HLT_MET_had )")
 sample = MET_sample
 
 if not options.data:
-    sample = TTZtoLLNuNu_17 if options.Run2017 else TTZ_LO
+    #sample = TTZtoLLNuNu_17 if options.Run2017 else TTZ_LO
+    sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
     if options.channel == 'dilep':
         sample = TTLep_pow_17 if options.Run2017 else TTLep_pow
     elif options.channel == 'singleLep':
@@ -275,7 +279,8 @@ if options.plot == "eta":
     if not options.channel == 'dilep': leptons += ["lep_eta[2]"]
     binning = [-2.5, -1.75, -1., -0.5, 0., 0.5, 1., 1.75, 2.5]
 elif options.plot == "flavor":
-    leptons = ["nGoodElectrons"]
+    #leptons = ["nGoodElectrons"]
+    leptons = ["nElectrons_FO_3l"]
     binning = [0,1,2,3,4]
 else:
     leptons = ["lep_pt[0]", "lep_pt[1]"]
@@ -341,7 +346,8 @@ for lep in leptons:
             #sample.chain.Draw("lep_pt>>total", baseline)
             #sample.chain.Draw("lep_pt>>trigger", trigger_sel)
     
-            print "Number of events", h_trigg[trigger].Integral()
+            print "Total events", h_total[trigger].Integral()
+            print "Triggered events", h_trigg[trigger].Integral()
             h_ratio = h_trigg[trigger].Clone()
             h_ratio.Divide(h_total[trigger])
     
@@ -449,7 +455,7 @@ for lep in leptons:
         
         leg2.Draw()   
             
-        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning", c)
+        plot_dir = os.path.join(plot_directory, "trigger", sample.name, "turnOn_3l_MET_HTMHT_JetHT_altBinning_updateFO", c)
         if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
         for f in ['.png','.pdf','.root']:
             can.Print(plot_dir+"/%s_%s_comp"%(lep,sample.name)+f)

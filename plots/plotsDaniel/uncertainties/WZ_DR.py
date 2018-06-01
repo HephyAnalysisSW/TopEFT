@@ -44,7 +44,7 @@ WZ_pow = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData=
 
 
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
-WZselection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet1p-btag0p-onZ')
+WZselection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet2p-btag2p-onZ')
 
 trueVar = "jet_hadronFlavour"
 #trueVar = "jet_mcFlavour"
@@ -75,7 +75,9 @@ variables += map( TreeVariable.fromString, ['reweightPU36fb/F', 'reweightBTagDee
 variables += [VectorTreeVariable.fromString('lep[pt/F,ptCorr/F,eta/F,phi/F,FO_3l/I,tight_3l/I,FO_SS/I,tight_SS/I,jetPtRatiov2/F,pdgId/I]')]
 variables += [VectorTreeVariable.fromString('jet[pt/F,eta/F,phi/F,btagDeepCSV/F,hadronFlavour/I]')]
 
-h_DR = ROOT.TH1F("deltaR","", 20,0,4.)
+h_DR_reco = ROOT.TH1F("deltaR_reco","", 20,0,4.)
+h_DR_true = ROOT.TH1F("deltaR_true","", 20,0,4.)
+
 
 sample.setSelectionString([WZselection])
 reader = sample.treeReader( variables = variables )
@@ -85,24 +87,39 @@ while reader.run():
     # get all jets
     jets = getJets(r, jetVars=jetVars, jetColl="jet")
     # get jets with hadronFlavour == 5
-    trueBJets = [ j for j in jets if abs(j['hadronFlavour'])==5 ]
+    #trueBJets = [ j for j in jets if abs(j['hadronFlavour'])==5 ]
+    #recoBJets = [ j for j in jets if j['btagDeepCSV']>0.6324 ]
+    trueBJets = [ j for j in jets if (abs(j['hadronFlavour'])==5 and j['btagDeepCSV']>0.6324) ]
+    recoBJets = [ j for j in jets if (abs(j['hadronFlavour'])<5 and j['btagDeepCSV']>0.6324) ]
     
+    bjets = recoBJets
+    
+    if len(recoBJets)>1:
+        minDR = 999.
+        comb = itertools.combinations(recoBJets, 2)
+        for c in comb:
+            dR = deltaR(c[0], c[1])
+            if dR < minDR: minDR = dR
+        
+        minDR = 3.9 if minDR > 4 else minDR
+        h_DR_reco.Fill(minDR, r.weight)
+
     if len(trueBJets)>1:
         minDR = 999.
         comb = itertools.combinations(trueBJets, 2)
         for c in comb:
             dR = deltaR(c[0], c[1])
             if dR < minDR: minDR = dR
-        
+
         minDR = 3.9 if minDR > 4 else minDR
-        h_DR.Fill(minDR, r.weight)
+        h_DR_true.Fill(minDR, r.weight)
 
 
+h_DR_true.style         = styles.lineStyle( ROOT.kGreen+1, width=2 )
+h_DR_reco.style         = styles.lineStyle( ROOT.kOrange+1, width=2 )
 
-h_DR.style         = styles.lineStyle( color.WZ, width=2 )
-
-
-h_DR.legendText        = "WZ powheg (NLO)"
+h_DR_true.legendText        = "true b-jets"
+h_DR_reco.legendText        = "fake b-jets"
 
 
 def drawObjects( ):
@@ -116,12 +133,12 @@ def drawObjects( ):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-plots = [[ h_DR ]]
+plots = [[ h_DR_true ], [h_DR_reco]]
 
 plotting.draw(
-    Plot.fromHisto("WZ_dR",
+    Plot.fromHisto("WZ_dR_2b_true_fake",
                 plots,
-                texX = "#DeltaR(true b-jets)"
+                texX = "#DeltaR(b-jets)"
             ),
     plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/WZ/",
     logX = False, logY = False, sorting = True, 

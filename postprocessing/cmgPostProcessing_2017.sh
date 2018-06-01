@@ -62,42 +62,54 @@
 #python cmgPostProcessing.py --overwrite --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample TTJets #SPLIT20
 #
 
-### 2017 data 
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017C_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017D_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017E_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017F_17Nov2017 #SPLIT20
+#### 2017 data 
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017B_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017D_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017E_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleMuon_Run2017F_17Nov2017 #SPLIT20
+#
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017B_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017D_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT20
+#
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017B_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017D_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017E_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017F_17Nov2017 #SPLIT20
+#
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017B_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017D_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017E_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017F_17Nov2017 #SPLIT20
+#
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017B_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017C_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017D_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017E_17Nov2017 #SPLIT20
+#python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017F_17Nov2017 #SPLIT20
 
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017C_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017D_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017E_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample DoubleEG_Run2017F_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample MET_Run2017B_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample MET_Run2017C_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample MET_Run2017D_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample MET_Run2017E_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample MET_Run2017F_17Nov2017 #SPLIT20
 
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017C_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017D_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017E_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MuonEG_Run2017F_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample JetHT_Run2017B_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample JetHT_Run2017C_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample JetHT_Run2017D_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample JetHT_Run2017E_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample JetHT_Run2017F_17Nov2017 #SPLIT20
 
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017C_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017D_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017E_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleMuon_Run2017F_17Nov2017 #SPLIT20
-
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017B_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017C_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017D_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017E_17Nov2017 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --skim quadlep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample SingleElectron_Run2017F_17Nov2017 #SPLIT20
-
-#python cmgPostProcessing.py  --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MET_Run2017B_17Nov2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MET_Run2017C_17Nov2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MET_Run2017D_17Nov2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MET_Run2017E_17Nov2017 #SPLIT20
-#python cmgPostProcessing.py  --skim singlelep --year 2017 --processingEra TopEFT_PP_2017_mva_v4 --sample MET_Run2017F_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample HTMHT_Run2017B_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample HTMHT_Run2017C_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample HTMHT_Run2017D_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample HTMHT_Run2017E_17Nov2017 #SPLIT20
+python cmgPostProcessing.py  --skim singlelep --year 2017 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2017_mva_v7 --sample HTMHT_Run2017F_17Nov2017 #SPLIT20
 
 
 ## Others

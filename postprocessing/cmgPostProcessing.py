@@ -29,6 +29,7 @@ from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.puProfileCache             import puProfile
 
 from TopEFT.Tools.mt2Calculator              import mt2Calculator
+from TopEFT.Tools.genMatch                   import getGenMatch
 from TopEFT.Tools.user                       import results_directory
 mt2Calc = mt2Calculator()
 
@@ -367,7 +368,7 @@ new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
 if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
-lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F'
+lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
 # store this extra Id information
 extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
@@ -417,7 +418,7 @@ read_variables += [\
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
 
-new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I' ] )
+new_variables.extend( ['nGoodElectrons/I','nGoodMuons/I','nGoodLeptons/I','nLeptons_FO_3l_genPrompt/I' ] )
 for lep_id in extra_lep_ids: new_variables.extend( ['nLeptons_%s/I'%lep_id, 'nMuons_%s/I'%lep_id, 'nElectrons_%s/I'%lep_id] )
 
 # Z related observables
@@ -570,6 +571,12 @@ def filler( event ):
         for lep_id in extra_lep_ids:
             lep[lep_id] = extra_mu_selector[lep_id](lep) if abs(lep['pdgId'])==13 else extra_ele_selector[lep_id](lep)
         lep['cleanEle'] = 1 if iLep not in eleMuOverlapIndices else 0
+        lep['isGenPrompt'] = -1
+
+        if isMC:
+            match,prompt, matchType = getGenMatch(lep, gPart)
+            lep['isGenPrompt'] = prompt
+
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
     
@@ -580,6 +587,8 @@ def filler( event ):
         setattr(event, "nLeptons_%s"%lep_id, len(leptonCollections[lep_id]))
         setattr(event, "nMuons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==13, leptonCollections[lep_id])))
         setattr(event, "nElectrons_%s"%lep_id, len(filter( lambda l:abs(l['pdgId'])==11, leptonCollections[lep_id])))
+    
+    event.nLeptons_FO_3l_genPrompt = len([ l for l in leptonCollections['FO_3l'] if l['isGenPrompt']>0 ])
 
     # Lepton based reweighting
     if isMC:
@@ -627,7 +636,6 @@ def filler( event ):
                 setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonCollections[tight_id]], 1) )
                 setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
                 setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
-
 
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:
