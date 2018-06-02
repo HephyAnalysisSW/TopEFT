@@ -39,7 +39,7 @@ class leptonMVA:
                 MVAVar("dz", lambda lep: log(abs(lep['dz']))),
             ]
             self.el_vars = self.commonVars + [
-                MVAVar("electronMva",lambda lep: lep['mvaIdSpring16']),
+                MVAVar("electronMvaSpring16GP",lambda lep: lep['mvaIdSpring16']),
             ]
             self.mu_vars = self.commonVars + [
                 MVAVar("segmentCompatibility",lambda lep: lep['segmentCompatibility']),
