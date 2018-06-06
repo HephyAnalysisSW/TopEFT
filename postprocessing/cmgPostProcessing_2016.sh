@@ -104,14 +104,30 @@
 
 ## 2016 MET/JetHT/HTMHT data 
 #
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016B_03Feb2017_v2 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016C_03Feb2017 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016D_03Feb2017 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016E_03Feb2017 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016F_03Feb2017 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016G_03Feb2017 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016H_03Feb2017_v2 #SPLIT10
-python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v7 --sample  MET_Run2016H_03Feb2017_v3 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016B_07Aug17_v2 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016C_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016D_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016E_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016F_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016G_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  MET_Run2016H_07Aug17 #SPLIT10
+
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016B_07Aug17_v2 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016C_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016D_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016E_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016F_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016G_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  JetHT_Run2016H_07Aug17 #SPLIT10
+
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016B_07Aug17_v2 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016C_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016D_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016E_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016F_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016G_07Aug17 #SPLIT10
+python cmgPostProcessing.py  --skim singlelep --year 2016 --fileBasedSplitting --forceProxy --processingEra TopEFT_PP_2016_mva_v10 --sample  HTMHT_Run2016H_07Aug17 #SPLIT10
+
 
 ### 2016 data 
 ##

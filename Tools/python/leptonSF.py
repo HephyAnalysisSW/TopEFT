@@ -7,14 +7,14 @@ from math import sqrt
 ## maps for electrons ##
 maps_ele = {\
     2016: {\
-            'loose':    [("scaleFactors_ele_2016.root",  "EleToTTVLoose")],
-            'tight_3l': [("scaleFactors_ele_2016.root",  "EleToTTVLoose"),
-                         ("scaleFactors_ele_2016.root",  "TTVLooseToTTVLeptonMvattZ3l")],
-            'tight_4l': [("scaleFactors_ele_2016.root",  "EleToTTVLoose"),
-                         ("scaleFactors_ele_2016.root",  "TTVLooseToTTVLeptonMvattZ4l")],
-            'tight_SS': [("scaleFactors_ele_2016.root",  "EleToTTVLoose"),
-                         ("scaleFactors_ele_2016.root",  "TTVLooseToTTVLeptonMvattW"),
-                         ("scaleFactors_ele_2016.root",  "TTVLeptonMvattWToTightCharge")],
+            'loose':    [("scaleFactors_ele_2016_eta.root",  "EleToTTVLoose")],
+            'tight_3l': [("scaleFactors_ele_2016_eta.root",  "EleToTTVLoose"),
+                         ("scaleFactors_ele_2016_eta.root",  "TTVLooseToTTVLeptonMvattZ3l")],
+            'tight_4l': [("scaleFactors_ele_2016_eta.root",  "EleToTTVLoose"),
+                         ("scaleFactors_ele_2016_eta.root",  "TTVLooseToTTVLeptonMvattZ4l")],
+            'tight_SS': [("scaleFactors_ele_2016_eta.root",  "EleToTTVLoose"),
+                         ("scaleFactors_ele_2016_eta.root",  "TTVLooseToTTVLeptonMvattW"),
+                         ("scaleFactors_ele_2016_eta.root",  "TTVLeptonMvattWToTightCharge")],
             },
     2017: {\
             'loose':    [("scaleFactors_ele_2017.root",  "EleToTTVLoose")],
@@ -56,7 +56,7 @@ maps_mu = {\
 class leptonSF:
     def __init__(self, year, ID = None):
         self.dataDir = "$CMSSW_BASE/src/TopEFT/Tools/data/leptonSFData"
-        
+        self.year = year
         if not ID in maps_ele[year].keys():
             raise Exception("Don't know ID %s"%ID)
         self.mu  = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key) for (file, key) in maps_mu[year][ID]]
@@ -64,8 +64,8 @@ class leptonSF:
         for effMap in self.mu + self.ele: assert effMap
 
     def getPartialSF(self, effMap, pt, eta):
-        sf  = effMap.GetBinContent(effMap.GetXaxis().FindBin(pt), effMap.GetYaxis().FindBin(abs(eta)))
-        err = effMap.GetBinError(  effMap.GetXaxis().FindBin(pt), effMap.GetYaxis().FindBin(abs(eta)))
+        sf  = effMap.GetBinContent(effMap.GetXaxis().FindBin(pt), effMap.GetYaxis().FindBin(eta))
+        err = effMap.GetBinError(  effMap.GetXaxis().FindBin(pt), effMap.GetYaxis().FindBin(eta))
         return u_float(sf, err)
 
     def mult(self, l):
@@ -76,6 +76,8 @@ class leptonSF:
         return res
 
     def getSF(self, pdgId, pt, eta, sigma=0):
+        # for electrons in 2016 use eta instead of abs(eta)
+        eta = eta if ( self.year == 2016 and abs(pdgId) == 11 ) else abs(eta)
         if abs(pdgId)==13:   
           if pt >= 120: pt = 119 # last bin is valid to infinity
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in self.mu])

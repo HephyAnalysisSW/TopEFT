@@ -633,9 +633,9 @@ def filler( event ):
 
                 # get different lepton SF readers
                 leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!
-                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
 
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:

@@ -58,7 +58,7 @@ boson    = Sample.fromDirectory(name="boson", treeName="Events", isData=False, c
 Data    = Run2016
 
 flavorSelection = "((nGoodElectrons==2&&nGoodMuons==0)||(nGoodElectrons==0&&nGoodMuons==2))"
-selection = "Sum$(lep_pt>40&&lep_tight>0)>0&&Sum$(lep_pt>20&&lep_tight>0)>1 && abs(Z_mass-91.2)<10 && nBTag>=2 && nJetSelected>=2 && Z_pt>100"
+selection = "Sum$(lep_pt>40&&lep_tight>0)>0&&Sum$(lep_pt>20&&lep_tight>0)>1 && abs(Z_mass-91.2)<10 && nBTag>=2 && nJetSelected>=2 && Z_pt>200"
 tr = triggerSelector(2016)
 
 selection     = "&&".join([flavorSelection, selection])
@@ -137,7 +137,7 @@ def drawPlots(plots, dataMCScale):
   for log in [False, True]:
     ext = "_small" if small else ""
     ext += "_log" if log else ""
-    plot_directory_ = os.path.join(plot_directory, 'gluonSplitting', 'test_Zpt100_nBTag2p%s'%ext)
+    plot_directory_ = os.path.join(plot_directory, 'gluonSplitting', 'test_Zpt200_nBTag2p%s'%ext)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
       extensions_ = ["pdf", "png", "root"]

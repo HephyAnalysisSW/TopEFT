@@ -88,7 +88,7 @@ else:
     from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
     # load MC from here for now
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_amc']
     dirs['ZZ']      = ['ZZTo4L_comb', 'GluGluToZZTo4e', 'GluGluToZZTo4mu', 'GluGluToZZTo2e2mu']
@@ -560,12 +560,12 @@ for index, mode in enumerate(allModes):
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
-      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger_tight_4l/F', 'reweightLeptonTrackingSF_tight_4l/F', 'nTrueInt/F', 'reweightPU36fb/F']#, 'reweightLeptonSF_tight_4l/F']
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger_tight_4l/F', 'reweightLeptonTrackingSF_tight_4l/F', 'nTrueInt/F', 'reweightPU36fb/F', 'reweightLeptonSF_tight_4l/F']#, 'reweightLeptonSF_tight_4l/F']
       
       if args.year == 2016:
           sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightLeptonTrackingSF_tight_4l*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
       else:
-          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightPU36fb #*event.reweightLeptonSF_tight_4l #*nTrueInt36fb_puRW(event.nTrueInt)
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightPU36fb*event.reweightLeptonSF_tight_4l #*event.reweightLeptonSF_tight_4l #*nTrueInt36fb_puRW(event.nTrueInt)
       tr = triggerSelector(args.year)
       sample.setSelectionString([getFilterCut(isData=False, year=args.year), getLeptonSelection(mode), tr.getSelection("MC")])
 
