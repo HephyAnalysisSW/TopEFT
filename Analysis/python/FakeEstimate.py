@@ -22,12 +22,21 @@ class FakeEstimate(SystematicEstimator):
         self.dataMC = "Data" if sample.isData else "MC"
         self.magicNumber = 0.85
         if sample.isData:
-            muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_mu_data.root")
-            elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_el_data.root")
+            if setup.year == 2017:
+                muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_mu_data_2017.root")
+                elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_el_data_2017.root")
+            elif setup.year == 2016:
+                muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_mu_data_2016.root")
+                elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/fakerate_el_data_2016.root")
+            else:
+                raise NotImplementedError
         else:
+            if setup.year == 2017:
             # FR maps from ttbar MC
-            muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
-            elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
+                muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
+                elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
+            else:
+                raise NotImplementedError
         self.muMap = getObjFromFile(muFile, "passed")
         self.elMap = getObjFromFile(elFile, "passed")
         
@@ -39,14 +48,7 @@ class FakeEstimate(SystematicEstimator):
         logger.debug( "MC prediction for %s channel %s" %(self.name, channel) )
 
         if channel.name == 'all':
-            #if setup.nLeptons == 3: channels = trilepChannels
-            #elif setup.nLeptons == 4: channels = quadlepChannels
-            ## 'all' is the total of all contributions
-            #return sum([self.cachedEstimate(region, c, setup) for c in channels])
-
-        #else:
-
-            # estimate fake contribution from events with exactly three loose leptons, and less than 3 tight leptons
+            # estimate fake contribution from events with at least three loose leptons, and less than 3 tight leptons
             # take loose leptons with same pT requirements like analysis leptons
             
             tmpSample = self.sample
@@ -112,9 +114,9 @@ class FakeEstimate(SystematicEstimator):
                         weights = [ getattr( reader.event, w ) for w in allweights ]
                         weight = reduce(mul, weights, 1)
 
-                    fakeYield += ( weight * FR * setup.lumi/1000. )
+                    fakeYield += ( weight * FR )
             #raise NotImplementedError
-            return fakeYield
+            return u_float(fakeYield) * setup.lumi/1000. if self.sample.isData else u_float(fakeYield)
 
             #preSelection = setup.preselection('MC', channel=channel)
             #cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
