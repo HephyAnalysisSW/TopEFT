@@ -34,17 +34,21 @@ def isFake(lepton):
 
 # data -> replace this with importing samples when needed 
 sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1.root"
 ], treeName="tree")
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1.root"
 ], treeName="tree")
 
 sample3 = Sample.fromFiles( "TTJets_friend", texName = "TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1_predict.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1_predict.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1_predict.root"
 ], treeName="tree")
 sample4 = Sample.fromFiles( "QCD_friend",    texName = "QCD_Pt120to170", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1_predict.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1_predict.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1_predict.root"
 ], treeName="tree")
 
 sample1.addFriend( sample3 , "tree")

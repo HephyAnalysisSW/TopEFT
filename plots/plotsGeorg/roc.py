@@ -26,12 +26,19 @@ samplelist=[]
 #], treeName="tree"))
 
 #QCD + TTJets
-samplelist.append(Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
-], treeName="tree"))
+sample1=Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1.root"
+], treeName="tree")
+
+samplePredict1=Sample.fromFiles( "QCD+TTJets_friend", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1_predict.root"
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1_predict.root"
+], treeName="tree")
+
+sample1.addFriend(samplePredict1, "tree")
+
+samplelist=[sample1]
 
 # variables to read
 variables = [
@@ -66,6 +73,9 @@ variables = [
 "lep_isPromptId/I",
 "lep_isNonPromptId/I",
 "lep_isFakeId/I",
+"prob_lep_isPromptId/I",
+"prob_lep_isNonPromptId/I",
+"prob_lep_isFakeId/I"
 ]
 
 #select electrons 11, or mouns 13
@@ -99,12 +109,12 @@ for pdgId in pdgIds:
 
     for sample in samplelist:
         #roc data
-        rocdata=[[],[]]
+        rocdata=[[],[],[],[]]
         pdata=[]
         xdata=[]
         ydata=[]
         nmaxdata=[]
-        plotdata=["|pdgId|=%i" %pdgId,"|pdgId|=%i, pt>=%i" %(pdgId, pt_cut)]
+        plotdata=["MVA: |pdgId|=%i" %pdgId,"MVA: |pdgId|=%i, pt>=%i" %(pdgId, pt_cut),"DL: |pdgId|=%i" %pdgId,"DL: |pdgId|=%i, pt>=%i" %(pdgId, pt_cut)]
         # reader class
         reader = sample.treeReader(  map( TreeVariable.fromString, variables ) )
 
@@ -115,10 +125,12 @@ for pdgId in pdgIds:
         while reader.run():
             if abs(reader.event.lep_pdgId)==pdgId:
                 rocdata[0].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16]) 
+                rocdata[2].append([reader.event.lep_isPromptId, reader.event.prob_lep_isPromptId]) 
                 #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
 
                 if reader.event.lep_pt>=pt_cut:
                     rocdata[1].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16])
+                    rocdata[3].append([reader.event.lep_isPromptId, reader.event.prob_lep_isPromptId])
                     #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
                 counter+=1
 
