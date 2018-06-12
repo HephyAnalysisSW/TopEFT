@@ -37,16 +37,23 @@ def isFake(lepton):
 # data -> replace this with importing samples when needed
 
 #TTJets files 
-sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
+#sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
 #"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
 #"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
-], treeName="tree")
+#], treeName="tree")
 
 #QCD files
 #sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
 #"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
 #], treeName="tree")
+
+sample = Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/QCD_1.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_1.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_2.root",
+], treeName="tree")
+
 
 samplePrompt =    deepcopy(sample)
 sampleNonPrompt = deepcopy(sample)
@@ -101,6 +108,11 @@ read_variables = [
 "lep_isPromptId/I",
 "lep_isNonPromptId/I",
 "lep_isFakeId/I",
+"npfCand_neutral/I",
+"npfCand_charged/I",
+"npfCand_photon/I",
+"npfCand_electron/I",
+"npfCand_muon/I"
 ]
 
 # Define stack
@@ -170,78 +182,103 @@ for ecalType in ecalTypes:
     ))
     plots.append(Plot(name=plotname+'MVA',
         texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16 if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16, 
         binning=[30,-1,1],
     ))
     plots.append(Plot(name=plotname+'Pt',
         texX = 'pt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_pt if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_pt,
         binning=[100,0,500],
     ))
     plots.append(Plot(name=plotname+'pdgId',
         texX = 'pdgId', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_pdgId if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_pdgId,
         binning=[61,-30,30],
     ))
     plots.append(Plot(name=plotname+'EtaSc',
         texX = 'etaSc', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_etaSc if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_etaSc,
         binning=[60,-3,3],
     ))
     plots.append(Plot(name=plotname+'Full5x5SigmaIetaIeta',
         texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta,
         binning=[30,0,0.06],
     ))
     plots.append(Plot(name=plotname+'DEtaInSeed',
         texX = 'dEtaInSeed', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dEtaInSeed if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_dEtaInSeed,
         binning=[30,-0.03,0.03],
     ))
     plots.append(Plot(name=plotname+'DPhiScTrkIn',
         texX = 'dPhiScTrkIn', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn,
         binning=[20,-0.2,0.2],
     ))
     plots.append(Plot(name=plotname+'RelIso03',
         texX = 'relIso03', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_relIso03 if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_relIso03,
         binning=[90,0,0.3],
     ))
     plots.append(Plot(name=plotname+'EInvMinusPInv',
         texX = '|1/E-1/p|', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.absEInvMinusPInv if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
         binning=[30,0,0.15],
     ))
     plots.append(Plot(name=plotname+'LostOuterHits',
         texX = 'lostOuterHits', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_lostOuterHits if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_lostOuterHits,
         binning=[16,0,15],
     ))
     plots.append(Plot(name=plotname+'ConvVeto',
         texX = 'convVeto', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_convVeto if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_convVeto,
         binning=[2,0,1],
     ))
     plots.append(Plot(name=plotname+'HadronicOverEm',
         texX = 'hadronicOverEm', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_hadronicOverEm if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
         binning=[30,0,0.1],
     ))
     plots.append(Plot(name=plotname+'Rho',
         texX = 'rho', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_rho if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_rho,
         binning=[100,0,5],
     ))
     plots.append(Plot(name=plotname+'Dxy',
         texX = 'dxy', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dxy if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_dxy,
         binning=[60,-0.1,0.1],
     ))
     plots.append(Plot(name=plotname+'Dz',
         texX = 'dz', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dz if ((isPrompt(lepton) and sample==samplePrompt) or (isNonPrompt(lepton) and sample==sampleNonPrompt) or (isFake(lepton) and sample==sampleFake)) else float('nan'),
+        attribute = lambda lepton, sample: lepton.lep_dz,
         binning=[60,-0.2,0.2],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_neutral',
+        texX = 'npfCand_neutral', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_neutral,
+        binning=[21,0,20],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_charged',
+        texX = 'npfCand_charged', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_charged,
+        binning=[71,0,70],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_photon',
+        texX = 'npfCand_photon', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_photon,
+        binning=[41,0,40],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_electron',
+        texX = 'npfCand_electron', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_electron,
+        binning=[21,0,20],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_muon',
+        texX = 'npfCand_muon', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_muon,
+        binning=[21,0,20],
     ))
 
     #plots.append(Plot( name = "fancy_variable",
