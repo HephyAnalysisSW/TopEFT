@@ -129,7 +129,8 @@ for ecalType in ecalTypes:
 
     # Set some defaults -> these need not be specified below for each plot
     weight = staticmethod(lambda event, sample: 1.)  # could be e.g. weight = lambda event, sample: event.weight
-    selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
+    selectionString = "(abs(lep_pdgId)==11 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(abs(lep_pdgId)==11 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(abs(lep_pdgId)==11)" # could be a complicated cut
+    #selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
     Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
 
     # Sequence
