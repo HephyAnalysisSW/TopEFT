@@ -34,16 +34,17 @@ def isFake(lepton):
 
 # data -> replace this with importing samples when needed 
 sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_1.root",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_2.root"
 ], treeName="tree")
 sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1.root"
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/QCD_1.root"
 ], treeName="tree")
 
 #sample1.style =  styles.lineStyle( color= ROOT.kBlue)
-sample1.style =  fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
+sample1.style =  fillStyle(color=ROOT.kYellow + 1, style=3004, lineColor=ROOT.kYellow +1)
 #sample2.style =  styles.lineStyle( color= ROOT.kRed)
-sample2.style =  fillStyle(color=ROOT.kRed, style=3004, lineColor=ROOT.kRed)
+sample2.style =  fillStyle(color=ROOT.kGreen +1, style=3004, lineColor=ROOT.kGreen +1)
 
 # variables to read
 read_variables = [
@@ -78,6 +79,11 @@ read_variables = [
 "lep_isPromptId/I",
 "lep_isNonPromptId/I",
 "lep_isFakeId/I",
+"npfCand_neutral/I",
+"npfCand_charged/I",
+"npfCand_photon/I",
+"npfCand_electron/I",
+"npfCand_muon/I"
 ]
 
 # Define stack
@@ -91,7 +97,7 @@ for ecaltype in ecaltypes:
     plotname="Ele"+ecaltype
 
     # Set some defaults -> these need not be specified below for each plot
-    weight = lambda event, sample: 1.  # could be e.g. weight = lambda event, sample: event.weight
+    weight = staticmethod(lambda event, sample: 1.)  # could be e.g. weight = lambda event, sample: event.weight
     selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecaltype=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecaltype=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
     Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
 
@@ -214,6 +220,33 @@ for ecaltype in ecaltypes:
         attribute = TreeVariable.fromString( "lep_dz/F" ),
         binning=[60,-0.2,0.2],
     ))
+
+    plots.append(Plot(name=plotname+'npfCand_neutral',
+        texX = 'npfCand_neutral', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_neutral,
+        binning=[21,0,20],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_charged',
+        texX = 'npfCand_charged', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_charged,
+        binning=[71,0,70],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_photon',
+        texX = 'npfCand_photon', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_photon,
+        binning=[41,0,40],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_electron',
+        texX = 'npfCand_electron', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_electron,
+        binning=[21,0,20],
+    ))
+    plots.append(Plot(name=plotname+'npfCand_muon',
+        texX = 'npfCand_muon', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.npfCand_muon,
+        binning=[21,0,20],
+    ))
+
 
     #plots.append(Plot( name = "fancy_variable",
     #    texX = 'Number of tracker hits squared', texY = 'Number of Events',
