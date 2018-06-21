@@ -15,28 +15,23 @@ plot_directory=plot_directory_
 samplelist=[]
 # add samples
 
-#QCD files
-#samplelist.append(Sample.fromFiles( "QCD", texName = "QCD_Pt120to170", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
-#], treeName="tree"))
-
-#TTJets files
-#samplelist.append(Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"
-#], treeName="tree"))
-
-#QCD + TTJets
-sample1=Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1.root"
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1.root"
+#mixed QCD + TTJets
+sample1 = Sample.fromFiles( "mixedEle", texName = "mixedElectronsFrom_TTJets_and_QCD", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_ele.root"
 ], treeName="tree")
+#sample2 = Sample.fromFiles( "mixedMuo", texName = "mixedMuonsFrom_TTJets_and_QCD", files = [
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_muo.root"
+#], treeName="tree")
 
-samplePredict1=Sample.fromFiles( "QCD+TTJets_friend", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1_predict.root"
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1_predict.root"
+sample3 = Sample.fromFiles( "mixedEle_friend", texName = "mixedElectronsFrom_TTJets_and_QCD_predict", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_ele_predict.root"
 ], treeName="tree")
+#sample4 = Sample.fromFiles( "mixedMuo_friend", texName = "mixedMuonsFrom_TTJets_and_QCD_predict", files = [
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_muo_predict.root"
+#], treeName="tree")
 
-sample1.addFriend(samplePredict1, "tree")
+
+sample1.addFriend(sample3, "tree")
 
 samplelist=[sample1]
 
@@ -73,9 +68,9 @@ variables = [
 "lep_isPromptId/I",
 "lep_isNonPromptId/I",
 "lep_isFakeId/I",
-"prob_lep_isPromptId/I",
-"prob_lep_isNonPromptId/I",
-"prob_lep_isFakeId/I"
+"prob_lep_isPromptId/F",
+"prob_lep_isNonPromptId/F",
+"prob_lep_isFakeId/F"
 ]
 
 #select electrons 11, or mouns 13
@@ -126,7 +121,7 @@ for pdgId in pdgIds:
             if abs(reader.event.lep_pdgId)==pdgId:
                 rocdata[0].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16]) 
                 rocdata[2].append([reader.event.lep_isPromptId, reader.event.prob_lep_isPromptId]) 
-                #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
+                #print "pdgId %i, pt %f,  mcMatchId %i, dnn %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), reader.event.prob_lep_isPromptId)
 
                 if reader.event.lep_pt>=pt_cut:
                     rocdata[1].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16])
@@ -177,10 +172,11 @@ for pdgId in pdgIds:
             g.append(ROOT.TGraph(n,x,y))
             g[i].SetName(gname)
             g[i].SetTitle(gname)
-            g[i].SetLineColor( 1 )
-            g[i].SetLineWidth( 1 )
-            g[i].SetMarkerColor( 4+2*i )
-            g[i].SetMarkerStyle( 5 )
+            g[i].SetLineColor( 4+1*i )
+            g[i].SetLineWidth( 2 )
+            g[i].SetMarkerColor( 4+1*i )
+            #g[i].SetMarkerStyle( 5 )
+            g[i].SetMarkerSize(0)
             g[i].Draw("ALP")
             nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%f1.2" %p[nmax])
             mg.Add(g[i])

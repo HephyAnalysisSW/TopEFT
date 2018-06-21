@@ -33,31 +33,27 @@ def isFake(lepton):
     return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
 
 # data -> replace this with importing samples when needed 
-sample1 = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1.root"
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1.root"
+sample1 = Sample.fromFiles( "mixedEle", texName = "mixedElectronsFrom_TTJets_and_QCD", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_ele.root"
 ], treeName="tree")
-sample2 = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1.root"
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1.root"
-], treeName="tree")
+#sample2 = Sample.fromFiles( "mixedMuo", texName = "mixedMuonsFrom_TTJets_and_QCD", files = [
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_muo.root"
+#], treeName="tree")
 
-sample3 = Sample.fromFiles( "TTJets_friend", texName = "TTJets_SingleLeptonFromTbar", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/TTJets_1_predict.root"
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_TTJets_1_predict.root"
+sample3 = Sample.fromFiles( "mixedEle_friend", texName = "mixedElectronsFrom_TTJets_and_QCD_predict", files = [
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_ele_predict.root"
 ], treeName="tree")
-sample4 = Sample.fromFiles( "QCD_friend",    texName = "QCD_Pt120to170", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180608_firstTry/QCD_1_predict.root"
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/TopEFT/plots/plotsGeorg/data_deepLepton/20180611_onlyElectrons/ele_QCD_1_predict.root"
-], treeName="tree")
+#sample4 = Sample.fromFiles( "mixedMuo_friend", texName = "mixedMuonsFrom_TTJets_and_QCD_predict", files = [
+#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180621/Evaluation_20_epochs_mixeddata/trainfile_muo_predict.root"
+#], treeName="tree")
 
 sample1.addFriend( sample3 , "tree")
-sample2.addFriend( sample4 , "tree")
+#sample2.addFriend( sample4 , "tree")
 
 #sample1.style =  styles.lineStyle( color= ROOT.kBlue)
 sample1.style =  fillStyle(color=ROOT.kYellow +1, style=3004, lineColor=ROOT.kYellow +1)
 #sample2.style =  styles.lineStyle( color= ROOT.kRed)
-sample2.style =  fillStyle(color=ROOT.kGreen +1, style=3004, lineColor=ROOT.kGreen +1)
+#sample2.style =  fillStyle(color=ROOT.kGreen +1, style=3004, lineColor=ROOT.kGreen +1)
 
 # variables to read
 read_variables = [
@@ -98,7 +94,7 @@ read_variables = [
 ]
 
 # Define stack
-mc    = [sample1,sample2]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
+mc    = [sample1]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
 stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
 # Define some parameters for plots and selection
