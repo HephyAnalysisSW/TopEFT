@@ -20,6 +20,7 @@ class FakeEstimate(SystematicEstimator):
         super(FakeEstimate, self).__init__(name, cacheDir=cacheDir)
         self.sample = sample
         self.dataMC = "Data" if sample.isData else "MC"
+        print self.dataMC
         self.magicNumber = 0.85
         if sample.isData:
             if setup.year == 2017:
@@ -41,6 +42,8 @@ class FakeEstimate(SystematicEstimator):
         self.elMap = getObjFromFile(elFile, "passed")
         
     def _estimate(self, region, channel, setup):
+        if not setup.nonprompt:
+            raise (NotImplementedError, "Need a nonprompt setup")
 
         ''' Concrete implementation of abstract method 'estimate' as defined in Systematic
         '''
@@ -82,7 +85,6 @@ class FakeEstimate(SystematicEstimator):
                 
                 # Really get ALL possible combinations.
                 allCombinations = itertools.combinations(tight+looseNotTight, setup.nLeptons)
-
                 for comb in allCombinations:
                     FR = 1.
                     nLooseNotTight = 0
@@ -114,8 +116,7 @@ class FakeEstimate(SystematicEstimator):
                         weight = reduce(mul, weights, 1)
 
                     fakeYield += ( weight * FR )
-            
             # apply the statistical uncertainty to the result
-            result = u_float(fakeYield, (nEvents.sigma/nEvents.val)*fakeYield )
+            result = u_float(0.) if nEvents.val==0 else u_float(fakeYield, (nEvents.sigma/nEvents.val)*fakeYield )
             return result if self.sample.isData else (result * setup.lumi/1000.) 
 

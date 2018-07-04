@@ -63,7 +63,7 @@ DYJetsToLL_M50_LO_ext_comb  = Sample.fromDirectory(name="DYJetsToLL_M50_LO_ext_c
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 WZselection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet2p-btag2p-onZ')
 DYselection = cutInterpreter.cutString('njet2p-btag2p-onZ')
-DYselection += "&&Sum$(lep_pt>40&&lep_tight>0)>0 && Sum$(lep_pt>20&&lep_tight>0)>1 && Z_pt > 100 "#&& Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2"
+DYselection += "&&Sum$(lep_pt>40&&lep_tight>0)>0 && Sum$(lep_pt>20&&lep_tight>0)>1 "#&& Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2"
 
 trueVar = "jet_hadronFlavour"
 #trueVar = "jet_mcFlavour"
@@ -99,9 +99,16 @@ variables += [VectorTreeVariable.fromString('jet[pt/F,eta/F,phi/F,btagDeepCSV/F,
 variables += [VectorTreeVariable.fromString('genPartAll[eta/F,pt/F,phi/F,mass/F,charge/I,status/I,pdgId/I,motherId/I,grandmotherId/I,nDaughters/I,daughterIndex1/I,daughterIndex2/I,nMothers/I,motherIndex1/I,motherIndex2/I,isPromptHard/I]',nMax=400)]
 variables += map(TreeVariable.fromString, ['ngenPartAll/I','run/I','evt/I','lumi/I'])
 
-h_DR_reco = ROOT.TH1F("deltaR_reco","", 20,0,4.)
-h_DR_true = ROOT.TH1F("deltaR_true","", 20,0,4.)
-h_DR_true_fromG = ROOT.TH1F("deltaR_true_fromG","", 20,0,4.)
+#h_DR_reco = ROOT.TH1F("deltaR_reco","", 20,0,4.)
+#h_DR_true = ROOT.TH1F("deltaR_true","", 20,0,4.)
+#h_DR_true_fromG = ROOT.TH1F("deltaR_true_fromG","", 20,0,4.)
+
+h_DR_reco = ROOT.TH1F("deltaR_reco","", 20,0,3.2)
+h_DR_true = ROOT.TH1F("deltaR_true","", 20,0,3.2)
+h_DR_true_GSplit = ROOT.TH1F("deltaR_true_fromG","", 20,0,3.2)
+h_DR_true_noGSplit = ROOT.TH1F("deltaR_true_fromQ","", 20,0,3.2)
+h_DR_true_fromX = ROOT.TH1F("deltaR_true_fromX","", 20,0,3.2)
+h_DR_true_noZ   = ROOT.TH1F("deltaR_true_noZ","", 20,0,3.2)
 
 sample.setSelectionString([DYselection])
 reader = sample.treeReader( variables = variables )
@@ -121,13 +128,18 @@ while reader.run():
     gPart = getGenPartsAll(r)
     bs = getGenBs(gPart)
     
+    Zs = [ p for p in gPart if (abs(p['pdgId'])==23 and abs(p['motherId'])!=23) ]
+    ZsFromB = [ z for z in Zs if (abs(z['motherId'])==5) ]#or abs(z['motherId'])==21 )]
+    ZsFromQ = [ z for z in Zs if (abs(z['motherId'])<5)]
     bsFromG = [ b for b in bs if abs(b['motherId']) == 21 ]
     
+
     if len(recoBJets)>1:
         minDR = 999.
         comb = itertools.combinations(recoBJets, 2)
         for c in comb:
-            dR = deltaR(c[0], c[1])
+            #dR = deltaR(c[0], c[1])
+            dR = deltaPhi(c[0]['phi'], c[1]['phi'])
             if dR < minDR: minDR = dR
         
         minDR = 3.9 if minDR > 4 else minDR
@@ -137,13 +149,27 @@ while reader.run():
         minDR = 999.
         comb = itertools.combinations(trueBJets, 2)
         for c in comb:
-            dR = deltaR(c[0], c[1])
+            #dR = deltaR(c[0], c[1])
+            dR = deltaPhi(c[0]['phi'], c[1]['phi'])
             if dR < minDR: minDR = dR
 
         minDR = 3.9 if minDR > 4 else minDR
         h_DR_true.Fill(minDR, r.weight)
-        if len(bsFromG) > 1:
-            h_DR_true_fromG.Fill(minDR, r.weight)
+        #if len(bsFromG) > 1:
+        if len(Zs)>0:
+            print "Found %s Zs"%len(Zs)
+            print Zs[0]['motherId']
+            if len(ZsFromB) > 0:
+                print "from b. -> no gluon splitting."
+                h_DR_true_noGSplit.Fill(minDR, r.weight)
+            elif len(ZsFromQ) >0:
+                print "from q. -> gluon splitting."
+                h_DR_true_GSplit.Fill(minDR, r.weight)
+            else:
+                print "from ?. -> anything else."
+                h_DR_true_fromX.Fill(minDR, r.weight)
+        else:
+            h_DR_true_noZ.Fill(minDR, r.weight)
             #print
             #for b in bsFromG:
             #    print "b from G"
@@ -152,13 +178,19 @@ while reader.run():
             #    print gPart[b['motherIndex1']]['pt'],       gPart[b['motherIndex2']]['pt']
 
 
-h_DR_true.style         = styles.lineStyle( ROOT.kGreen+1, width=2 )
+h_DR_true.style         = styles.fillStyle( color = ROOT.kGray-1, lineColor=ROOT.kGray-1 )
 h_DR_reco.style         = styles.lineStyle( ROOT.kOrange+1, width=2 )
-h_DR_true_fromG.style         = styles.lineStyle( ROOT.kBlue+1, width=2 )
+h_DR_true_GSplit.style         = styles.lineStyle( ROOT.kBlue+1, width=2 )
+h_DR_true_noGSplit.style         = styles.lineStyle( ROOT.kRed+1, width=2 )
+h_DR_true_fromX.style         = styles.lineStyle( ROOT.kCyan+1, width=2 )
+h_DR_true_noZ.style         = styles.lineStyle( ROOT.kYellow+1, width=2 )
 
 h_DR_true.legendText        = "true b-jets"
 h_DR_reco.legendText        = "fake b-jets"
-h_DR_true_fromG.legendText  = "true b-jets from g"
+h_DR_true_GSplit.legendText  = "true b-jets, gluon splitting"
+h_DR_true_noGSplit.legendText  = "true b-jets, no gluon splitting"
+h_DR_true_fromX.legendText  = "true b-jets, unknown"
+h_DR_true_noZ.legendText    = "true b-jets, no gen Z"
 
 def drawObjects( ):
     tex = ROOT.TLatex()
@@ -171,15 +203,15 @@ def drawObjects( ):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-plots = [[ h_DR_true ], [h_DR_reco], [h_DR_true_fromG]]
+plots = [[h_DR_true], [h_DR_true_GSplit], [h_DR_true_noGSplit], [h_DR_true_fromX], [h_DR_true_noZ]]#, [h_DR_reco]]
 
 plotting.draw(
-    Plot.fromHisto("DY_dR_2b_true_fake_trueFromG_Zpt100",
+    Plot.fromHisto("DY_dPhi_2b_true_fake_trueFromG_Zmethod_v2",
                 plots,
-                texX = "#DeltaR(b-jets)"
+                texX = "#Delta#phi(b-jets)"
             ),
     plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/TopEFT/WZ/",
-    logX = False, logY = False, sorting = True, 
+    logX = False, logY = False, sorting = False, 
     drawObjects = drawObjects(),
     copyIndexPHP = True
 )

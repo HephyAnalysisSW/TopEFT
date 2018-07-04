@@ -49,7 +49,7 @@ from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = regionsE
@@ -57,8 +57,8 @@ setup.regions           = regionsE
 setupCR = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
 
 trueVar     = "jet_hadronFlavour"
-reweightUp  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'1.5',trueVar)
-reweightDo  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.5',trueVar)
+reweightUp  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'1.20',trueVar)
+reweightDo  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.80',trueVar)
 
 setup_bUp   = setup.systematicClone(sys={"reweight":[reweightUp]})
 setup_bDown = setup.systematicClone(sys={"reweight":[reweightDo]})
@@ -93,11 +93,12 @@ for i,r in enumerate(setup.regions):
         kappa_bDown = res[2]/res[5]
         print r
         print abs(kappa_bUp-kappa)/kappa, abs(kappa_bDown-kappa)/kappa
+        print abs(kappa_bUp-kappa_bDown)/2.
         hists["WZ0b"].SetBinContent(i+1, res[3].val)
         hists["WZ1b"].SetBinContent(i+1, res[0].val)
         hists["kappa"].SetBinContent(i+1, kappa.val)
-        hists["kappa_bUp"].SetBinContent(i+1, kappa_bUp.val)
-        hists["kappa_bDown"].SetBinContent(i+1, kappa_bDown.val)
+        hists["kappa_bUp"].SetBinContent(i+1, kappa.val + (kappa_bUp.val-kappa_bDown.val)/2.)
+        hists["kappa_bDown"].SetBinContent(i+1, kappa.val - (kappa_bUp.val-kappa_bDown.val)/2.)
 
 
 hists["WZ0b"].legendText = "WZ, 0b"

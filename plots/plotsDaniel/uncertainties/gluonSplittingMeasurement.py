@@ -58,7 +58,7 @@ boson    = Sample.fromDirectory(name="boson", treeName="Events", isData=False, c
 Data    = Run2016
 
 flavorSelection = "((nGoodElectrons==2&&nGoodMuons==0)||(nGoodElectrons==0&&nGoodMuons==2))"
-selection = "Sum$(lep_pt>40&&lep_tight>0)>0&&Sum$(lep_pt>20&&lep_tight>0)>1 && abs(Z_mass-91.2)<10 && nBTag>=2 && nJetSelected>=2 && Z_pt>200"
+selection = "Sum$(lep_pt>40&&lep_tight>0)>0&&Sum$(lep_pt>20&&lep_tight>0)>1 && abs(Z_mass-91.2)<5 && nBTag>=2 && nJetSelected>=2 && met_pt<50 && Sum$(jet_pt>30&&jet_btagDeepCSV>0.6324&&abs(jet_eta)<1.5&&jet_id>0)>=2"
 tr = triggerSelector(2016)
 
 selection     = "&&".join([flavorSelection, selection])
@@ -83,7 +83,7 @@ def getGenBs(genparts):
 def getBJetDR( event, sample ):
     jets = getJets(event, jetVars=jetVars, jetColl="jet")
     trueBJets = [ j for j in jets if abs(j['hadronFlavour'])==5 ]
-    bjets = [ j for j in jets if j['btagDeepCSV']>0.6324 ]
+    bjets = [ j for j in jets if j['btagDeepCSV']>0.6324 and j['pt']>30 and abs(j['eta'])<2.4 ]
 
     minDR = -1
     mindPhi = -1
@@ -94,17 +94,26 @@ def getBJetDR( event, sample ):
         for c in comb:
             dR = deltaR(c[0], c[1])
             dPhi = deltaPhi(c[0]['phi'], c[1]['phi'])
+            dEta = abs(c[0]['eta'] - c[1]['eta'])
             if dR < minDR:
                 minDR = dR
                 mindPhi = dPhi
+                mindEta = dEta
                 l1  = ROOT.TLorentzVector()
                 l2  = ROOT.TLorentzVector()
                 l1.SetPtEtaPhiM( c[0]['pt'], c[0]['eta'], c[0]['phi'], 0)
                 l2.SetPtEtaPhiM( c[1]['pt'], c[1]['eta'], c[1]['phi'], 0)
                 M = (l1 + l2).M()
-    event.bjet_dR = minDR
-    event.bjet_dPhi = mindPhi
-    event.bjet_invMass = M
+    event.bjet_dR       = minDR
+    event.bjet_dPhi     = mindPhi
+    event.bjet_invMass  = M
+    event.bjet_dEta     = mindEta
+    event.b1_pt         = l1.Pt()
+    event.b1_phi        = l1.Phi()
+    event.b1_eta        = l1.Eta()
+    event.b2_pt         = l2.Pt()
+    event.b2_phi        = l2.Phi()
+    event.b2_eta        = l2.Eta()
     return
     ##
 
@@ -137,7 +146,7 @@ def drawPlots(plots, dataMCScale):
   for log in [False, True]:
     ext = "_small" if small else ""
     ext += "_log" if log else ""
-    plot_directory_ = os.path.join(plot_directory, 'gluonSplitting', 'test_Zpt200_nBTag2p%s'%ext)
+    plot_directory_ = os.path.join(plot_directory, 'gluonSplitting', 'test_Zpt0_nBTag2p_tight_BB%s'%ext)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
       extensions_ = ["pdf", "png", "root"]
@@ -156,32 +165,26 @@ def drawPlots(plots, dataMCScale):
 # Samples
 DY_HT_LO.read_variables = [VectorTreeVariable.fromString('jet[hadronFlavour/I]') ] 
 
-DY_twoTrueBsFromG = copy.deepcopy(DY_HT_LO)
-DY_twoTrueBsFromG.color = ROOT.kYellow+1
-DY_twoTrueBsFromG.texName = "DY (LO), N_{true b-jets}#geq2, from g"
+DY_GS = copy.deepcopy(DY_HT_LO)
+DY_GS.color = ROOT.kYellow+1
+DY_GS.texName = "DY (LO), N_{true b-jets}#geq2, GS"
 
-DY_twoTrueBsFromP = copy.deepcopy(DY_HT_LO)
-DY_twoTrueBsFromP.color = ROOT.kOrange+8
-DY_twoTrueBsFromP.texName = "DY (LO), N_{true b-jets}#geq2, from p"
+DY_noGS = copy.deepcopy(DY_HT_LO)
+DY_noGS.color = ROOT.kOrange+8
+DY_noGS.texName = "DY (LO), N_{true b-jets}#geq2, no GS"
 
-DY_twoTrueBsFromQ = copy.deepcopy(DY_HT_LO)
-DY_twoTrueBsFromQ.color = ROOT.kRed-3
-DY_twoTrueBsFromQ.texName = "DY (LO), N_{true b-jets}#geq2, from q"
-
-DY_twoTrueBsElse = copy.deepcopy(DY_HT_LO)
-DY_twoTrueBsElse.color = ROOT.kRed+3
-DY_twoTrueBsElse.texName = "DY (LO), N_{true b-jets}#geq2, else"
-
-DY_oneTrueBs = copy.deepcopy(DY_HT_LO)
-DY_oneTrueBs.color = ROOT.kGreen+1
-DY_oneTrueBs.texName = "DY (LO), N_{true b-jets}=1"
+DY_unknown = copy.deepcopy(DY_HT_LO)
+DY_unknown.color = ROOT.kRed-3
+DY_unknown.texName = "DY (LO), N_{true b-jets}#geq2, unknown"
 
 DY_fakeBs = copy.deepcopy(DY_HT_LO)
 DY_fakeBs.color = ROOT.kGreen+3
 DY_fakeBs.texName = "DY (LO), N_{true b-jets}=0"
 
 
-mc = [DY_twoTrueBsElse, DY_twoTrueBsFromG, DY_twoTrueBsFromP, DY_twoTrueBsFromQ, DY_oneTrueBs, DY_fakeBs,TTX,boson, Top]
+#mc = [DY_twoTrueBsElse, DY_twoTrueBsFromG, DY_twoTrueBsFromP, DY_twoTrueBsFromQ, DY_oneTrueBs, DY_fakeBs,TTX,boson, Top]
+mc = [DY_GS,DY_noGS,DY_unknown,DY_fakeBs,TTX,boson, Top]
+
 for s in mc:
     s.setSelectionString([getFilterCut(isData=False), tr.getSelection("MC")])
     s.read_variables = ['reweightPU36fb/F', 'reweightBTagDeepCSV_SF/F']
@@ -189,19 +192,28 @@ for s in mc:
     s.style = styles.fillStyle(s.color)
     s.scale = lumi_scale
 
-nBFromG = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)>5&&(abs(genPartAll_motherId)==21))"
-nBFromP = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)>5&&(abs(genPartAll_motherId)==2212))"
-nBFromQ = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)<5)"
+#nBFromG = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)>5&&(abs(genPartAll_motherId)==21))"
+#nBFromP = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)>5&&(abs(genPartAll_motherId)==2212))"
+#nBFromQ = "Sum$(abs(genPartAll_pdgId)==5&&abs(genPartAll_motherId)<5)"
+#
+#DY_twoTrueBsFromG.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2"%nBFromG])
+#DY_twoTrueBsFromP.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2 && %s<2"%(nBFromP,nBFromG)])
+#DY_twoTrueBsFromQ.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2 && %s<2 && %s<2"%(nBFromQ,nBFromP,nBFromG)])
+#DY_twoTrueBsElse.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s<2 && %s<2 && %s<2"%(nBFromG,nBFromQ,nBFromP)])
+#DY_oneTrueBs.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)==1"])
 
-DY_twoTrueBsFromG.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2"%nBFromG])
-DY_twoTrueBsFromP.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2 && %s<2"%(nBFromP,nBFromG)])
-DY_twoTrueBsFromQ.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=2 && %s<2 && %s<2"%(nBFromQ,nBFromP,nBFromG)])
-DY_twoTrueBsElse.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s<2 && %s<2 && %s<2"%(nBFromG,nBFromQ,nBFromP)])
-DY_oneTrueBs.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)==1"])
-DY_fakeBs.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)==0"])
+ZfromB = "Sum$(genPartAll_pdgId==23&&abs(genPartAll_motherId)==5)"
+ZfromQ = "Sum$(genPartAll_pdgId==23&&abs(genPartAll_motherId)<5)"
+ZfromX = "Sum$(genPartAll_pdgId==23&&abs(genPartAll_motherId)>5 && abs(genPartAll_motherId)!=23)"
+
+DY_GS.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=1"%ZfromQ]) # if Z comes from a b there's also gluon splitting
+DY_noGS.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s>=1 && %s<1"%(ZfromB, ZfromQ)]) # if Z comes from a b there's no gluon splitting
+DY_unknown.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)>=2 && %s<1 && %s<1"%(ZfromB, ZfromQ)]) # mostly Z from gluon (unphysical) or no Z at all -> unknown
+
+DY_fakeBs.addSelectionString(["Sum$(jet_pt>30&&abs(jet_eta)<2.4&&jet_id>0&&jet_btagDeepCSV>0.6324&&jet_hadronFlavour==5)<2"])
 
 
-Data.setSelectionString([getFilterCut(isData=True)])
+Data.setSelectionString([getFilterCut(isData=True)]) #trigger already applied in post-processing
 Data.style          = styles.errorStyle(ROOT.kBlack)
 
 if small:
@@ -246,6 +258,51 @@ plots.append(Plot(
     texX = '#Delta#Phi(b-tagged jets)', texY = 'Number of Events',
     attribute = lambda event, sample:event.bjet_dPhi,
     binning=[16,0,3.2],
+))
+
+plots.append(Plot(
+    name = 'bjet_dEta',
+    texX = '#Delta#eta(b-tagged jets)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.bjet_dEta,
+    binning=[20,0,5],
+))
+
+plots.append(Plot(
+    name = 'b1_pt',
+    texX = 'p_{T}(leading b-jet) (GeV)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b1_pt,
+    binning=[20,0,400],
+))
+plots.append(Plot(
+    name = 'b1_phi',
+    texX = '#Phi(leading b-jet)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b1_phi,
+    binning=[16,-3.2,3.2],
+))
+plots.append(Plot(
+    name = 'b1_eta',
+    texX = '#eta(leading b-jet)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b1_eta,
+    binning=[25,-2.5,2.5],
+))
+
+plots.append(Plot(
+    name = 'b2_pt',
+    texX = 'p_{T}(subleading b-jet) (GeV)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b2_pt,
+    binning=[20,0,400],
+))
+plots.append(Plot(
+    name = 'b2_phi',
+    texX = '#Phi(subleading b-jet)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b2_phi,
+    binning=[16,-3.2,3.2],
+))
+plots.append(Plot(
+    name = 'b2_eta',
+    texX = '#eta(subleading b-jet)', texY = 'Number of Events',
+    attribute = lambda event, sample:event.b2_eta,
+    binning=[25,-2.5,2.5],
 ))
 
 plots.append(Plot(

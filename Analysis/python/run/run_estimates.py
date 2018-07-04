@@ -26,7 +26,7 @@ from TopEFT.Analysis.Region       import Region
 
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
-
+from TopEFT.Analysis.FakeEstimate       import FakeEstimate
 
 #RootTools
 from RootTools.core.standard import *
@@ -38,12 +38,14 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+#postProcessing_directory = "TopEFT_PP_2016_mva_v9/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+#postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 import TopEFT.Tools.logger as logger
@@ -57,10 +59,15 @@ from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = regionsE
+
+setupNP                 = Setup(year=year, nLeptons=3, nonprompt=True)
+setupNP.channels          = [channel(-1,-1)]
+setupNP.regions           = regionsE
+
 
 # go orthogonal in Njet and Nbjet if needed
 if options.controlRegion:
@@ -78,6 +85,7 @@ if options.controlRegion:
         setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
     elif options.controlRegion == 'nbtag0-njet1p':
         setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
     else:
         raise NotImplementedError
 
@@ -85,34 +93,40 @@ setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
 
 reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
+reweights3l = reweights# + ["reweightTriggerDown_tight_3l", "reweightTriggerUp_tight_3l", "reweightLeptonSFDown_tight_3l", "reweightLeptonSFUp_tight_3l"]
+reweights4l = reweights# + ["reweightTriggerDown_tight_4l", "reweightTriggerUp_tight_4l", "reweightLeptonSFDown_tight_4l", "reweightLeptonSFUp_tight_4l"]
 modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 ## 4l setup ##
 setup4l                   = Setup(year=year, nLeptons=4)
 setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
 estimators4l              = estimatorList(setup4l)
-setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare", "nonprompt"])
+setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
 setup4l.regions           = regions4lB
 
 # only run over 3l/4l when necessary
 if options.sample in []:
-    print "a"
     setups = [setup4l]
 elif options.sample in ["WZ", "TTX", "TTW", "TZQ"]:
-    print "b"
     setups = [setup]
+elif options.sample in ["nonprompt"]:
+    setups = [setupNP]
 else:
-    print "c"
     # rare, ZZ, nonprompt, pseudodata, TTZ run in all SRs
     setups = [setup, setup4l]
 
-allSetups = copy.deepcopy(setups)
+######### only for now ###############
+#setups = [setup]
 
-if (options.sample not in ["Data", "pseudoData"]) and not (options.skipSystematics):
-    for r in reweights:
-        for s in setups:
+allSetups = [ copy.deepcopy(s) for s in setups ]
+
+if (options.sample not in ["Data", "pseudoData", "nonprompt"]) and not (options.skipSystematics):
+    for s in setups:
+        reweights = reweights3l if s.nLeptons == 3 else reweights4l
+        for r in reweights:
+        #for s in setups:
             allSetups.append(s.systematicClone(sys={"reweight":[r]}))
     for m in modifiers:
         for s in setups:
@@ -127,8 +141,8 @@ def wrapper(args):
 
 jobs=[]
 
-if options.sample not in ["Data", "TTZ", "pseudoData"]:
-    estimators = estimators.constructEstimatorList([options.sample]) if options.sample else estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+if options.sample not in ["Data", "TTZ", "pseudoData", "nonprompt"]:
+    estimators = estimators.constructEstimatorList([options.sample]) if options.sample else estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare"])
 else:
     estimators = []
 
@@ -137,11 +151,16 @@ logger.info("Starting estimates for sample %s", setup.samples[options.sample].na
 for setup in allSetups:
 
     print setup.nLeptons
-    print setup.parameters
+    #print setup.parameters
+    print setup.defaultCacheDir()
     signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
     data        = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
     observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
-    for e in estimators: e.initCache(setup.defaultCacheDir())
+    nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setup, cacheDir=setup.defaultCacheDir())
+
+    estimatorsC = [ copy.deepcopy(e) for e in estimators ]
+    for e in estimatorsC: e.initCache(setup.defaultCacheDir())
+
     logger.info("Cache for setup %s is located in %s", setup, setup.defaultCacheDir())
     for r in setup.regions:
         for channel in setup.channels:
@@ -151,8 +170,10 @@ for setup in allSetups:
                 jobs.append((signal, r, channel, setup))
             elif options.sample == "pseudoData":
                 jobs.append((observation, r, channel, setup))
+            elif options.sample == "nonprompt":
+                jobs.append((nonprompt, r, channel, setup))
             else:
-                for e in estimators:
+                for e in estimatorsC:
                     #name = e.name.split('-')[0]
                     jobs.append((e, r, channel, setup))
 
