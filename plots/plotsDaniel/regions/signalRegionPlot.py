@@ -44,17 +44,18 @@ logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
 # regions like in the cards
-regions = regionsE + regions4lB
+#regions = regionsE + regions4lB
+regions = regionsE
 
 # processes (and names) like in the card
-processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt','ZZ']
+processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonPromptDD','ZZ']
 
 # uncertainties like in the card
 uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'ZZ_xsec', 'rare', 'ttX', 'tZq', 'Lumi']
 
 Nbins = len(regions)
 
-isData = False
+isData = True
 if options.year == 2016:
     lumiStr = 35.9
 elif options.year == 2017:
@@ -62,15 +63,17 @@ elif options.year == 2017:
 else:
     lumiStr = 77.2
 
-cardName = "ewkDM_ttZ_ll"
+#cardName = "ewkDM_ttZ_ll"
+cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
 cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
-#subDir = "nbtag0-njet1p"
-subDir = ""
+subDir = "nbtag0-njet1p"
+#subDir = ""
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
+#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_lowUnc/%s/dim6top_LO_dipoles/"%(options.year,subDir)
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -176,12 +179,20 @@ def drawLabels( regions ):
     tex = ROOT.TLatex()
     tex.SetNDC()
     tex.SetTextSize(0.028)
-    tex.SetTextAngle(90)
+    if len(regions)>12:
+        tex.SetTextAngle(90)
+    else:
+        tex.SetTextAngle(0)
     tex.SetTextAlign(12) # align right
     min = 0.15
     max = 0.95
     diff = (max-min) / len(regions)
-    lines =  [(min+(3*i+0.90)*diff, 0.600,  r.texStringForVar('Z_pt'))   for i, r in enumerate(regions[:-3][::3])]
+    y_pos = 0.6 if len(regions)>12 else 0.85
+    x_pos = 0.90 if len(regions)>12 else 0.25
+    if len(regions) > 12:
+        lines =  [(min+(3*i+x_pos)*diff, y_pos,  r.texStringForVar('Z_pt'))   for i, r in enumerate(regions[:-3][::3])]
+    else:
+        lines =  [(min+(3*i+x_pos)*diff, y_pos,  r.texStringForVar('Z_pt'))   for i, r in enumerate(regions[::3])]
     return [tex.DrawLatex(*l) for l in lines] 
 
 def drawLabels2( regions ):
@@ -199,7 +210,7 @@ def drawLabels2( regions ):
     lines += [(min+(12+0.90)*diff, 0.860,  "N_{b-tag}#geq1")]
     lines +=  [(min+(3*i+0.90)*diff, 0.820,  "N_{j}#geq3")   for i, r in enumerate(regions[:-3][::3])]
     lines += [(min+(12+0.90)*diff, 0.820,  "N_{j}#geq2")]
-    return [tex.DrawLatex(*l) for l in lines]
+    return [tex.DrawLatex(*l) for l in lines] if len(regions)>12 else []
 
 
 def drawDivisions(regions):
@@ -275,9 +286,9 @@ plotting.draw(
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions"),
     logX = False, logY = True, sorting = True, 
-    legend = (0.74,0.80-0.010*32, 0.95, 0.80),
+    legend = (0.75,0.80-0.010*32, 0.95, 0.80),
     widths = {'x_width':700, 'y_width':600},
-    yRange = (0.3,3000.),
+    #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
     ratio = {'yRange': (0.6, 1.4), 'drawObjects':boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
     drawObjects = drawObjects,

@@ -61,6 +61,6 @@ allSamples_Data25ns += [SingleMuon_Run2016, SingleElectron_Run2016, MuonEG_Run20
 Run2016 = Sample.combine("Run2016", [SingleMuon_Run2016, SingleElectron_Run2016, MuonEG_Run2016, DoubleEG_Run2016, DoubleMuon_Run2016], texName = "Data")
 Run2016.lumi = (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000
 
-for s in allSamples_Data25ns:
+for s in allSamples_Data25ns + [Run2016]:
   s.color   = ROOT.kBlack
   s.isData  = True

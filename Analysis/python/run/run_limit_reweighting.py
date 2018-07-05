@@ -34,6 +34,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -69,7 +70,7 @@ year = int(args.year)
 ## 3l setup ##
 setup                   = Setup(year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare"])#ZZ, "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])#, "nonprompt"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)] # == 'all'
 setup.regions           = regionsE
@@ -325,16 +326,15 @@ def wrapper(s):
                     #else:
                     #    np = u_float(0.)
                     #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1.01)
-                    if setup.nLeptons == 3:
-                        np = nonprompt.cachedEstimate(r, channel, setupNP)
-                    else:
+                    np = nonprompt.cachedEstimate(r, channel, setupNP)
+                    if np.val < 0.01:
                         np = u_float(0.01,0.)
                     c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
                     c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
                     c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
                     
                     print channel.name
-                    obs = observation.cachedEstimate(r, channel, setup)
+                    obs = observation.cachedObservation(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
 
                     if args.useShape:

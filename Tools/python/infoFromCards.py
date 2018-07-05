@@ -164,7 +164,7 @@ def applyAllNuisances(cardFile, estimate, res, binName, nuisances):
     if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt', 'ZZ']: return res
     if estimate == "WZ":
         uncName = estimate+'_xsec'
-    elif estimate == "WZ":
+    elif estimate == "ZZ":
         uncName = estimate+'_xsec'
     elif estimate == "TZQ":
         uncName = "tZq"

@@ -92,10 +92,14 @@ class Setup:
         self.leptonId = self.FO_ID if self.nonprompt else self.tight_ID
 
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
-        #if nLeptons == 3:
-        #    self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
-        #elif nLeptons == 4:
-        #    self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+        if nLeptons == 3:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
+            if self.year == 2016:
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+        elif nLeptons == 4:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+            if self.year == 2016:
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
 
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']

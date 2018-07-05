@@ -34,6 +34,7 @@ class DataObservation():
         return self.cachedObservation(region, channel, setup, save, overwrite)
 
     def cachedObservation(self, region, channel, setup, save=True, overwrite=False):
+        print channel.name
         key =  self.uniqueKey(region, channel, setup)
         if self.cache and self.cache.contains(key):
             res = self.cache.get(key)
@@ -46,7 +47,6 @@ class DataObservation():
             return self.observation( region, channel, setup)
 
     def observation(self, region, channel, setup):
-        print channel
         if channel.name=='all':
             if setup.nLeptons == 3: channels = trilepChannels
             elif setup.nLeptons == 4: channels = quadlepChannels
@@ -54,7 +54,8 @@ class DataObservation():
             preSelection = setup.preselection('Data')
             cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
 
-            logger.debug( "Using cut %s"% cut )
+            logger.info( "Getting Data observation for channel %s and region %s"%(channel.name, region.cutString()))
+            logger.info( "Using cut %s"% cut )
 
             if hasattr(setup, 'blinding') and setup.blinding: weight = 'weight*' + setup.blinding
             else:                                             weight = 'weight'
