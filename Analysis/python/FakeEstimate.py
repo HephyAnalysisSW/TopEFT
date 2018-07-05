@@ -20,7 +20,6 @@ class FakeEstimate(SystematicEstimator):
         super(FakeEstimate, self).__init__(name, cacheDir=cacheDir)
         self.sample = sample
         self.dataMC = "Data" if sample.isData else "MC"
-        print self.dataMC
         self.magicNumber = 0.85
         if sample.isData:
             if setup.year == 2017:
@@ -61,7 +60,6 @@ class FakeEstimate(SystematicEstimator):
             tmpSample = self.sample
             
             variables = map( TreeVariable.fromString, ["run/I", "lumi/I", "evt/I", "Z_pt/F", "cosThetaStar/F", "weight/F", "met_pt/F", "Z_mass/F", "nJetSelected/I", "nBTag/I", 'Z_l1_index/I', 'Z_l2_index/I', 'nonZ_l1_index/I', 'nonZ_l2_index/I', "nLeptons_FO_3l/I", "nLeptons_tight_3l/I", "nLeptons_tight_4l/I"])
-            print self.sample.isData, self.sample.name
             if not self.sample.isData:
                 logger.info("Adding weights to be read.")
                 variables += map( TreeVariable.fromString, ['reweightPU36fb/F', 'reweightBTagDeepCSV_SF/F' ] )

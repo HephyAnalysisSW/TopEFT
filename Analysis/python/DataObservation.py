@@ -26,15 +26,14 @@ class DataObservation():
             self.cache=None
 
     def uniqueKey(self, region, channel, setup):
-        if hasattr(setup, 'blinding'): return region, channel, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True), setup.blinding
-        else:                          return region, channel, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
+        if hasattr(setup, 'blinding'): return region, channel.name, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True), setup.blinding
+        else:                          return region, channel.name, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
 
     # alias for cachedObservation to make it easier to call the same function as for the mc's
     def cachedEstimate(self, region, channel, setup, save=True, overwrite=False):
         return self.cachedObservation(region, channel, setup, save, overwrite)
 
     def cachedObservation(self, region, channel, setup, save=True, overwrite=False):
-        print channel.name
         key =  self.uniqueKey(region, channel, setup)
         if self.cache and self.cache.contains(key):
             res = self.cache.get(key)

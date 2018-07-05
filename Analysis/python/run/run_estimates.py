@@ -150,9 +150,6 @@ logger.info("Starting estimates for sample %s", setup.samples[options.sample].na
 
 for setup in allSetups:
 
-    print setup.nLeptons
-    #print setup.parameters
-    print setup.defaultCacheDir()
     signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
     data        = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
     observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
