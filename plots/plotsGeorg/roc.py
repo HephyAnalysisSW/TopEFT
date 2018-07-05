@@ -2,6 +2,7 @@
 import ROOT
 import os
 from array import array
+from copy import deepcopy
 
 # RootTools
 from RootTools.core.standard import *
@@ -12,31 +13,63 @@ plot_directory_=os.path.join(plot_directory, 'roc_plots')
 plot_directory=plot_directory_
 
 #define mixed QCD + TTJets samples for electorns and muons
-sampleEle = Sample.fromFiles( "mixedEle", texName = "mixedElectronsFrom_TTJets_and_QCD", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/trainfile_ele_1.root"
-], treeName="tree")
-sampleElePredict = Sample.fromFiles( "mixedEle_friend", texName = "mixedElectronsFrom_TTJets_and_QCD_predict", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180703/Evaluation_2x2epochs_trainfiles_a90k/TestLeptonEvaluation/trainfile_ele_1_predict.root"
-], treeName="tree")
-#n=1
-#for i in xrange(500,n):
-#    sampleEle.files.append("/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/trainfile_ele_"+str(i)+".root")
-#    sampleElePredict.files.append("/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180703/Evaluation_2x2epochs_trainfiles_a90k/TestLeptonEvaluation/trainfile_ele_"+str(i)+"_predict.root")
+
+#Electron Train Files
+EleTrainFiles=[
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/","train_ele.txt",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180703/Evaluation_2x2epochs_trainfiles_a90k/TestLeptonEvaluation/"
+]
+with open(EleTrainFiles[0]+EleTrainFiles[1],'r') as f:
+    EleTrainFileList = f.read().splitlines()
+with open(EleTrainFiles[0]+EleTrainFiles[1],'r') as f:
+    EleTrainFilePredictList = f.read().splitlines()
+EleTrainFileList=[filepath.replace(filepath, EleTrainFiles[0]+filepath) for filepath in EleTrainFileList]
+EleTrainFilePredictList=[filepath.replace(filepath, EleTrainFiles[2]+filepath) for filepath in EleTrainFilePredictList]
+EleTrainFilePredictList=[filepath.replace(".root", "_predict.root") for filepath in EleTrainFilePredictList]
+
+#Electron Test Files
+EleTestFiles=[
+"",
+""
+]
+
+#Muon Train Files
+MuoTrainFiles=[
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/","train_muo.txt",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180704/MuonEvaluationTrainData/"
+]
+with open(MuoTrainFiles[0]+MuoTrainFiles[1],'r') as f:
+    MuoTrainFileList = f.read().splitlines()
+with open(MuoTrainFiles[0]+MuoTrainFiles[1],'r') as f:
+    MuoTrainFilePredictList = f.read().splitlines()
+MuoTrainFileList=[filepath.replace(filepath, MuoTrainFiles[0]+filepath) for filepath in MuoTrainFileList]
+MuoTrainFilePredictList=[filepath.replace(filepath, MuoTrainFiles[2]+filepath) for filepath in MuoTrainFilePredictList]
+MuoTrainFilePredictList=[filepath.replace(".root", "_predict.root") for filepath in MuoTrainFilePredictList]
+
+#Muon Test Files
+MuoTestFiles=[
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/","test_muo.txt",
+"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180704/MuonEvaluationTestData/"
+]
+with open(MuoTestFiles[0]+MuoTestFiles[1],'r') as f:
+    MuoTestFileList = f.read().splitlines()
+with open(MuoTestFiles[0]+MuoTestFiles[1],'r') as f:
+    MuoTestFilePredictList = f.read().splitlines()
+MuoTestFileList=[filepath.replace(filepath, MuoTestFiles[0]+filepath) for filepath in MuoTestFileList]
+MuoTestFilePredictList=[filepath.replace(filepath, MuoTestFiles[2]+filepath) for filepath in MuoTestFilePredictList]
+MuoTestFilePredictList=[filepath.replace(".root", "_predict.root") for filepath in MuoTestFilePredictList]
+
+
+#Electron Sample
+sampleEle = Sample.fromFiles( "mixedEle", texName = "mixedElectronsFrom_TTJets_and_QCD", files =[EleTrainFileList[0]], treeName="tree")
+sampleElePredict = Sample.fromFiles( "mixedEle_friend", texName = "mixedElectronsFrom_TTJets_and_QCD_predict", files = [EleTrainFilePredictList[0]], treeName="tree")
 sampleEle.addFriend(sampleElePredict, "tree")
 
-sampleMuo = Sample.fromFiles( "mixedMuo", texName = "mixedMuonsFrom_TTJets_and_QCD", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/trainfile_muo_11.root"
-], treeName="tree")
-sampleMuoPredict = Sample.fromFiles( "mixedMuo_friend", texName = "mixedMuonsFrom_TTJets_and_QCD_predict", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180704/MuonEvaluationTestData/trainfile_muo_11_predict.root"
-], treeName="tree")
-
-#fileNoList=[13,14,16,17,18,1,22,25,27,28,31,33,35,38,39,3,40,43,47,48,4,52,53,54,57,60,61,62,63,64,65,66,68,72,74,75,76,77,80]
-#for fileNo in fileNoList:
-#    sampleMuo.files.append("/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/trainsamples_a90000/trainfile_muo_"+str(fileNo)+".root")
-#    sampleMuoPredict.files.append("/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/data_deepLepton/20180704/MuonEvaluationTestData/trainfile_muo_"+str(fileNo)+"_predict.root")
-
+#Muon Sample
+sampleMuo = Sample.fromFiles( "mixedMuo", texName = "mixedMuonsFrom_TTJets_and_QCD", files = [MuoTrainFileList[0]], treeName="tree")
+sampleMuoPredict = Sample.fromFiles( "mixedMuo_friend", texName = "mixedMuonsFrom_TTJets_and_QCD_predict", files = [MuoTrainFilePredictList[0]], treeName="tree")
 sampleMuo.addFriend(sampleMuoPredict, "tree")
+
 
 # variables to read
 variables = [
@@ -199,10 +232,10 @@ for lepton in leptonList:
             #g[i].SetMarkerStyle( 5 )
             g[i].SetFillStyle(0)
             g[i].SetMarkerSize(0)
-            g[i].Draw("ACP")
+            g[i].Draw("ALP")
             #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
             mg.Add(g[i])
-        mg.Draw("ACP")
+        mg.Draw("ALP")
         mg.SetTitle(lepton["sample"].texName)
         mg.GetXaxis().SetTitle('eS')
         mg.GetXaxis().SetLimits(0.597, 1.003)
