@@ -264,6 +264,7 @@ def wrapper(s):
         c.addUncertainty('PDF',         'lnN')
         c.addUncertainty('nonprompt',   'lnN')
         c.addUncertainty('WZ_xsec',     'lnN')
+        c.addUncertainty('WZ_bb',       'lnN')
         c.addUncertainty('ZZ_xsec',     'lnN')
         c.addUncertainty('rare',        'lnN')
         c.addUncertainty('ttX',         'lnN')
@@ -298,10 +299,10 @@ def wrapper(s):
                                 c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
                                 c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
                                 c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                            c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
-                            c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
-                            c.specifyUncertainty('scale',       binname, name, 1.01) 
-                            c.specifyUncertainty('PDF',         binname, name, 1.01)
+                                c.specifyUncertainty('trigger',     binname, name, 1+round(e.triggerSystematic(r, channel, setup).val,3))
+                                c.specifyUncertainty('leptonSF',    binname, name, 1+round(e.leptonSFSystematic(r, channel, setup).val,3))
+                                c.specifyUncertainty('scale',       binname, name, 1.01) 
+                                c.specifyUncertainty('PDF',         binname, name, 1.01)
 
                             if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
                             if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20

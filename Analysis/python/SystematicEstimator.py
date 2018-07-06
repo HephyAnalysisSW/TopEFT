@@ -135,14 +135,14 @@ class SystematicEstimator:
 
     def leptonSFSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def triggerSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupUp']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightTriggerUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightTriggerDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def reweight2D(self, region, channel, setup, f):

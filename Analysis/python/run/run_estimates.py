@@ -93,8 +93,8 @@ setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
 
 reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
-reweights3l = reweights# + ["reweightTriggerDown_tight_3l", "reweightTriggerUp_tight_3l", "reweightLeptonSFDown_tight_3l", "reweightLeptonSFUp_tight_3l"]
-reweights4l = reweights# + ["reweightTriggerDown_tight_4l", "reweightTriggerUp_tight_4l", "reweightLeptonSFDown_tight_4l", "reweightLeptonSFUp_tight_4l"]
+reweights3l = reweights + ["reweightTriggerDown_tight_3l", "reweightTriggerUp_tight_3l", "reweightLeptonSFDown_tight_3l", "reweightLeptonSFUp_tight_3l"]
+reweights4l = reweights + ["reweightTriggerDown_tight_4l", "reweightTriggerUp_tight_4l", "reweightLeptonSFDown_tight_4l", "reweightLeptonSFUp_tight_4l"]
 modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 ## 4l setup ##

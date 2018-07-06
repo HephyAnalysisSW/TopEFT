@@ -213,11 +213,11 @@ class Setup:
                     res.sys[k] = list(set(res.sys[k]+sys[k])) #Add with unique elements
                     for upOrDown in ['Up','Down']:
                       if 'reweightPU36fb'+upOrDown                              in res.sys[k]: res.sys[k].remove('reweightPU36fb')
-                      if 'reweightTrigger_%s'%self.leptonId+upOrDown            in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
+                      if 'reweightTrigger%s_%s'%(upOrDown, self.leptonId)       in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
                       if 'reweightBTagDeepCSV_SF_b_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
                       if 'reweightBTagDeepCSV_SF_l_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
-                      if 'reweightLeptonTrackingSF_%s'%self.leptonId+upOrDown   in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
-                      if 'reweightLeptonSF_%s'%self.leptonId+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
+                      if 'reweightLeptonTrackingSF%s_%s'%(upOrDown, self.leptonId)  in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
+                      if 'reweightLeptonSF%s_%s'%(upOrDown, self.leptonId)          in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
                 else:
                     res.sys[k] = sys[k] # if sys[k] else res.sys[k]
 

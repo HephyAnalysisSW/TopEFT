@@ -57,8 +57,10 @@ data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+#postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
+#from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
