@@ -12,7 +12,7 @@ import shutil
 
 from array import array
 from operator import mul
-from math import sqrt, atan2, sin, cos, cosh
+from math import sqrt, atan2, sin, cos, cosh, isnan
 
 # RootTools
 from RootTools.core.standard import *
@@ -508,6 +508,9 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
+        if isnan(event.weight):
+            logger.info("Weight is NaN! genweight: %s, lumiScaleFactor: %s"%(r.genWeight, lumiScaleFactor))
+            event.weight = 0.
         event.reweightLeptonTrackingSF      = 1
         event.reweightLeptonTrackingSFUp    = 1
         event.reweightLeptonTrackingSFDown  = 1

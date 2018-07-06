@@ -98,7 +98,10 @@ for i, r in enumerate(regions):
         res      = getEstimateFromCard(cardFile, p, binName)
         if options.postFit:
             pYield      = applyAllNuisances(cardFile, p, res, binName, uncertainties)
-            logger.info("Found following SF for process %s: %s"%(p, round(pYield.val/res.val,2)))
+            if res.val>0:
+                logger.info("Found following SF for process %s: %s"%(p, round(pYield.val/res.val,2)))
+            else:
+                logger.info("No SF found, result is 0")
         else:
             pYield      = res
         # automatically get the stat uncertainty from card
@@ -290,7 +293,7 @@ plotting.draw(
     widths = {'x_width':700, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.6, 1.4), 'drawObjects':boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
+    ratio = {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )

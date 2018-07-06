@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+  postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -43,7 +43,7 @@ dirs['DY_LO']           = ['DYJetsToLL_M50_LO_comb']
 
 dirs['nonprompt']       = ['TTLep_pow', 'DYJetsToLL_M50_LO_comb']
 dirs['rare']            = ["WWW_4F", "WWZ_4F", "WZZ","ZZZ"] # not complete yet
-dirs['ZZ']              = ["ZZTo4L_comb"]
+dirs['ZZ']              = ["ZZTo4L_comb","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGluToZZTo4mu"]
 
 dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt'] + dirs['ZZ']
 

@@ -46,23 +46,21 @@ dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_
 dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_ext_comb_lheHT70','DYJetsToLL_M50_HT70to100', 'DYJetsToLL_M50_HT100to200_comb', 'DYJetsToLL_M50_HT200to400_comb', 'DYJetsToLL_M50_HT400to600_comb', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT1200to2500', 'DYJetsToLL_M50_HT2500toInf']
 dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to50_LO']
 
-#dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_HT_LO'] + dirs['singleTop']
 dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
 dirs['ZZ']              = ['ZZTo4L','GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu']
 dirs['rare']            = ['WWW', 'WWZ', 'WZZ', 'ZZZ', "ZGTo2LG_ext", "WGToLNuG"]
+dirs['WGToLNuG']        = ['WGToLNuG']
+dirs['ZGTo2LG']         = ['ZGTo2LG_ext']
+
 
 dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
 
-#dirs['WJets_LO']        = ['WJetsToLNu_LO']
-#dirs['WJets']           = ['WJetsToLNu']
 
 dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_powheg"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt'] +dirs['ZZ']
 #dirs['pseudoDataPriv']  = dirs['ewkDM_ttZ_ll_noH'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
 
 dirs['background']      = dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare']
-
-#dirs['nonprompt']       = ['DYJetsToLL_M50', 'TTJets'] # no v4 version atm
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
@@ -81,7 +79,8 @@ TTW             = Sample.fromDirectory(name="TTW",              treeName="Events
 TZQ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,               texName="tZq",                                directory=directories['TZQ'])
 ZZ              = Sample.fromDirectory(name="ZZ",               treeName="Events", isData=False, color=color.ZZ,                texName="ZZ(4l)",                                 directory=directories['ZZ'])
 rare            = Sample.fromDirectory(name="rare",             treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
-#rare_noZZ       = Sample.fromDirectory(name="rare_noZZ",        treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare_noZZ'])
+WGToLNuG        = Sample.fromDirectory(name="WGToLNuG",         treeName="Events", isData=False, color=color.rare,              texName="Wgamma",                                 directory=directories['WGToLNuG'])
+ZGTo2LG         = Sample.fromDirectory(name="ZGTo2LG",          treeName="Events", isData=False, color=color.rare,              texName="Zgamma",                                 directory=directories['ZGTo2LG'])
 DY_LO           = Sample.fromDirectory(name="DY_LO",            treeName="Events", isData=False, color=color.DY,                texName="DY (LO)",                              directory=directories['DY_LO'])
 DY_HT_LO        = Sample.fromDirectory(name="DY_HT_LO",         treeName="Events", isData=False, color=ROOT.kBlue+1,                texName="DY HT (LO)",                              directory=directories['DY_HT_LO'])
 nonpromptMC     = Sample.fromDirectory(name="nonprompt",        treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt",                            directory=directories['nonprompt'])
