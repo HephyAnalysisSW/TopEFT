@@ -32,6 +32,7 @@ argParser.add_argument('--plot_directory',     action='store',      default='80X
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',           action='store_true', default=False,             help="Use WZ powheg sample" )
+argParser.add_argument('--legacyData',           action='store_true', default=False,             help="Use legacy rereco?" )
 args = argParser.parse_args()
 
 #
@@ -48,19 +49,22 @@ if args.signal:                       args.plot_directory += "_signal_"+args.sig
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
 if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
+if args.legacyData:                   args.plot_directory += "_legacyData"
 if args.normalize: args.plot_directory += "_normalize"
 if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-#postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-#from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+if not args.legacyData:
+    postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+else:
+    postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
@@ -133,9 +137,11 @@ def drawPlots(plots, mode, dataMCScale):
     plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+      if args.legacyData: postFix = " (legacy)"
+      else: postFix = " (03Feb)"
       if not args.noData: 
-        if mode == "all": plot.histos[1][0].legendText = "Data"
-        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
+        if mode == "all": plot.histos[1][0].legendText = "Data" + postFix
+        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)" + postFix
       extensions_ = ["pdf", "png", "root"] if mode == 'all' else ['png']
 
       plotting.draw(plot,
@@ -499,8 +505,10 @@ for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
         data_sample = Run2016
-        data_sample.texName = "data"
-
+        if args.legacyData:
+            data_sample.texName = "data (legacy)"
+        else:
+            data_sample.texName = "data (03Feb)"
         data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
         data_sample.name           = "data"
         data_sample.read_variables = ["evt/I","run/I"]
