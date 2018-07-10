@@ -135,4 +135,4 @@ for leptonFlavour in leptonFlavourList:
         directory=(os.path.join(plot_directory, ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate, leptonFlavour["Name"]))
         if not os.path.exists(directory):
             os.makedirs(directory)
-        c.Print(os.path.join(directory, 'roc_binned_'+binVar["Name"]+'.png'))
+        c.Print(os.path.join(directory,("TrainData" if PlotTrainData else "TestData")+ '_roc_binned_'+binVar["Name"]+'.png'))

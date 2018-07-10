@@ -49,7 +49,7 @@ MVAList.append({"Name":"DeepLeptonSummer18", "Var":"prob_lep_isPromptId", "plotC
 
 pt_cuts=[]
 pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25})
-pt_cuts.append({"Name":"pt>25","lower_limit":25, "upper_limit":1000})
+pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
 
 cutList=[]
 cutList.append({"Name":"relIso", "VarName":"relIso03", "Var":"lep_relIso03", "cuts":[0.1,0.2,0.3,0.4,0.5], "operator":"<="})
@@ -142,4 +142,4 @@ for leptonFlavour in leptonFlavourList:
             directory=(os.path.join(plot_directory, ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate, leptonFlavour["Name"]))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            c.Print(os.path.join(directory, 'roc_'+pt_cut["Name"]+'_cut_'+var["Name"]+'.png'))
+            c.Print(os.path.join(directory, ("TrainData" if PlotTrainData else "TestData")+'_roc_'+pt_cut["Name"]+'_cut_'+var["Name"]+'.png'))
