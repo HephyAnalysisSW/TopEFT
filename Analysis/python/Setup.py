@@ -92,6 +92,15 @@ class Setup:
         self.leptonId = self.FO_ID if self.nonprompt else self.tight_ID
 
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
+        if nLeptons == 3:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
+            if self.year == 2016:
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+        elif nLeptons == 4:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+            if self.year == 2016:
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
+
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]
@@ -204,11 +213,11 @@ class Setup:
                     res.sys[k] = list(set(res.sys[k]+sys[k])) #Add with unique elements
                     for upOrDown in ['Up','Down']:
                       if 'reweightPU36fb'+upOrDown                              in res.sys[k]: res.sys[k].remove('reweightPU36fb')
-                      if 'reweightTrigger_%s'%self.leptonId+upOrDown            in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
+                      if 'reweightTrigger%s_%s'%(upOrDown, self.leptonId)       in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
                       if 'reweightBTagDeepCSV_SF_b_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
                       if 'reweightBTagDeepCSV_SF_l_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
-                      if 'reweightLeptonTrackingSF_%s'%self.leptonId+upOrDown   in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
-                      if 'reweightLeptonSF_%s'%self.leptonId+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
+                      if 'reweightLeptonTrackingSF%s_%s'%(upOrDown, self.leptonId)  in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
+                      if 'reweightLeptonSF%s_%s'%(upOrDown, self.leptonId)          in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
                 else:
                     res.sys[k] = sys[k] # if sys[k] else res.sys[k]
 

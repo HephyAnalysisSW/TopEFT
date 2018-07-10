@@ -13,14 +13,14 @@ except:
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_2016_mva_v2/trilep'
+except: postProcessing_directory = 'TopEFT_PP_2016_mva_v11/trilep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
-for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','_v2'),('H','_v3')]:
-    #runTag = 'Run2016' + run + '_03Feb2017' + version + '_TriggerStrategy2018'
-    runTag = 'Run2016' + run + '_03Feb2017' + version
+for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),('H','')]:
+    #runTag = 'Run2016' + run + '_07Aug17' + version + '_TriggerStrategy2018'
+    runTag = 'Run2016' + run + '_07Aug17' + version
     dirs["DoubleEG_Run2016"         + run + version ] = ["DoubleEG_"          + runTag ]
     dirs["DoubleMuon_Run2016"       + run + version ] = ["DoubleMuon_"        + runTag ]
     dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag ]
@@ -37,7 +37,7 @@ def merge(pd, totalRunName, listOfRuns):
 for pd in ['SingleElectron','SingleMuon', 'MuonEG', 'DoubleMuon', 'DoubleEG']:
     merge(pd, 'Run2016BCD',    ['Run2016B_v2', 'Run2016C', 'Run2016D'])
     merge(pd, 'Run2016BCDEFG', ['Run2016BCD', 'Run2016E', 'Run2016F', 'Run2016G'])
-    merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H_v2', 'Run2016H_v3'])
+    merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H'])
 
 for key in dirs:
     dirs[key] = [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]]

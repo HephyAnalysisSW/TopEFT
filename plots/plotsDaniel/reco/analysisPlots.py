@@ -28,10 +28,11 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM', action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_mva_v7')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_mva_v10')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',           action='store_true', default=False,             help="Use WZ powheg sample" )
+argParser.add_argument('--legacyData',           action='store_true', default=False,             help="Use legacy rereco?" )
 args = argParser.parse_args()
 
 #
@@ -48,17 +49,22 @@ if args.signal:                       args.plot_directory += "_signal_"+args.sig
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
 if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
+if args.legacyData:                   args.plot_directory += "_legacyData"
 if args.normalize: args.plot_directory += "_normalize"
 if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+if not args.legacyData:
+    postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+else:
+    postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
@@ -131,9 +137,11 @@ def drawPlots(plots, mode, dataMCScale):
     plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+      if args.legacyData: postFix = " (legacy)"
+      else: postFix = " (03Feb)"
       if not args.noData: 
-        if mode == "all": plot.histos[1][0].legendText = "Data"
-        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
+        if mode == "all": plot.histos[1][0].legendText = "Data" + postFix
+        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)" + postFix
       extensions_ = ["pdf", "png", "root"] if mode == 'all' else ['png']
 
       plotting.draw(plot,
@@ -497,8 +505,10 @@ for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
         data_sample = Run2016
-        data_sample.texName = "data"
-
+        if args.legacyData:
+            data_sample.texName = "data (legacy)"
+        else:
+            data_sample.texName = "data (03Feb)"
         data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
         data_sample.name           = "data"
         data_sample.read_variables = ["evt/I","run/I"]
@@ -517,9 +527,9 @@ for index, mode in enumerate(allModes):
         mc = [ TTZ_mc ]
     else:
         if args.WZpowheg:
-            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_powheg, rare, TTLep_pow, DY_HT_LO, singleTop ]
+            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_powheg, rare, ZZ, nonpromptMC ]
         else:
-            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_amcatnlo, rare, TTLep_pow, DY_HT_LO, singleTop ]
+            mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -529,8 +539,8 @@ for index, mode in enumerate(allModes):
         sample.scale          = lumi_scale * 4.666/4.42965 # get same x-sec as amc@NLO
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F']
-      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightLeptonSF_tight_3l/F', 'reweightLeptonTrackingSF_tight_3l/F', 'reweightTrigger_tight_3l/F']
+      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*event.reweightLeptonSF_tight_3l*event.reweightLeptonTrackingSF_tight_3l*event.reweightTrigger_tight_3l
       tr = triggerSelector(2016)
       sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode), tr.getSelection("MC")])
 
@@ -816,7 +826,7 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nJetSelected/I" ), #nJetSelected
-      binning=[7,0.5,7.5],
+      binning=[8,-0.5,7.5],
     ))
     
     plots.append(Plot(

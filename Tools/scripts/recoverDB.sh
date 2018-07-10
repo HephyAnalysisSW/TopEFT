@@ -1,6 +1,6 @@
 # recover a corrupted sqlite DB
-# First argument: path
-# Second argument: DB name
+# First argument: DB name
+# Second argument: DB path
 
 DB_NAME=$1
 DB_PATH=$2

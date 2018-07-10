@@ -33,7 +33,7 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v7')
+argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v10')
 argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet1p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
@@ -75,10 +75,10 @@ if args.year == 2016:
     postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
     dirs = {}
     dirs['TTZ']     = ['TTZToLLNuNu_ext']
-    dirs['ZZ']      = ['ZZTo4L']
+    dirs['ZZ']      = ['ZZTo4L', 'GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu']
     dirs['rare']    = ['WWW', 'WWZ', 'WZZ', 'ZZZ']
 
 
@@ -563,7 +563,7 @@ for index, mode in enumerate(allModes):
       sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger_tight_4l/F', 'reweightLeptonTrackingSF_tight_4l/F', 'nTrueInt/F', 'reweightPU36fb/F', 'reweightLeptonSF_tight_4l/F']#, 'reweightLeptonSF_tight_4l/F']
       
       if args.year == 2016:
-          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightLeptonTrackingSF_tight_4l*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightLeptonTrackingSF_tight_4l*event.reweightPU36fb*event.reweightLeptonSF_tight_4l #*nTrueInt36fb_puRW(event.nTrueInt)
       else:
           sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightPU36fb*event.reweightLeptonSF_tight_4l #*event.reweightLeptonSF_tight_4l #*nTrueInt36fb_puRW(event.nTrueInt)
       tr = triggerSelector(args.year)

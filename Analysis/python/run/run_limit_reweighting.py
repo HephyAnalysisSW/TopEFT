@@ -5,7 +5,7 @@ import argparse
 from RootTools.core.Sample import Sample
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store',      default='INFO',         nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],             help="Log level for logging")
-argParser.add_argument("--signal",         action='store',      default='dipole',       nargs='?', choices=["dipoles", "currents"], help="which signal scan?")
+argParser.add_argument("--signal",         action='store',      default='dipoles',       nargs='?', choices=["dipoles", "currents"], help="which signal scan?")
 argParser.add_argument("--model",          action='store',      default='dim6top_LO',   nargs='?', choices=["dim6top_LO", "ewkDM"], help="which signal model?")
 argParser.add_argument("--only",           action='store',      default=None,           nargs='?',                                                                                           help="pick only one signal point?")
 argParser.add_argument("--scale",          action='store',      default=1.0,            type=float,nargs='?',                                                                                help="scaling all yields")
@@ -34,12 +34,14 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
@@ -52,6 +54,7 @@ from TopEFT.Analysis.SetupHelpers       import channel
 from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
+from TopEFT.Analysis.FakeEstimate       import FakeEstimate
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
 
 from TopEFT.Tools.resultsDB             import resultsDB
@@ -67,10 +70,15 @@ year = int(args.year)
 ## 3l setup ##
 setup                   = Setup(year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])#, "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])#, "nonprompt"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)] # == 'all'
 setup.regions           = regionsE
+
+## 3l NP setup ##
+setupNP                 = Setup(year, nLeptons=3, nonprompt=True)
+setupNP.channels        = [channel(-1,-1)] # == 'all'
+setupNP.regions         = regionsE
 
 ## 4l setup ##
 setup4l                   = Setup(year=year, nLeptons=4)
@@ -102,6 +110,7 @@ if args.controlRegion:
         setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
     elif args.controlRegion == 'nbtag0-njet1p':
         setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
     else:
         raise NotImplementedError
 else:
@@ -109,7 +118,7 @@ else:
         subDir                  = 'SRandCR'
         setupCR                 = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
         estimatorsCR            = estimatorList(setupCR)
-        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ", "nonprompt"])
+        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])
         setupCR.reweightRegions = regionsReweight
     else:
         subDir = ''
@@ -131,6 +140,7 @@ if args.include4l:
     cardDir += "_allChannelsV8"
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
+print limitDir
 overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
@@ -254,6 +264,7 @@ def wrapper(s):
         c.addUncertainty('PDF',         'lnN')
         c.addUncertainty('nonprompt',   'lnN')
         c.addUncertainty('WZ_xsec',     'lnN')
+        c.addUncertainty('WZ_bb',       'lnN')
         c.addUncertainty('ZZ_xsec',     'lnN')
         c.addUncertainty('rare',        'lnN')
         c.addUncertainty('ttX',         'lnN')
@@ -262,6 +273,7 @@ def wrapper(s):
 
         for setup in setups:
             signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
+            nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
             if args.unblind and args.controlRegion:
                 observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
             else:
@@ -273,7 +285,8 @@ def wrapper(s):
                     niceName = ' '.join([channel.name, r.__str__()])
                     binname = 'Bin'+str(counter)
                     counter += 1
-                    c.addBin(binname, [e.name.split('-')[0] for e in setup.estimators], niceName)
+                    c.addBin(binname, [e.name.split('-')[0] for e in setup.estimators]+["nonPromptDD"], niceName)
+                    #c.addBin(binname, 'nonPromptDD', niceName)
 
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
@@ -286,10 +299,10 @@ def wrapper(s):
                                 c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
                                 c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
                                 c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                            c.specifyUncertainty('trigger',     binname, name, 1.03) #1.04
-                            c.specifyUncertainty('leptonSF',    binname, name, 1.05) #1.07
-                            c.specifyUncertainty('scale',       binname, name, 1.01) 
-                            c.specifyUncertainty('PDF',         binname, name, 1.01)
+                                c.specifyUncertainty('trigger',     binname, name, 1+round(e.triggerSystematic(r, channel, setup).val,3))
+                                c.specifyUncertainty('leptonSF',    binname, name, 1+round(e.leptonSFSystematic(r, channel, setup).val,3))
+                                c.specifyUncertainty('scale',       binname, name, 1.01) 
+                                c.specifyUncertainty('PDF',         binname, name, 1.01)
 
                             if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
                             if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
@@ -306,8 +319,23 @@ def wrapper(s):
                             c.specifyUncertainty(uname, binname, name, round(1+expected.sigma/expected.val,3) )
                         else:
                             c.specifyUncertainty(uname, binname, name, 1.01 )
-
-                    obs = observation.cachedEstimate(r, channel, setup)
+                    
+                    c.addUncertainty('Stat_'+binname+'_nonprompt', 'lnN')
+                    #if setup.nLeptons == 3:
+                    #    np = nonprompt.cachedEstimate(r, channel, setupNP)
+                    #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
+                    #else:
+                    #    np = u_float(0.)
+                    #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1.01)
+                    np = nonprompt.cachedEstimate(r, channel, setupNP)
+                    if np.val < 0.01:
+                        np = u_float(0.01,0.)
+                    c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
+                    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
+                    c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
+                    
+                    print channel.name
+                    obs = observation.cachedObservation(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
 
                     if args.useShape:

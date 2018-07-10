@@ -282,8 +282,7 @@ if options.combine:
 
                 deltas_as.append(sigma_reweight_acc.val)
 
-            if PDFset.count("NNPDF"): scale = 1.5
-            else: scale = 1.0
+            scale = 1.5 if PDFset.count("NNPDF") else 1.0
             delta_sigma_alphaS = scale * ( deltas_as[0] - deltas_as[1] ) / 2.
 
             # add alpha_s and PDF in quadrature

@@ -35,12 +35,18 @@ class FakeEstimate(SystematicEstimator):
             # FR maps from ttbar MC
                 muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
                 elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
+            elif setup.year == 2016:
+                # this should be another root file
+                muFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/muFR_all.root")
+                elFile = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Tools/data/FRData/elFR_all.root")
             else:
                 raise NotImplementedError
         self.muMap = getObjFromFile(muFile, "passed")
         self.elMap = getObjFromFile(elFile, "passed")
         
     def _estimate(self, region, channel, setup):
+        if not setup.nonprompt:
+            raise (NotImplementedError, "Need a nonprompt setup")
 
         ''' Concrete implementation of abstract method 'estimate' as defined in Systematic
         '''
@@ -82,7 +88,6 @@ class FakeEstimate(SystematicEstimator):
                 
                 # Really get ALL possible combinations.
                 allCombinations = itertools.combinations(tight+looseNotTight, setup.nLeptons)
-
                 for comb in allCombinations:
                     FR = 1.
                     nLooseNotTight = 0
@@ -114,8 +119,7 @@ class FakeEstimate(SystematicEstimator):
                         weight = reduce(mul, weights, 1)
 
                     fakeYield += ( weight * FR )
-            
             # apply the statistical uncertainty to the result
-            result = u_float(fakeYield, (nEvents.sigma/nEvents.val)*fakeYield )
+            result = u_float(0.) if nEvents.val==0 else u_float(fakeYield, (nEvents.sigma/nEvents.val)*fakeYield )
             return result if self.sample.isData else (result * setup.lumi/1000.) 
 
