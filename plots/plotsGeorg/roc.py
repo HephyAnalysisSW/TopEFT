@@ -40,7 +40,7 @@ variables=roc_plot_variables()
 #########################
 
 leptonFlavourList=[]
-#leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
+leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
 leptonFlavourList.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo})
 
 MVAList=[]
