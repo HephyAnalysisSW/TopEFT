@@ -1,9 +1,24 @@
+###########
+# imports #
+###########
+
 # Standard imports
 import ROOT
 import os
+from array import array
+from copy import deepcopy
+import math
 
 # RootTools
 from RootTools.core.standard import *
+
+# User specific 
+from TopEFT.Tools.user import plot_directory
+plot_directory_=os.path.join(plot_directory, 'DeepLepton')
+plot_directory=plot_directory_
+
+# plot samples definitions
+from def_plot_samples import plot_samples, histo_plot_variables
 
 # adapted from RootTools (added fillstyle)
 def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
@@ -20,310 +35,272 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
         return 
     return func
 
-from TopEFT.Tools.user import plot_directory
+##############################
+# load samples and variables #
+##############################
 
-from copy import deepcopy
-
-# define classes
-def isPrompt(lepton):
-    return abs(lepton.lep_mcMatchId) in [6,23,24,25,37]
-
-def isNonPrompt(lepton):
-    return not isPrompt(lepton) and abs(lepton.lep_mcMatchAny) in [4, 5]
-
-def isFake(lepton):
-    return not isPrompt(lepton) and not ( abs(lepton.lep_mcMatchAny) in [4, 5] )
-
-# data -> replace this with importing samples when needed
-
-#TTJets files 
-#sample = Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
-#], treeName="tree")
-
-#QCD files
-#sample = Sample.fromFiles( "QCD",    texName = "QCD_Pt120to170", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
-#], treeName="tree")
-
-sample = Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/QCD_1.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_1.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DLTrainData/TTJets_2.root",
-], treeName="tree")
-
-
-samplePrompt =    deepcopy(sample)
-sampleNonPrompt = deepcopy(sample)
-sampleFake =      deepcopy(sample)
-
-samplePrompt.setSelectionString( "(lep_isPromptId==1)" )
-sampleNonPrompt.setSelectionString( "(lep_isNonPromptId==1)" )
-sampleFake.setSelectionString( "(lep_isFakeId==1)" )
-
-samplePrompt.name = "Prompt"
-sampleNonPrompt.name = "NonPrompt"
-sampleFake.name = "Fake"
-
-samplePrompt.texName = "Prompt"
-sampleNonPrompt.texName = "NonPrompt"
-sampleFake.texName = "Fake"
-
-samplePrompt.style =  fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
-sampleNonPrompt.style =     fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
-sampleFake.style =       fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
+#define samples for electorns and muons
+samples=plot_samples()
+sampleEle=samples["ele"]
+sampleMuo=samples["muo"]
+PlotTrainData=samples["plottraindata"]  #1=true, 0=false
+ElectronDate=samples["eledate"]
+MuonDate=samples["muodate"]
 
 # variables to read
-read_variables = [
-"run/I",
-"lumi/I", 
-"evt/l", 
-"lep_trackerHits/I", 
-"lep_innerTrackChi2/F", 
-"lep_pdgId/I", 
-"lep_segmentCompatibility/F", 
-"lep_sigmaIEtaIEta/F",
-"lep_mcMatchPdgId/I",
-"lep_mcMatchId/I",
-"lep_mcMatchAny/I",
-"lep_mvaIdSpring16/F",
-"lep_pt/F",
+read_variables=histo_plot_variables()
 
-"lep_etaSc/F",                  #electrons (|etaSc|<=1.479 barrel cuts, |etaSc|>1.479 endcap cuts)              #Electron supercluster pseudorapidity for Leptons after the preselection : 0 at: 0x4109bd0
-"lep_full5x5_sigmaIetaIeta/F",  #electrons (barrel: <0.0104,     endcap: <0.0305)                               #Electron full5x5_sigmaIetaIeta for Leptons after the preselection : 0 at: 0x411d5c0 
-"lep_dEtaInSeed/F",             #electrons (barrel: | |<0.00353, endcap: | |<0.00567)                           #DeltaEta wrt ele SC seed for Leptons after the preselection : 0 at: 0x411e850
-"lep_dPhiScTrkIn/F",            #electrons (barrel: | |<0.0499,  endcap: | |<0.0165)                            #Electron deltaPhiSuperClusterTrackAtVtx (without absolute value!) for Leptons after the preselection : 0 at: 0x41083f0
-"lep_relIso03/F",               #electrons (barrel: <0.0361,     endcap: <0.094)       #muons <0.1              #PF Rel Iso, R=0.3, pile-up corrected for Leptons after the preselection : 0 at: 0x410f640
-"lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) for Leptons after the preselection : 0 at: 0x4108f90   
-"lep_lostOuterHits/I",          #electrons (barrel: 1,           endcap: 1)                                     #Number of lost hits on inner track for Leptons after the preselection : 0 at: 0x4101ee0
-"lep_convVeto/I",               #electrons yes                                                                  #Conversion veto (always true for muons) for Leptons after the preselection : 0 at: 0x410e5c0
-"lep_hadronicOverEm/F",         #electrons                                                                      #Electron hadronicOverEm for Leptons after the preselection : 0 at: 0x4108990
-"lep_rho/F",                    #electrons                                                                      #rho for Leptons after the preselection : 0 at: 0x4117d20
-"lep_jetDR/F",                                                                         #(muons <=0.3)           #deltaR(lepton, nearest jet) for Leptons after the preselection : 0 at: 0x411ca70
-"lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
-"lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
-"lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
-"lep_isPromptId/I",
-"lep_isNonPromptId/I",
-"lep_isFakeId/I",
-"npfCand_neutral/I",
-"npfCand_charged/I",
-"npfCand_photon/I",
-"npfCand_electron/I",
-"npfCand_muon/I"
-]
+#########################
+# define plot structure #
+#########################
 
-# Define stack
-mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
-stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
+leptonFlavours=[]
+leptonFlavours.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle, "selectionString": "abs(lep_pdgId)==11", "date":ElectronDate})
+leptonFlavours.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo, "selectionString": "abs(lep_pdgId)==13", "date":MuonDate})
 
-# Define some parameters for plots and selection
-ecalTypes=["","EndCap","Barrel"]
-leptonType=11
-plotnameprefix="Ele" if leptonType==11 else "Muo" if leptonType==13 else "define lepton type"
+pt_cuts=[]
+pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15&&lep_pt<25"})
+pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
 
-for ecalType in ecalTypes:
-    plotname=plotnameprefix+ecalType
+ecalTypes=[]
+ecalTypes.append({"Name":"All", "selectionString": "abs(lep_etaSc)>0."})
+ecalTypes.append({"Name":"EndCap", "selectionString": "abs(lep_etaSc)>1.479"})
+ecalTypes.append({"Name":"Barrel", "selectionString": "abs(lep_etaSc)<=1.479"})
 
-    # Set some defaults -> these need not be specified below for each plot
-    weight = staticmethod(lambda event, sample: 1.)  # could be e.g. weight = lambda event, sample: event.weight
-    selectionString = "(abs(lep_pdgId)==11 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(abs(lep_pdgId)==11 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(abs(lep_pdgId)==11)" # could be a complicated cut
-    #selectionString = "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)<=1.479)" if ecalType=="Barrel" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1 && abs(lep_etaSc)>1.479)" if ecalType=="EndCap" else "(lep_pt>=25 && abs(lep_pdgId)==11 && lep_relIso03<0.1)" # could be a complicated cut
-    Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
+####################################
+# loop over samples and draw plots #
+####################################
 
-    # Sequence
-    sequence = []
+for leptonFlavour in leptonFlavours:
 
-    # Add a new fancy variable
-    def make_absEInvMinusPInv( event, sample ):
-        event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
-    sequence.append( make_absEInvMinusPInv)
+    #define class samples
+    samplePrompt =    deepcopy(leptonFlavour["sample"])
+    sampleNonPrompt = deepcopy(leptonFlavour["sample"])
+    sampleFake =      deepcopy(leptonFlavour["sample"])
 
-    def print_mcmatchId( event, sample ):
-        if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample:
-            print event.lep_mcMatchId
+    samplePrompt.setSelectionString("(lep_isPromptId==1&&"+leptonFlavour["selectionString"]+")")
+    sampleNonPrompt.setSelectionString("(lep_isNonPromptId==1&&"+leptonFlavour["selectionString"]+")")
+    sampleFake.setSelectionString("(lep_isFakeId==1&&"+leptonFlavour["selectionString"]+")")
 
-    def print_class( event, sample ):
-        assert isPrompt(event) + isNonPrompt(event) + isFake(event)==1, "Should never happen!"
+    samplePrompt.name = "Prompt"
+    sampleNonPrompt.name = "NonPrompt"
+    sampleFake.name = "Fake"
 
-        print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
-        #print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
-        #print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
-    #sequence.append(print_class)
+    samplePrompt.texName = "Prompt"
+    sampleNonPrompt.texName = "NonPrompt"
+    sampleFake.texName = "Fake"
 
-    # Start with an empty list
-    plots = []
-    # Add plots
-    plots.append(Plot(name=plotname+'ClassPrompt',
-        texX = 'isPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isPromptId,
-        binning=[2,0,1],
-    ))
-    plots.append(Plot(name=plotname+'ClassNonPrompt',
-        texX = 'isNonPrompt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
-        binning=[2,0,1],
-    ))
-    plots.append(Plot(name=plotname+'ClassFake',
-        texX = 'isFake', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_isFakeId,
-        binning=[2,0,1],
-    ))
-    plots.append(Plot(name=plotname+'mcMatchId',
-        texX = 'mcMatchId', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mcMatchId,
-        binning=[61,-30,30],
-    ))
-    plots.append(Plot(name=plotname+'mcMatchAny',
-        texX = 'mcMatchAny', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
-        binning=[61,-30,30],
-    ))
-    plots.append(Plot(name=plotname+'MVA',
-        texX = 'electron MVA', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16, 
-        binning=[30,-1,1],
-    ))
-    plots.append(Plot(name=plotname+'Pt',
-        texX = 'pt', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_pt,
-        binning=[100,0,500],
-    ))
-    plots.append(Plot(name=plotname+'pdgId',
-        texX = 'pdgId', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_pdgId,
-        binning=[61,-30,30],
-    ))
-    plots.append(Plot(name=plotname+'EtaSc',
-        texX = 'etaSc', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_etaSc,
-        binning=[60,-3,3],
-    ))
-    plots.append(Plot(name=plotname+'Full5x5SigmaIetaIeta',
-        texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta,
-        binning=[30,0,0.06],
-    ))
-    plots.append(Plot(name=plotname+'DEtaInSeed',
-        texX = 'dEtaInSeed', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dEtaInSeed,
-        binning=[30,-0.03,0.03],
-    ))
-    plots.append(Plot(name=plotname+'DPhiScTrkIn',
-        texX = 'dPhiScTrkIn', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn,
-        binning=[20,-0.2,0.2],
-    ))
-    plots.append(Plot(name=plotname+'RelIso03',
-        texX = 'relIso03', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_relIso03,
-        binning=[90,0,0.3],
-    ))
-    plots.append(Plot(name=plotname+'EInvMinusPInv',
-        texX = '|1/E-1/p|', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
-        binning=[30,0,0.15],
-    ))
-    plots.append(Plot(name=plotname+'LostOuterHits',
-        texX = 'lostOuterHits', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_lostOuterHits,
-        binning=[16,0,15],
-    ))
-    plots.append(Plot(name=plotname+'ConvVeto',
-        texX = 'convVeto', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_convVeto,
-        binning=[2,0,1],
-    ))
-    plots.append(Plot(name=plotname+'HadronicOverEm',
-        texX = 'hadronicOverEm', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
-        binning=[30,0,0.1],
-    ))
-    plots.append(Plot(name=plotname+'Rho',
-        texX = 'rho', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_rho,
-        binning=[100,0,5],
-    ))
-    plots.append(Plot(name=plotname+'Dxy',
-        texX = 'dxy', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dxy,
-        binning=[60,-0.1,0.1],
-    ))
-    plots.append(Plot(name=plotname+'Dz',
-        texX = 'dz', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.lep_dz,
-        binning=[60,-0.2,0.2],
-    ))
-    plots.append(Plot(name=plotname+'npfCand_neutral',
-        texX = 'npfCand_neutral', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.npfCand_neutral,
-        binning=[21,0,20],
-    ))
-    plots.append(Plot(name=plotname+'npfCand_charged',
-        texX = 'npfCand_charged', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.npfCand_charged,
-        binning=[71,0,70],
-    ))
-    plots.append(Plot(name=plotname+'npfCand_photon',
-        texX = 'npfCand_photon', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.npfCand_photon,
-        binning=[41,0,40],
-    ))
-    plots.append(Plot(name=plotname+'npfCand_electron',
-        texX = 'npfCand_electron', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.npfCand_electron,
-        binning=[21,0,20],
-    ))
-    plots.append(Plot(name=plotname+'npfCand_muon',
-        texX = 'npfCand_muon', texY = 'Number of Events',
-        attribute = lambda lepton, sample: lepton.npfCand_muon,
-        binning=[21,0,20],
-    ))
+    samplePrompt.style =  fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+    sampleNonPrompt.style =     fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
+    sampleFake.style =       fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
 
-    #plots.append(Plot( name = "fancy_variable",
-    #    texX = 'Number of tracker hits squared', texY = 'Number of Events',
-    #    attribute = lambda event, sample: event.fancy_variable, # <--- can use any 'event' attribute, including the ones we define in 'sequence'    binning=[30,0,900],
-    #))
+    # Define stack
+    mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
+    stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
+    if leptonFlavour["Name"]=="Muon":
+        ecalTypes=[]
+        ecalTypes.append({"Name":"All", "selectionString": "abs(lep_etaSc)>0."})
 
-    # Fill everything.
-    plotting.fill(plots, read_variables = read_variables, sequence = sequence)
+    for pt_cut in pt_cuts:
+        for ecalType in ecalTypes:
+                
+            # Set some defaults -> these need not be specified below for each plot
+            weight = staticmethod(lambda event, sample: 1.)  # could be e.g. weight = lambda event, sample: event.weight
+            selectionString = "("+pt_cut["selectionString"]+"&&"+ecalType["selectionString"]+")" # could be a complicated cut
+            Plot.setDefaults(stack = stack, weight = weight, selectionString = selectionString, addOverFlowBin='upper')
+            plotname=""
+            # Sequence
+            sequence = []
 
-    #
-    # Helper: Add text on the plots
-    #
-    def drawObjects( plotData, dataMCScale, lumi_scale ):
-        tex = ROOT.TLatex()
-        tex.SetNDC()
-        tex.SetTextSize(0.04)
-        tex.SetTextAlign(11) # align right
-        lines = [
-          (0.15, 0.95, 'CMS Preliminary' if plotData else 'CMS Simulation'),
-          (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale)
-        ]
-        return [tex.DrawLatex(*l) for l in lines]
+            # Add a new fancy variable
+            def make_absEInvMinusPInv( event, sample ):
+                event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
+            sequence.append( make_absEInvMinusPInv)
 
-    # Draw a plot and make it look nice-ish
-    def drawPlots(plots, dataMCScale):
-      for log in [False, True]:
-        plot_directory_ = os.path.join(plot_directory, 'histogram_plots', 'stacked_classes', plotname, ("log" if log else "lin"))
-        for plot in plots:
-          #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
-          
-          plotting.draw(plot,
-            plot_directory = plot_directory_,
-            #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-            logX = False, logY = log, sorting = True,
-            yRange = (0.03, "auto") if log else (0.001, "auto"),
-            scaling = {},
-            legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-            drawObjects = drawObjects( False, dataMCScale , lumi_scale = -1 ),
-            copyIndexPHP = True
-          )
+            #def print_mcmatchId( event, sample ):
+            #    if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample:
+            #        print event.lep_mcMatchId
+
+            #def print_class( event, sample ):
+            #    assert isPrompt(event) + isNonPrompt(event) + isFake(event)==1, "Should never happen!"
+
+            #    print event.lep_isPromptId, event.lep_isNonPromptId, event.lep_isFakeId, event.lep_mcMatchId, event.lep_mcMatchAny, isPrompt(event), isNonPrompt(event), isFake(event), event.lep_pdgId
+            #    #print "Fill", event.lep_isPromptId if ((isPrompt(event) and sample==samplePrompt) or (isNonPrompt(event) and sample==sampleNonPrompt) or (isFake(event) and sample==sampleFake)) else float('nan')
+            #    #print "Fill2", (isPrompt(event) and sample==samplePrompt),(isNonPrompt(event) and sample==sampleNonPrompt),(isFake(event) and sample==sampleFake)
+            ##sequence.append(print_class)
+
+            # Start with an empty list
+            plots = []
+            # Add plots
+            plots.append(Plot(name=plotname+'ClassPrompt',
+                texX = 'isPrompt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isPromptId,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'ClassNonPrompt',
+                texX = 'isNonPrompt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'ClassFake',
+                texX = 'isFake', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isFakeId,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'mcMatchId',
+                texX = 'mcMatchId', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mcMatchId,
+                binning=[61,-30,30],
+            ))
+            plots.append(Plot(name=plotname+'mcMatchAny',
+                texX = 'mcMatchAny', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
+                binning=[61,-30,30],
+            ))
+            plots.append(Plot(name=plotname+'MVA',
+                texX = 'electron MVA', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mvaIdSpring16, 
+                binning=[30,-1,1],
+            ))
+            plots.append(Plot(name=plotname+'Pt',
+                texX = 'pt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_pt,
+                binning=[100,0,500],
+            ))
+            plots.append(Plot(name=plotname+'pdgId',
+                texX = 'pdgId', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_pdgId,
+                binning=[61,-30,30],
+            ))
+            plots.append(Plot(name=plotname+'EtaSc',
+                texX = 'etaSc', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_etaSc,
+                binning=[60,-3,3],
+            ))
+            plots.append(Plot(name=plotname+'Full5x5SigmaIetaIeta',
+                texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta,
+                binning=[30,0,0.06],
+            ))
+            plots.append(Plot(name=plotname+'DEtaInSeed',
+                texX = 'dEtaInSeed', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dEtaInSeed,
+                binning=[30,-0.03,0.03],
+            ))
+            plots.append(Plot(name=plotname+'DPhiScTrkIn',
+                texX = 'dPhiScTrkIn', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn,
+                binning=[20,-0.2,0.2],
+            ))
+            plots.append(Plot(name=plotname+'RelIso03',
+                texX = 'relIso03', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_relIso03,
+                binning=[90,0,0.3],
+            ))
+            plots.append(Plot(name=plotname+'EInvMinusPInv',
+                texX = '|1/E-1/p|', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
+                binning=[30,0,0.15],
+            ))
+            plots.append(Plot(name=plotname+'LostOuterHits',
+                texX = 'lostOuterHits', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_lostOuterHits,
+                binning=[16,0,15],
+            ))
+            plots.append(Plot(name=plotname+'ConvVeto',
+                texX = 'convVeto', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_convVeto,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'HadronicOverEm',
+                texX = 'hadronicOverEm', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
+                binning=[30,0,0.1],
+            ))
+            plots.append(Plot(name=plotname+'Rho',
+                texX = 'rho', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_rho,
+                binning=[100,0,5],
+            ))
+            plots.append(Plot(name=plotname+'Dxy',
+                texX = 'dxy', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dxy,
+                binning=[60,-0.1,0.1],
+            ))
+            plots.append(Plot(name=plotname+'Dz',
+                texX = 'dz', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dz,
+                binning=[60,-0.2,0.2],
+            ))
+            plots.append(Plot(name=plotname+'npfCand_neutral',
+                texX = 'npfCand_neutral', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.npfCand_neutral,
+                binning=[21,0,20],
+            ))
+            plots.append(Plot(name=plotname+'npfCand_charged',
+                texX = 'npfCand_charged', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.npfCand_charged,
+                binning=[71,0,70],
+            ))
+            plots.append(Plot(name=plotname+'npfCand_photon',
+                texX = 'npfCand_photon', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.npfCand_photon,
+                binning=[41,0,40],
+            ))
+            plots.append(Plot(name=plotname+'npfCand_electron',
+                texX = 'npfCand_electron', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.npfCand_electron,
+                binning=[21,0,20],
+            ))
+            plots.append(Plot(name=plotname+'npfCand_muon',
+                texX = 'npfCand_muon', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.npfCand_muon,
+                binning=[21,0,20],
+            ))
+
+            #plots.append(Plot( name = "fancy_variable",
+            #    texX = 'Number of tracker hits squared', texY = 'Number of Events',
+            #    attribute = lambda event, sample: event.fancy_variable, # <--- can use any 'event' attribute, including the ones we define in 'sequence'    binning=[30,0,900],
+            #))
 
 
-    # Draw the plots
-    drawPlots(plots, dataMCScale = -1)
+            # Fill everything.
+            plotting.fill(plots, read_variables = read_variables, sequence = sequence)
+
+            #
+            # Helper: Add text on the plots
+            #
+            def drawObjects( plotData, dataMCScale, lumi_scale ):
+                tex = ROOT.TLatex()
+                tex.SetNDC()
+                tex.SetTextSize(0.04)
+                tex.SetTextAlign(11) # align right
+                lines = [
+                  (0.15, 0.95, 'TrainData' if PlotTrainData else 'TestData'),
+                  (0.45, 0.95, pt_cut["Name"]+" "+ecalType["Name"]+" "+leptonFlavour["Name"]+"s")
+                ]
+                return [tex.DrawLatex(*l) for l in lines]
+
+            # Draw a plot and make it look nice-ish
+            def drawPlots(plots, dataMCScale):
+              for log in [False, True]:
+                plot_directory_ = os.path.join(plot_directory, leptonFlavour["date"], leptonFlavour["Name"], 'histograms_'+('TrainData' if PlotTrainData else 'TestData'), pt_cut["Name"]+"_"+ecalType["Name"]+"_"+leptonFlavour["Name"]+"s", ("log" if log else "lin"))
+                for plot in plots:
+                  #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+                  
+                  plotting.draw(plot,
+                    plot_directory = plot_directory_,
+                    #ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+                    logX = False, logY = log, sorting = True,
+                    yRange = (0.03, "auto") if log else (0.001, "auto"),
+                    scaling = {},
+                    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
+                    drawObjects = drawObjects( False, dataMCScale , lumi_scale = -1 ),
+                    copyIndexPHP = True
+                  )
+
+
+            # Draw the plots
+            drawPlots(plots, dataMCScale = -1)
 
