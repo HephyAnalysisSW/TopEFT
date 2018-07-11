@@ -7,6 +7,8 @@ import ROOT
 import os
 from array import array
 from copy import deepcopy
+from multiprocessing import Pool
+from functools import partial
 
 # RootTools
 from RootTools.core.standard import *
@@ -40,7 +42,7 @@ variables=roc_plot_variables()
 #########################
 
 leptonFlavourList=[]
-leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
+#leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
 leptonFlavourList.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo})
 
 MVAList=[]
@@ -106,15 +108,23 @@ for leptonFlavour in leptonFlavourList:
 
             #calculate eS and eB
             for dataset in readerdata:
-                p=array('d')
-                x=array('d')
-                y=array('d')
+                #p=array('d')
+                #x=array('d')
+                #y=array('d')
 
                 prange=[pval*0.01 for pval in xrange(-100,100)]
-                for pval in prange:
-                    x.append(eS(pval, dataset))
-                    y.append(eB(pval, dataset)) if logY else y.append(1-eB(pval, dataset))
-
+                #for pval in prange:
+                #    x.append(eS(pval, dataset))
+                #    y.append(eB(pval, dataset)) if logY else y.append(1-eB(pval, dataset))
+                
+                #parallelize calculations 
+                if __name__ == '__main__':
+                    pool = Pool(processes=4)
+                    eS_p=partial(eS,rocdataset=dataset)
+                    x=array('d', pool.map(eS_p, [pval for pval in prange]))
+                    eB_p=partial(eB,rocdataset=dataset)
+                    y=array('d', pool.map(eB_p if logY else 1-eB_p, [pval for pval in prange]))
+                
                 gname=plotLegend[ng]
                 n=len(x)
                 g.append(ROOT.TGraph(n,x,y))

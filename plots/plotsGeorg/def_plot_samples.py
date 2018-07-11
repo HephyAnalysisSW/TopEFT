@@ -10,12 +10,12 @@ def plot_samples():
     #define mixed QCD + TTJets samples for electorns and muons
     PlotTrainData=1  #1=true, 0=false
     ElectronDate='20180703'
-    MuonDate='20180704'
+    MuonDate='20180711'
 
     #Electron Train Files
     EleTrainFiles=[
     "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","train_ele_file1to70.txt",
-    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/"+ElectronDate+"/electron/evaluation/traindata/"
+    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+ElectronDate+"/evaluation/traindata/"
     ]
     with open(EleTrainFiles[0]+EleTrainFiles[1],'r') as f:
         EleTrainFileList = f.read().splitlines()
@@ -28,7 +28,7 @@ def plot_samples():
     #Electron Test Files
     EleTestFiles=[
     "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","train_ele_file1to70.txt",
-    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/"+ElectronDate+"/electron/evaluation/traindata/"
+    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+ElectronDate+"/evaluation/traindata/"
     ]
     with open(EleTestFiles[0]+EleTestFiles[1],'r') as f:
         EleTestFileList = f.read().splitlines()
@@ -41,7 +41,7 @@ def plot_samples():
     #Muon Train Files
     MuoTrainFiles=[
     "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","train_muo.txt",
-    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/"+MuonDate+"/muon/evaluation/traindata/"
+    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+MuonDate+"/evaluation/traindata/"
     ]
     with open(MuoTrainFiles[0]+MuoTrainFiles[1],'r') as f:
         MuoTrainFileList = f.read().splitlines()
@@ -54,7 +54,7 @@ def plot_samples():
     #Muon Test Files
     MuoTestFiles=[
     "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","test_muo.txt",
-    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/"+MuonDate+"/muon/evaluation/testdata/"
+    "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+MuonDate+"/evaluation/testdata/"
     ]
     with open(MuoTestFiles[0]+MuoTestFiles[1],'r') as f:
         MuoTestFileList = f.read().splitlines()
@@ -118,7 +118,10 @@ def histo_plot_variables():
     "npfCand_charged/I",
     "npfCand_photon/I",
     "npfCand_electron/I",
-    "npfCand_muon/I"
+    "npfCand_muon/I",
+    "prob_lep_isPromptId/F",
+    "prob_lep_isNonPromptId/F",
+    "prob_lep_isFakeId/F"
     ]
 
     return variables
