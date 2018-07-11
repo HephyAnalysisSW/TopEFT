@@ -132,7 +132,7 @@ for leptonFlavour in leptonFlavourList:
         mg.GetYaxis().SetTitle('eS')
         #mg.GetYaxis().SetRangeUser(0.0,1.0)
         c.BuildLegend()
-        directory=(os.path.join(plot_directory, ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate, leptonFlavour["Name"]))
+        directory=(os.path.join(plot_directory, leptonFlavour["Name"], ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate))
         if not os.path.exists(directory):
             os.makedirs(directory)
         c.Print(os.path.join(directory,("TrainData" if PlotTrainData else "TestData")+ '_roc_binned_'+binVar["Name"]+'.png'))

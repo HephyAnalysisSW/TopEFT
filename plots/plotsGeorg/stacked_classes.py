@@ -285,7 +285,7 @@ for leptonFlavour in leptonFlavours:
             # Draw a plot and make it look nice-ish
             def drawPlots(plots, dataMCScale):
               for log in [False, True]:
-                plot_directory_ = os.path.join(plot_directory, leptonFlavour["date"], leptonFlavour["Name"], ('TrainData' if PlotTrainData else 'TestData')+'_histograms', pt_cut["Name"]+"_"+ecalType["Name"]+"_"+leptonFlavour["Name"]+"s", ("log" if log else "lin"))
+                plot_directory_ = os.path.join(plot_directory, leptonFlavour["Name"], leptonFlavour["date"], ('TrainData' if PlotTrainData else 'TestData')+'_histograms', pt_cut["Name"]+"_"+ecalType["Name"]+"_"+leptonFlavour["Name"]+"s", ("log" if log else "lin"))
                 for plot in plots:
                   #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
                   

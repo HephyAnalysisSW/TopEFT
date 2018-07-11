@@ -139,7 +139,7 @@ for leptonFlavour in leptonFlavourList:
             mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
             #c.BuildLegend(0.12,0.90,0.5,0.7) if logY else c.BuildLegend()
             c.BuildLegend()
-            directory=(os.path.join(plot_directory, ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate, leptonFlavour["Name"]))
+            directory=(os.path.join(plot_directory, leptonFlavour["Name"], ElectronDate if leptonFlavour["Name"]=="Electron" else MuonDate))
             if not os.path.exists(directory):
                 os.makedirs(directory)
             c.Print(os.path.join(directory, ("TrainData" if PlotTrainData else "TestData")+'_roc_'+pt_cut["Name"]+'_cut_'+var["Name"]+'.png'))
