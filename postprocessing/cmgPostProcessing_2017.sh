@@ -2,7 +2,7 @@
 
 ## Fall 17 MC ###
 ## TTZ
-#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample TTZToLLNuNu_amc  #SPLIT20
+python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v11_tightxclean --sample TTZToLLNuNu_amc  #SPLIT30
 ##python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample TTZToLLNuNu_amc_psw  #SPLIT20
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample TTZToLLNuNu_m1to10 #SPLIT20
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample TTZ_LO  #SPLIT20
@@ -19,17 +19,17 @@
 #python cmgPostProcessing.py --forceProxy --overwrite  --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample TTTT  #SPLIT20
 #
 # Rare
-python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample ZZTo4L ZZTo4L_ext #SPLIT20
-python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample ZZTo4L #SPLIT20
+#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample ZZTo4L ZZTo4L_ext #SPLIT20
+#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample ZZTo4L #SPLIT20
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample ZZZ  #SPLIT10
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample WZZ  #SPLIT10
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample WWZ_4F  #SPLIT10
 #python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample WWW_4F  #SPLIT10
 ##ZGTo2LG_ext
 ##WGToLNuG
-python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo2e2mu #SPLIT10
-python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo4e   #SPLIT10
-python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo4mu  #SPLIT10
+#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo2e2mu #SPLIT10
+#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo4e   #SPLIT10
+#python cmgPostProcessing.py --forceProxy --overwrite --skim trilep --fileBasedSplitting  --year 2017 --processingEra TopEFT_PP_2017_mva_v9 --sample GluGluToZZTo4mu  #SPLIT10
 #
 #
 ## Nonprompt

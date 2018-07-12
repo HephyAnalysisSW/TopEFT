@@ -30,16 +30,16 @@ special_cuts = {
     "lepSelQuad":        "Sum$(lep_pt>40&&lep_tight_4l>0)>0 && Sum$(lep_pt>10&&lep_tight_4l>0)>3 ",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
-    "onZ":               "abs(Z_mass-91.2)<10",
+    "onZ":               "abs(Z_mass-91.1876)<10",
     "tightZ":            "Z_fromTight>0",
-    "onZZ":              "abs(Z1_mass_4l-91.2)<20&&abs(Z2_mass_4l-91.2)<20",
-    "onZ1":              "abs(Z1_mass_4l-91.2)<20",
-    "offZ2":             "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.2)>20",
-    "onZloose":          "abs(Z_mass-91.2)<15",
-    "offZ":              "abs(Z_mass-91.2)>10",
+    "onZZ":              "abs(Z1_mass_4l-91.1876)<20&&abs(Z2_mass_4l-91.1876)<20",
+    "onZ1":              "abs(Z1_mass_4l-91.1876)<20",
+    "offZ2":             "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.1876)>20",
+    "onZloose":          "abs(Z_mass-91.1876)<15",
+    "offZ":              "abs(Z_mass-91.1876)>10",
   }
 
-continous_variables = [ ("metSig", "metSig"), ("mll", "Z_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt")]
+continous_variables = [ ("metSig", "metSig"), ("mll", "Z_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt"), ("min_mll", "min_dl_mass")]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]
 
 class cutInterpreter:

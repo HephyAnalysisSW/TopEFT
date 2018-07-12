@@ -105,6 +105,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+#    skimConds.append( "( run==280024&&lumi==109&&evt==157662937 )" )
 if isQuadLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
@@ -366,7 +367,7 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
@@ -740,7 +741,7 @@ def filler( event ):
     if len(leptonCollections["tight_4l"]) >= 4:
         cleaningCollection = "loose"
     elif len(leptonCollections["FO_3l"]) >= 3:
-        cleaningCollection = "FO_3l"
+        cleaningCollection = "tight_3l" # was FO
     elif len(leptonCollections["FO_SS"]) >= 2:
         cleaningCollection = "FO_SS"
     else:
