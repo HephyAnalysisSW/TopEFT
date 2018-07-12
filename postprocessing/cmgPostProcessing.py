@@ -612,21 +612,19 @@ def filler( event ):
             setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
             setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
             
-            # tracking SFs only for 2016 so far
-            if options.year == 2016:
-                reweightSF      = 1
-                reweightSFUp    = 1
-                reweightSFDown  = 1
-                if len(leptonCollections[tight_id]) > 0:
-                    for l in leptonCollections[tight_id]:
-                        eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
-                        trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
-                        reweightSF      *= trackingSF
-                        reweightSFUp    *= (trackingSF + trackingSF_err)
-                        reweightSFDown  *= (trackingSF - trackingSF_err)
-                    setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
-                    setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
-                    setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
+            reweightSF      = 1
+            reweightSFUp    = 1
+            reweightSFDown  = 1
+            if len(leptonCollections[tight_id]) > 0:
+                for l in leptonCollections[tight_id]:
+                    eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
+                    trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
+                    reweightSF      *= trackingSF
+                    reweightSFUp    *= (trackingSF + trackingSF_err)
+                    reweightSFDown  *= (trackingSF - trackingSF_err)
+                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
+                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
+                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
 
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
