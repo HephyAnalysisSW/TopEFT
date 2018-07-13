@@ -46,8 +46,8 @@ T1tttt_1000_CP1 = Sample.fromDirectory(name='T1tttt_1000_CP1', treeName='Events'
 #binning = [50,0,1500]
 #binning = [25,0,1500]
 #binning = [20,0,20]
-#binning = [20, 1000, 5000]
-binning = [20, 500, 3500]
+binning = [20, 1000, 5000]
+#binning = [20, 500, 3500]
 
 weight = "(1)"
 #weight = "abs(LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[578])"
@@ -100,77 +100,79 @@ alphaS = [110,111]
 #alphaS = [221,222]
 #alphaS = [679,680]
 
-variations = []
-for rep in replicas:
-    print "Working on replica %s"%rep
-    variations.append(sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
-
-variations_as = []
-for aS in alphaS:
-    variations_as.append(sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%aS ))
-
-# loop over all bins
-unc = []
-for b in range(21):
-    v = []
-    v_rel = []
-    central = h_all.GetBinContent(b+1)
-    print b,central
-    delta = 0.
-    for var in variations:
-        varied = var.GetBinContent(b+1)
-        delta += (varied-central)**2
-        if central>0:
-            v_rel.append(abs(varied-central)/central)
-        else:
-            v_rel.append(0)
-        v.append(varied)
-    v = sorted(v)
-    print v
-    print max(v_rel), min(v_rel)
-    ## replicas
-    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
-    # hessian
-    if central>0:
-        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
-    else:
-        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
-
-    u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
-    u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
-    u['down']   = sqrt(u['down']**2 + u['alphaS']**2)
-    
-    print u
-    unc.append(u)
-
-central = h_all.Integral()
-delta = 0
-for var in variations:
-    varied = var.Integral()
-    delta += (varied-central)**2
-
-print "Total relative uncertainty", delta/central
-
-
-boxes = []
-for ib in range(1, 1 + h_all.GetNbinsX() ):
-    val = h_all.GetBinContent(ib)
-    
-    # uncertainty box in main histogram
-    box = ROOT.TBox( h_all.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-unc[ib-1]['down']]), h_all.GetXaxis().GetBinUpEdge(ib), max([0.00, val+unc[ib-1]['up']]) )
-    box.SetLineColor(ROOT.kBlack)
-    box.SetFillStyle(3444)
-    box.SetFillColor(ROOT.kBlack)
-    
-    boxes.append( box )
+#variations = []
+#for rep in replicas:
+#    print "Working on replica %s"%rep
+#    variations.append(sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]>0", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
+#
+#variations_as = []
+#for aS in alphaS:
+#    variations_as.append(sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]>0", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%aS ))
+#
+## loop over all bins
+#unc = []
+#for b in range(21):
+#    v = []
+#    v_rel = []
+#    central = h_all.GetBinContent(b+1)
+#    print b,central
+#    delta = 0.
+#    for var in variations:
+#        varied = var.GetBinContent(b+1)
+#        delta += (varied-central)**2
+#        if central>0:
+#            v_rel.append(abs(varied-central)/central)
+#        else:
+#            v_rel.append(0)
+#        v.append(varied)
+#    v = sorted(v)
+#    print v
+#    print max(v_rel), min(v_rel)
+#    ## replicas
+#    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
+#    # hessian
+#    if central>0:
+#        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
+#    else:
+#        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
+#
+#    u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
+#    u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
+#    u['down']   = sqrt(u['down']**2 + u['alphaS']**2)
+#    
+#    print u
+#    unc.append(u)
+#
+#central = h_all.Integral()
+#delta = 0
+#for var in variations:
+#    varied = var.Integral()
+#    delta += (varied-central)**2
+#
+#print "Total relative uncertainty", delta/central
+#
+#
+#boxes = []
+#for ib in range(1, 1 + h_all.GetNbinsX() ):
+#    val = h_all.GetBinContent(ib)
+#    
+#    # uncertainty box in main histogram
+#    box = ROOT.TBox( h_all.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-unc[ib-1]['down']]), h_all.GetXaxis().GetBinUpEdge(ib), max([0.00, val+unc[ib-1]['up']]) )
+#    box.SetLineColor(ROOT.kBlack)
+#    box.SetFillStyle(3444)
+#    box.SetFillColor(ROOT.kBlack)
+#    
+#    boxes.append( box )
 
 #raise NotImplementedError
 
 #h_central.legendText = "t#bar{t}Z (LO)"
 #h_all.legendText = "NNPDF3.1 nnlo"
-h_all.legendText = "NNPDF3.1 nnlo CP5"
-h_neg.legendText = "NNPDF3.1 lo CP1"
+h_all.legendText = "NNPDF3.1 nnlo, force positive"
+h_neg.legendText = "NNPDF3.1 lo"
 #h_nnlo.legendText = "NNPDF3.1 lo CP5"
+
+print h_all.Integral(), h_neg.Integral()
 
 #h_all.legendText = "all weights"
 #h_neg.legendText = "neg weights"
@@ -189,7 +191,7 @@ def drawObjects( ):
 plots = [[ h_all ], [ h_neg ]]#, [h_nnlo]]
 
 plotting.draw(
-    Plot.fromHisto("%s_nJe30_NNPDF31_lo_tune"%sample.name,
+    Plot.fromHisto("%s_ht30_NNPDF31_lo_test"%sample.name,
                 plots,
                 #texX = "E_{T}^{miss} (GeV)"
                 #texX = "N_{jet}"
@@ -203,8 +205,8 @@ plotting.draw(
     #ratio = {'yRange': (0.0, 0.7),'texY':'neg. frac.'},
     ratio = {'yRange': (0.2, 1.5),'texY':'lo/nnlo'},
     #ratio = {'yRange': (0.5, 1.5)},
-    scaling = {1:0, 2:0},
-    drawObjects = drawObjects() + boxes,
+    scaling = {1:0},#, 2:0},
+    drawObjects = drawObjects(),# + boxes,
     copyIndexPHP = True
 )
 

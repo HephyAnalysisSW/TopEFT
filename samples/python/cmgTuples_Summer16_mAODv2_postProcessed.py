@@ -32,8 +32,10 @@ dirs["WZ_amcatnlo"]     = ["WZTo3LNu_amcatnlo"]#, "WZTo2L2Q"]
 dirs["WZ_powheg"]       = ["WZTo3LNu_comb"]#, "WZTo2L2Q"]
 #dirs["WZ_mllmin01"]     = ["WZTo3LNu_mllmin01", "WZTo2L2Q"]
 
+
 dirs['TTW']             = ["TTWToLNu_ext_comb"]
-dirs['TTX']             = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll"] # should be complete
+dirs['TTH']             = ["TTHnobb_pow"]
+dirs['TTX']             = ["TTGJets_comb", "TTTT", "tWll", "tZq_ll_ext"] # TG, THQ, THW, TTVV missing
 dirs['TZQ']             = ["tZq_ll_ext"]
 
 dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWToLNu_ext_comb","tZq_ll_ext","TTZToLLNuNu_ext"]
@@ -48,8 +50,8 @@ dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to5
 
 dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
-dirs['ZZ']              = ['ZZTo4L','GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu']
-dirs['rare']            = ['WWW', 'WWZ', 'WZZ', 'ZZZ', "ZGTo2LG_ext", "WGToLNuG"]
+dirs['ZZ']              = ['ZZTo4L','GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu'] # other gluglu missing
+dirs['rare']            = ['WWW', 'WWZ', 'WZZ', 'ZZZ'] # WW missing
 dirs['WGToLNuG']        = ['WGToLNuG']
 dirs['ZGTo2LG']         = ['ZGTo2LG_ext']
 
@@ -73,6 +75,7 @@ WZ_powheg       = Sample.fromDirectory(name="WZ",               treeName="Events
 #WZ_mllmin01     = Sample.fromDirectory(name="WZ",               treeName="Events", isData=False, color=color.WZ,                texName="WZ (powheg), M_{ll}>0.1 GeV",          directory=directories['WZ_mllmin01'])
 #WJets_LO        = Sample.fromDirectory(name="WJets_LO",         treeName="Events", isData=False, color=color.WJetsToLNu,                texName="W+jets (LO)",            directory=directories['WJets_LO'])
 #WJets           = Sample.fromDirectory(name="WJets",            treeName="Events", isData=False, color=color.WJetsToLNu+2,               texName="W+jets (NLO)",            directory=directories['WJets'])
+TTH             = Sample.fromDirectory(name="TTH",              treeName="Events", isData=False, color=color.TTH,               texName="t#bar{t}H",                                directory=directories['TTH'])
 TTX             = Sample.fromDirectory(name="TTX",              treeName="Events", isData=False, color=ROOT.kRed-10,               texName="t(t)X",                                directory=directories['TTX'])
 TTX_all         = Sample.fromDirectory(name="TTX_all",          treeName="Events", isData=False, color=ROOT.kRed-10,               texName="t(t)X",                                directory=directories['TTX_all'])
 TTW             = Sample.fromDirectory(name="TTW",              treeName="Events", isData=False, color=color.TTX,               texName="t#bar{t}W",                                directory=directories['TTW'])
