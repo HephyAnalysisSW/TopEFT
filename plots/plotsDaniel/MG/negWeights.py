@@ -37,6 +37,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 T2tt_1200   = Sample.fromDirectory(name='T2tt_1200', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1200,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1200'])
 T2tt_1500   = Sample.fromDirectory(name='T2tt_1500', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500'])
+T2tt_1500_LOPDF = Sample.fromDirectory(name='T2tt_1500_LOPDF', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500_LOPDF'])
 T1tttt_2000 = Sample.fromDirectory(name='T1tttt_2000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000'])
 T1tttt_2000_CP1 = Sample.fromDirectory(name='T1tttt_2000_CP1', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt CP1 (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000_CP1'])
 T1tttt_1000 = Sample.fromDirectory(name='T1tttt_1000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (1000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu1000'])
@@ -46,14 +47,14 @@ T1tttt_1000_CP1 = Sample.fromDirectory(name='T1tttt_1000_CP1', treeName='Events'
 #binning = [50,0,1500]
 #binning = [25,0,1500]
 #binning = [20,0,20]
-binning = [20, 1000, 5000]
-#binning = [20, 500, 3500]
+#binning = [20, 1000, 5000]
+binning = [20, 500, 3500]
 
 weight = "(1)"
 #weight = "abs(LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[578])"
 
-sample = T1tttt_2000
-sample_CP1 = T1tttt_2000_CP1
+sample = T2tt_1500
+sample_CP1 = T2tt_1500_LOPDF
 #sample = DY_LO
 
 met = "recoGenMETs_genMetTrue__SIM.obj.pt()"
@@ -81,8 +82,8 @@ print "Working on central values"
 #h_neg  = sample.get1DHistoFromDraw( "met_pt", selectionString = "genWeight<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_neg  = sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
-h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]" )
-h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
+h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
+h_neg  = sample_CP1.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]" )
 #h_nnlo  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[972]" )
 #h_nnlo.style = styles.lineStyle( ROOT.kRed,  width=2, errors=True )
@@ -168,8 +169,8 @@ alphaS = [110,111]
 
 #h_central.legendText = "t#bar{t}Z (LO)"
 #h_all.legendText = "NNPDF3.1 nnlo"
-h_all.legendText = "NNPDF3.1 nnlo, force positive"
-h_neg.legendText = "NNPDF3.1 lo"
+h_all.legendText = "NNPDF3.1 lo"
+h_neg.legendText = "NNPDF3.1 lo for prod."
 #h_nnlo.legendText = "NNPDF3.1 lo CP5"
 
 print h_all.Integral(), h_neg.Integral()
@@ -191,7 +192,7 @@ def drawObjects( ):
 plots = [[ h_all ], [ h_neg ]]#, [h_nnlo]]
 
 plotting.draw(
-    Plot.fromHisto("%s_ht30_NNPDF31_lo_test"%sample.name,
+    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF"%sample.name,
                 plots,
                 #texX = "E_{T}^{miss} (GeV)"
                 #texX = "N_{jet}"
