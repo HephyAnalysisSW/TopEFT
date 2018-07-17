@@ -82,8 +82,8 @@ print "Working on central values"
 #h_neg  = sample.get1DHistoFromDraw( "met_pt", selectionString = "genWeight<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_neg  = sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
-h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
-h_neg  = sample_CP1.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]" )
+h_all  = sample_CP1.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]" )
+h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_nnlo  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[972]" )
 #h_nnlo.style = styles.lineStyle( ROOT.kRed,  width=2, errors=True )
@@ -169,8 +169,8 @@ alphaS = [110,111]
 
 #h_central.legendText = "t#bar{t}Z (LO)"
 #h_all.legendText = "NNPDF3.1 nnlo"
-h_all.legendText = "NNPDF3.1 lo"
-h_neg.legendText = "NNPDF3.1 lo for prod."
+h_all.legendText = "NNPDF3.1 lo for prod."
+h_neg.legendText = "NNPDF3.1 lo reweighted"
 #h_nnlo.legendText = "NNPDF3.1 lo CP5"
 
 print h_all.Integral(), h_neg.Integral()
