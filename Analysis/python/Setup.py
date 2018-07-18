@@ -22,7 +22,7 @@ from TopEFT.Tools.helpers import getObjFromFile
 
 ##define samples
 # 2016
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 # 2017
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
@@ -94,11 +94,11 @@ class Setup:
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
         if nLeptons == 3:
             self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
-            if self.year == 2016:
+            if self.year == 2016 or True:
                 self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
         elif nLeptons == 4:
             self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
-            if self.year == 2016:
+            if self.year == 2016 or True:
                 self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
 
 
