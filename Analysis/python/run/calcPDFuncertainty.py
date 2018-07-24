@@ -7,6 +7,7 @@ parser.add_option("--PDFset",               dest="PDFset",              default=
 parser.add_option("--selectRegion",         dest="selectRegion",          default=None, type="int",    action="store",      help="select region?")
 parser.add_option("--sample",               dest='sample',  action='store', default='TTZ_NLO_16',    choices=["TTZ_LO_16", "TTZ_NLO_16", "TTZ_NLO_17", "WZ_pow_16"], help="which sample?")
 parser.add_option("--small",                action='store_true', help="small?")
+parser.add_option("--reducedPDF",           action='store_true', help="Don't use all PDF variations for tests?")
 parser.add_option("--combine",              action='store_true', help="Combine results?")
 parser.add_option("--noKeepNorm",           action='store_true', help="Keep the normalization = acceptance uncertainty only?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
@@ -150,7 +151,8 @@ elif options.sample == "TTZ_NLO_17":
     ## PS weights ##
     PSweights = True
     # starting from 1080: 0,1 are central. 2,3,4,5 are reduced, 6,7,8,9 are nominal, 10,11,12,13 are enhanced.
-    PS_indices = range(1086, 1090)
+    #PS_indices = range(1086, 1090)
+    PS_indices = range(1090, 1094)
     PSweight_original = "abs(LHEweight_wgt[1080])"
 
 elif options.sample == "WZ_pow_16":
@@ -170,7 +172,7 @@ else:
 # central weights here should cancel out, but are necessary to not change the sign for NLO samples
 if not options.selectWeight:
     scale_variations= [ "abs(LHEweight_wgt[%i])"%(i) for i in scale_indices ]
-    PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ]
+    PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ] if not options.reducedPDF else [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ][:5]
     aS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in aS_indices ]
     variations      = scale_variations + PDF_variations + aS_variations
     if PSweights:
