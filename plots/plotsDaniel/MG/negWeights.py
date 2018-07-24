@@ -37,7 +37,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 T2tt_1200   = Sample.fromDirectory(name='T2tt_1200', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1200,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1200'])
 T2tt_1500   = Sample.fromDirectory(name='T2tt_1500', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500'])
-T2tt_1500_LOPDF = Sample.fromDirectory(name='T2tt_1500_LOPDF', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500_LOPDF'])
+T2tt_1500_LOPDF = Sample.fromDirectory(name='T2tt_1500_LOPDF', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500_LOPDF_v4'])
 T1tttt_2000 = Sample.fromDirectory(name='T1tttt_2000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000'])
 T1tttt_2000_CP1 = Sample.fromDirectory(name='T1tttt_2000_CP1', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt CP1 (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000_CP1'])
 T1tttt_1000 = Sample.fromDirectory(name='T1tttt_1000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (1000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu1000'])
@@ -83,7 +83,7 @@ print "Working on central values"
 #h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_neg  = sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 h_all  = sample_CP1.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
-h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
+h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
 #h_nnlo  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[972]" )
 #h_nnlo.style = styles.lineStyle( ROOT.kRed,  width=2, errors=True )
@@ -96,74 +96,74 @@ replicas = range(10,110) #NNPDF3.1nnlo
 #replicas = range(121,221) #NNPDF3.1nlo
 #replicas = range(579,679) #PDF4LHC15 nnlo
 
-alphaS = [110,111]
+#alphaS = [110,111]
 #alphaS = [576,577]
 #alphaS = [221,222]
 #alphaS = [679,680]
 
-#variations = []
-#for rep in replicas:
-#    print "Working on replica %s"%rep
-#    variations.append(sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]>0", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
-#
+variations = []
+for rep in replicas:
+    print "Working on replica %s"%rep
+    variations.append(sample_CP1.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
+
 #variations_as = []
 #for aS in alphaS:
-#    variations_as.append(sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]>0", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%aS ))
+#    variations_as.append(sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%aS ))
 #
-## loop over all bins
-#unc = []
-#for b in range(21):
-#    v = []
-#    v_rel = []
-#    central = h_all.GetBinContent(b+1)
-#    print b,central
-#    delta = 0.
-#    for var in variations:
-#        varied = var.GetBinContent(b+1)
-#        delta += (varied-central)**2
-#        if central>0:
-#            v_rel.append(abs(varied-central)/central)
-#        else:
-#            v_rel.append(0)
-#        v.append(varied)
-#    v = sorted(v)
-#    print v
-#    print max(v_rel), min(v_rel)
-#    ## replicas
-#    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
-#    # hessian
-#    if central>0:
-#        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
-#    else:
-#        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
-#
-#    u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
-#    u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
-#    u['down']   = sqrt(u['down']**2 + u['alphaS']**2)
-#    
-#    print u
-#    unc.append(u)
-#
-#central = h_all.Integral()
-#delta = 0
-#for var in variations:
-#    varied = var.Integral()
-#    delta += (varied-central)**2
-#
-#print "Total relative uncertainty", delta/central
-#
-#
-#boxes = []
-#for ib in range(1, 1 + h_all.GetNbinsX() ):
-#    val = h_all.GetBinContent(ib)
-#    
-#    # uncertainty box in main histogram
-#    box = ROOT.TBox( h_all.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-unc[ib-1]['down']]), h_all.GetXaxis().GetBinUpEdge(ib), max([0.00, val+unc[ib-1]['up']]) )
-#    box.SetLineColor(ROOT.kBlack)
-#    box.SetFillStyle(3444)
-#    box.SetFillColor(ROOT.kBlack)
-#    
-#    boxes.append( box )
+# loop over all bins
+unc = []
+for b in range(21):
+    v = []
+    v_rel = []
+    central = h_all.GetBinContent(b+1)
+    print b,central
+    delta = 0.
+    for var in variations:
+        varied = var.GetBinContent(b+1)
+        delta += (varied-central)**2
+        if central>0:
+            v_rel.append(abs(varied-central)/central)
+        else:
+            v_rel.append(0)
+        v.append(varied)
+    v = sorted(v)
+    print v
+    print max(v_rel), min(v_rel)
+    ## replicas
+    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
+    # hessian
+    if central>0:
+        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
+    else:
+        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
+
+    #u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
+    #u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
+    #u['down']   = sqrt(u['down']**2 + u['alphaS']**2)
+    
+    print u
+    unc.append(u)
+
+central = h_all.Integral()
+delta = 0
+for var in variations:
+    varied = var.Integral()
+    delta += (varied-central)**2
+
+print "Total relative uncertainty", delta/central
+
+
+boxes = []
+for ib in range(1, 1 + h_all.GetNbinsX() ):
+    val = h_all.GetBinContent(ib)
+    
+    # uncertainty box in main histogram
+    box = ROOT.TBox( h_all.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-unc[ib-1]['down']]), h_all.GetXaxis().GetBinUpEdge(ib), max([0.00, val+unc[ib-1]['up']]) )
+    box.SetLineColor(ROOT.kBlack)
+    box.SetFillStyle(3444)
+    box.SetFillColor(ROOT.kBlack)
+    
+    boxes.append( box )
 
 #raise NotImplementedError
 
@@ -192,7 +192,7 @@ def drawObjects( ):
 plots = [[ h_all ], [ h_neg ]]#, [h_nnlo]]
 
 plotting.draw(
-    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF"%sample.name,
+    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF_vs_NNLO"%sample.name,
                 plots,
                 #texX = "E_{T}^{miss} (GeV)"
                 #texX = "N_{jet}"

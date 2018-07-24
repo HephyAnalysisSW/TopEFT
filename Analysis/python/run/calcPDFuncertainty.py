@@ -245,8 +245,9 @@ if not options.combine:
     
     logger.info("All done.")
 
+
 if options.combine:
-    for c in ['all']:#allChannels:
+    for c in [channel(-1,-1)]:#allChannels:
     
         for region in regions:
             
@@ -255,13 +256,13 @@ if options.combine:
             deltas = []
             delta_squared = 0
             # central yield inclusive and in region
-            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
-            sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
+            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
+            sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
             sigma_central       = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[LHEweight_original]}))
             sigma_centralWeight = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[centralWeight]}))
 
             for var in scale_variations:
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
                 norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 
                 sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
@@ -274,7 +275,7 @@ if options.combine:
 
             for var in PDF_variations:
                 # calculate x-sec noramlization
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
                 norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 norm_centralWeight = sigma_incl_central/sigma_incl_centralWeight
 
@@ -301,7 +302,7 @@ if options.combine:
             # recommendation is to multiply uncertainty by 1.5
             deltas_as = []
             for var in aS_variations:
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
                 norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 
                 sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
@@ -320,9 +321,9 @@ if options.combine:
 
             # calculate the PS uncertainties
             if PSweights:
-                sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[PSweight_original]}))
+                sigma_incl_central  = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[PSweight_original]}))
                 for var in PS_variations:
-                    simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
+                    simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
                     norm = sigma_incl_central/simga_incl_reweight
                     
                     sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))

@@ -87,9 +87,9 @@ def muonSelector( lepton_selection, year):
     mva_threshold_3l = 0.4
     mva_threshold_SS = 0.6
 
-    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsvFO    = 0.5 if year == 2017 else 0.4
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
-    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
+    ptRatioThreshold    = 0.4
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about muon selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
@@ -193,13 +193,13 @@ def eleSelector( lepton_selection, year ):
     mva_threshold_3l = 0.4
     mva_threshold_SS = 0.6
 
-    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsvFO    = 0.5 if year == 2017 else 0.4
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
-    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
+    ptRatioThreshold    = 0.4
 
     eleMVA              = "mvaIdFall17noIso" if year == 2017 else "mvaIdSpring16"
-    eleMVAval1          = 0.0 if year == 2017 else -0.1
-    eleMVAval2          = 0.3 if year == 2017 else 0.8
+    eleMVAval1          = -0.3 if year == 2017 else -0.1
+    eleMVAval2          =  0.3 if year == 2017 else  0.8
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
