@@ -129,13 +129,13 @@ for b in range(21):
     v = sorted(v)
     print v
     print max(v_rel), min(v_rel)
-    ## replicas
-    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
-    # hessian
-    if central>0:
-        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
-    else:
-        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
+    # replicas
+    u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
+    ## hessian
+    #if central>0:
+    #    u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
+    #else:
+    #    u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
 
     #u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
     #u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
@@ -207,7 +207,7 @@ plotting.draw(
     ratio = {'yRange': (0.2, 1.5),'texY':'lo/nnlo'},
     #ratio = {'yRange': (0.5, 1.5)},
     scaling = {1:0},#, 2:0},
-    drawObjects = drawObjects(),# + boxes,
+    drawObjects = drawObjects() + boxes,
     copyIndexPHP = True
 )
 

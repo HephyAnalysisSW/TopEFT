@@ -162,19 +162,19 @@ else:
     proxy = proxy_path
 logger.info( "Using proxy %s"%proxy )
 
-# Data 2016, 03Feb2017
-data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v1_2.pkl'
-robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
-data_dpm_directories = robert_2016_1l_v1
-from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
+## Data 2016, 03Feb2017
+#data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v1_2.pkl'
+#robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
+#data_dpm_directories = robert_2016_1l_v1
+#from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
-# Data 2016, 07Aug17
-data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v13_2.pkl'
-daniel_2016_1l_v13 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v13']
-data_dpm_directories = daniel_2016_1l_v13
-from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_07Aug17_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
+## Data 2016, 07Aug17
+#data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v14.pkl'
+#daniel_2016_1l_v13 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16']
+#data_dpm_directories = daniel_2016_1l_v13
+#from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+#data_07Aug17_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
 # Summer16 MC
 mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14.pkl'

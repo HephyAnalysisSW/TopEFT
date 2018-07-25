@@ -44,9 +44,9 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
@@ -151,8 +151,8 @@ elif options.sample == "TTZ_NLO_17":
     ## PS weights ##
     PSweights = True
     # starting from 1080: 0,1 are central. 2,3,4,5 are reduced, 6,7,8,9 are nominal, 10,11,12,13 are enhanced.
-    #PS_indices = range(1086, 1090)
-    PS_indices = range(1090, 1094)
+    PS_indices = range(1086, 1090)
+    #PS_indices = range(1090, 1094)
     PSweight_original = "abs(LHEweight_wgt[1080])"
 
 elif options.sample == "WZ_pow_16":
@@ -349,7 +349,8 @@ if options.combine:
             logger.info("Relative shower scale uncertainty: %s", PS_scale_rel)
             
             # Store results
-            PDF_cache.add({"region":region, "channel":c, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
+            if not options.reducedPDF:
+                PDF_cache.add({"region":region, "channel":c, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
             scale_cache.add({"region":region, "channel":c, "PDFset":None}, scale_rel, overwrite=True)
 
             print region, c.name
