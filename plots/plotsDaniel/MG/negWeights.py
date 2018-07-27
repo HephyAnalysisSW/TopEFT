@@ -26,7 +26,6 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
-
 #from TopEFT.samples.heppy_dpm_samples import *
 #DY_HT2500 = Fall17_heppy_mapper.from_heppy_samplename("DYJetsToLL_M50_HT2500toInf")
 #DY_LO = Fall17_heppy_mapper.from_heppy_samplename("DYJetsToLL_M50_LO")
@@ -38,6 +37,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 T2tt_1200   = Sample.fromDirectory(name='T2tt_1200', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1200,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1200'])
 T2tt_1500   = Sample.fromDirectory(name='T2tt_1500', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500'])
 T2tt_1500_LOPDF = Sample.fromDirectory(name='T2tt_1500_LOPDF', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500_LOPDF_v4'])
+T2tt_1500_LOPDF_CP2 = Sample.fromDirectory(name='T2tt_1500_LOPDF_CP2', treeName='Events', isData=False, color=color.TTJets, texName='T2tt (1500,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T2tt_mStop1500_LOPDF_CP2'])
 T1tttt_2000 = Sample.fromDirectory(name='T1tttt_2000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000'])
 T1tttt_2000_CP1 = Sample.fromDirectory(name='T1tttt_2000_CP1', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt CP1 (2000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu2000_CP1'])
 T1tttt_1000 = Sample.fromDirectory(name='T1tttt_1000', treeName='Events', isData=False, color=color.TTJets, texName='T1tttt (1000,100)', directory=['/afs/hephy.at/data/dspitzbart01/gen/T1tttt_mGlu1000'])
@@ -53,7 +53,7 @@ binning = [20, 500, 3500]
 weight = "(1)"
 #weight = "abs(LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[578])"
 
-sample = T2tt_1500
+sample = T2tt_1500_LOPDF_CP2
 sample_CP1 = T2tt_1500_LOPDF
 #sample = DY_LO
 
@@ -82,13 +82,22 @@ print "Working on central values"
 #h_neg  = sample.get1DHistoFromDraw( "met_pt", selectionString = "genWeight<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_all  = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
 #h_neg  = sample.get1DHistoFromDraw( var, selectionString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[9]<0", binning = binning,  addOverFlowBin = 'upper', weightString = weight )
-h_all  = sample_CP1.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
-h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
+h_LO_CP2    = sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
+h_LO        = T2tt_1500_LOPDF.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
+h_NNLO       = T2tt_1500.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[0]" )
+h_NNLO_to_LO = T2tt_1500.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_nnlo  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[1077]" )
 #h_neg  = sample.get1DHistoFromDraw( var , selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[972]" )
 #h_nnlo.style = styles.lineStyle( ROOT.kRed,  width=2, errors=True )
-h_neg.style = styles.lineStyle( ROOT.kBlue, width=2, errors=True )
-h_all.style = styles.lineStyle( ROOT.kGreen+1, width=2, errors=True )
+#h_neg.style = styles.lineStyle( ROOT.kBlue, width=2, errors=True )
+#h_all.style = styles.lineStyle( ROOT.kGreen+1, width=2, errors=True )
+
+h_LO_CP2.style = styles.lineStyle( ROOT.kBlue, width=2, errors=True )
+h_LO.style = styles.lineStyle( ROOT.kGreen+1, width=2, errors=True )
+h_NNLO.style = styles.lineStyle( ROOT.kRed+1,  width=2, errors=True )
+h_NNLO_to_LO.style = styles.lineStyle( ROOT.kOrange+1,  width=2, errors=True )
+
+h_all = h_LO_CP2
 
 # get the variations
 replicas = range(10,110) #NNPDF3.1nnlo
@@ -102,9 +111,13 @@ replicas = range(10,110) #NNPDF3.1nnlo
 #alphaS = [679,680]
 
 variations = []
+variationsNLO = []
 for rep in replicas:
     print "Working on replica %s"%rep
-    variations.append(sample_CP1.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
+    variations.append(sample.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep ))
+    v = T2tt_1500.get1DHistoFromDraw( var, selectionString = "(1)", binning = binning,  addOverFlowBin = 'upper', weightString = "LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[%s]"%rep )
+    v.Scale(h_all.Integral()/v.Integral())
+    variationsNLO.append(v)
 
 #variations_as = []
 #for aS in alphaS:
@@ -144,6 +157,42 @@ for b in range(21):
     print u
     unc.append(u)
 
+h_NNLO.Scale(h_all.Integral()/h_NNLO.Integral())
+
+uncNLO = []
+for b in range(21):
+    v = []
+    v_rel = []
+    central = h_NNLO.GetBinContent(b+1)
+    print b,central
+    delta = 0.
+    for var in variationsNLO:
+        varied = var.GetBinContent(b+1)
+        delta += (varied-central)**2
+        if central>0:
+            v_rel.append(abs(varied-central)/central)
+        else:
+            v_rel.append(0)
+        v.append(varied)
+    v = sorted(v)
+    print v
+    print max(v_rel), min(v_rel)
+    ## replicas
+    #u = {'up':v[84*len(variations)/100-1]-central, 'down':central-v[max(0,16*len(variations)/100-1)]}
+    # hessian
+    if central>0:
+        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':sqrt(delta)/central}
+    else:
+        u = {'up':sqrt(delta), 'down':sqrt(delta), 'rel':0.}
+
+    #u['alphaS'] = 1.5*(variations_as[0].GetBinContent(b+1) - variations_as[1].GetBinContent(b+1))/2.
+    #u['up']     = sqrt(u['up']**2 + u['alphaS']**2)
+    #u['down']   = sqrt(u['down']**2 + u['alphaS']**2)
+
+    print u
+    uncNLO.append(u)
+
+
 central = h_all.Integral()
 delta = 0
 for var in variations:
@@ -154,26 +203,45 @@ print "Total relative uncertainty", delta/central
 
 
 boxes = []
+boxesNLO = []
 for ib in range(1, 1 + h_all.GetNbinsX() ):
     val = h_all.GetBinContent(ib)
     
     # uncertainty box in main histogram
     box = ROOT.TBox( h_all.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-unc[ib-1]['down']]), h_all.GetXaxis().GetBinUpEdge(ib), max([0.00, val+unc[ib-1]['up']]) )
     box.SetLineColor(ROOT.kBlack)
-    box.SetFillStyle(3444)
-    box.SetFillColor(ROOT.kBlack)
+    box.SetFillStyle(3004)
+    box.SetFillColor(ROOT.kBlue)
     
     boxes.append( box )
+
+for ib in range(1, 1 + h_NNLO.GetNbinsX() ):
+    val = h_NNLO.GetBinContent(ib)
+
+    # uncertainty box in main histogram
+    box = ROOT.TBox( h_NNLO.GetXaxis().GetBinLowEdge(ib),  max([0.00, val-uncNLO[ib-1]['down']]), h_NNLO.GetXaxis().GetBinUpEdge(ib), max([0.00, val+uncNLO[ib-1]['up']]) )
+    box.SetLineColor(ROOT.kBlack)
+    box.SetFillStyle(3005)
+    box.SetFillColor(ROOT.kRed+1)
+
+    boxesNLO.append( box )
+
 
 #raise NotImplementedError
 
 #h_central.legendText = "t#bar{t}Z (LO)"
 #h_all.legendText = "NNPDF3.1 nnlo"
-h_all.legendText = "NNPDF3.1 lo for prod."
-h_neg.legendText = "NNPDF3.1 lo reweighted"
+#h_all.legendText = "NNPDF3.1 lo for prod."
+#h_neg.legendText = "NNPDF3.1 lo reweighted"
 #h_nnlo.legendText = "NNPDF3.1 lo CP5"
 
-print h_all.Integral(), h_neg.Integral()
+h_LO_CP2.legendText = "NNPDF3.1 LO, CP2"
+h_LO.legendText = "NNPDF3.1 LO, CP5"
+h_NNLO.legendText = "NNPDF3.1 NNLO, CP5"
+h_NNLO_to_LO.legendText = "NNPDF3.1 NNLO->LO, CP5"
+
+
+#print h_all.Integral(), h_neg.Integral()
 
 #h_all.legendText = "all weights"
 #h_neg.legendText = "neg weights"
@@ -189,10 +257,13 @@ def drawObjects( ):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-plots = [[ h_all ], [ h_neg ]]#, [h_nnlo]]
+plots = [[ h_LO_CP2 ], [ h_LO ], [h_NNLO], [h_NNLO_to_LO]]#, [h_nnlo]]
+
+ROOT.gStyle.SetHatchesSpacing(0.3)
+ROOT.gStyle.SetHatchesLineWidth(2)
 
 plotting.draw(
-    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF_vs_NNLO"%sample.name,
+    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF_all"%sample.name,
                 plots,
                 #texX = "E_{T}^{miss} (GeV)"
                 #texX = "N_{jet}"
@@ -204,10 +275,10 @@ plotting.draw(
     #yRange = (0.03, 150.),
     #yRange = (0.03, [0.001,0.5]),
     #ratio = {'yRange': (0.0, 0.7),'texY':'neg. frac.'},
-    ratio = {'yRange': (0.2, 1.5),'texY':'lo/nnlo'},
+    ratio = {'yRange': (0.2, 1.5),'texY':'X/LO,CP2', 'histos':[(1,0),(2,0),(3,0)]},
     #ratio = {'yRange': (0.5, 1.5)},
-    scaling = {1:0},#, 2:0},
-    drawObjects = drawObjects() + boxes,
+    scaling = {1:0, 2:0, 3:0},
+    drawObjects = drawObjects() + boxes + boxesNLO,
     copyIndexPHP = True
 )
 

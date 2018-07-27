@@ -28,7 +28,7 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v9')
+argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v14')
 argParser.add_argument('--selection',           action='store',      default='trilep-Zcand-lepSelTTZ-njet1p-btag0-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
@@ -64,10 +64,10 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 # Make samples, will be searched for in the postProcessing directory
 #
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
@@ -534,7 +534,7 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZ_mc ]
     else:
-        mc             = [ TTZ_mc , TTW_17, TZQ_17, TTX_17, WZ_amcatnlo_17, rare_17, nonpromptMC_17, ZZ_17 ]
+        mc             = [ TTZ_mc , TTW_17, TTX_17, WZ_amcatnlo_17, rare_17, nonpromptMC_17, ZZ_17, Zgamma_17 ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

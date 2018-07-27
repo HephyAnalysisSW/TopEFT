@@ -354,6 +354,7 @@ else:
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
 jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'btagDeepCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
+if options.year == 2016: jetVars += ['id16/I']
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -415,6 +416,12 @@ read_variables += [\
     VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) ),
     VectorTreeVariable.fromString('DiscJet[%s]'% ( ','.join(jetVars) ) )
 ]
+
+if options.year == 2016:
+    read_variables += [\
+        TreeVariable.fromString('nJetAll/I'),
+        VectorTreeVariable.fromString('JetAll[%s]'% ( ','.join(jetVars) ) )
+    ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
@@ -746,10 +753,14 @@ def filler( event ):
         cleaningCollection = "FO_SS" # Could also do something else here
 
     # Jets and lepton jet cross-cleaning.
-    allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    if options.year == 2016:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"])
+    else:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
-        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
+        idVar = 'id16' if options.year==2016 else 'id'
+        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4, idVar=idVar):
             selected_jets.append( j )
         else:
             other_jets.append( j )

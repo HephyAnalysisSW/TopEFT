@@ -13,13 +13,13 @@ def alwaysFalse(*args, **kwargs):
 
 # Jets & b-jets
 
-jetVars = ['eta','pt','phi','btagCSV', 'id', 'area', 'btagDeepCSV']
+jetVars = ['eta','pt','phi','btagCSV', 'id', 'id16', 'area', 'btagDeepCSV']
 
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
 
-def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
-  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j['id']
+def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt', idVar='id'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j[idVar]
 
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
     return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))

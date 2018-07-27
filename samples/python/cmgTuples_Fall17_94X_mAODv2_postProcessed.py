@@ -32,7 +32,7 @@ dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_amc", "TTZToLLNuNu_m1to10"]
 dirs["WZ_amcatnlo"]     = ["WZTo3LNu_fxfx"]
 
 dirs['TTW']             = ["TTWToLNu_fxfx"]
-dirs['TTX']             = ["TTGJets_comb","TTTT","TZQToLL"] # TTVV missing. should be minor
+dirs['TTX']             = ["TTGJets_comb","TTTT","TZQToLL","TTHnobb_pow"] # TTVV missing. should be minor
 dirs['TZQ']             = ["TZQToLL"]
 dirs['TTH']             = ["TTHnobb_pow"]
 
@@ -45,7 +45,7 @@ dirs['DY_LO']           = ['DYJetsToLL_M50_LO_comb']
 
 dirs['nonprompt']       = ['TTLep_pow', 'DYJetsToLL_M50_LO_comb']
 dirs['rare']            = ["WWW_4F", "WWZ_4F", "WZZ","ZZZ", "WWTo2L2Nu"] # not complete yet
-dirs['ZZ']              = ["ZZTo4L_comb","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGluToZZTo4mu","GluGluToZZTo2e2tau","GluGluToZZTo2mu2tau"]
+dirs['ZZ']              = ["ZZTo4L","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGluToZZTo4mu","GluGluToZZTo2e2tau","GluGluToZZTo2mu2tau"]
 
 dirs['Zgamma']          = ['DYJetsToLL_M50_ext']
 
@@ -63,7 +63,7 @@ TTH_17              = Sample.fromDirectory(name="TTH_17",           treeName="Ev
 TTW_17              = Sample.fromDirectory(name="TTW_17",           treeName="Events", isData=False, color=color.TTW,               texName="t#bar{t}W",                            directory=directories['TTW'])
 TZQ_17              = Sample.fromDirectory(name="TZQ_17",           treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tZq",                                  directory=directories['TZQ'])
 TTLep_pow_17        = Sample.fromDirectory(name="TTLep_pow_17",     treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}",                             directory=directories['TTLep_pow'])
-nonpromptMC_17      = Sample.fromDirectory(name="nonprompt_17",     treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt",                            directory=directories['nonprompt'])
+nonpromptMC_17      = Sample.fromDirectory(name="nonprompt_17",     treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt (MC)",                            directory=directories['nonprompt'])
 rare_17             = Sample.fromDirectory(name="rare_17",          treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
 WZ_amcatnlo_17      = Sample.fromDirectory(name="WZ_17",            treeName="Events", isData=False, color=color.WZ,                texName="WZ",                                   directory=directories['WZ_amcatnlo'])
 pseudoData_17       = Sample.fromDirectory(name="pseudoData_17",    treeName="Events", isData=False, color=ROOT.kBlack,             texName="pseudo-data",                          directory=directories['pseudoData'])

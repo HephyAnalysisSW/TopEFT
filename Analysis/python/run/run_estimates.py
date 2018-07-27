@@ -106,6 +106,10 @@ setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
 setup4l.regions           = regions4lB
 
+## 4l control region setup
+# to be added now
+
+
 # only run over 3l/4l when necessary
 if options.sample in []:
     setups = [setup4l]
