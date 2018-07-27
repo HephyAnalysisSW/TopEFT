@@ -3,7 +3,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
-parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
+parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
 parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
@@ -36,16 +36,16 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 import TopEFT.Tools.logger as logger
@@ -68,27 +68,6 @@ setupNP                 = Setup(year=year, nLeptons=3, nonprompt=True)
 setupNP.channels          = [channel(-1,-1)]
 setupNP.regions           = regionsE
 
-
-# go orthogonal in Njet and Nbjet if needed
-if options.controlRegion:
-    if options.controlRegion == 'nbtag0-njet3p':
-        setup = setup.systematicClone(parameters={'nJets':(3,-1), 'nBTags':(0,0)})
-    elif options.controlRegion == 'nbtag0-njet2p':
-        setup = setup.systematicClone(parameters={'nJets':(2,-1), 'nBTags':(0,0)})
-    elif options.controlRegion == 'nbtag1p-njet02':
-        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(1,-1)})
-    elif options.controlRegion == 'nbtag1p-njet2':
-        setup = setup.systematicClone(parameters={'nJets':(2,2), 'nBTags':(1,-1)})
-    elif options.controlRegion == 'nbtag0-njet02':
-        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(0,0)})
-    elif options.controlRegion == 'nbtag0-njet0p':
-        setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
-    elif options.controlRegion == 'nbtag0-njet1p':
-        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-    else:
-        raise NotImplementedError
-
 setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
 
@@ -110,16 +89,40 @@ setup4l.regions           = regions4lB
 # to be added now
 
 
+
+# control region setups. go orthogonal in Njet and Nbjet if needed
+if options.controlRegion:
+    if options.controlRegion == 'nbtag0-njet1p-3l':
+        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+    elif options.controlRegion == 'nbtag0p-njet1p-4l':
+        setup4l = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
+    else:
+        raise NotImplementedError
+
+
 # only run over 3l/4l when necessary
-if options.sample in []:
-    setups = [setup4l]
-elif options.sample in ["WZ", "TTX", "TTW", "TZQ"]:
-    setups = [setup]
-elif options.sample in ["nonprompt"]:
-    setups = [setupNP]
+if not options.controlRegion:
+    if not options.sample in ["nonpmrompt"]:
+        setups = [setup, setup4l]
+    else:
+        setups = [setupNP]
 else:
-    # rare, ZZ, nonprompt, pseudodata, TTZ run in all SRs
-    setups = [setup, setup4l]
+    if not options.sample in ["nonpmrompt"]:
+        setups = [setup] if '3l' in options.controlRegion else [setup4l]
+    else:
+        setups = [setupNP]
+
+#
+#if options.sample in []:
+#    setups = [setup4l]
+#elif options.sample in ["WZ", "TTX", "TTW", "TZQ"]:
+#    setups = [setup]
+#elif options.sample in ["nonprompt"]:
+#    setups = [setupNP]
+#else:
+#    # rare, ZZ, nonprompt, pseudodata, TTZ run in all SRs
+#    setups = [setup, setup4l]
 
 ######### only for now ###############
 #setups = [setup]
@@ -183,6 +186,8 @@ if options.sample == "TTZ":
     for setup in [allSetups[0]]:
         for rr in setup.reweightRegions:
             jobs.append((signal, rr, channel, setup))
+
+logger.info("Created %s jobs", len(jobs))
 
 
 if options.noMultiThreading:
