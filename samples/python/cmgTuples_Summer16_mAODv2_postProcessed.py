@@ -42,13 +42,13 @@ dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWTo
 
 #dirs['rare']            = ["WGToLNuG","WWZ","WZZ","ZGTo2LG_ext","ZZTo4L","ZZZ"] # should be complete, ZZTo2L2Nu and ZZTo2L2Q are in fact nonprompt. Can be added again
 
-dirs['TTLep_pow']       = ['TTLep_pow_old']
+dirs['TTLep_pow']       = ['TTLep_pow']
 dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_powheg']
 
 #dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_ext_comb_lheHT70','DYJetsToLL_M50_HT70to100', 'DYJetsToLL_M50_HT100to200_comb', 'DYJetsToLL_M50_HT200to400_comb', 'DYJetsToLL_M50_HT400to600_comb', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT1200to2500', 'DYJetsToLL_M50_HT2500toInf']
 dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to50_LO']
 
-dirs['nonprompt']       = ['TTLep_pow_old'] + dirs['DY_LO'] + dirs['singleTop']
+dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
 dirs['ZZ']              = ['ZZTo4L','GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu','GluGluToZZTo2mu2tau','GluGluToZZTo2e2tau'] 
 dirs['rare']            = ['WWW', 'WWZ', 'WZZ', 'ZZZ'] # WW missing

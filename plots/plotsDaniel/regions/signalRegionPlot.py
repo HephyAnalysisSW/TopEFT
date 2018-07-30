@@ -44,11 +44,11 @@ logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
 # regions like in the cards
-#regions = regionsE + regions4lB
-regions = regionsE
+regions = regionsE + regions4lB# + regionsE + regions4lB
+#regions = regionsE
 
 # processes (and names) like in the card
-processes = ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonPromptDD','ZZ']
+processes = ['signal', 'WZ', 'TTX', 'TTW', 'ZG', 'rare', 'nonPromptDD','ZZ']
 
 # uncertainties like in the card
 uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'ZZ_xsec', 'rare', 'ttX', 'tZq', 'Lumi']
@@ -63,17 +63,17 @@ elif options.year == 2017:
 else:
     lumiStr = 77.2
 
-#cardName = "ewkDM_ttZ_ll"
-cardName = "dim6top_LO_ttZ_ll"
+cardName = "ewkDM_ttZ_ll"
+#cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
 cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
-subDir = "nbtag0-njet1p"
-#subDir = ""
+#subDir = "nbtag0-njet1p"
+subDir = ""
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_lowUnc/%s/dim6top_LO_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_SRandCR/%s/ewkDM_dipoles/"%(options.year,subDir)
 
 #cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
@@ -88,6 +88,7 @@ for process in processes + ['total'] + ['observed'] + ['BSM']:
 
 
 for i, r in enumerate(regions):
+    #i = i+15
     binName             = "Bin%s"%i
     logger.info("Working on %s", binName)
     totalYield          = 0.
@@ -140,6 +141,7 @@ for i, r in enumerate(regions):
         hists['BSM'].legendText = "C_{2,A}=0.15, C_{2,V}=0.15 "
 
 for i, r in enumerate(regions):
+    #i = i+15
     binName             = "Bin%s"%i
     hists['observed'].SetBinContent(i+1, getObservationFromCard(cardFile, binName).val)
     if not isData:
@@ -160,7 +162,10 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     val = hists['total'].GetBinContent(ib)
     if val<0: continue
     sys = hists['total'].GetBinError(ib)
-    sys_rel = sys/val
+    if val > 0:
+        sys_rel = sys/val
+    else:
+        sys_rel = 1.
     
     # uncertainty box in main histogram
     box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max([0.006, val-sys]), hists['total'].GetXaxis().GetBinUpEdge(ib), max([0.006, val+sys]) )
@@ -278,7 +283,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4lV8B_%s"%(subDir,cardName,options.year)
+plotName = "%s%s_signalRegions_incl4l_data_%s"%(subDir,cardName,options.year)
 if options.postFit:
     plotName += "_postFit"
 

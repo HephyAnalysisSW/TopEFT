@@ -32,9 +32,9 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -64,66 +64,6 @@ from TopEFT.Tools.cardFileWriter        import cardFileWriter
 
 year = int(args.year)
 
-## 2l setup ##
-# not yet part of the game
-
-## 3l setup ##
-setup                   = Setup(year, nLeptons=3)
-estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])#, "nonprompt"])
-setup.reweightRegions   = regionsReweight
-setup.channels          = [channel(-1,-1)] # == 'all'
-setup.regions           = regionsE
-
-## 3l NP setup ##
-setupNP                 = Setup(year, nLeptons=3, nonprompt=True)
-setupNP.channels        = [channel(-1,-1)] # == 'all'
-setupNP.regions         = regionsE
-
-## 4l setup ##
-setup4l                   = Setup(year=year, nLeptons=4)
-setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
-estimators4l              = estimatorList(setup4l)
-setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
-setup4l.reweightRegions   = regionsReweight4l
-setup4l.channels          = [channel(-1,-1)] # == 'all'
-setup4l.regions           = regions4lB
-
-
-## Include control regions in setups
-subDir = ''
-baseDir = os.path.join(analysis_results, subDir)
-
-if args.controlRegion:
-    subDir = args.controlRegion
-    if args.controlRegion == 'nbtag0-njet3p':
-        setup = setup.systematicClone(parameters={'nJets':(3,-1), 'nBTags':(0,0)})
-    elif args.controlRegion == 'nbtag0-njet2p':
-        setup = setup.systematicClone(parameters={'nJets':(2,-1), 'nBTags':(0,0)})
-    elif args.controlRegion == 'nbtag1p-njet02':
-        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(1,-1)})
-    elif args.controlRegion == 'nbtag1p-njet2':
-        setup = setup.systematicClone(parameters={'nJets':(2,2), 'nBTags':(1,-1)})
-    elif args.controlRegion == 'nbtag0-njet02':
-        setup = setup.systematicClone(parameters={'nJets':(0,2), 'nBTags':(0,0)})
-    elif args.controlRegion == 'nbtag0-njet0p':
-        setup = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
-    elif args.controlRegion == 'nbtag0-njet1p':
-        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-    else:
-        raise NotImplementedError
-else:
-    if args.includeCR:
-        subDir                  = 'SRandCR'
-        setupCR                 = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-        estimatorsCR            = estimatorList(setupCR)
-        setupCR.estimators      = estimatorsCR.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])
-        setupCR.reweightRegions = regionsReweight
-    else:
-        subDir = ''
-
-
 cardDir = "regionsE_%s"%(year)
 if args.useXSec:
     cardDir += "_xsec"
@@ -131,16 +71,55 @@ if args.useShape:
     cardDir += "_shape"
 cardDir += "_lowUnc"
 
+## 2l setup ##
+# not yet part of the game
+
+## 3l setup ##
+setup3l                 = Setup(year, nLeptons=3)
+estimators3l            = estimatorList(setup3l)
+setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])#, "nonprompt"])
+setup3l.reweightRegions = regionsReweight
+setup3l.channels        = [channel(-1,-1)] # == 'all'
+setup3l.regions         = regionsE
+setup3l.year            = year
+
+## 3l NP setup ##
+setup3l_NP              = Setup(year, nLeptons=3, nonprompt=True)
+setup3l_NP.channels     = [channel(-1,-1)] # == 'all'
+setup3l_NP.regions      = regionsE
+
+## 4l setup ##
+setup4l                 = Setup(year=year, nLeptons=4)
+setup4l.parameters.update({'nJets':(1,-1), 'nBTags':(1,-1), 'zMassRange':20, 'zWindow2':"offZ"})
+estimators4l            = estimatorList(setup4l)
+setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "rare","TTX"])
+setup4l.reweightRegions = regionsReweight4l
+setup4l.channels        = [channel(-1,-1)] # == 'all'
+setup4l.regions         = regions4lB
+setup4l.year            = year
+
+## CR setups ##
+setup3l_CR              = setup3l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+setup3l_NP_CR           = setup3l_NP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+setup4l_CR              = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
+
+## define list of setups ##
+setups = [\
+    (setup3l, setup3l_NP),
+    (setup4l, 0)
+        ]
+
 if args.includeCR:
-    setups = [setupCR, setup]
-else:
-    setups = [setup]
-if args.include4l:
-    setups += [setup4l]
-    cardDir += "_allChannelsV8"
+    setups += [\
+        (setup3l_CR, setup3l_NP_CR),
+        (setup4l_CR, 0)
+            ]
+    cardDir += "_SRandCR"
+
+subDir = ''
+baseDir = os.path.join(analysis_results, subDir)
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
-print limitDir
 overWrite   = (args.only is not None) or args.overwrite
 
 reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
@@ -268,13 +247,17 @@ def wrapper(s):
         c.addUncertainty('ZZ_xsec',     'lnN')
         c.addUncertainty('rare',        'lnN')
         c.addUncertainty('ttX',         'lnN')
-        c.addUncertainty('tZq',         'lnN')
+        #c.addUncertainty('tZq',         'lnN')
 
 
-        for setup in setups:
+        for setupPair in setups:
+            
+            # extract the nominal and nonprompt setup from the pair
+            setup, setupNP = setupPair
+            
             signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
-            nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
-            if args.unblind and args.controlRegion:
+            #nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
+            if args.unblind:
                 observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
             else:
                 observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
@@ -309,7 +292,7 @@ def wrapper(s):
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
                             if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
-                            if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
+                            #if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
 
 
                         #MC bkg stat (some condition to neglect the smaller ones?)
@@ -327,14 +310,21 @@ def wrapper(s):
                     #else:
                     #    np = u_float(0.)
                     #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1.01)
-                    np = nonprompt.cachedEstimate(r, channel, setupNP)
-                    if np.val < 0.01:
-                        np = u_float(0.01,0.)
-                    c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
-                    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
-                    c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
                     
-                    print channel.name
+                    # only get NP for 3l channel
+                    
+                    if setup.nLeptons == 3 and setupNP:
+                        nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
+                        np = nonprompt.cachedEstimate(r, channel, setupNP)
+                        if np.val < 0.01:
+                            np = u_float(0.01,0.)
+                        print round(np.val,3)
+                        c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
+                        c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
+                        c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
+                    else:
+                        c.specifyExpectation(binname, 'nonPromptDD', 0.)
+                    
                     obs = observation.cachedObservation(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
 
@@ -390,6 +380,9 @@ def wrapper(s):
     
     res = {}
     
+    #print limitDir
+    if not os.path.isdir(limitDir):
+        os.makedirs(limitDir)
     resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)
     res = {"signal":s.name}
     if not overWrite and res.DB.contains(key):

@@ -4,7 +4,7 @@ parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
-parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
+parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "TTW", "ZG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 parser.add_option("--overwrite", action='store_true', help="Overwrite?")
@@ -36,9 +36,9 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -59,7 +59,7 @@ from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "ZZ"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = regionsE
@@ -78,7 +78,7 @@ modifiers = ['JECUp', 'JECDown', 'JERUp', 'JERDown']
 
 ## 4l setup ##
 setup4l                   = Setup(year=year, nLeptons=4)
-setup4l.parameters.update({'nJets':(2,-1), 'nBTags':(1,-1), 'zMassRange':20})
+setup4l.parameters.update({'nJets':(1,-1), 'nBTags':(1,-1), 'zMassRange':20, 'zWindow2':'offZ'})
 estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
 setup4l.reweightRegions   = regionsReweight4l
@@ -88,30 +88,34 @@ setup4l.regions           = regions4lB
 ## 4l control region setup
 # to be added now
 
-
+setup_CR = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+setupNP_CR = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+setup4l_CR = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
 
 # control region setups. go orthogonal in Njet and Nbjet if needed
 if options.controlRegion:
     if options.controlRegion == 'nbtag0-njet1p-3l':
-        setup = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-        setupNP = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        setup_CR = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
+        setupNP_CR = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
     elif options.controlRegion == 'nbtag0p-njet1p-4l':
-        setup4l = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
+        setup4l_CR = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
     else:
         raise NotImplementedError
 
 
 # only run over 3l/4l when necessary
 if not options.controlRegion:
-    if not options.sample in ["nonpmrompt"]:
-        setups = [setup, setup4l]
+    if not options.sample in ["nonprompt"]:
+        setups = [setup, setup_CR]
+        if options.sample in ["ZZ","rare","TTX","TTZ","Data"]:
+            setups += [setup4l, setup4l_CR]
     else:
-        setups = [setupNP]
+        setups = [setupNP, setupNP_CR]
 else:
-    if not options.sample in ["nonpmrompt"]:
-        setups = [setup] if '3l' in options.controlRegion else [setup4l]
+    if not options.sample in ["nonprompt"]:
+        setups = [setup_CR] if '3l' in options.controlRegion else [setup4l_CR]
     else:
-        setups = [setupNP]
+        setups = [setupNP_CR]
 
 #
 #if options.sample in []:

@@ -143,6 +143,7 @@ class Setup:
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
+            ZGSample            = ZGTo2LG
             ZZSample            = ZZ_17
             rareSample          = rare_17
             #rare_noZZSample     = rare_noZZ
@@ -156,6 +157,7 @@ class Setup:
             TTXSample           = TTX
             TTWSample           = TTW
             TZQSample           = TZQ
+            ZGSample            = ZGTo2LG
             ZZSample            = ZZ
             rareSample          = rare
             #rare_noZZSample     = rare_noZZ
@@ -171,6 +173,7 @@ class Setup:
             'TTX' :         TTXSample,
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,
+            'ZG' :          ZGSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
             #'rare_noZZ':    rare_noZZSample,
@@ -325,12 +328,17 @@ class Setup:
                 if not self.nonprompt: res['cuts'].append("Z_fromTight>0")
             elif nLeptons == 4:
                 res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
-                if nMuons%2 == 0:
-                    logger.info("Z window 2 off Z, nMuons %s", nMuons)
-                    res['cuts'].append(getZCut("offZ", "Z2_mass_4l", zMassRange))
+                if zWindow2 == 'offZ':
+                    # if number of muons is even, go off-Z
+                    if nMuons%2 == 0:
+                        logger.info("Z window 2 off Z, nMuons %s", nMuons)
+                        res['cuts'].append(getZCut("offZ", "Z2_mass_4l", zMassRange))
+                    else:
+                        logger.info("Z window 2 all Z, nMuons %s", nMuons)
+                        res['cuts'].append(getZCut("allZ", "Z2_mass_4l", zMassRange))
                 else:
-                    logger.info("Z window 2 all Z, nMuons %s", nMuons)
-                    res['cuts'].append(getZCut("allZ", "Z2_mass_4l", zMassRange))
+                    logger.info("Z window 2 %s, nMuons %s", zWindow2, nMuons)
+                    res['cuts'].append(getZCut(zWindow2, "Z2_mass_4l", zMassRange))
             # no Z-mass cut for 2l case
 
             res['cuts'].append(chStr)
