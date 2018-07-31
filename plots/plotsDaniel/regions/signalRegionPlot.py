@@ -50,7 +50,16 @@ regions += regions
 #regions = regionsE
 
 # processes (and names) like in the card
-processes = ['signal', 'WZ', 'ZZ', 'nonPromptDD', 'TTX', 'TTW', 'ZG', 'rare']
+processes = [
+    ('signal', 't#bar{t}Z'),
+    ('WZ', 'WZ'),
+    ('ZZ', 'ZZ'),
+    ('nonPromptDD', 'non-prompt'),
+    ('TTX', 't(#bar{t})X'),
+    ('TTW', 't#bar{t}W'),
+    ('ZG', 'Z#gamma'),
+    ('rare', 'rare'),
+    ]
 
 # uncertainties like in the card
 uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb','ZZ_xsec', 'rare', 'ttX', 'Lumi'] #tzq removed
@@ -69,6 +78,7 @@ cardName = "ewkDM_ttZ_ll"
 #cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
 cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
+#cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
@@ -85,7 +95,8 @@ cardFile_signal = "%s/%s.txt"%(cardDir, cardName_signal)
 logger.info("Plotting from cardfile %s"%cardFile)
 
 hists = {}
-for process in processes + ['total'] + ['observed'] + ['BSM']:
+allProcesses = processes + [('total','')] + [('observed','Data (%s)'%options.year)] + [('BSM','signal')]
+for process,tex in allProcesses:
     hists[process] = ROOT.TH1F(process,"", Nbins, 0, Nbins)
 
 
@@ -99,7 +110,7 @@ for i, r in enumerate(regions):
 
     postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD_r1.root'))
 
-    for p in processes:
+    for p,tex in processes:
         logger.info("Process: %s", p)
         res      = getEstimateFromCard(cardFile, p, binName)
         if options.postFit:
@@ -143,17 +154,18 @@ for i, r in enumerate(regions):
 
         hists[p].SetBinContent(i+1, pYield.val)
         hists[p].SetBinError(i+1,0)
-        if p == "signal":
-            hists[p].legendText = "ttZ"
-        else:
-            hists[p].legendText = p
+        hists[p].legendText = tex
+        #if p == "signal":
+        #    hists[p].legendText = "ttZ"
+        #else:
+        #    hists[p].legendText = p
         if not p == 'total':
            hists[p].style = styles.fillStyle( getattr(color, p), lineColor=getattr(color,p), errors=False )
 
     hists['total'].SetBinContent(i+1, totalYield.val)
     totalUncertainty = math.sqrt(totalUncertainty)
     hists['total'].SetBinError(i+1, totalUncertainty)
-    if options.signal:
+    if options.signal and i>14:
         hists['BSM'].SetBinContent(i+1, getEstimateFromCard(cardFile_signal, "signal", binName).val + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, 0.1)
         hists['BSM'].legendText = "C_{2,A}=0.15, C_{2,V}=0.15 "
@@ -165,7 +177,7 @@ for i, r in enumerate(regions):
     if not isData:
         hists['observed'].legendText = 'pseudo-data'
     else:
-        hists['observed'].legendText = 'Data'
+        hists['observed'].legendText = 'Data (%s)'%options.year
     
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
@@ -187,15 +199,15 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     
     # uncertainty box in main histogram
     box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max([0.006, val-sys]), hists['total'].GetXaxis().GetBinUpEdge(ib), max([0.006, val+sys]) )
-    box.SetLineColor(ROOT.kBlack)
-    box.SetFillStyle(3444)
-    box.SetFillColor(ROOT.kBlack)
+    box.SetLineColor(ROOT.kGray+2)
+    box.SetFillStyle(3005)
+    box.SetFillColor(ROOT.kGray+2)
     
     # uncertainty box in ratio histogram
     r_box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max(0.1, 1-sys_rel), hists['total'].GetXaxis().GetBinUpEdge(ib), min(1.9, 1+sys_rel) )
-    r_box.SetLineColor(ROOT.kBlack)
-    r_box.SetFillStyle(3444)
-    r_box.SetFillColor(ROOT.kBlack)
+    r_box.SetLineColor(ROOT.kGray+2)
+    r_box.SetFillStyle(3005)
+    r_box.SetFillColor(ROOT.kGray+2)
 
     boxes.append( box )
     hists['total'].SetBinError(ib, 0)
@@ -249,12 +261,13 @@ def drawDivisions(regions):
 #   line.SetLineColor(38)
     line.SetLineWidth(1)
     line.SetLineStyle(2)
-    line1 = (min+3*diff,  0.013, min+3*diff, 0.93);
-    line2 = (min+6*diff, 0.013, min+6*diff, 0.93);
-    line3 = (min+9*diff, 0.013, min+9*diff, 0.93);
-    line4 = (min+12*diff, 0.013, min+12*diff, 0.80-0.010*32-0.03);
-    line5 = (min+12*diff, 0.80+0.03, min+12*diff, 0.93);
-    return [line.DrawLineNDC(*l) for l in [line1, line2, line3, line4, line5]] + [tex.DrawLatex(*l) for l in lines] + [tex2.DrawLatex(*l) for l in lines2]
+    lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) for i in range(1,10) ]
+    #line1 = (min+3*diff,  0.013, min+3*diff, 0.93);
+    #line2 = (min+6*diff, 0.013, min+6*diff, 0.93);
+    #line3 = (min+9*diff, 0.013, min+9*diff, 0.93);
+    #line4 = (min+12*diff, 0.013, min+12*diff, 0.80-0.010*32-0.03);
+    #line5 = (min+12*diff, 0.80+0.03, min+12*diff, 0.93);
+    return [line.DrawLineNDC(*l) for l in lines] + [tex.DrawLatex(*l) for l in []] + [tex2.DrawLatex(*l) for l in lines2]
 
 
 def drawBinNumbers(numberOfBins):
@@ -283,14 +296,14 @@ def setBinLabels( hist ):
     for i in range(1, hist.GetNbinsX()+1):
         hist.GetXaxis().SetBinLabel(i, "%s"%i)
 
-drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes + drawDivisions( regions )# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
-for p in processes:
+for p,tex in processes:
     if p is not "total" and p is not 'observed':
         bkgHists.append(hists[p])
 
-for p in processes + ['total', 'observed', 'BSM']:
+for p,tex in allProcesses:
     setBinLabels(hists[p])
 
 #histos =  bkgHists  + [hists["total"]]
@@ -312,7 +325,8 @@ plotting.draw(
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions"),
     logX = False, logY = True, sorting = False, 
-    legend = (0.75,0.80-0.010*32, 0.95, 0.80),
+    #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
+    legend = (0.74,0.80-0.010*32, 0.95, 0.80),
     widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),

@@ -403,9 +403,9 @@ def wrapper(s):
         res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
         # Don't extract all the nuisances by default
         if args.calcNuisances:
-            c.calcNuisances(cardFileName)
+            c.calcNuisances(cardFileName, masking=range(15,30))
         # extract the NLL
-        nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"]) # fastScan turns of profiling
+        nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"], masking=range(15,30)) # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
         else:
@@ -439,8 +439,6 @@ if args.only is not None:
         wrapper(jobs[int(args.only)])
     else:
         jobNames = [ x.name for x in jobs ]
-        print jobNames[145]
-        print len(jobs)
         wrapper(jobs[jobNames.index(args.only)])
     exit(0)
 

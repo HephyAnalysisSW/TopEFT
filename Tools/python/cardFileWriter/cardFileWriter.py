@@ -274,7 +274,7 @@ class cardFileWriter:
         shutil.rmtree(uniqueDirname)
         return res
 
-    def calcNuisances(self, fname=None, options=""):
+    def calcNuisances(self, fname=None, options="", masking=[]):
         import uuid, os
         ustr          = str(uuid.uuid4())
         uniqueDirname = os.path.join(self.releaseLocation, ustr)
@@ -293,9 +293,11 @@ class cardFileWriter:
         assert os.path.exists(filename), "File not found: %s"%filename
 
         # create the workspace
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root  -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%(filename)
         # get the nuisances for r = 1
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.99,1.01 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties "
+        masks = ['mask_ch1_Bin'+str(i)+'=1' for i in masking]
+        maskString = ','.join(masks)
+        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.99,1.01 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%maskString
         combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_r1.txt"
         combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_r1_full.txt"
         combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_r1.tex"
@@ -363,7 +365,7 @@ class cardFileWriter:
     def consitencyCheck(self, a, b):
         return a - 0.01 <= b <= a + 0.01
 
-    def physicsModel(self, fname=None, options="", normList=[]):
+    def physicsModel(self, fname=None, options="", normList=[], masking=[]):
         '''
         Alternative version to get NLL. Results are similar, but should be more flexible for future changes, and also faster.
         '''
@@ -384,10 +386,12 @@ class cardFileWriter:
             normOption += " > output.txt"
         
         # create combine workspace
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py -o myWorkspace.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel %s"%filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel %s"%filename
         os.system(combineCommand)
         # use multiDimFit to first obtain fit and NLL value for r=1, then let r float
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --setParameterRanges r=0.99,1.01 --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all %s"%normOption
+        masks = ['mask_ch1_Bin'+str(i)+'=1' for i in masking]
+        maskString = ','.join(masks)
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --setParameterRanges r=0.99,1.01 --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all %s --setParameters %s"%(normOption,maskString)
         os.system(combineCommand)
 
         nll_r_one   = self.readNLLFile(uniqueDirname+"/higgsCombineTest.MultiDimFit.mH120.root")
