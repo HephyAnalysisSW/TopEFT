@@ -25,7 +25,7 @@ import math
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels
-from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions
+from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB
 from TopEFT.Tools.u_float           import u_float 
 from TopEFT.Tools.resultsDB         import resultsDB
 from TopEFT.Analysis.Region         import Region 
@@ -44,15 +44,15 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
-postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 from TopEFT.Analysis.Setup          import Setup
@@ -80,7 +80,7 @@ WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=Fals
 #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 #postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v12/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 dirs = {}
 dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc_psw']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
@@ -101,7 +101,7 @@ if options.small:
 if options.btagWZ:
     allRegions = btagRegions + noRegions
 else:
-    allRegions = regionsE + noRegions
+    allRegions = noRegions + regionsE + regions4lB
 regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
 
 setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})

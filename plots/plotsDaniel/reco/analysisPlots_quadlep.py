@@ -72,10 +72,10 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 
 if args.year == 2016:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
     from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 

@@ -502,7 +502,9 @@ def get_powheg_reweight( histo_pow, histo_amc ):
     return get_histo_reweight
 
 WZ_amcatnlo.Z_pt_histo    = WZ_amcatnlo.get1DHistoFromDraw("Z_pt", [10,0,500], selectionString= cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+WZ_amcatnlo.Z_pt_histo.Scale(1./WZ_amcatnlo.Z_pt_histo.Integral())
 WZ_powheg.Z_pt_histo      =   WZ_powheg.get1DHistoFromDraw("Z_pt", [10,0,500], selectionString= cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+WZ_powheg.Z_pt_histo.Scale(1./WZ_powheg.Z_pt_histo.Integral())
 
 ZptRW = get_powheg_reweight( WZ_powheg.Z_pt_histo, WZ_amcatnlo.Z_pt_histo )
 

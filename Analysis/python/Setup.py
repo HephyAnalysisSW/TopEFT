@@ -49,13 +49,12 @@ lumi = dataLumi2016
 
 #Define defaults here
 zMassRange          = 10
-default_mllMin      = 0
+default_mllMin      = 12
 default_zWindow1    = "onZ"
 default_zWindow2    = "offZ"
 default_nJets       = (3, -1)   # written as (min, max)
 default_nBTags      = (1, -1)
 default_metMin      = 0
-
 
 #default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF', 'reweightTrigger', 'reweightLeptonTrackingSF'], 'selectionModifier':None}
 default_parameters   = {
@@ -303,12 +302,12 @@ class Setup:
             res['prefixes'].append(prefix)
 
         if metMin and metMin>0:
-          res['cuts'].append('met_pt'+sysStr+metStr+'>='+str(metMin))
-          res['prefixes'].append('met'+str(metMin))
+            res['cuts'].append('met_pt'+sysStr+metStr+'>='+str(metMin))
+            res['prefixes'].append('met'+str(metMin))
 
         if not hadronicSelection:
             if mllMin and mllMin>0:
-              res['cuts'].append('Z_mass>='+str(mllMin))
+              res['cuts'].append('min_dl_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
             if nMuons >= 0 and nElectrons >= 0:

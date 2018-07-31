@@ -285,6 +285,8 @@ class cardFileWriter:
 
         os.system(combineCommand)
 
+        shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD.root'))
+
         for files in filePostfixes:
             tempResFile = "%s/%s"%(uniqueDirname, files)
             resFile = filename.replace('.txt','')+'_%s'%files
@@ -370,6 +372,9 @@ class cardFileWriter:
         
         print nll_r_one
         print nll_r_float
+        
+        #os.listdir
+        shutil.copyfile(uniqueDirname+"/higgsCombineTest.MultiDimFit.mH120.root", fname.replace(".txt",".root"))
         
         shutil.rmtree(uniqueDirname)
         return nll_r_one

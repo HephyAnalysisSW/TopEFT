@@ -104,17 +104,19 @@ setup3l_NP_CR           = setup3l_NP.systematicClone(parameters={'nJets':(1,-1),
 setup4l_CR              = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
 
 ## define list of setups ##
-setups = [\
-    (setup3l, setup3l_NP),
-    (setup4l, 0)
-        ]
-
+setups = []
 if args.includeCR:
     setups += [\
         (setup3l_CR, setup3l_NP_CR),
         (setup4l_CR, 0)
             ]
     cardDir += "_SRandCR"
+
+setups += [\
+    (setup3l, setup3l_NP),
+    (setup4l, 0)
+        ]
+
 
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
@@ -241,6 +243,7 @@ def wrapper(s):
         c.addUncertainty('scale',       'lnN')
         c.addUncertainty('scale_sig',   'lnN')
         c.addUncertainty('PDF',         'lnN')
+        c.addUncertainty('PartonShower','lnN')
         c.addUncertainty('nonprompt',   'lnN')
         c.addUncertainty('WZ_xsec',     'lnN')
         c.addUncertainty('WZ_bb',       'lnN')
@@ -288,7 +291,11 @@ def wrapper(s):
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
 
                             if name.count('ZZ'):      c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
-                            if name.count('WZ'):      c.specifyUncertainty('WZ_xsec',     binname, name, 1.10) #1.20
+                            if name.count('WZ'):
+                                c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
+                                if setup == setup3l:
+                                    c.specifyUncertainty('WZ_bb',     binname, name, 1.08)
+                            
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
                             if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.10) #1.15
@@ -318,7 +325,6 @@ def wrapper(s):
                         np = nonprompt.cachedEstimate(r, channel, setupNP)
                         if np.val < 0.01:
                             np = u_float(0.01,0.)
-                        print round(np.val,3)
                         c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
                         c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
                         c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
@@ -355,13 +361,14 @@ def wrapper(s):
                             c.specifyUncertainty('JEC',         binname, "signal", 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.05
                             c.specifyUncertainty('btag_heavy',  binname, "signal", 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.05
                             c.specifyUncertainty('btag_light',  binname, "signal", 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.05
-                            c.specifyUncertainty('trigger',     binname, "signal", 1.03) #1.04
-                            c.specifyUncertainty('leptonSF',    binname, "signal", 1.05) #1.07
+                            c.specifyUncertainty('trigger',     binname, "signal", 1+round(e.triggerSystematic(r, channel, setup).val,3))
+                            c.specifyUncertainty('leptonSF',    binname, "signal", 1+round(e.leptonSFSystematic(r, channel, setup).val,3))
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
                             #c.specifyUncertainty('scale_sig',   binname, "signal", round(scale_cache.get({"region":r, "channel":channel, "PDFset":None}).val,3) + 1)
                             #c.specifyUncertainty('PDF',         binname, "signal", round(PDF_cache.get({"region":r, "channel":channel, "PDFset":PDFset}).val,3) + 1)
-                            ##c.specifyUncertainty('scale_sig',   binname, "signal", 1.10) #1.30
-                            ##c.specifyUncertainty('PDF',         binname, "signal", 1.05) #1.15
+                            c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
+                            c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
+                            c.specifyUncertainty('PartonShower',binname, "signal", 1.04)
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')

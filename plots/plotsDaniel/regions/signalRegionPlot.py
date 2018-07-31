@@ -44,14 +44,15 @@ logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
 # regions like in the cards
-regions = regionsE + regions4lB# + regionsE + regions4lB
+regions = regionsE + regions4lB
+regions += regions
 #regions = regionsE
 
 # processes (and names) like in the card
-processes = ['signal', 'WZ', 'TTX', 'TTW', 'ZG', 'rare', 'nonPromptDD','ZZ']
+processes = ['signal', 'WZ', 'ZZ', 'nonPromptDD', 'TTX', 'TTW', 'ZG', 'rare']
 
 # uncertainties like in the card
-uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'ZZ_xsec', 'rare', 'ttX', 'tZq', 'Lumi']
+uncertainties = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'trigger', 'leptonSF', 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb','ZZ_xsec', 'rare', 'ttX', 'Lumi'] #tzq removed
 
 Nbins = len(regions)
 
@@ -96,6 +97,7 @@ for i, r in enumerate(regions):
     totalUncertainty    = 0.
 
     for p in processes:
+        logger.info("Process: %s", p)
         res      = getEstimateFromCard(cardFile, p, binName)
         if options.postFit:
             pYield      = applyAllNuisances(cardFile, p, res, binName, uncertainties)
@@ -265,7 +267,7 @@ def setBinLabels( hist ):
     for i in range(1, hist.GetNbinsX()+1):
         hist.GetXaxis().SetBinLabel(i, "%s"%i)
 
-drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
 for p in processes:
@@ -293,12 +295,12 @@ plotting.draw(
                 texX = "Signal Region"
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions"),
-    logX = False, logY = True, sorting = True, 
+    logX = False, logY = True, sorting = False, 
     legend = (0.75,0.80-0.010*32, 0.95, 0.80),
-    widths = {'x_width':700, 'y_width':600},
+    widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes} if not options.postFit else  {'yRange': (0.6, 1.4), 'drawObjects':ratio_boxes},
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes} if not options.postFit else  {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes},
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
