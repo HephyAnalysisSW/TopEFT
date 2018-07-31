@@ -252,6 +252,9 @@ def wrapper(s):
         c.addUncertainty('ttX',         'lnN')
         #c.addUncertainty('tZq',         'lnN')
 
+        c.addRateParameter('WZ', 1, '[0,2]')
+        c.addRateParameter('ZZ', 1, '[0,2]')
+        # others as well?
 
         for setupPair in setups:
             
@@ -402,7 +405,7 @@ def wrapper(s):
         if args.calcNuisances:
             c.calcNuisances(cardFileName)
         # extract the NLL
-        nll = c.physicsModel(cardFileName, options="--fastScan") # fastScan turns of profiling
+        nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"]) # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
         else:

@@ -35,6 +35,7 @@ from TopEFT.Analysis.Region         import Region
 from TopEFT.Tools.infoFromCards     import *
 from TopEFT.Tools.user              import plot_directory
 from TopEFT.samples.color           import color
+from TopEFT.Tools.getPostFit        import *
 
 from RootTools.core.standard import *
 # logger
@@ -96,19 +97,34 @@ for i, r in enumerate(regions):
     backgroundYield     = 0.
     totalUncertainty    = 0.
 
+    postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD_r1.root'))
+
     for p in processes:
         logger.info("Process: %s", p)
         res      = getEstimateFromCard(cardFile, p, binName)
         if options.postFit:
-            pYield      = applyAllNuisances(cardFile, p, res, binName, uncertainties)
-            if res.val>0:
-                logger.info("Found following SF for process %s: %s"%(p, round(pYield.val/res.val,2)))
-            else:
-                logger.info("No SF found, result is 0")
+            if p in postFitResults['results']['shapes_fit_s']['Bin%s'%i].keys():
+                pYield = postFitResults['results']['shapes_fit_s']['Bin%s'%i][p]
+                preYield = postFitResults['results']['shapes_prefit']['Bin%s'%i][p]
+                logger.info("Scale factor: %s", pYield.val/preYield.val)
+                pError = pYield.sigma
+                if pError/pYield.val > 10:
+                    pError = pYield.val
+                pError = pError**2
+            else: pYield = u_float(0,0)
+
+
+            #pYield      = applyAllNuisances(cardFile, p, res, binName, uncertainties)
+            #if res.val>0:
+            #    logger.info("Found following SF for process %s: %s"%(p, round(pYield.val/res.val,2)))
+            #else:
+            #    logger.info("No SF found, result is 0")
         else:
             pYield      = res
-        # automatically get the stat uncertainty from card
-        pError      = pYield.sigma**2
+            #indented now!
+            # automatically get the stat uncertainty from card
+            pError      = pYield.sigma**2
+
         if not p == "signal":
             backgroundYield += pYield
         totalYield += pYield
