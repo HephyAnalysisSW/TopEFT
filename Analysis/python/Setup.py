@@ -74,6 +74,7 @@ class Setup:
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
         self.year       = year
         self.nLeptons   = nLeptons
+        self.short      = False
         
         if nLeptons == 2:
             self.tight_ID    = "tight_SS"
@@ -239,15 +240,15 @@ class Setup:
     def weightString(self):
         return "*".join([self.sys['weight']] + (self.sys['reweight'] if self.sys['reweight'] else []))
 
-    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False, short=False):
+    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False):
         '''Get preselection  cutstring.'''
-        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, short=short, hadronicSelection = False, **self.parameters)
+        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, hadronicSelection = False, **self.parameters)
 
     def selection(self, dataMC,
                         mllMin, metMin, zWindow1, zWindow2, zMassRange,
                         nJets, nBTags,
                         nElectrons=-1, nMuons=-1,
-                        hadronicSelection = False,  isFastSim = False, short=False):
+                        hadronicSelection = False,  isFastSim = False):
         '''Define full selection
            dataMC: 'Data' or 'MC'
            nElectrons, nMuons: Number of E and M. -1: all
@@ -373,11 +374,11 @@ class Setup:
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
-        if not short: res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
+        if not self.short: res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         # apply triggers in MC
         if not dataMC == 'Data':
             tr = triggerSelector(self.year)
-            if not short: res['cuts'].append(tr.getSelection("MC"))
+            if not self.short: res['cuts'].append(tr.getSelection("MC"))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

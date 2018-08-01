@@ -297,7 +297,7 @@ class cardFileWriter:
         # get the nuisances for r = 1
         masks = ['mask_ch1_Bin'+str(i)+'=1' for i in masking]
         maskString = ','.join(masks)
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.99,1.01 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%maskString
+        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.95,1.05 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%maskString
         combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_r1.txt"
         combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_r1_full.txt"
         combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_r1.tex"

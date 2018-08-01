@@ -11,7 +11,8 @@ from TopEFT.Analysis.SetupHelpers import trilepChannels, quadlepChannels, channe
 class MCBasedEstimate(SystematicEstimator):
     def __init__(self, name, sample, cacheDir=None):
         super(MCBasedEstimate, self).__init__(name, cacheDir=cacheDir)
-        self.sample=sample
+        self.sample = sample
+        #self.short = short #this removes filters and triggers from the cutstring
 
         # FastSim and 76X only for the MCBasedEstimate. Dirty. Looks whether one of the samples is fastsim.
         self.isFastSim = getattr(sample, "isFastSim", False) 

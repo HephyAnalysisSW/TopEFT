@@ -107,7 +107,7 @@ if options.controlRegion:
 if not options.controlRegion:
     if not options.sample in ["nonprompt"]:
         setups = [setup, setup_CR]
-        if options.sample in ["ZZ","rare","TTX","TTZ","Data"]:
+        if options.sample in ["ZZ","rare","TTX","TTZ","Data","pseudoData"]:
             setups += [setup4l, setup4l_CR]
     else:
         setups = [setupNP, setupNP_CR]
@@ -181,6 +181,7 @@ for setup in allSetups:
             elif options.sample == "nonprompt":
                 jobs.append((nonprompt, r, channel, setup))
             else:
+                setup.short = True if options.sample == 'ZG' and year == 2017 else False
                 for e in estimatorsC:
                     #name = e.name.split('-')[0]
                     jobs.append((e, r, channel, setup))

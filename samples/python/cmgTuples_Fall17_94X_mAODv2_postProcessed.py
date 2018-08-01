@@ -49,7 +49,7 @@ dirs['ZZ']              = ["ZZTo4L","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGlu
 
 dirs['Zgamma']          = ['DYJetsToLL_M50_ext']
 
-dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt'] + dirs['ZZ']
+dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['rare'] + dirs['nonprompt'] + dirs['ZZ']
 
 
 
@@ -73,3 +73,9 @@ Zgamma_17           = Sample.fromDirectory(name="Zgamma_17",        treeName="Ev
 ## set sample selection strings for the nonprompt and Zgamma sample
 nonpromptMC_17.setSelectionString('nLeptons_FO_3l_genPrompt<=2')
 Zgamma_17.setSelectionString('nLeptons_FO_3l_genPrompt>2')
+
+## Hardcoding the 2016 ZG sample.
+#ZGTo2LG_17         = Sample.fromDirectory(name="ZGTo2LG_17",          treeName="Events", isData=False, color=color.ZG,              texName="Z#gamma",                                 directory=[''])
+#ZGTo2LG_17.setSelectionString('nLeptons_FO_3l_genPrompt>2')
+#ZGTo2LG_17.isData = True
+

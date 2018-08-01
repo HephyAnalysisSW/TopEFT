@@ -263,10 +263,14 @@ def wrapper(s):
             
             signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
             #nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
-            if args.unblind:
+            if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
                 observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
+                logger.info("Using data!")
+                print setup.year
             else:
                 observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
+                logger.info("Using pseudo-data!")
+                print setup.year
             for e in setup.estimators: e.initCache(setup.defaultCacheDir())
 
             for r in setup.regions:
@@ -334,7 +338,10 @@ def wrapper(s):
                     else:
                         c.specifyExpectation(binname, 'nonPromptDD', 0.)
                     
-                    obs = observation.cachedObservation(r, channel, setup)
+                    if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
+                        obs = observation.cachedObservation(r, channel, setup)
+                    else:
+                        obs = observation.cachedEstimate(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)))
 
                     if args.useShape:

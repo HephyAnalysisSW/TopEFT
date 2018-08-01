@@ -16,6 +16,7 @@ parser.add_option("--small",                action='store_true', help="small?")
 parser.add_option("--combine",              action='store_true', help="Combine results?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option('--signal',               action="store_true")
+parser.add_option('--blinded',              action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
 parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
@@ -108,7 +109,8 @@ for i, r in enumerate(regions):
     backgroundYield     = 0.
     totalUncertainty    = 0.
 
-    postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD_r1.root'))
+    if options.postFit:
+        postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD_r1.root'))
 
     for p,tex in processes:
         logger.info("Process: %s", p)
@@ -173,11 +175,12 @@ for i, r in enumerate(regions):
 for i, r in enumerate(regions):
     #i = i+15
     binName             = "Bin%s"%i
-    hists['observed'].SetBinContent(i+1, getObservationFromCard(cardFile, binName).val)
-    if not isData:
-        hists['observed'].legendText = 'pseudo-data'
-    else:
-        hists['observed'].legendText = 'Data (%s)'%options.year
+    if not (options.blinded and i>14):
+        hists['observed'].SetBinContent(i+1, getObservationFromCard(cardFile, binName).val)
+        if not isData:
+            hists['observed'].legendText = 'pseudo-data'
+        else:
+            hists['observed'].legendText = 'Data (%s)'%options.year
     
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
@@ -199,15 +202,15 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     
     # uncertainty box in main histogram
     box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max([0.006, val-sys]), hists['total'].GetXaxis().GetBinUpEdge(ib), max([0.006, val+sys]) )
-    box.SetLineColor(ROOT.kGray+2)
-    box.SetFillStyle(3005)
-    box.SetFillColor(ROOT.kGray+2)
+    box.SetLineColor(ROOT.kGray+1)
+    box.SetFillStyle(3244)
+    box.SetFillColor(ROOT.kGray+1)
     
     # uncertainty box in ratio histogram
     r_box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max(0.1, 1-sys_rel), hists['total'].GetXaxis().GetBinUpEdge(ib), min(1.9, 1+sys_rel) )
-    r_box.SetLineColor(ROOT.kGray+2)
-    r_box.SetFillStyle(3005)
-    r_box.SetFillColor(ROOT.kGray+2)
+    r_box.SetLineColor(ROOT.kGray+1)
+    r_box.SetFillStyle(3244)
+    r_box.SetFillColor(ROOT.kGray+1)
 
     boxes.append( box )
     hists['total'].SetBinError(ib, 0)
@@ -261,7 +264,7 @@ def drawDivisions(regions):
 #   line.SetLineColor(38)
     line.SetLineWidth(1)
     line.SetLineStyle(2)
-    lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) for i in range(1,10) ]
+    lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) if min+3*i*diff<0.74 else (min+3*i*diff,  0.013, min+3*i*diff, 0.52) for i in range(1,10) ]
     #line1 = (min+3*diff,  0.013, min+3*diff, 0.93);
     #line2 = (min+6*diff, 0.013, min+6*diff, 0.93);
     #line3 = (min+9*diff, 0.013, min+9*diff, 0.93);
@@ -287,7 +290,7 @@ def drawObjects( isData=False, lumi=36. ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS Preliminary'),
+      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS #bf{#it{Preliminary}}'),
       (0.75, 0.95, '%sfb^{-1} (13 TeV)'%int(lumi) )
     ]
     return [tex.DrawLatex(*l) for l in lines]
@@ -308,7 +311,7 @@ for p,tex in allProcesses:
 
 #histos =  bkgHists  + [hists["total"]]
 if options.signal:
-    plots = [ bkgHists, [hists['observed']], [hists['BSM']] ]
+    plots = [ [hists['BSM']], bkgHists, [hists['observed']] ]
 else:
     plots = [ bkgHists, [hists['observed']]]
 if subDir:
@@ -326,11 +329,11 @@ plotting.draw(
     plot_directory = os.path.join(plot_directory, "signalRegions"),
     logX = False, logY = True, sorting = False, 
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
-    legend = (0.74,0.80-0.010*32, 0.95, 0.80),
+    legend = (0.74,0.54, 0.95, 0.89),
     widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes} if not options.postFit else  {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes},
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes, 'histos':[(2,1)] if options.signal else [(1,0)]} ,
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
