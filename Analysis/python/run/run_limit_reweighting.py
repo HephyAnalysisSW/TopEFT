@@ -236,27 +236,28 @@ def wrapper(s):
         counter=0
         c.reset()
         c.setPrecision(3)
-        c.addUncertainty('PU',          'lnN')
-        c.addUncertainty('JEC',         'lnN')
-        c.addUncertainty('btag_heavy',  'lnN')
-        c.addUncertainty('btag_light',  'lnN')
-        c.addUncertainty('trigger',     'lnN')
-        c.addUncertainty('leptonSF',    'lnN')
-        c.addUncertainty('scale',       'lnN')
-        c.addUncertainty('scale_sig',   'lnN')
-        c.addUncertainty('PDF',         'lnN')
-        c.addUncertainty('PartonShower','lnN')
-        c.addUncertainty('nonprompt',   'lnN')
-        c.addUncertainty('WZ_xsec',     'lnN')
-        c.addUncertainty('WZ_bb',       'lnN')
-        c.addUncertainty('ZZ_xsec',     'lnN')
-        c.addUncertainty('rare',        'lnN')
-        c.addUncertainty('ttX',         'lnN')
+        postfix = '_%s'%args.year
+        c.addUncertainty('PU'+postfix,          'lnN') # uncorrelated, different method
+        c.addUncertainty('JEC'+postfix,         'lnN') # uncorrelated, for now!
+        c.addUncertainty('btag_heavy'+postfix,  'lnN') # uncorrelated, wait for offical recommendation
+        c.addUncertainty('btag_light'+postfix,  'lnN') # uncorrelated, wait for offical recommendation
+        c.addUncertainty('trigger'+postfix,     'lnN') # uncorrelated, statistics dominated
+        c.addUncertainty('leptonSF'+postfix,    'lnN') # uncorrelated, statistics dominated
+        c.addUncertainty('scale',               'lnN') # correlated.
+        c.addUncertainty('scale_sig',           'lnN') # correlated.
+        c.addUncertainty('PDF',                 'lnN') # correlated.
+        c.addUncertainty('PartonShower',        'lnN') # correlated.
+        c.addUncertainty('nonprompt',           'lnN') # correlated?!
+        c.addUncertainty('WZ_xsec',             'lnN') # correlated.
+        c.addUncertainty('WZ_bb',               'lnN') # correlated.
+        c.addUncertainty('ZZ_xsec',             'lnN') # correlated.
+        c.addUncertainty('rare',                'lnN') # correlated.
+        c.addUncertainty('ttX',                 'lnN') # correlated.
         #c.addUncertainty('tZq',         'lnN')
 
-        c.addRateParameter('WZ', 1, '[0,2]')
-        c.addRateParameter('ZZ', 1, '[0,2]')
-        # others as well?
+        ## use rate parameters??
+        #c.addRateParameter('WZ', 1, '[0,2]')
+        #c.addRateParameter('ZZ', 1, '[0,2]')
 
         for setupPair in setups:
             
@@ -289,13 +290,13 @@ def wrapper(s):
                         c.specifyExpectation(binname, name, expected.val if expected.val > 0 else 0.01)
 
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val) #1.01 
+                            c.specifyUncertainty('PU'+postfix,          binname, name, 1 + e.PUSystematic( r, channel, setup).val) #1.01 
                             if not name.count('nonprompt'):
-                                c.specifyUncertainty('JEC',         binname, name, 1 + e.JECSystematic( r, channel, setup).val) #1.03 #1.05
-                                c.specifyUncertainty('btag_heavy',  binname, name, 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.03 #1.05 before
-                                c.specifyUncertainty('btag_light',  binname, name, 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.03 #1.05 before
-                                c.specifyUncertainty('trigger',     binname, name, 1 + e.triggerSystematic(r, channel, setup).val)
-                                c.specifyUncertainty('leptonSF',    binname, name, 1 + e.leptonSFSystematic(r, channel, setup).val)
+                                c.specifyUncertainty('JEC'+postfix,         binname, name, 1 + e.JECSystematic( r, channel, setup).val) #1.03 #1.05
+                                c.specifyUncertainty('btag_heavy'+postfix,  binname, name, 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('btag_light'+postfix,  binname, name, 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('trigger'+postfix,     binname, name, 1 + e.triggerSystematic(r, channel, setup).val)
+                                c.specifyUncertainty('leptonSF'+postfix,    binname, name, 1 + e.leptonSFSystematic(r, channel, setup).val)
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
 
@@ -312,14 +313,15 @@ def wrapper(s):
 
 
                         #MC bkg stat (some condition to neglect the smaller ones?)
-                        uname = 'Stat_'+binname+'_'+name
+                        uname = 'Stat_'+binname+'_'+name+postfix
                         c.addUncertainty(uname, 'lnN')
                         if expected.val > 0:
                             c.specifyUncertainty(uname, binname, name, 1 + expected.sigma/expected.val )
                         else:
                             c.specifyUncertainty(uname, binname, name, 1.01 )
                     
-                    c.addUncertainty('Stat_'+binname+'_nonprompt', 'lnN')
+                    uname = 'Stat_'+binname+'_nonprompt'+postfix
+                    c.addUncertainty(uname, 'lnN')
                     #if setup.nLeptons == 3:
                     #    np = nonprompt.cachedEstimate(r, channel, setupNP)
                     #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
@@ -335,7 +337,7 @@ def wrapper(s):
                         if np.val < 0.01:
                             np = u_float(0.01,0.)
                         c.specifyExpectation(binname, 'nonPromptDD', np.val ) 
-                        c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1 + np.sigma/np.val )
+                        c.specifyUncertainty(uname,   binname, "nonPromptDD", 1 + np.sigma/np.val )
                         c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
                     else:
                         c.specifyExpectation(binname, 'nonPromptDD', 0.)
@@ -343,8 +345,8 @@ def wrapper(s):
                     if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
                         obs = observation.cachedObservation(r, channel, setup)
                     else:
-                        obs = round(observation.cachedEstimate(r, channel, setup), 0)
-                    c.specifyObservation(binname, int(obs.val) )
+                        obs = observation.cachedEstimate(r, channel, setup)
+                    c.specifyObservation(binname, int(round(obs.val,0)) )
 
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
@@ -369,12 +371,12 @@ def wrapper(s):
                     
                     if sig.val>0:
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, "signal", 1 + e.PUSystematic( r, channel, setup).val)
-                            c.specifyUncertainty('JEC',         binname, "signal", 1 + e.JECSystematic( r, channel, setup).val) #1.05
-                            c.specifyUncertainty('btag_heavy',  binname, "signal", 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.05
-                            c.specifyUncertainty('btag_light',  binname, "signal", 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.05
-                            c.specifyUncertainty('trigger',     binname, "signal", 1 + e.triggerSystematic(r, channel, setup).val)
-                            c.specifyUncertainty('leptonSF',    binname, "signal", 1 + e.leptonSFSystematic(r, channel, setup).val)
+                            c.specifyUncertainty('PU'+postfix,          binname, "signal", 1 + e.PUSystematic( r, channel, setup).val)
+                            c.specifyUncertainty('JEC'+postfix,         binname, "signal", 1 + e.JECSystematic( r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_heavy'+postfix,  binname, "signal", 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_light'+postfix,  binname, "signal", 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('trigger'+postfix,     binname, "signal", 1 + e.triggerSystematic(r, channel, setup).val)
+                            c.specifyUncertainty('leptonSF'+postfix,    binname, "signal", 1 + e.leptonSFSystematic(r, channel, setup).val)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
                             print r, channel, PDFset
                             c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
@@ -383,17 +385,17 @@ def wrapper(s):
                             #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
                             #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 
-                        uname = 'Stat_'+binname+'_signal'
+                        uname = 'Stat_'+binname+'_signal'+postfix
                         c.addUncertainty(uname, 'lnN')
                         c.specifyUncertainty(uname, binname, 'signal', 1 + sig.sigma/sig.val )
                     else:
-                        uname = 'Stat_'+binname+'_signal'
+                        uname = 'Stat_'+binname+'_signal'+postfix
                         c.addUncertainty(uname, 'lnN')
                         c.specifyUncertainty(uname, binname, 'signal', 1 )
 
                     
-        c.addUncertainty('Lumi', 'lnN')
-        c.specifyFlatUncertainty('Lumi', 1.026)
+        c.addUncertainty('Lumi'+postfix, 'lnN')
+        c.specifyFlatUncertainty('Lumi'+postfix, 1.026)
         cardFileName = c.writeToFile(cardFileName)
     else:
         logger.info("File %s found. Reusing.",cardFileName)
@@ -412,10 +414,14 @@ def wrapper(s):
         # We don't calculate limits here, but just in case we find a way how to do it, put placeholders here
         res.update({"exp":0, "obs":0, "exp1up":0, "exp2up":0, "exp1down":0, "exp2down":0})
         # Don't extract all the nuisances by default
+        signalRegions = range(15,30) ## shouldn't be hardcoded
+        masks = ['mask_ch1_Bin'+str(i)+'=1' for i in signalRegions]
+        masks = ','.join(masks)
+
         if args.calcNuisances:
-            c.calcNuisances(cardFileName, masking=range(15,30))
+            c.calcNuisances(cardFileName, masks=masks)
         # extract the NLL
-        nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"], masking=range(15,30)) # fastScan turns of profiling
+        nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"], masks=masks) # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
         else:

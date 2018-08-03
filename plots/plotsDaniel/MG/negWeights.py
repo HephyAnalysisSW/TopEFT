@@ -46,7 +46,7 @@ T1tttt_1000_CP1 = Sample.fromDirectory(name='T1tttt_1000_CP1', treeName='Events'
 # binning
 #binning = [50,0,1500]
 #binning = [25,0,1500]
-binning = [12,0,12]
+binning = [12,2,14]
 #binning = [20, 1000, 5000]
 #binning = [20, 500, 3500]
 
