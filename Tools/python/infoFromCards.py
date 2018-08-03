@@ -22,9 +22,10 @@ def getConstrain(nuisanceFile, name):
 
     # Returns something of the form "Bin0" if bin name (as written in the comment lines of the cards) are given
 def getBinNumber(cardFile, binName):
-    with open(cardFile) as f:
-      for line in f:
-        if binName in line: return line.split(':')[0].split()[-1]
+    return binName
+    #with open(cardFile) as f:
+    #  for line in f:
+    #    if binName in line: return line.split(':')[0].split()[-1]
 
 def getFittedUncertainty(nuisanceFile, name):
     with open(nuisanceFile) as f:
@@ -112,10 +113,10 @@ def getTotalPostFitUncertainty(cardFile, binName):
     #return uncDict, totalUnc
           #else: 
 
-def getEstimateFromCard(cardFile, estimateName, binName):
+def getEstimateFromCard(cardFile, estimateName, binName, postfix=''):
     res = u_float(0)
     binNumber = getBinNumber(cardFile, binName)
-    uncName = 'Stat_' + binName + '_' + estimateName
+    uncName = 'Stat_' + binName + '_' + estimateName+postfix
     with open(cardFile) as f:
       binList = False
       estimateList = False

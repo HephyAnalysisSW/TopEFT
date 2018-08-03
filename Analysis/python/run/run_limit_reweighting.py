@@ -269,11 +269,9 @@ def wrapper(s):
             if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
                 observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
                 logger.info("Using data!")
-                print setup.year
             else:
                 observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
                 logger.info("Using pseudo-data!")
-                print setup.year
             for e in setup.estimators: e.initCache(setup.defaultCacheDir())
 
             for r in setup.regions:
@@ -378,7 +376,6 @@ def wrapper(s):
                             c.specifyUncertainty('trigger'+postfix,     binname, "signal", 1 + e.triggerSystematic(r, channel, setup).val)
                             c.specifyUncertainty('leptonSF'+postfix,    binname, "signal", 1 + e.leptonSFSystematic(r, channel, setup).val)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            print r, channel, PDFset
                             c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
                             c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
                             c.specifyUncertainty('PartonShower',binname, "signal", 1 + PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val)
@@ -402,7 +399,6 @@ def wrapper(s):
     
     res = {}
     
-    #print limitDir
     if not os.path.isdir(limitDir):
         os.makedirs(limitDir)
     resDB = resultsDB(limitDir+'/results.sq', "results", setup.resultsColumns)

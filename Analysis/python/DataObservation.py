@@ -26,8 +26,7 @@ class DataObservation():
             self.cache=None
 
     def uniqueKey(self, region, channel, setup):
-        if hasattr(setup, 'blinding'): return region, channel.name, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True), setup.blinding
-        else:                          return region, channel.name, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
+        return region, channel.name, json.dumps(setup.sys, sort_keys=True), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
 
     # alias for cachedObservation to make it easier to call the same function as for the mc's
     def cachedEstimate(self, region, channel, setup, save=True, overwrite=False):
@@ -56,20 +55,18 @@ class DataObservation():
             logger.info( "Getting Data observation for channel %s and region %s"%(channel.name, region.cutString()))
             logger.info( "Using cut %s"% cut )
 
-            if hasattr(setup, 'blinding') and setup.blinding: weight = 'weight*' + setup.blinding
-            else:                                             weight = 'weight'
-            return u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )
-            #return sum([self.cachedEstimate(region, channel, setup) for c in channels])
+            weight = 'weight'
+            #return u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )
+            return sum([self.cachedEstimate(region, c, setup) for c in channels])
 
         #if channel=='SF':
         #    return sum([self.cachedObservation(region, c, setup) for c in ['MuMu', 'EE']])
 
-        #else:
-        #    preSelection = setup.preselection('Data', nElectrons=channel.nE, nMuons=channel.nMu)
-        #    cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
+        else:
+            preSelection = setup.preselection('Data', nElectrons=channel.nE, nMuons=channel.nM)
+            cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
 
-        #    logger.debug( "Using cut %s"% cut )
+            logger.debug( "Using cut %s"% cut )
 
-        #    if hasattr(setup, 'blinding') and setup.blinding: weight = 'weight*' + setup.blinding
-        #    else:                                             weight = 'weight'
-        #    return u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )
+            weight = 'weight'
+            return u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )

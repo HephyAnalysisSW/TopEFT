@@ -107,8 +107,8 @@ def wrapper(s):
 
     else:
         signalRegions = range(15,30)
-        masks_2016 = ['mask_dc_2016_Bin'+str(i)+'=1' for i in signalRegions]
-        masks_2017 = ['mask_dc_2017_Bin'+str(i)+'=1' for i in signalRegions]
+        masks_2016 = ['mask_ch1_dc_2016_Bin'+str(i)+'=1' for i in signalRegions]
+        masks_2017 = ['mask_ch1_dc_2017_Bin'+str(i)+'=1' for i in signalRegions]
     
         masks = ','.join(masks_2016+masks_2017)
         
