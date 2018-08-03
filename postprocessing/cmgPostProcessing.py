@@ -746,7 +746,7 @@ def filler( event ):
     if len(leptonCollections["tight_4l"]) >= 4:
         cleaningCollection = "loose"
     elif len(leptonCollections["FO_3l"]) >= 3:
-        cleaningCollection = "tight_3l" # was FO
+        cleaningCollection = "FO_3l" # was FO
     elif len(leptonCollections["FO_SS"]) >= 2:
         cleaningCollection = "FO_SS"
     else:

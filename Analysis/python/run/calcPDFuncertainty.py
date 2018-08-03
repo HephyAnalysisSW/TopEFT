@@ -65,7 +65,7 @@ if options.btagWZ:
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
@@ -194,6 +194,7 @@ estimate.initCache(cacheDir)
 
 PDF_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
 scale_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "scale", ["region", "channel", "PDFset"])
+PS_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "PSscale", ["region", "channel", "PDFset"])
 
 
 '''
@@ -247,6 +248,10 @@ if not options.combine:
     
     logger.info("All done.")
 
+
+PDF_unc     = []
+Scale_unc   = []
+PS_unc      = []
 
 if options.combine:
     for c in [channel(-1,-1)]:#allChannels:
@@ -348,11 +353,29 @@ if options.combine:
             logger.info("Relative scale uncertainty: %s", scale_rel)
             logger.info("Relative shower scale uncertainty: %s", PS_scale_rel)
             
+            PDF_unc.append(delta_sigma_rel)
+            Scale_unc.append(scale_rel)
+            PS_unc.append(PS_scale_rel)
+            
             # Store results
             if not options.reducedPDF:
-                PDF_cache.add({"region":region, "channel":c, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
-            scale_cache.add({"region":region, "channel":c, "PDFset":None}, scale_rel, overwrite=True)
+                PDF_cache.add({"region":region, "channel":c.name, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
+            scale_cache.add({"region":region, "channel":c.name, "PDFset":'scale'}, scale_rel, overwrite=True)
+            PS_cache.add({"region":region, "channel":c.name, "PDFset":'PSscale'}, PS_scale_rel, overwrite=True)
 
             print region, c.name
-            PDF_cache.get({"region":region, "channel":c, "PDFset":options.PDFset})
-            scale_cache.get({"region":region, "channel":c, "PDFset":None})
+            PDF_cache.get({"region":region, "channel":c.name, "PDFset":options.PDFset})
+            scale_cache.get({"region":region, "channel":c.name, "PDFset":'scale'})
+            PS_cache.get({"region":region, "channel":c.name, "PDFset":'PSscale'})
+
+logger.info('Min. PDF uncertainty: %.3f', min(PDF_unc))
+logger.info('Max. PDF uncertainty: %.3f', max(PDF_unc))
+
+logger.info('Min. scale uncertainty: %.3f', min(Scale_unc))
+logger.info('Max. scale uncertainty: %.3f', max(Scale_unc))
+
+logger.info('Min. PS scale uncertainty: %.3f', min(PS_unc))
+logger.info('Max. PS scale uncertainty: %.3f', max(PS_unc))
+
+
+

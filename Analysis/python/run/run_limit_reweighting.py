@@ -192,6 +192,7 @@ PDFset = "PDF4LHC15_nlo_100"
 PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%PDFset
 PDF_cache   = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
 scale_cache = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "scale", ["region", "channel", "PDFset"])
+PS_cache = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PSscale", ["region", "channel", "PDFset"])
 
 #print PDF_cache.get({'region':regionsE[0], "channel":
 
@@ -234,6 +235,7 @@ def wrapper(s):
     if not os.path.exists(cardFileName) or overWrite:
         counter=0
         c.reset()
+        c.setPrecision(3)
         c.addUncertainty('PU',          'lnN')
         c.addUncertainty('JEC',         'lnN')
         c.addUncertainty('btag_heavy',  'lnN')
@@ -284,16 +286,16 @@ def wrapper(s):
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
                         expected = e.cachedEstimate(r, channel, setup)
-                        c.specifyExpectation(binname, name, round(expected.val,3) if expected.val > 0 else 0.01)
+                        c.specifyExpectation(binname, name, expected.val if expected.val > 0 else 0.01)
 
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, name, 1+round(e.PUSystematic( r, channel, setup).val,3)) #1.01 
+                            c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val) #1.01 
                             if not name.count('nonprompt'):
-                                c.specifyUncertainty('JEC',         binname, name, 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.03 #1.05
-                                c.specifyUncertainty('btag_heavy',  binname, name, 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                                c.specifyUncertainty('btag_light',  binname, name, 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.03 #1.05 before
-                                c.specifyUncertainty('trigger',     binname, name, 1+round(e.triggerSystematic(r, channel, setup).val,3))
-                                c.specifyUncertainty('leptonSF',    binname, name, 1+round(e.leptonSFSystematic(r, channel, setup).val,3))
+                                c.specifyUncertainty('JEC',         binname, name, 1 + e.JECSystematic( r, channel, setup).val) #1.03 #1.05
+                                c.specifyUncertainty('btag_heavy',  binname, name, 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('btag_light',  binname, name, 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.03 #1.05 before
+                                c.specifyUncertainty('trigger',     binname, name, 1 + e.triggerSystematic(r, channel, setup).val)
+                                c.specifyUncertainty('leptonSF',    binname, name, 1 + e.leptonSFSystematic(r, channel, setup).val)
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
 
@@ -313,7 +315,7 @@ def wrapper(s):
                         uname = 'Stat_'+binname+'_'+name
                         c.addUncertainty(uname, 'lnN')
                         if expected.val > 0:
-                            c.specifyUncertainty(uname, binname, name, round(1+expected.sigma/expected.val,3) )
+                            c.specifyUncertainty(uname, binname, name, 1 + expected.sigma/expected.val )
                         else:
                             c.specifyUncertainty(uname, binname, name, 1.01 )
                     
@@ -332,8 +334,8 @@ def wrapper(s):
                         np = nonprompt.cachedEstimate(r, channel, setupNP)
                         if np.val < 0.01:
                             np = u_float(0.01,0.)
-                        c.specifyExpectation(binname, 'nonPromptDD', round(np.val,3)) 
-                        c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
+                        c.specifyExpectation(binname, 'nonPromptDD', np.val ) 
+                        c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1 + np.sigma/np.val )
                         c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
                     else:
                         c.specifyExpectation(binname, 'nonPromptDD', 0.)
@@ -341,8 +343,8 @@ def wrapper(s):
                     if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
                         obs = observation.cachedObservation(r, channel, setup)
                     else:
-                        obs = observation.cachedEstimate(r, channel, setup)
-                    c.specifyObservation(binname, int(round(obs.val,0)))
+                        obs = round(observation.cachedEstimate(r, channel, setup), 0)
+                    c.specifyObservation(binname, int(obs.val) )
 
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
@@ -363,26 +365,27 @@ def wrapper(s):
                     
                     logger.info("x-sec is multiplied by %s",xSecMod)
                     
-                    c.specifyExpectation(binname, 'signal', round(sig.val*xSecScale * xSecMod, 3) )
+                    c.specifyExpectation(binname, 'signal', sig.val * xSecScale * xSecMod )
                     
                     if sig.val>0:
                         if not args.statOnly:
-                            c.specifyUncertainty('PU',          binname, "signal", 1+round(e.PUSystematic( r, channel, setup).val,3))
-                            c.specifyUncertainty('JEC',         binname, "signal", 1+round(e.JECSystematic( r, channel, setup).val,3)) #1.05
-                            c.specifyUncertainty('btag_heavy',  binname, "signal", 1+round(e.btaggingSFbSystematic(r, channel, setup).val,3)) #1.05
-                            c.specifyUncertainty('btag_light',  binname, "signal", 1+round(e.btaggingSFlSystematic(r, channel, setup).val,3)) #1.05
-                            c.specifyUncertainty('trigger',     binname, "signal", 1+round(e.triggerSystematic(r, channel, setup).val,3))
-                            c.specifyUncertainty('leptonSF',    binname, "signal", 1+round(e.leptonSFSystematic(r, channel, setup).val,3))
+                            c.specifyUncertainty('PU',          binname, "signal", 1 + e.PUSystematic( r, channel, setup).val)
+                            c.specifyUncertainty('JEC',         binname, "signal", 1 + e.JECSystematic( r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_heavy',  binname, "signal", 1 + e.btaggingSFbSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('btag_light',  binname, "signal", 1 + e.btaggingSFlSystematic(r, channel, setup).val) #1.05
+                            c.specifyUncertainty('trigger',     binname, "signal", 1 + e.triggerSystematic(r, channel, setup).val)
+                            c.specifyUncertainty('leptonSF',    binname, "signal", 1 + e.leptonSFSystematic(r, channel, setup).val)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            #c.specifyUncertainty('scale_sig',   binname, "signal", round(scale_cache.get({"region":r, "channel":channel, "PDFset":None}).val,3) + 1)
-                            #c.specifyUncertainty('PDF',         binname, "signal", round(PDF_cache.get({"region":r, "channel":channel, "PDFset":PDFset}).val,3) + 1)
-                            c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
-                            c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
-                            c.specifyUncertainty('PartonShower',binname, "signal", 1.04)
+                            print r, channel, PDFset
+                            c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
+                            c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
+                            c.specifyUncertainty('PartonShower',binname, "signal", 1 + PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val)
+                            #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
+                            #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')
-                        c.specifyUncertainty(uname, binname, 'signal', round(1 + sig.sigma/sig.val,3) )
+                        c.specifyUncertainty(uname, binname, 'signal', 1 + sig.sigma/sig.val )
                     else:
                         uname = 'Stat_'+binname+'_signal'
                         c.addUncertainty(uname, 'lnN')

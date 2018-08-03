@@ -74,7 +74,7 @@ class cardFileWriter:
         self.rateParameters.append((p, value, r))
 
     def specifyExpectation(self, b, p, exp):
-        self.expectation[(b,p)] = exp
+        self.expectation[(b,p)] = round(exp, self.precision)
 
     def specifyObservation(self, b, obs):
         if not isinstance(obs, int):

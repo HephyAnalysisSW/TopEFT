@@ -119,7 +119,8 @@ for i, r in enumerate(regions):
             if p in postFitResults['results']['shapes_fit_s']['Bin%s'%i].keys():
                 pYield = postFitResults['results']['shapes_fit_s']['Bin%s'%i][p]
                 preYield = postFitResults['results']['shapes_prefit']['Bin%s'%i][p]
-                logger.info("Scale factor: %s", pYield.val/preYield.val)
+                SF = pYield/preYield
+                logger.info("Scale factor: %s +/- %s", round(SF.val,3), round(SF.sigma,3))
                 pError = pYield.sigma
                 if pError/pYield.val > 10:
                     pError = pYield.val

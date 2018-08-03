@@ -46,9 +46,9 @@ T1tttt_1000_CP1 = Sample.fromDirectory(name='T1tttt_1000_CP1', treeName='Events'
 # binning
 #binning = [50,0,1500]
 #binning = [25,0,1500]
-#binning = [20,0,20]
+binning = [12,0,12]
 #binning = [20, 1000, 5000]
-binning = [20, 500, 3500]
+#binning = [20, 500, 3500]
 
 weight = "(1)"
 #weight = "abs(LHEEventProduct_externalLHEProducer__SIM.obj.weights_.wgt[578])"
@@ -61,7 +61,7 @@ met = "recoGenMETs_genMetTrue__SIM.obj.pt()"
 njet = "Sum$(recoGenJets_ak4GenJets__SIM.obj.pt()>30&&abs(recoGenJets_ak4GenJets__SIM.obj.eta()<2.4))"
 ht = "Sum$((recoGenJets_ak4GenJets__SIM.obj.pt()>30&&abs(recoGenJets_ak4GenJets__SIM.obj.eta()<2.4))*recoGenJets_ak4GenJets__SIM.obj.pt())"
 
-var = ht
+var = njet
 
 
 # central weight index for different PDF sets
@@ -263,11 +263,11 @@ ROOT.gStyle.SetHatchesSpacing(0.3)
 ROOT.gStyle.SetHatchesLineWidth(2)
 
 plotting.draw(
-    Plot.fromHisto("%s_ht30_NNPDF31_LOPDF_all"%sample.name,
+    Plot.fromHisto("%s_nJet30_NNPDF31_LOPDF_all"%sample.name,
                 plots,
                 #texX = "E_{T}^{miss} (GeV)"
-                #texX = "N_{jet}"
-                texX = "H_{T} (GeV)"
+                texX = "N_{jet}"
+                #texX = "H_{T} (GeV)"
             ),
     plot_directory = "/afs/hephy.at/user/d/dspitzbart/www/MG/weights/",
     logX = False, logY = True, #sorting = True, 
