@@ -28,6 +28,7 @@ color.diBoson        = ROOT.kOrange
 color.multiBoson     = ROOT.kOrange
 color.ZZ             = ROOT.kGreen+3
 color.WZ             = 51
+color.WZ_amc         = 51
 color.WW             = ROOT.kOrange-7
 color.VV             = 30
 color.WG             = ROOT.kOrange-5

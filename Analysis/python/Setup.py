@@ -140,6 +140,7 @@ class Setup:
         if year == 2017:
             TTZSample           = TTZtoLLNuNu_17
             WZSample            = WZ_amcatnlo_17 # no powheg yet
+            WZAMCSample         = WZ_amcatnlo_17
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
@@ -153,7 +154,8 @@ class Setup:
         else:
             ## use 2016 samples as default (we do combine on card file level)
             TTZSample           = TTZtoLLNuNu
-            WZSample            = WZ_powheg # might update to powheg?
+            WZSample            = WZ_powheg
+            WZAMCSample         = WZ_amcatnlo
             TTXSample           = TTX
             TTWSample           = TTW
             TZQSample           = TZQ
@@ -170,6 +172,7 @@ class Setup:
         self.samples = {
             'TTZ':          TTZSample,
             'WZ' :          WZSample,
+            'WZ_amc' :      WZAMCSample,
             'TTX' :         TTXSample,
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,

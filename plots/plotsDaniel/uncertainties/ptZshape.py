@@ -18,7 +18,7 @@ from RootTools.core.standard import *
 from TopEFT.Tools.user import data_directory
 
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 
 from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
@@ -49,6 +49,7 @@ sample2 = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData
 
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
 WZselection = cutInterpreter.cutString('trilep-looseVeto-Zcand-lepSelTTZ-njet1p-btag0-onZ')
+WZselection = cutInterpreter.cutString('trilep-Zcand-onZ-lepSelTTZ-njet1p')
 
 selection = WZselection
 
@@ -115,7 +116,7 @@ plots = [[ h_central ], [ h_central_NLO ]]
 print "Reweighting factor from amc@NLO to powheg: %.3f"%(h_central.Integral()/h_central_NLO.Integral())
 
 plotting.draw(
-    Plot.fromHisto("WZ_Z_pt_v2",
+    Plot.fromHisto("WZ_Z_pt_inclusive",
                 plots,
                 texX = "p_{T}(Z) (GeV)"
             ),

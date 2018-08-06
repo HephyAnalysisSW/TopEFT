@@ -132,6 +132,7 @@ for i, r in enumerate(regions):
             res      = getEstimateFromCard(cardFile, p, binName, postfix=postfix)
 
             if options.postFit:
+                tmpYield    = u_float(0,0)
                 # postfit: all uncertainties already taken care of
                 if p in postFitResults['results']['shapes_fit_s'][binName].keys():
                     tmpYield    = postFitResults['results']['shapes_fit_s'][binName][p]
@@ -143,7 +144,8 @@ for i, r in enumerate(regions):
                         tmpError = tmpYield.val
                     pError += tmpError**2
                 else: pYield += u_float(0,0)
-                logger.info("Yield for year %s: %s", year, tmpYield.val)
+                if tmpYield.val>0:
+                    logger.info("Yield for year %s: %s", year, tmpYield.val)
             else:
                 # prefit: get all the uncertainties later
                 logger.info("Yield for year %s: %s", year, res.val)
@@ -172,7 +174,8 @@ for i, r in enumerate(regions):
         
         totalYield += pYield
 
-        logger.info("Final yield: %s +/- %s", pYield.val, pError)
+        if pYield.val > 0:
+            logger.info("Final yield: %s +/- %s", pYield.val, pError)
         hists[p].SetBinContent(i+1, pYield.val)
         hists[p].SetBinError(i+1,0)
         hists[p].legendText = tex
@@ -180,8 +183,8 @@ for i, r in enumerate(regions):
            hists[p].style = styles.fillStyle( getattr(color, p), lineColor=getattr(color,p), errors=False )
 
         if options.postFit:
-            if preYield.val > 0:
-                SF = pYield/preYield
+            if preYield.val > 0 and pYield.val > 0:
+                SF = pYield/u_float(preYield.val,0)
                 logger.info("Scale factor: %s +/- %s", round(SF.val,3), round(SF.sigma,3))
         
 

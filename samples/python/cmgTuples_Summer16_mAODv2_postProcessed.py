@@ -47,6 +47,7 @@ dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_
 
 #dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_ext_comb_lheHT70','DYJetsToLL_M50_HT70to100', 'DYJetsToLL_M50_HT100to200_comb', 'DYJetsToLL_M50_HT200to400_comb', 'DYJetsToLL_M50_HT400to600_comb', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT1200to2500', 'DYJetsToLL_M50_HT2500toInf']
 dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to50_LO']
+#dirs['DY
 
 dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
@@ -59,7 +60,7 @@ dirs['ZGTo2LG']         = ['ZGTo2LG_ext']
 dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
 
 
-dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_powheg"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt'] +dirs['ZZ']
+dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_powheg"] + dirs['TTW'] + dirs['TTX'] + dirs['rare'] + dirs['nonprompt'] +dirs['ZZ']
 #dirs['pseudoDataPriv']  = dirs['ewkDM_ttZ_ll_noH'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
 
 dirs['background']      = dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare']
@@ -92,6 +93,6 @@ singleTop       = Sample.fromDirectory(name="singleTop",        treeName="Events
 background      = Sample.fromDirectory(name="background",        treeName="Events", isData=False, color=color.nonprompt,         texName="background",                            directory=directories['background'])
 
 ## set sample selection strings for the nonprompt and Zgamma sample
-nonpromptMC.setSelectionString('nLeptons_FO_3l_genPrompt<=2')
-ZGTo2LG.setSelectionString('nLeptons_FO_3l_genPrompt>2')
+#nonpromptMC.setSelectionString('nLeptons_FO_3l_genPrompt<=2')
+#ZGTo2LG.setSelectionString('nLeptons_FO_3l_genPrompt>2')
 

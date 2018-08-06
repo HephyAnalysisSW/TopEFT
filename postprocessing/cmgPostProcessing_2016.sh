@@ -38,12 +38,12 @@
 #
 #
 ## Nonprompt
-python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample TTLep_pow #SPLIT40
+#python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample TTLep_pow #SPLIT40
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample TToLeptons_sch_amcatnlo #SPLIT10
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample T_tch_powheg #SPLIT10
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample TBar_tch_powheg #SPLIT10
 ##
-##python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample DYJetsToLL_M50_LO_ext DYJetsToLL_M50_LO_ext2 #SPLIT30
+python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample DYJetsToLL_M50_LO_ext DYJetsToLL_M50_LO_ext2 #SPLIT60
 ###python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --LHEHTCut=70 --sample  DYJetsToLL_M50_LO_ext DYJetsToLL_M50_LO_ext2 #SPLIT30
 ###python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample DYJetsToLL_M50_HT70to100 #SPLIT10
 ###python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v17 --sample DYJetsToLL_M50_HT100to200 DYJetsToLL_M50_HT100to200_ext #SPLIT10
