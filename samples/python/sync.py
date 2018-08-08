@@ -8,4 +8,4 @@ data_2017= Sample.fromCMGOutput('data_2017',base_dir, chunkString='MuonEG_Run201
 base_dir = '/afs/hephy.at/data/dspitzbart02/cmgTuples/sync/'
 ttz_2017 = Sample.fromCMGOutput('ttz_2017',base_dir, chunkString='TTZToLLNuNu_amc', isData = True) # fake data
 ttbar_2017 = Sample.fromCMGOutput('ttbar_2017',base_dir, chunkString='TTLep_pow', isData = True) # fake data
-
+DoubleMuon_Run2016G_07Aug17 = Sample.fromFiles('DoubleMuon_Run2016G', [base_dir+'DoubleMuon_Run2016G/tree_108.root'], treeName='tree', isData = True)

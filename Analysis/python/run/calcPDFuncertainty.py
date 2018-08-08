@@ -7,7 +7,9 @@ parser.add_option("--PDFset",               dest="PDFset",              default=
 parser.add_option("--selectRegion",         dest="selectRegion",          default=None, type="int",    action="store",      help="select region?")
 parser.add_option("--sample",               dest='sample',  action='store', default='TTZ_NLO_16',    choices=["TTZ_LO_16", "TTZ_NLO_16", "TTZ_NLO_17", "WZ_pow_16"], help="which sample?")
 parser.add_option("--small",                action='store_true', help="small?")
+parser.add_option("--reducedPDF",           action='store_true', help="Don't use all PDF variations for tests?")
 parser.add_option("--combine",              action='store_true', help="Combine results?")
+parser.add_option("--noKeepNorm",           action='store_true', help="Keep the normalization = acceptance uncertainty only?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--skipCentral',          dest="skipCentral", default = False, action = "store_true", help="Skip central weights")
@@ -23,11 +25,10 @@ import math
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels
-from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions
+from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB
 from TopEFT.Tools.u_float           import u_float 
 from TopEFT.Tools.resultsDB         import resultsDB
 from TopEFT.Analysis.Region         import Region 
-from TopEFT.Analysis.Setup          import Setup
 
 #RootTools
 from RootTools.core.standard import *
@@ -40,6 +41,22 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   options.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+
+## 2016 ##
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+
+## 2017 ##
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+
+from TopEFT.Analysis.Setup          import Setup
+
 year = 2017 if options.sample.count("17") else 2016
 setup = Setup(year=year, nLeptons=3)
 if options.btagWZ:
@@ -48,7 +65,7 @@ if options.btagWZ:
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v4/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
@@ -62,10 +79,10 @@ WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=Fals
 ## Fall17 samples
 #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 #postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 dirs = {}
-dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc']
+dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc_psw']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 TTZ_NLO_17 = Sample.fromDirectory(name="TTZ_NLO_17", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu'])
 
@@ -84,7 +101,7 @@ if options.small:
 if options.btagWZ:
     allRegions = btagRegions + noRegions
 else:
-    allRegions = regionsE + noRegions
+    allRegions = noRegions + regionsE + regions4lB
 regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
 
 setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
@@ -98,6 +115,8 @@ from TopEFT.Tools.user import analysis_results
 '''
 check all PDF sets that are available. will only implement parts for now.
 '''
+
+PSweights = False
 
 PDFset = options.PDFset
 #PDFset = "NNPDF30"
@@ -129,6 +148,12 @@ elif options.sample == "TTZ_NLO_17":
         aS_indices      = [576, 577]
     else:
         raise NotImplementedError
+    ## PS weights ##
+    PSweights = True
+    # starting from 1080: 0,1 are central. 2,3,4,5 are reduced, 6,7,8,9 are nominal, 10,11,12,13 are enhanced.
+    PS_indices = range(1086, 1090)
+    #PS_indices = range(1090, 1094)
+    PSweight_original = "abs(LHEweight_wgt[1080])"
 
 elif options.sample == "WZ_pow_16":
     if PDFset == "NNPDF30":
@@ -147,9 +172,12 @@ else:
 # central weights here should cancel out, but are necessary to not change the sign for NLO samples
 if not options.selectWeight:
     scale_variations= [ "abs(LHEweight_wgt[%i])"%(i) for i in scale_indices ]
-    PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ]
+    PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ] if not options.reducedPDF else [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ][:5]
     aS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in aS_indices ]
     variations      = scale_variations + PDF_variations + aS_variations
+    if PSweights:
+        PS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in PS_indices ] + [PSweight_original]
+        variations += PS_variations
 else:
     variations  = [ "abs(LHEweight_wgt[%s])"%(options.selectWeight) ]
 
@@ -166,6 +194,7 @@ estimate.initCache(cacheDir)
 
 PDF_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
 scale_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "scale", ["region", "channel", "PDFset"])
+PS_cache = resultsDB(cacheDir+sample.name+'_unc.sq', "PSscale", ["region", "channel", "PDFset"])
 
 
 '''
@@ -219,23 +248,29 @@ if not options.combine:
     
     logger.info("All done.")
 
+
+PDF_unc     = []
+Scale_unc   = []
+PS_unc      = []
+
 if options.combine:
-    for c in ['all']:#allChannels:
+    for c in [channel(-1,-1)]:#allChannels:
     
         for region in regions:
             
             scales = []
+            showerScales = []
             deltas = []
             delta_squared = 0
             # central yield inclusive and in region
-            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
-            sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
+            sigma_incl_central  = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[LHEweight_original]}))
+            sigma_incl_centralWeight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[centralWeight]}))
             sigma_central       = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[LHEweight_original]}))
             sigma_centralWeight = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[centralWeight]}))
 
             for var in scale_variations:
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
-                norm = sigma_incl_central/simga_incl_reweight
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
+                norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 
                 sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
                 sigma_reweight_acc = sigma_reweight * norm
@@ -247,8 +282,8 @@ if options.combine:
 
             for var in PDF_variations:
                 # calculate x-sec noramlization
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
-                norm = sigma_incl_central/simga_incl_reweight
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
+                norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 norm_centralWeight = sigma_incl_central/sigma_incl_centralWeight
 
                 sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
@@ -274,8 +309,8 @@ if options.combine:
             # recommendation is to multiply uncertainty by 1.5
             deltas_as = []
             for var in aS_variations:
-                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], 'all', setupIncl.systematicClone(sys={'reweight':[var]}))
-                norm = sigma_incl_central/simga_incl_reweight
+                simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
+                norm = sigma_incl_central/simga_incl_reweight if not options.noKeepNorm else 1
                 
                 sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
                 sigma_reweight_acc = sigma_reweight * norm
@@ -291,6 +326,24 @@ if options.combine:
             # make it relative wrt central value in region
             delta_sigma_rel = delta_sigma_total/sigma_central.val
 
+            # calculate the PS uncertainties
+            if PSweights:
+                sigma_incl_central  = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[PSweight_original]}))
+                for var in PS_variations:
+                    simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
+                    norm = sigma_incl_central/simga_incl_reweight
+                    
+                    sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
+                    sigma_reweight_acc = sigma_reweight * norm
+
+                    unc = abs( ( sigma_reweight_acc - sigma_central) / sigma_central )
+                    showerScales.append(unc.val)
+
+                PS_scale_rel = max(showerScales)
+            else:
+                PS_scale_rel = 0.
+
+
             logger.info("Calculated PDF and alpha_s uncertainties for region %s in channel %s"%(region, c.name))
             logger.info("Central x-sec: %s", sigma_central)
             logger.info("Delta x-sec using PDF variations: %s", delta_sigma)
@@ -298,11 +351,31 @@ if options.combine:
             logger.info("Delta x-sec total: %s", delta_sigma_total)
             logger.info("Relative uncertainty: %s", delta_sigma_rel)
             logger.info("Relative scale uncertainty: %s", scale_rel)
+            logger.info("Relative shower scale uncertainty: %s", PS_scale_rel)
+            
+            PDF_unc.append(delta_sigma_rel)
+            Scale_unc.append(scale_rel)
+            PS_unc.append(PS_scale_rel)
             
             # Store results
-            PDF_cache.add({"region":region, "channel":c, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
-            scale_cache.add({"region":region, "channel":c, "PDFset":None}, scale_rel, overwrite=True)
+            if not options.reducedPDF:
+                PDF_cache.add({"region":region, "channel":c.name, "PDFset":options.PDFset}, delta_sigma_rel, overwrite=True)
+            scale_cache.add({"region":region, "channel":c.name, "PDFset":'scale'}, scale_rel, overwrite=True)
+            PS_cache.add({"region":region, "channel":c.name, "PDFset":'PSscale'}, PS_scale_rel, overwrite=True)
 
             print region, c.name
-            PDF_cache.get({"region":region, "channel":c, "PDFset":options.PDFset})
-            scale_cache.get({"region":region, "channel":c, "PDFset":None})
+            PDF_cache.get({"region":region, "channel":c.name, "PDFset":options.PDFset})
+            scale_cache.get({"region":region, "channel":c.name, "PDFset":'scale'})
+            PS_cache.get({"region":region, "channel":c.name, "PDFset":'PSscale'})
+
+logger.info('Min. PDF uncertainty: %.3f', min(PDF_unc))
+logger.info('Max. PDF uncertainty: %.3f', max(PDF_unc))
+
+logger.info('Min. scale uncertainty: %.3f', min(Scale_unc))
+logger.info('Max. scale uncertainty: %.3f', max(Scale_unc))
+
+logger.info('Min. PS scale uncertainty: %.3f', min(PS_unc))
+logger.info('Max. PS scale uncertainty: %.3f', max(PS_unc))
+
+
+

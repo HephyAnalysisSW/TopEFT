@@ -105,6 +105,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+#    skimConds.append( "( run==280024&&lumi==109&&evt==157662937 )" )
 if isQuadLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
@@ -353,6 +354,7 @@ else:
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
 jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'btagDeepCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
+if options.year == 2016: jetVars += ['id16/I']
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -366,7 +368,7 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
@@ -414,6 +416,12 @@ read_variables += [\
     VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) ),
     VectorTreeVariable.fromString('DiscJet[%s]'% ( ','.join(jetVars) ) )
 ]
+
+if options.year == 2016:
+    read_variables += [\
+        TreeVariable.fromString('nJetAll/I'),
+        VectorTreeVariable.fromString('JetAll[%s]'% ( ','.join(jetVars) ) )
+    ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
@@ -611,21 +619,19 @@ def filler( event ):
             setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
             setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
             
-            # tracking SFs only for 2016 so far
-            if options.year == 2016:
-                reweightSF      = 1
-                reweightSFUp    = 1
-                reweightSFDown  = 1
-                if len(leptonCollections[tight_id]) > 0:
-                    for l in leptonCollections[tight_id]:
-                        eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
-                        trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
-                        reweightSF      *= trackingSF
-                        reweightSFUp    *= (trackingSF + trackingSF_err)
-                        reweightSFDown  *= (trackingSF - trackingSF_err)
-                    setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
-                    setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
-                    setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
+            reweightSF      = 1
+            reweightSFUp    = 1
+            reweightSFDown  = 1
+            if len(leptonCollections[tight_id]) > 0:
+                for l in leptonCollections[tight_id]:
+                    eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
+                    trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
+                    reweightSF      *= trackingSF
+                    reweightSFUp    *= (trackingSF + trackingSF_err)
+                    reweightSFDown  *= (trackingSF - trackingSF_err)
+                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
+                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
+                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
 
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
@@ -740,17 +746,21 @@ def filler( event ):
     if len(leptonCollections["tight_4l"]) >= 4:
         cleaningCollection = "loose"
     elif len(leptonCollections["FO_3l"]) >= 3:
-        cleaningCollection = "FO_3l"
+        cleaningCollection = "FO_3l" # was FO
     elif len(leptonCollections["FO_SS"]) >= 2:
         cleaningCollection = "FO_SS"
     else:
         cleaningCollection = "FO_SS" # Could also do something else here
 
     # Jets and lepton jet cross-cleaning.
-    allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    if options.year == 2016:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"])
+    else:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
-        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
+        idVar = 'id16' if options.year==2016 else 'id'
+        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4, idVar=idVar):
             selected_jets.append( j )
         else:
             other_jets.append( j )

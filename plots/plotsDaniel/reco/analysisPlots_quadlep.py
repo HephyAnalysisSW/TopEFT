@@ -33,8 +33,8 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v10')
-argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet1p-btag0-onZZ')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
+argParser.add_argument('--plot_directory',      action='store',      default='80X_mva_v14')
+argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet1p-btag0-onZZ-min_mll12')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
@@ -72,32 +72,21 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 
 if args.year == 2016:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-    from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+    from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v10/trilep/"
-    dirs = {}
-    dirs['TTZ']     = ['TTZToLLNuNu_ext']
-    dirs['ZZ']      = ['ZZTo4L', 'GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu']
-    dirs['rare']    = ['WWW', 'WWZ', 'WZZ', 'ZZZ']
+    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+    from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 
 else:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
     # load MC from here for now
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
-    dirs = {}
-    dirs['TTZ']     = ['TTZToLLNuNu_amc']
-    dirs['ZZ']      = ['ZZTo4L_comb', 'GluGluToZZTo4e', 'GluGluToZZTo4mu', 'GluGluToZZTo2e2mu']
-    dirs['rare']    = ['WWW_4F', 'WWZ_4F', 'WZZ', 'ZZZ']
-
-directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
-ZZ = Sample.fromDirectory(name="ZZ", treeName="Events", isData=False, color=color.ZZ, texName="ZZ (4l)", directory=directories['ZZ'])
-TTZ = Sample.fromDirectory(name="TTZ", treeName="Events", isData=False, color=color.TTZtoLLNuNu, texName="t#bar{t}Z", directory=directories['TTZ'])
-rare = Sample.fromDirectory(name="rare", treeName="Events", isData=False, color=color.rare, texName="rare", directory=directories['rare'])
+    postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+    from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
@@ -554,7 +543,10 @@ for index, mode in enumerate(allModes):
     if args.noData: lumi_scale = 35.9 if args.year == 2016 else 41.0
     weight_ = lambda event, sample: event.weight
 
-    mc             = [ ZZ, TTZ, rare ]
+    if args.year == 2016:
+        mc             = [ TTZtoLLNuNu, TTX, rare, ZZ ]
+    else:
+        mc             = [ TTZtoLLNuNu_17, TTX_17, rare_17, ZZ_17 ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

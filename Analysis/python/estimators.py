@@ -1,7 +1,7 @@
 from TopEFT.Analysis.MCBasedEstimate              import MCBasedEstimate
 
 class estimatorList:
-    def __init__(self, setup, samples=['TTZ', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'pseudoData', 'ZZ']): #rare_noZZ
+    def __init__(self, setup, samples=['TTZ', 'WZ', 'TTX', 'TTW', 'ZG', 'rare', 'pseudoData', 'ZZ', 'WZ_amc']): #rare_noZZ
         for s in samples:
             setattr(self, s, MCBasedEstimate(name=s, sample=setup.samples[s]))
         

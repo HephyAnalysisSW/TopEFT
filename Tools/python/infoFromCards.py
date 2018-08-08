@@ -1,6 +1,10 @@
 from TopEFT.Tools.u_float import u_float
 import math
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def getPull(nuisanceFile, name):
     with open(nuisanceFile) as f:
       for line in f:
@@ -18,9 +22,10 @@ def getConstrain(nuisanceFile, name):
 
     # Returns something of the form "Bin0" if bin name (as written in the comment lines of the cards) are given
 def getBinNumber(cardFile, binName):
-    with open(cardFile) as f:
-      for line in f:
-        if binName in line: return line.split(':')[0].split()[-1]
+    return binName
+    #with open(cardFile) as f:
+    #  for line in f:
+    #    if binName in line: return line.split(':')[0].split()[-1]
 
 def getFittedUncertainty(nuisanceFile, name):
     with open(nuisanceFile) as f:
@@ -52,7 +57,8 @@ def getPreFitUncFromCard(cardFile, estimateName, uncName, binName):
             try:    return float(line.split()[2:][i])-1
             except: 
               return 0. # muted bin has -, cannot be converted to float
-      raise Warning('No uncertainty ' + uncName + ' for ' + estimateName + ' ' + binName)
+      return 0.
+      #raise Warning('No uncertainty ' + uncName + ' for ' + estimateName + ' ' + binName)
 
 def getTotalPostFitUncertainty(cardFile, binName):
     binNumber = getBinNumber(cardFile, binName)
@@ -107,10 +113,10 @@ def getTotalPostFitUncertainty(cardFile, binName):
     #return uncDict, totalUnc
           #else: 
 
-def getEstimateFromCard(cardFile, estimateName, binName):
+def getEstimateFromCard(cardFile, estimateName, binName, postfix=''):
     res = u_float(0)
     binNumber = getBinNumber(cardFile, binName)
-    uncName = 'Stat_' + binName + '_' + estimateName
+    uncName = 'Stat_' + binName + '_' + estimateName+postfix
     with open(cardFile) as f:
       binList = False
       estimateList = False
@@ -161,7 +167,7 @@ def applyNuisance(cardFile, estimate, res, binName):
     return scaledRes2
 
 def applyAllNuisances(cardFile, estimate, res, binName, nuisances):
-    if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt', 'ZZ']: return res
+    if not estimate in ['signal', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt', 'ZZ','ZG']: return res
     if estimate == "WZ":
         uncName = estimate+'_xsec'
     elif estimate == "ZZ":
@@ -183,4 +189,5 @@ def applyAllNuisances(cardFile, estimate, res, binName, nuisances):
     allNuisances = nuisances#["unclEn","JER","leptonSF","PU","Lumi","PDF","SFb","topPt","JEC","trigger","SFl"]
     for n in allNuisances:
         scaledRes2 = scaledRes2*(1+getPreFitUncFromCard(cardFile, estimate, n, binName))**getPull(nuisanceFile, n) if scaledRes.val > 0 else scaledRes
+        if scaledRes.val > 0: logger.info("Found uncertainty %s", n)
     return scaledRes2
