@@ -7,12 +7,12 @@ from RootTools.core.standard import *
 
 def plot_plotList():
     plotList=[] #leptonType="Ele" or "Muo", plotDate="YYYYMMDD", isTraindata=1 or 0
-    plotList.append(["Muo","20180802_std_PfAndSv",0,"std"])
-    #plotList.append(["Muo","20180802_std_PfAndSv",1,"std"])
-    plotList.append(["Ele","20180802_std_PfAndSv",0,"std"])
-    #plotList.append(["Ele","20180802_std_PfAndSv",1,"std"])
-    #plotList.append(["Muo","20180806_iso",0,"iso"])
-    #plotList.append(["Muo","20180806_iso",1,"iso"])
+    #plotList.append(["Muo","20180808_std_PfAndSv",0,"std"])
+    #plotList.append(["Muo","20180808_std_PfAndSv",1,"std"])
+    #plotList.append(["Ele","20180808_std_PfAndSv",0,"std"])
+    #plotList.append(["Ele","20180808_std_PfAndSv",1,"std"])
+    plotList.append(["Muo","20180809_iso",0,"iso"])
+    plotList.append(["Muo","20180809_iso",1,"iso"])
     #plotList.append(["Ele","20180806_iso",0,"iso"])
     #plotList.append(["Ele","20180806_iso",1,"iso"])
 

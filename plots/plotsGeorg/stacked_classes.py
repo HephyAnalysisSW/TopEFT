@@ -246,7 +246,7 @@ for plot in plotList:
                 plots.append(Plot(name=plotname+'Dz',
                     texX = 'dz', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_dz,
-                    binning=[60,-0.5,0.5] if leptonFlavour["Name"]=="Muon" else [60,-0.25,0.25],
+                    binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-0.25,0.25],
                 ))
                 plots.append(Plot(name=plotname+'errorDxy',
                     texX = 'errorDxy', texY = 'Number of Events',
@@ -267,16 +267,6 @@ for plot in plotList:
                     texX = 'significanceD3DwrtPV', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_sip3d,
                     binning=[100,0,8],
-                ))
-                plots.append(Plot(name=plotname+'DxyPF',
-                    texX = 'dxyPF', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.lep_dxy_pf,
-                    binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-5,5],
-                ))
-                plots.append(Plot(name=plotname+'DzPF',
-                    texX = 'dzPF', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.lep_dz_pf,
-                    binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-30,30],
                 ))
                 plots.append(Plot(name=plotname+'EffectiveArea03',
                     texX = 'EffectiveArea03', texY = 'Number of Events',
@@ -384,7 +374,7 @@ for plot in plotList:
                     plots.append(Plot(name=plotname+'r9',
                         texX = 'r9', texY = 'Number of Events',
                         attribute = lambda lepton, sample: lepton.lep_r9,
-                        binning=[100,0,5],
+                        binning=[100,0,1],
                     ))
                     plots.append(Plot(name=plotname+'MVAFal17noIso',
                         texX = 'electronMVAFall17noIso', texY = 'Number of Events',
