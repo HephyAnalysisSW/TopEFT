@@ -4,6 +4,8 @@ from TopEFT.Tools.u_float import u_float
 import os
 from math import sqrt
 
+from TopEFT.Tools.leptonTrackingEfficiency import *
+
 ## maps for electrons ##
 maps_ele = {\
     2016: {\
@@ -57,6 +59,7 @@ class leptonSF:
     def __init__(self, year, ID = None):
         self.dataDir = "$CMSSW_BASE/src/TopEFT/Tools/data/leptonSFData"
         self.year = year
+        self.LSF = leptonTrackingEfficiency(self.year)
         if not ID in maps_ele[year].keys():
             raise Exception("Don't know ID %s"%ID)
         self.mu  = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key) for (file, key) in maps_mu[year][ID]]
@@ -76,17 +79,22 @@ class leptonSF:
         return res
 
     def getSF(self, pdgId, pt, eta, sigma=0):
-        # for electrons in 2016 use eta instead of abs(eta)
+        # electrons always use supercluster eta.
+        # TrackingSF.
+        trackingSF = self.LSF.getSF(pdgId, pt, eta)
+
+        # LeptonSF. for electrons in 2016 use eta instead of abs(eta)
         eta = eta if ( self.year == 2016 and abs(pdgId) == 11 ) else abs(eta)
-        if abs(pdgId)==13:   
+        if abs(pdgId)==13:
           if pt >= 120: pt = 119 # last bin is valid to infinity
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in self.mu])
-          sf.sigma = 0.03 # Recommendation for Moriond17
         elif abs(pdgId)==11:
           if pt >= 200: pt = 199 # last bin is valid to infinity
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in self.ele])
         else: 
           raise Exception("Lepton SF for PdgId %i not known"%pdgId)
 
-        return (1+sf.sigma*sigma)*sf.val
+        # Get the final scale-factor
+        sf = sf*trackingSF
+        return sf.val+sf.sigma*sigma
 

@@ -36,9 +36,9 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -62,11 +62,11 @@ estimators              = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
-setup.regions           = regionsE
+setup.regions           = noRegions#regionsE
 
 setupNP                 = Setup(year=year, nLeptons=3, nonprompt=True)
 setupNP.channels          = [channel(-1,-1)]
-setupNP.regions           = regionsE
+setupNP.regions           = noRegions#regionsE
 
 setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
@@ -83,7 +83,7 @@ estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
-setup4l.regions           = regions4lB
+setup4l.regions           = noRegions#regions4lB
 
 ## 4l control region setup
 # to be added now

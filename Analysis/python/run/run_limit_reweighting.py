@@ -18,7 +18,9 @@ argParser.add_argument("--includeCR",      action='store_true', help="Do simulta
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
 argParser.add_argument("--include4l",      action='store_true', help="Include 4l regions?")
-argParser.add_argument("--WZamc",          action='store_true', help="Use WZ amc@NLO sample instead of powheg?")
+argParser.add_argument("--WZtoPowheg",     action='store_true', help="Use reweighting from WZ amc@NLO sample to powheg?")
+argParser.add_argument("--expected",       action='store_true', help="Run expected NLL (=blinded, no pseudo-data needed)?")
+argParser.add_argument("--merged",         action='store_true', help="Run expected NLL (=blinded, no pseudo-data needed)?")
 argParser.add_argument("--year",           action='store',      type=int, default=2016, choices = [ 2016, 2017, 20167 ], help='Which year?')
 
 
@@ -52,11 +54,12 @@ from copy                               import deepcopy
 
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.SetupHelpers       import channel
-from TopEFT.Analysis.regions            import regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB
+from TopEFT.Analysis.regions            import noRegions, regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Analysis.FakeEstimate       import FakeEstimate
 from TopEFT.Analysis.run.SignalReweightingTemplate import *
+from TopEFT.Analysis.run.WZReweightingTemplate import *
 
 from TopEFT.Tools.resultsDB             import resultsDB
 from TopEFT.Tools.u_float               import u_float
@@ -65,14 +68,16 @@ from TopEFT.Tools.cardFileWriter        import cardFileWriter
 
 year = int(args.year)
 
-cardDir = "regionsE_%s"%(year)
+cardDir = "regionsE_%s"%(year) if not args.merged else "noRegions_%s"%(year)
 if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
     cardDir += "_shape"
 cardDir += "_lowUnc"
-if args.WZamc:
-    cardDir += "_WZamc"
+if args.WZtoPowheg:
+    cardDir += "_WZreweight"
+if args.expected:
+    cardDir += "_expected"
 
 ## 2l setup ##
 # not yet part of the game
@@ -80,16 +85,16 @@ if args.WZamc:
 ## 3l setup ##
 setup3l                 = Setup(year, nLeptons=3)
 estimators3l            = estimatorList(setup3l)
-setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"]) if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
+setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup3l.reweightRegions = regionsReweight
 setup3l.channels        = [channel(-1,-1)] # == 'all'
-setup3l.regions         = regionsE
+setup3l.regions         = regionsE if not args.merged else noRegions
 setup3l.year            = year
 
 ## 3l NP setup ##
 setup3l_NP              = Setup(year, nLeptons=3, nonprompt=True)
 setup3l_NP.channels     = [channel(-1,-1)] # == 'all'
-setup3l_NP.regions      = regionsE
+setup3l_NP.regions      = regionsE if not args.merged else noRegions
 
 ## 4l setup ##
 setup4l                 = Setup(year=year, nLeptons=4)
@@ -98,7 +103,7 @@ estimators4l            = estimatorList(setup4l)
 setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "rare","TTX"])
 setup4l.reweightRegions = regionsReweight4l
 setup4l.channels        = [channel(-1,-1)] # == 'all'
-setup4l.regions         = regions4lB
+setup4l.regions         = regions4lB if not args.merged else noRegions
 setup4l.year            = year
 
 ## CR setups ##
@@ -127,7 +132,8 @@ baseDir = os.path.join(analysis_results, subDir)
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.signal]))
 overWrite   = (args.only is not None) or args.overwrite
 
-reweightCache = os.path.join( results_directory, 'SignalReweightingTemplate' )
+reweightCache   = os.path.join( results_directory, 'SignalReweightingTemplate' )
+reweightCacheWZ = os.path.join( results_directory, 'WZReweightingTemplate' )
 
 
 from TopEFT.Generation.Configuration import Configuration
@@ -259,13 +265,12 @@ def wrapper(s):
         c.addUncertainty('ZG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
         c.addUncertainty('ttX',                 'lnN') # correlated.
-        
+        c.addUncertainty('Lumi'+postfix, 'lnN')
+
         uncList = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'leptonSF', 'trigger']
         for unc in uncList:
             uncertainties[unc] = []
         
-        #c.addUncertainty('tZq',         'lnN')
-
         ## use rate parameters??
         #c.addRateParameter('WZ', 1, '[0,2]')
         #c.addRateParameter('ZZ', 1, '[0,2]')
@@ -286,26 +291,37 @@ def wrapper(s):
             for e in setup.estimators: e.initCache(setup.defaultCacheDir())
 
             for r in setup.regions:
+                totalBackground = u_float(0)
                 for channel in setup.channels:
                     niceName = ' '.join([channel.name, r.__str__()])
                     binname = 'Bin'+str(counter)
+                    logger.info("Working on %s", binname)
                     counter += 1
                     c.addBin(binname, [e.name.split('-')[0] for e in setup.estimators]+["nonPromptDD"], niceName)
                     #c.addBin(binname, 'nonPromptDD', niceName)
 
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
-                        expected = e.cachedEstimate(r, channel, setup)
-                        c.specifyExpectation(binname, name, expected.val if expected.val > 0 else 0.01)
+                        if args.WZtoPowheg and name.count('WZ'):
+                            logger.info("Using reweighting to powheg for WZ sample")
+                            wzReweighting = WZReweighting( cacheDir = reweightCacheWZ )
+                            f = wzReweighting.cachedReweightingFunc( setup.WZselection )
+                            expected = e.reweight1D(r, channel, setup, f)
+                        else:
+                            expected = e.cachedEstimate(r, channel, setup)
+                        logger.info("Adding expectation %s for process %s", expected.val, name)
+                        c.specifyExpectation(binname, name, expected.val if expected.val > 0.01 else 0.01)
+
+                        totalBackground += expected
 
                         if not args.statOnly:
                             # uncertainties
-                            pu          = 1 + e.PUSystematic( r, channel, setup).val
-                            jec         = 1 + e.JECSystematic( r, channel, setup).val
-                            btag_heavy  = 1 + e.btaggingSFbSystematic(r, channel, setup).val
-                            btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val
-                            trigger     = 1 + e.triggerSystematic(r, channel, setup).val
-                            leptonSF    = 1 + e.leptonSFSystematic(r, channel, setup).val
+                            pu          = 1 + e.PUSystematic( r, channel, setup).val            if expected.val>0.01 else 1.1
+                            jec         = 1 + e.JECSystematic( r, channel, setup).val           if expected.val>0.01 else 1.1
+                            btag_heavy  = 1 + e.btaggingSFbSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
+                            btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
+                            trigger     = 1 + e.triggerSystematic(r, channel, setup).val        if expected.val>0.01 else 1.1
+                            leptonSF    = 1 + e.leptonSFSystematic(r, channel, setup).val       if expected.val>0.01 else 1.1
 
                             c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val)
                             if not name.count('nonprompt'):
@@ -316,8 +332,9 @@ def wrapper(s):
                                 c.specifyUncertainty('leptonSF',    binname, name, leptonSF)
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
+                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.026 )
 
-                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20) #1.20
+                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20)
                             if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
                             if name.count('WZ'):
                                 c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
@@ -326,8 +343,7 @@ def wrapper(s):
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15) #1.15
-                            #if name.count('TZQ'):     c.specifyUncertainty('tZq',         binname, name, 1.10) #1.15
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
 
 
                         #MC bkg stat (some condition to neglect the smaller ones?)
@@ -340,14 +356,6 @@ def wrapper(s):
                     
                     uname = 'Stat_'+binname+'_nonprompt'+postfix
                     c.addUncertainty(uname, 'lnN')
-                    #if setup.nLeptons == 3:
-                    #    np = nonprompt.cachedEstimate(r, channel, setupNP)
-                    #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", round(1+np.sigma/np.val,3))
-                    #else:
-                    #    np = u_float(0.)
-                    #    c.specifyUncertainty('Stat_'+binname+'_nonprompt',   binname, "nonPromptDD", 1.01)
-                    
-                    # only get NP for 3l channel
                     
                     if setup.nLeptons == 3 and setupNP:
                         nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
@@ -358,13 +366,18 @@ def wrapper(s):
                         c.specifyUncertainty(uname,   binname, "nonPromptDD", 1 + np.sigma/np.val )
                         c.specifyUncertainty('nonprompt',   binname, "nonPromptDD", 1.30)
                     else:
-                        c.specifyExpectation(binname, 'nonPromptDD', 0.)
+                        np = u_float(0)
+                        c.specifyExpectation(binname, 'nonPromptDD', np.val)
                     
-                    if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
+                    if args.expected:
+                        sig = signal.cachedEstimate(r, channel, setup)
+                        obs = totalBackground + sig + np
+                    elif args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
                         obs = observation.cachedObservation(r, channel, setup)
                     else:
                         obs = observation.cachedEstimate(r, channel, setup)
                     c.specifyObservation(binname, int(round(obs.val,0)) )
+
 
                     if args.useShape:
                         logger.info("Using 2D reweighting method for shapes")
@@ -388,6 +401,7 @@ def wrapper(s):
                     c.specifyExpectation(binname, 'signal', sig.val * xSecScale * xSecMod )
                     
                     if sig.val>0:
+                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.026 )
                         if not args.statOnly:
                             # uncertainties
                             pu          = 1 + e.PUSystematic( r, channel, setup).val
@@ -427,8 +441,8 @@ def wrapper(s):
                         c.specifyUncertainty(uname, binname, 'signal', 1 )
 
                     
-        c.addUncertainty('Lumi'+postfix, 'lnN')
-        c.specifyFlatUncertainty('Lumi'+postfix, 1.026)
+        #c.addUncertainty('Lumi'+postfix, 'lnN')
+        #c.specifyFlatUncertainty('Lumi'+postfix, 1.026)
         cardFileName = c.writeToFile(cardFileName)
     else:
         logger.info("File %s found. Reusing.",cardFileName)

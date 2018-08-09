@@ -105,7 +105,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
-#    skimConds.append( "( run==280024&&lumi==109&&evt==157662937 )" )
+    #skimConds.append( "( run==1&&lumi==15&&evt==2704 )" )
 if isQuadLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
@@ -619,26 +619,17 @@ def filler( event ):
             setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
             setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
             
-            reweightSF      = 1
-            reweightSFUp    = 1
-            reweightSFDown  = 1
-            if len(leptonCollections[tight_id]) > 0:
-                for l in leptonCollections[tight_id]:
-                    eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
-                    trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
-                    reweightSF      *= trackingSF
-                    reweightSFUp    *= (trackingSF + trackingSF_err)
-                    reweightSFDown  *= (trackingSF - trackingSF_err)
-                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
-                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
-                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
-
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
                 trigg, trigg_err = triggerSF.getSF(leptonCollections[tight_id])
                 setattr(event, "reweightTrigger_%s"%tight_id,        trigg)
                 setattr(event, "reweightTriggerUp_%s"%tight_id,      trigg + trigg_err)
                 setattr(event, "reweightTriggerDown_%s"%tight_id,    trigg - trigg_err)
+
+                # keep the weights, can be removed in the future
+                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      1)
+                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    1)
+                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  1)
 
                 # get different lepton SF readers
                 leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!

@@ -34,6 +34,7 @@ from TopEFT.Analysis.SetupHelpers import getZCut, channel, trilepChannels, quadl
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
+from TopEFT.Tools.cutInterpreter import *
 
 #to run on data
 dataLumi2016        = Run2016.lumi
@@ -129,6 +130,7 @@ class Setup:
             self.dataLumi     = dataHighLumi
 
         self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
+        self.WZselection  = cutInterpreter.cutString('trilep-Zcand-onZ-lepSelTTZ-njet1p')
 
         # Data
         if year == 2017:
@@ -139,30 +141,26 @@ class Setup:
         # MC
         if year == 2017:
             TTZSample           = TTZtoLLNuNu_17
-            WZSample            = WZ_amcatnlo_17 # no powheg yet
-            WZAMCSample         = WZ_amcatnlo_17
+            WZSample            = WZ_amcatnlo_17
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
             ZGSample            = ZGTo2LG
             ZZSample            = ZZ_17
             rareSample          = rare_17
-            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
             ttbarSample         = TTLep_pow_17
         else:
             ## use 2016 samples as default (we do combine on card file level)
             TTZSample           = TTZtoLLNuNu
-            WZSample            = WZ_powheg
-            WZAMCSample         = WZ_amcatnlo
+            WZSample            = WZ_amcatnlo
             TTXSample           = TTX
             TTWSample           = TTW
             TZQSample           = TZQ
             ZGSample            = ZGTo2LG
             ZZSample            = ZZ
             rareSample          = rare
-            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
             ttbarSample         = TTLep_pow
@@ -172,14 +170,12 @@ class Setup:
         self.samples = {
             'TTZ':          TTZSample,
             'WZ' :          WZSample,
-            'WZ_amc' :      WZAMCSample,
             'TTX' :         TTXSample,
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,
             'ZG' :          ZGSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
-            #'rare_noZZ':    rare_noZZSample,
             'nonprompt':    nonpromptSample,
             'ttbar':        ttbarSample,
             'pseudoData':   pseudoDataSample,

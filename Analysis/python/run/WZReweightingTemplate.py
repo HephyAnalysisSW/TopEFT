@@ -9,9 +9,11 @@ import os
 from RootTools.core.standard import *
 
 # TopEFT
-#from TopEFT.Tools.PickleCache import PickleCache
 from TopEFT.Tools.resultsDB import resultsDB
-#from TopEFT.Analysis.Cache import Cache
+
+from TopEFT.samples.color import color
+from TopEFT.Tools.user import results_directory, plot_directory
+from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 if __name__ == "__main__":
 
@@ -38,10 +40,23 @@ else:
 
 class WZReweighting:
 
-    def __init__( self, source_sample, target_sample, cacheDir = None):
+    def __init__( self, cacheDir = None):
 
-        self.source_sample = source_sample
-        self.target_sample = target_sample 
+
+        # Samples
+        data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+        postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+
+        dirs = {}
+        dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
+        dirs['WZTo3LNu']     = ['WZTo3LNu_comb']
+        directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
+
+        source  = Sample.fromDirectory(name="WZTo3LNu_amcatnlo", treeName="Events", isData=False, color=color.WZ-2, texName="WZ MG (NLO)", directory=directories['WZTo3LNu_amcatnlo'])
+        target  = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData=False, color=color.WZ+2, texName="WZ powheg (NLO)", directory=directories['WZTo3LNu'])
+
+        self.source_sample = source
+        self.target_sample = target 
         self.initCache( cacheDir )
 
         self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 2000 ]
@@ -55,7 +70,7 @@ class WZReweighting:
         return arg
 
 
-    def cachedReweightingFunc( self, selection, weight = '(1)', save = True, overwrite = False):
+    def cachedReweightingFunc( self, selection, weight = 'weight', save = True, overwrite = False):
 
         t = self.cachedTemplate( selection=selection, weight=weight, save=save, overwrite=overwrite)
         
@@ -65,7 +80,7 @@ class WZReweighting:
         return reweight_func
             
 
-    def cachedTemplate( self, selection, weight = '(1)', save = True, overwrite = False):
+    def cachedTemplate( self, selection, weight = 'weight', save = True, overwrite = False):
         
         key = {"selection":selection, "weight":weight, "source":self.source_sample.name, "target":self.target_sample.name}
         #key =  self.uniqueKey( selection, weight, self.source_sample.name, self.target_sample.name)
@@ -111,27 +126,12 @@ class WZReweighting:
 
 if __name__ == "__main__":
 
-    from TopEFT.samples.color import color
-    from TopEFT.Tools.user import results_directory, plot_directory
-    from TopEFT.Tools.cutInterpreter    import cutInterpreter
-
-    # Samples
-    data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
-    
-    dirs = {}
-    dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
-    dirs['WZTo3LNu']     = ['WZTo3LNu_comb']
-    directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
-
-    source  = Sample.fromDirectory(name="WZTo3LNu_amcatnlo", treeName="Events", isData=False, color=color.WZ-2, texName="WZ MG (NLO)", directory=directories['WZTo3LNu_amcatnlo'])
-    target  = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData=False, color=color.WZ+2, texName="WZ powheg (NLO)", directory=directories['WZTo3LNu'])
 
     # reweighting class
     cacheDir = os.path.join( results_directory, 'WZReweightingTemplate' )
     if not os.path.isdir(cacheDir): os.makedirs(cacheDir)
 
-    WZReweighting = WZReweighting( source_sample = source, target_sample = target, cacheDir = cacheDir)
+    WZReweighting = WZReweighting( cacheDir = cacheDir)
 
     # reweighting selection
     selection = cutInterpreter.cutString('trilep-Zcand-onZ-lepSelTTZ-njet1p')

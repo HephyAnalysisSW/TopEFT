@@ -31,6 +31,7 @@ special_cuts = {
     "lepSelQuad":        "Sum$(lep_pt>40&&lep_tight_4l>0)>0 && Sum$(lep_pt>10&&lep_tight_4l>0)>3 ",
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
+    "lepSelDilep":       "Sum$(lep_pt>40&&lep_tight_4l>0)>0 && Sum$(lep_pt>10&&lep_tight_4l>0)>1 ",
     "onZ":               "abs(Z_mass-91.1876)<10",
     "tightZ":            "Z_fromTight>0",
     "onZZ":              "abs(Z1_mass_4l-91.1876)<20&&abs(Z2_mass_4l-91.1876)<20",

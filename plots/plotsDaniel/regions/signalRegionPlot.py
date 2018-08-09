@@ -17,6 +17,7 @@ parser.add_option('--signal',               action="store_true")
 parser.add_option('--blinded',              action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
+parser.add_option('--bestfit',              dest="bestfit", default = False, action = "store_true", help="Apply pulls to signal?")
 parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
 (options, args) = parser.parse_args()
 
@@ -115,7 +116,8 @@ for i, r in enumerate(regions):
     totalUncertainty    = 0.
 
     if options.postFit:
-        postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD_r1.root'))
+        suffix = '_bestfit' if options.bestfit else '_r1'
+        postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD%s.root'%suffix)) #r1
 
     for p,tex in processes:
 
@@ -295,6 +297,53 @@ def drawLabels2( regions ):
     lines += [(min+(12+0.90)*diff, 0.820,  "N_{j}#geq2")]
     return [tex.DrawLatex(*l) for l in lines] if len(regions)>12 else []
 
+def drawLabelsLower( regions ):
+    tex = ROOT.TLatex()
+    tex.SetNDC()
+    tex.SetTextSize(0.09)
+    tex.SetTextFont(42)
+    tex.SetTextAngle(0)
+    tex.SetTextAlign(23) # align right
+    min = 0.15
+    max = 0.95
+    diff = (max-min) / len(regions)
+    
+    lines  = [(min+6*diff, 0.10, "N_{b}=0"),        (min+13.5*diff, 0.10, "N_{b}#geq0"),      (min+21*diff, 0.10, "N_{b}#geq1"),      (min+28.5*diff, 0.10, "N_{b}#geq1")]
+    lines += [(min+6*diff, 0.21, "N_{jet}#geq1"),   (min+13.5*diff, 0.21, "N_{jet}#geq1"),    (min+21*diff, 0.21, "N_{jet}#geq3"),    (min+28.5*diff, 0.21, "N_{jet}#geq1")]
+    lines += [(min+6*diff, 0.32, "N_{lep}=3"),      (min+13.5*diff, 0.32, "N_{lep}=4"),       (min+21*diff, 0.32, "N_{lep}=3"),       (min+28.5*diff, 0.32, "N_{lep}=4")]
+
+    return [tex.DrawLatex(*l) for l in lines]
+
+def drawHeadlineLower( regions ):
+    tex = ROOT.TLatex()
+    tex.SetNDC()
+    tex.SetTextSize(0.10)
+    tex.SetTextFont(42)
+    tex.SetTextAngle(0)
+    tex.SetTextAlign(23) # align right
+    min = 0.15
+    max = 0.95
+    diff = (max-min) / len(regions)
+
+    lines  = [(min+8*diff, 0.415, "Control Region"),        (min+23*diff, 0.415, "Signal Region")]
+
+    return [tex.DrawLatex(*l) for l in lines]
+
+
+def drawDivisionsLower(regions):
+    min = 0.15
+    max = 0.95
+    diff = (max-min) / len(regions)
+    lines = []
+    lines2 = []
+    line = ROOT.TLine()
+#   line.SetLineColor(38)
+    line.SetLineWidth(1)
+    line.SetLineStyle(2)
+    #lines = [ (min+3*i*diff,  0.01, min+3*i*diff, 0.45) for i in range(1,10) ]
+    lines = [ (min +0*diff, 0.01, min +0*diff, 0.50), (min +12*diff, 0.01, min +12*diff, 0.32), (min +15*diff, 0.01, min +15*diff, 1.0), (min +27*diff, 0.01, min +27*diff, 0.32), (min +30*diff, 0.01, min +30*diff, 0.50)]
+    return [line.DrawLineNDC(*l) for l in lines] + [tex.DrawLatex(*l) for l in []] + [tex2.DrawLatex(*l) for l in lines2]
+
 
 def drawDivisions(regions):
     min = 0.15
@@ -307,11 +356,6 @@ def drawDivisions(regions):
     line.SetLineWidth(1)
     line.SetLineStyle(2)
     lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) if min+3*i*diff<0.74 else (min+3*i*diff,  0.013, min+3*i*diff, 0.52) for i in range(1,10) ]
-    #line1 = (min+3*diff,  0.013, min+3*diff, 0.93);
-    #line2 = (min+6*diff, 0.013, min+6*diff, 0.93);
-    #line3 = (min+9*diff, 0.013, min+9*diff, 0.93);
-    #line4 = (min+12*diff, 0.013, min+12*diff, 0.80-0.010*32-0.03);
-    #line5 = (min+12*diff, 0.80+0.03, min+12*diff, 0.93);
     return [line.DrawLineNDC(*l) for l in lines] + [tex.DrawLatex(*l) for l in []] + [tex2.DrawLatex(*l) for l in lines2]
 
 
@@ -339,7 +383,16 @@ def drawObjects( isData=False, lumi=36. ):
 
 def setBinLabels( hist ):
     for i in range(1, hist.GetNbinsX()+1):
-        hist.GetXaxis().SetBinLabel(i, "%s"%i)
+        if i < 16:
+            hist.GetXaxis().SetBinLabel(i, "%s"%i)
+        else:
+            hist.GetXaxis().SetBinLabel(i, "%s"%(i-15))
+
+#def optimizeLogZ(histo):
+#            histo.GetZaxis().SetMoreLogLabels()
+#            histo.GetZaxis().SetNoExponent()
+#            histo.Draw("colz")
+#            histo.GetYaxis().SetRangeUser(10,1000)
 
 drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes + drawDivisions( regions )# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
@@ -362,11 +415,15 @@ if subDir:
 plotName = "%s%s_signalRegions_incl4l_dataV2_%s"%(subDir,cardName,options.year if not options.combine else "COMBINED")
 if options.postFit:
     plotName += "_postFit"
+if options.blinded:
+    plotName += "_blinded"
+if options.bestfit:
+    plotName += "_bestfit"
 
 plotting.draw(
     Plot.fromHisto(plotName,
                 plots,
-                texX = "Signal Region"
+                texX = ""
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions"),
     logX = False, logY = True, sorting = False, 
@@ -375,7 +432,7 @@ plotting.draw(
     widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes, 'histos':[(2,1)] if options.signal else [(1,0)]} ,
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,1)] if options.signal else [(1,0)]} ,
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
