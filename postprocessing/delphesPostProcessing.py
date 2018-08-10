@@ -103,6 +103,9 @@ variables     += ["Z_l1_index/I", "Z_l2_index/I", "nonZ_l1_index/I", "nonZ_l2_in
 lep_vars       = "pt/F,eta/F,phi/F,pdgId/I,charge/I,isolationVar/F,isolationVarRhoCorr/F,sumPtCharged/F,sumPtNeutral/F,sumPtChargedPU/F,sumPt/F,ehadOverEem/F"
 variables         += ["lep[%s]"%lep_vars]
 lep_varnames  = varnames( lep_vars )
+
+#
+variables += ["nBTag/I", "nMuons/I", "nElectrons/I"]
     
 # reconstructed jets
 jet_vars    = 'pt/F,eta/F,phi/F,bTag/F,bTagPhys/I,bTagAlgo/I' 
@@ -146,6 +149,8 @@ def filler( event ):
     fill_vector( event, "bj0", jet_write_varnames, bj0) 
     fill_vector( event, "bj1", jet_write_varnames, bj1) 
 
+    event.nBTag = len( bJets )
+
     # read leptons
     allLeps = reader.muonsTight() + reader.electrons()
     allLeps.sort( key = lambda p:-p['pt'] )
@@ -155,12 +160,15 @@ def filler( event ):
     # give index to leptons
     addIndex( leps )
 
-    # MET
-    met = reader.met()[0]
-
     # Store
     fill_vector_collection( event, "lep",    lep_varnames, leps )
     fill_vector_collection( event, "jet",    jet_varnames, jets )
+
+    event.nMuons     = len( filter( lambda l:abs(l['pdgId'])==13, leps ) )
+    event.nElectrons = len( filter( lambda l:abs(l['pdgId'])==11, leps ) )
+
+    # MET
+    met = reader.met()[0]
 
     event.met_pt  = met['pt']
     event.met_phi = met['phi']
