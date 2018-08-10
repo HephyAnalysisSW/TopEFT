@@ -19,7 +19,7 @@ def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
 
 def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt', idVar='id'):
-  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j[idVar]
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and ( j[idVar] if idVar is not None else True )
 
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
     return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
@@ -363,3 +363,8 @@ def getFilterCut(isData=False, isFastSim = False, year = 2016):
 
     if isData: filterCut += "&&weight>0"
     return filterCut
+
+def isGoodDelphesJet( j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  
+def isGoodDelphesLepton( j, ptCut=10, absEtaCut=3, ptVar='pt'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  
