@@ -221,6 +221,11 @@ for ecaltype in ecaltypes:
         attribute = TreeVariable.fromString( "lep_dz/F" ),
         binning=[60,-0.2,0.2],
     ))
+    plots.append(Plot(name=plotname+'jetDR',
+        texX = 'jetDR', texY = 'Number of Events',
+        attribute = TreeVariable.fromString( "lep_jetDR/F" ),
+        binning=[61,-3,3],
+    ))
 
     plots.append(Plot(name=plotname+'npfCand_neutral',
         texX = 'npfCand_neutral', texY = 'Number of Events',
