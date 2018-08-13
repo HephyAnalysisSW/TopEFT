@@ -95,11 +95,11 @@ class Setup:
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
         if nLeptons == 3:
             self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
-            if self.year == 2016 or True:
+            if self.year == 2017: #in 2016 already included in leptonSF
                 self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
         elif nLeptons == 4:
             self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
-            if self.year == 2016 or True:
+            if self.year == 2017: #in 2016 already included in leptonSF
                 self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
 
 
