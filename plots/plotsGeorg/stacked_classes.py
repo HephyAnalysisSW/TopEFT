@@ -424,6 +424,16 @@ for plot in plotList:
                         attribute = lambda lepton, sample: lepton.lep_glbTrackProbability,
                         binning=[50,0,8],
                     ))
+                    plots.append(Plot(name=plotname+'caloCompatibility',
+                        texX = 'caloCompatibility', texY = 'Number of Events',
+                        attribute = lambda lepton, sample: lepton.lep_caloCompatibility,
+                        binning=[50,0,1],
+                    ))
+                    plots.append(Plot(name=plotname+'trkKink',
+                        texX = 'trkKink', texY = 'Number of Events',
+                        attribute = lambda lepton, sample: lepton.lep_trkKink,
+                        binning=[100,0,50],
+                    ))
                 #other Variables
                 plots.append(Plot(name=plotname+'mcMatchId',
                     texX = 'mcMatchId', texY = 'Number of Events',
