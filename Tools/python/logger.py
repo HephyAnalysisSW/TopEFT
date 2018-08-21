@@ -51,3 +51,10 @@ def get_logger(logLevel, logFile = None, add_sync_level = False):
 
     sys.excepthook = excepthook
     return logger
+
+def add_fileHandler( logFile, logLevel ):
+    logger = logging.getLogger('TopEFT')
+    fileHandler = logging.FileHandler(logFile, mode='w')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
