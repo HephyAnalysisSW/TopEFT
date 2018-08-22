@@ -9,6 +9,8 @@ parser.add_argument('-i', '--input', help='input mlfit file')
 parser.add_argument('-p', '--parameter', help='parameter for listing correlations')
 parser.add_argument('-m', '--max', type=int, default=10, help='max number to print')
 
+## e.g. python correlations.py -i /afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_lowUnc/ewkDM_dipoles/ewkDM_ttZ_ll_FD_r1.root:fit_s -p Lumi_2016
+
 args = parser.parse_args()
 
 fin = ROOT.TFile(args.input.split(':')[0])

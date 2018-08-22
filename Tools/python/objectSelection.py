@@ -24,9 +24,9 @@ def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt', idVar='id'):
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
     return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
 
-def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"]):
+def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"], idVar='id'):
 
-    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
+    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut, idVar=idVar), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
     res  = []
 
     for jet in jets:

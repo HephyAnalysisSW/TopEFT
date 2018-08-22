@@ -14,6 +14,7 @@ parser.add_option('--logLevel',             dest="logLevel",              defaul
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--skipCentral',          dest="skipCentral", default = False, action = "store_true", help="Skip central weights")
 parser.add_option('--btagWZ',               dest="btagWZ", default = False, action = "store_true", help="Get the uncertainties for b-tag extrapolation of WZ")
+parser.add_option('--regionsXSec',          dest="regionsXSec", default = False, action = "store_true", help="Use nJet and nBTag binning")
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -25,7 +26,7 @@ import math
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels
-from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB
+from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB, regionsXSec
 from TopEFT.Tools.u_float           import u_float 
 from TopEFT.Tools.resultsDB         import resultsDB
 from TopEFT.Analysis.Region         import Region 
@@ -44,15 +45,15 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
-postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 from TopEFT.Analysis.Setup          import Setup
@@ -61,11 +62,13 @@ year = 2017 if options.sample.count("17") else 2016
 setup = Setup(year=year, nLeptons=3)
 if options.btagWZ:
     setup.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
+elif options.regionsXSec:
+    setup.parameters.update({"nBTags":(0,-1), "nJets":(2,-1)})
 
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
@@ -80,7 +83,7 @@ WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=Fals
 #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 #postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
 dirs = {}
 dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc_psw']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
@@ -100,11 +103,14 @@ if options.small:
 
 if options.btagWZ:
     allRegions = btagRegions + noRegions
+elif options.regionsXSec:
+    allRegions = noRegions + regionsXSec
 else:
     allRegions = noRegions + regionsE + regions4lB
 regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
 
-setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
+#setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
+setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(2,-1), 'nBTags':(1,-1), 'zWindow1':'onZ'})
 setup.verbose     = True
 
 # use more inclusive selection in terms of lepton multiplicity in the future?
@@ -258,6 +264,8 @@ if options.combine:
     
         for region in regions:
             
+            logger.info("Region: %s", region)
+            
             scales = []
             showerScales = []
             deltas = []
@@ -329,15 +337,23 @@ if options.combine:
             # calculate the PS uncertainties
             if PSweights:
                 sigma_incl_central  = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[PSweight_original]}))
+                sigma_central       = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[PSweight_original]}))
+                print "Count:", sigma_central.val/0.5148500
+                shower_scales  = []
                 for var in PS_variations:
                     simga_incl_reweight = estimate.cachedEstimate(noRegions[0], channel(-1,-1), setupIncl.systematicClone(sys={'reweight':[var]}))
                     norm = sigma_incl_central/simga_incl_reweight
                     
                     sigma_reweight  = estimate.cachedEstimate(region, c, setup.systematicClone(sys={'reweight':[var]}))
-                    sigma_reweight_acc = sigma_reweight * norm
+                    sigma_reweight_acc = sigma_reweight #* norm
 
-                    unc = abs( ( sigma_reweight_acc - sigma_central) / sigma_central )
+                    #unc = ( ( sigma_reweight_acc - sigma_central) / sigma_central ) # no abs atm
+                    unc = sigma_reweight_acc / sigma_central
+                    #print ( sigma_reweight_acc - sigma_central) / sigma_central
                     showerScales.append(unc.val)
+
+                print "ISR up/down", round(showerScales[0], 3), round( showerScales[2], 3)
+                print "FSR up/down", round(showerScales[1], 3), round( showerScales[3], 3)
 
                 PS_scale_rel = max(showerScales)
             else:
@@ -363,8 +379,8 @@ if options.combine:
             scale_cache.add({"region":region, "channel":c.name, "PDFset":'scale'}, scale_rel, overwrite=True)
             PS_cache.add({"region":region, "channel":c.name, "PDFset":'PSscale'}, PS_scale_rel, overwrite=True)
 
-            print region, c.name
-            PDF_cache.get({"region":region, "channel":c.name, "PDFset":options.PDFset})
+            if not options.reducedPDF:
+                PDF_cache.get({"region":region, "channel":c.name, "PDFset":options.PDFset})
             scale_cache.get({"region":region, "channel":c.name, "PDFset":'scale'})
             PS_cache.get({"region":region, "channel":c.name, "PDFset":'PSscale'})
 

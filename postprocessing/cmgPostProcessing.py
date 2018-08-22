@@ -105,7 +105,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
-    #skimConds.append( "( run==1&&lumi==15&&evt==2704 )" )
+#    skimConds.append( "( run==%s&&lumi==%s&&evt==%s )"%(283052, 75, 124332542) )
 if isQuadLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
@@ -724,9 +724,17 @@ def filler( event ):
         H = Z_vectors[0] + Z_vectors[1]
         event.Higgs_mass = H.M()
 
-
     # take the leptons that are not from the leading Z candidate and assign them as nonZ, ignorant about if they actually form a Z candidate
+
+    # As a start, take the leading two leptons as non-Z. To be overwritten as soon as we have a Z candidate, otherwise one lepton can be both from Z and non-Z
+    if len(leptonCollections["tight_4l"])>0:
+        event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][0]['index']
+    if len(leptonCollections["tight_4l"])>1:
+        event.nonZ1_l2_index_4l = leptonCollections["tight_4l"][1]['index']
     if len(allZCands_4l)>0:
+        # reset nonZ1_leptons
+        event.nonZ1_l1_index_4l = -1
+        event.nonZ1_l2_index_4l = -1
         nonZ_tightLepton_indices_4l = [ i for i in range(len(leptonCollections['tight_4l'])) if i not in [allZCands_4l[0][1], allZCands_4l[0][2]] ]
 
         event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[0]]['index'] if len(nonZ_tightLepton_indices_4l)>0 else -1
@@ -745,7 +753,7 @@ def filler( event ):
 
     # Jets and lepton jet cross-cleaning.
     if options.year == 2016:
-        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"])
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"], idVar='id16')
     else:
         allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []

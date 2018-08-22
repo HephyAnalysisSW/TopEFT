@@ -1,5 +1,5 @@
-allowedVars = ["Z_pt", "cosThetaStar", "abs(cosThetaStar)", "lep_pt[2]", "lep_pt[Z_l2_index]", "Z1_pt_4l", "Z1_cosThetaStar_4l","nBTag"]
-texString  = { "Z_pt":"p_{T}(Z)", "Z1_pt_4l":"p_{T}(Z)", "cosThetaStar":"cos(#theta^{*})", "abs(cosThetaStar)":"|cos(#theta^{*})|", "Z1_cosThetaStar_4l":"cos(#theta^{*})", "nBTag":"n_{b-tag}" }
+allowedVars = ["Z_pt", "cosThetaStar", "abs(cosThetaStar)", "lep_pt[2]", "lep_pt[Z_l2_index]", "Z1_pt_4l", "Z1_cosThetaStar_4l","nBTag", "nJetSelected"]
+texString  = { "Z_pt":"p_{T}(Z)", "Z1_pt_4l":"p_{T}(Z)", "cosThetaStar":"cos(#theta^{*})", "abs(cosThetaStar)":"|cos(#theta^{*})|", "Z1_cosThetaStar_4l":"cos(#theta^{*})", "nBTag":"N_{b}", "nJetSelected":"N_{jet}" }
 
 class Region:
 
