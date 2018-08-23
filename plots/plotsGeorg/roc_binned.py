@@ -54,19 +54,19 @@ for plot in plotList:
         leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
         #MVAList.append({"Name":"MVA_Fall17noIso",     "Type":"MVA_Id", "Var":"lep_mvaIdFall17noIso", "plotColor":ROOT.kGray,   "lineWidth":1})
         MVAList.append({"Name":"POG_eleId80x_veto",   "Type":"POG_Id", "ValElePOGId":1,              "plotColor":ROOT.kGray,   "lineWidth":1})
-        #MVAList.append({"Name":"POG_eleId80x_loose",  "Type":"POG_Id", "ValElePOGId":2,              "plotColor":ROOT.kGray+1, "lineWidth":1})
-        #MVAList.append({"Name":"POG_eleId80x_medium", "Type":"POG_Id", "ValElePOGId":3,              "plotColor":ROOT.kGray+2, "lineWidth":1})
+        MVAList.append({"Name":"POG_eleId80x_loose",  "Type":"POG_Id", "ValElePOGId":2,              "plotColor":ROOT.kGray+1, "lineWidth":1})
+        MVAList.append({"Name":"POG_eleId80x_medium", "Type":"POG_Id", "ValElePOGId":3,              "plotColor":ROOT.kGray+2, "lineWidth":1})
         MVAList.append({"Name":"POG_eleId80x_tight",  "Type":"POG_Id", "ValElePOGId":4,              "plotColor":ROOT.kBlack,  "lineWidth":1})
         MVAList.append({"Name":"DeepLeptonSummer18",  "Type":"DL_Id",  "Var":"prob_lep_isPromptId",  "plotColor":ROOT.kRed,    "lineWidth":2})
         
     if samples["leptonType"]=="Muo":
         sampleMuo=samples["sample"]
         leptonFlavourList.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo})
-        #MVAList.append({"Name":"POG_muoId_loose",     "Type":"POG_Id", "Var":"lep_pfMuonId",        "plotColor":ROOT.kGray,   "lineWidth":1})
-        #MVAList.append({"Name":"POG_muoId_loose_ip",  "Type":"POG_Id", "Var":"lep_pfMuonId",        "plotColor":ROOT.kGray+1, "lineWidth":1})
-        #MVAList.append({"Name":"POG_muoId_medium",    "Type":"POG_Id", "Var":"lep_mediumMuonId",    "plotColor":ROOT.kGray+2, "lineWidth":1})
-        #MVAList.append({"Name":"POG_muoId_medium_ip", "Type":"POG_Id", "Var":"lep_mediumMuonId",    "plotColor":ROOT.kBlack,  "lineWidth":1})
-        #MVAList.append({"Name":"DeepLeptonSummer18",  "Type":"MVA_Id", "Var":"prob_lep_isPromptId", "plotColor":ROOT.kRed,    "lineWidth":2})
+        MVAList.append({"Name":"POG_muoId_loose",     "Type":"POG_Id", "Var":"lep_pfMuonId",        "plotColor":ROOT.kGray,   "lineWidth":1})
+        MVAList.append({"Name":"POG_muoId_loose_ip",  "Type":"POG_Id", "Var":"lep_pfMuonId",        "plotColor":ROOT.kGray+1, "lineWidth":1})
+        MVAList.append({"Name":"POG_muoId_medium",    "Type":"POG_Id", "Var":"lep_mediumMuonId",    "plotColor":ROOT.kGray+2, "lineWidth":1})
+        MVAList.append({"Name":"POG_muoId_medium_ip", "Type":"POG_Id", "Var":"lep_mediumMuonId",    "plotColor":ROOT.kBlack,  "lineWidth":1})
+        MVAList.append({"Name":"DeepLeptonSummer18",  "Type":"MVA_Id", "Var":"prob_lep_isPromptId", "plotColor":ROOT.kRed,    "lineWidth":2})
         
     binnedList=[]
     binnedList.append({"Name":"pt", "VarName":"|pt|", "Var":"lep_pt", "abs":1, "cuts":[0, 250], "bins":50})
