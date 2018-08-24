@@ -1,7 +1,7 @@
 #/DataFormats/BTauReco/
 #/EgammaAnalysis/ElectronTools/
-#/FWCore/GuiBrowsers
 /.gitignore/
+/FWCore/GuiBrowsers
 /PhysicsTools/Heppy/
 /PhysicsTools/HeppyCore/
 /PhysicsTools/PatAlgos/
