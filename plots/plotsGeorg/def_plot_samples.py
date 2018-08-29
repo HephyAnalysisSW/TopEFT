@@ -219,7 +219,9 @@ def histo_plot_variables():
     "lep_isFakeId/I",
     "prob_lep_isPromptId/F",
     "prob_lep_isNonPromptId/F",
-    "prob_lep_isFakeId/F"
+    "prob_lep_isFakeId/F",
+    "lep_mvaTTH/F",
+    "lep_mvaTTV/F",
     ]
 
     return variables
@@ -268,6 +270,8 @@ def roc_plot_variables():
     "lep_mediumMuonId/I",
     "lep_pfMuonId/I",
     "lep_eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I",
+    "lep_mvaTTH/F",
+    #"lep_mvaTTV/F",
     ]
 
     return variables
