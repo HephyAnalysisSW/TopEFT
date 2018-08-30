@@ -90,7 +90,7 @@ setup4l.regions           = noRegions + regions4lB
 
 setup_CR = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
 setupNP_CR = setupNP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-setup4l_CR = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
+setup4l_CR = setup4l.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
 
 # control region setups. go orthogonal in Njet and Nbjet if needed
 if options.controlRegion:

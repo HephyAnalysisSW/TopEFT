@@ -177,7 +177,7 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as hep
 data_07Aug17_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
 # Summer16 MC
-mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14_2.pkl'
+mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14_3.pkl'
 robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16']
 mc_dpm_directories = robert_2016_1l_v1
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
@@ -198,7 +198,7 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as hep
 data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017, multithreading=multithreading)
 
 # Fall17 MC
-Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10_3.pkl'
+Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10_4.pkl'
 robert_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v10', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v10']
 mc_dpm_directories = robert_94X
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples

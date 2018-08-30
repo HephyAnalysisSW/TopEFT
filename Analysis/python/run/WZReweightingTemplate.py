@@ -45,7 +45,7 @@ class WZReweighting:
 
         # Samples
         data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-        postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+        postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 
         dirs = {}
         dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
