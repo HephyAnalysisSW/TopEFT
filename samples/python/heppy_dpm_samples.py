@@ -205,16 +205,16 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSample
 Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, Fall17_cache_file, multithreading=multithreading)
 
 # Summer16 MC for lepton training
-lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton.pkl' 
-#lepton_2016_cache_file = '/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/dpm_sample_caches/80X_MC_Summer16_2016_lepton.pkl'
+#lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton.pkl' 
+lepton_2016_cache_file = '/afs/hephy.at/work/g/gmoertl/lepton/dpm_sample_caches/80X_MC_Summer16_2016_lepton.pkl'
 georg_lepton_2016_v2 = ['/dpm/oeaw.ac.at/home/cms/store/user/gmortl/cmgTuples/lepton2016']
 mc_dpm_directories = georg_lepton_2016_v2
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
 
 # Summer17 MC for lepton training
-lepton_2017_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Fall17_2017_lepton.pkl' 
-#lepton_2017_cache_file = '/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/dpm_sample_caches/94X_MC_Fall17_2017_lepton.pkl'
+#lepton_2017_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Fall17_2017_lepton.pkl' 
+lepton_2017_cache_file = '/afs/hephy.at/work/g/gmoertl/lepton/dpm_sample_caches/94X_MC_Fall17_2017_lepton.pkl'
 georg_lepton_2017_v2 = ['/dpm/oeaw.ac.at/home/cms/store/user/gmortl/cmgTuples/lepton2017']
 mc_dpm_directories = georg_lepton_2017_v2 
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
