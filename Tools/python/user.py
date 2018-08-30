@@ -32,4 +32,5 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
     runOnGentT2 = False
 
 if os.environ['USER'] in ['gmoertl']:
-    plot_directory      = "/afs/hephy.at/user/g/gmoertl/www/"
+    plot_directory          = "/afs/hephy.at/user/g/gmoertl/www/"
+    skim_output_directory   = "/afs/hephy.at/work/g/gmoertl/lepton/skims/"
