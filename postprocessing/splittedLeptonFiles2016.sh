@@ -14,3 +14,7 @@ python -i splittedLeptonFiles.py  --version v1 --year 2016 --sample TTJets_LO --
 
 #job log if done/killed:
 #vi /afs/hephy.at/work/g/gmoertl/batch_output/batch-test.123456789.out
+
+#display samples names:
+#ipython -i splittedLeptonFiles.py -- --year 2016 --sample TTJets --small --logLevel DEBUG
+#lepton_heppy_mapper.heppy_sample_names
