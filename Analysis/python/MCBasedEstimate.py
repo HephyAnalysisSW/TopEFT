@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 from TopEFT.Analysis.Region import Region
 from TopEFT.Tools.u_float import u_float
 from TopEFT.Analysis.SystematicEstimator import SystematicEstimator
-from TopEFT.Analysis.SetupHelpers import trilepChannels, quadlepChannels, channel
+from TopEFT.Analysis.SetupHelpers import trilepChannels, quadlepChannels, singlelepChannels, channel
 
 
 class MCBasedEstimate(SystematicEstimator):
@@ -26,7 +26,8 @@ class MCBasedEstimate(SystematicEstimator):
 
         if channel.name=='all':
             # 'all' is the total of all contributions
-            if setup.nLeptons == 3: channels = trilepChannels
+            if setup.nLeptons == 1: channels = singlelepChannels
+            elif setup.nLeptons == 3: channels = trilepChannels
             elif setup.nLeptons == 4: channels = quadlepChannels
             else: raise NotImplementedError
             return sum([self.cachedEstimate(region, c, setup) for c in channels])

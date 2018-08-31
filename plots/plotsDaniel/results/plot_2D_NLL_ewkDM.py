@@ -321,7 +321,9 @@ if args.smooth:
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
 #contours = {'ttZ': [-0.1,0.,1.,4.]}
-contours = {'ttZ': [1.,4.]}
+#contours = {'ttZ': [1.,4.]}
+contours = {'ttZ': [1.515**2,2.486**2]}
+
 drawContours = True
 if drawContours:
     histsForCont = hist.Clone()

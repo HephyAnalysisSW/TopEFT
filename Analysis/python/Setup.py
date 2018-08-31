@@ -76,8 +76,11 @@ class Setup:
         self.year       = year
         self.nLeptons   = nLeptons
         self.short      = False
-        
-        if nLeptons == 2:
+ 
+        if nLeptons == 1:
+            self.tight_ID    = "tight_3l" # for parton shower study
+            self.FO_ID       = "FO_3l"
+        elif nLeptons == 2:
             self.tight_ID    = "tight_SS"
             self.FO_ID       = "FO_SS"
         elif nLeptons == 3:
@@ -93,7 +96,10 @@ class Setup:
         self.leptonId = self.FO_ID if self.nonprompt else self.tight_ID
 
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
-        if nLeptons == 3:
+        if nLeptons == 1:
+            # no trigger/lepton reweighting
+            pass
+        elif nLeptons == 3:
             self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
             if self.year == 2017: #in 2016 already included in leptonSF
                 self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
@@ -347,7 +353,10 @@ class Setup:
             else:
                 res['cuts'].append('nLeptons_%s>=%i'%(self.leptonId, nLeptons))
 
-            if nLeptons==2:
+            if nLeptons==1:
+                lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
+                res['cuts'].append("Sum$(%s>40&&lep_%s>0)>0"%(lep_pt, self.leptonId))
+            elif nLeptons==2:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:
                 lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
@@ -369,7 +378,7 @@ class Setup:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>10&&lep_%s>0)>3"%(self.leptonId, self.leptonId)) #check if this is good enough
                 res['cuts'].append("min_dl_mass>12&&totalLeptonCharge==0")
             else:
-                raise NotImplementedError("nLeptons has to be 2 or 3 or 4. That's already more than enough to think about.")
+                raise NotImplementedError("nLeptons has to be 1 or 2 or 3 or 4. That's already more than enough to think about.")
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now

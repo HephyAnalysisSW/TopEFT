@@ -337,9 +337,9 @@ def wrapper(s):
                                 c.specifyUncertainty('leptonSF',    binname, name, leptonSF)
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
-                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.026 )
+                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.025 )
 
-                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20)
+                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.10)
                             if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
                             if name.count('WZ'):
                                 c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
@@ -349,7 +349,7 @@ def wrapper(s):
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.11)
 
 
                         #MC bkg stat (some condition to neglect the smaller ones?)
