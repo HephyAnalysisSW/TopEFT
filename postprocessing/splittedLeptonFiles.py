@@ -71,7 +71,7 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 
 #output directory
 
-output_directory = os.path.join( skim_output_directory, options.version+'_small' if options.small else '', sample.name ) 
+output_directory = os.path.join( skim_output_directory, options.version+('_small' if options.small else ''), str(options.year) ) 
 
 leptonClasses  = [{'Name':'Prompt', 'Var': 'lep_isPromptId'}, {'Name':'NonPrompt', 'Var': 'lep_isNonPromptId'}, {'Name':'Fake', 'Var': 'lep_isFakeId'}]
 leptonFlavours = [
@@ -96,10 +96,10 @@ for leptonFlavour in leptonFlavours:
     for leptonClass in leptonClasses:
         for ptCut in ptCuts:
             output_filename = os.path.join( output_directory, 
-                                            str(options.year),
                                             leptonFlavour['Name'], 
                                             leptonClass['Name'], 
                                             'pt_%i_to_%s' %( ptCut[0], 'inf' if ptCut[1]==float("inf") else str(ptCut[1]) ),
+                                            sample.name,
                                             'lepton%s.root'%postfix )
 
             dirname = os.path.dirname( output_filename )

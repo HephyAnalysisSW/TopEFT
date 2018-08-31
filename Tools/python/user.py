@@ -34,4 +34,4 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
 if os.environ['USER'] in ['gmoertl']:
     plot_directory          = "/afs/hephy.at/user/g/gmoertl/www/"
     skim_output_directory   = "/afs/hephy.at/data/gmoertl01/lepton/skims/"
-    #skim_output_directory   = "/afs/hephy.at/work/g/gmoertl/lepton/skims/"
+    trainingFiles_directory = "/afs/hephy.at/data/gmoertl01/lepton/TrainingFiles/"
