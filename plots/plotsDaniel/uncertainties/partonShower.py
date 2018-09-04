@@ -69,9 +69,12 @@ if options.btagWZ:
     setup17.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
 
 elif options.regionsXSec:
-    setup16.parameters.update({"nBTags":(0,-1), "nJets":(2,-1)})
-    setup17.parameters.update({"nBTags":(0,-1), "nJets":(2,-1)})
+    setup16.parameters.update({"nBTags":(0,-1), "nJets":(2,-1), 'mllMin':0})
+    setup17.parameters.update({"nBTags":(0,-1), "nJets":(2,-1), 'mllMin':0})
 
+# no triggers and filters
+setup16.short = True
+setup17.short = True
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
@@ -84,10 +87,10 @@ dirs['TT_pow_isrup']    = ['TT_pow_isrup']
 dirs['TT_pow_isrdown']  = ['TT_pow_isrdown']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-#TT_pow          = Sample.fromDirectory(name="TT_pow", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow'])
-#TT_pow_fsrup    = Sample.fromDirectory(name="TT_pow_fsrup", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_fsrup'])
-#TT_pow_fsrdown  = Sample.fromDirectory(name="TT_pow_fsrdown", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_fsrdown'])
-#TT_pow_isrup    = Sample.fromDirectory(name="TT_pow_isrup", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_isrup'])
+TT_pow          = Sample.fromDirectory(name="TT_pow", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow'])
+TT_pow_fsrup    = Sample.fromDirectory(name="TT_pow_fsrup", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_fsrup'])
+TT_pow_fsrdown  = Sample.fromDirectory(name="TT_pow_fsrdown", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_fsrdown'])
+TT_pow_isrup    = Sample.fromDirectory(name="TT_pow_isrup", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_isrup'])
 TT_pow_isrdown  = Sample.fromDirectory(name="TT_pow_isrdown", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}", directory=directories['TT_pow_isrdown'])
 
 ## Fall17 samples
@@ -104,7 +107,7 @@ elif options.regionsXSec:
     allRegions = regionsXSec
 else:
     allRegions = noRegions + regionsE + regions4lB
-regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
+regions = allRegions if options.selectRegion is None else  [allRegions[options.selectRegion]]
 
 #setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
 #setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(2,-1), 'nBTags':(1,-1), 'zWindow1':'onZ'})
@@ -120,7 +123,7 @@ PSweight_original = "abs(LHEweight_wgt[1080])"
 
 cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/partonShowerStudy/"
 
-samples16 = [TT_pow_isrdown]
+samples16 = [TT_pow, TT_pow_isrup, TT_pow_fsrup, TT_pow_isrdown, TT_pow_fsrdown]
 samples17 = [TTSemi_pow_17]
 
 estimates16 = []
@@ -134,17 +137,66 @@ for s in samples17:
     estimates17.append(MCBasedEstimate(name=s.name, sample=s ))
     estimates17[-1].initCache(cacheDir)
 
-for r in allRegions:
+jobs = []
+
+def wrapper(args):
+    e, r, c, setup = args
+    res = e.cachedEstimate(r, c, setup, save=True, overwrite=options.overwrite)
+    return (e.uniqueKey(r, c, setup), res )
+
+print regions
+
+for r in regions:
+    for c in [channel(1,0), channel(0,1)]:
+        logger.info("Working on 2016 results")
+        for e in estimates16:
+            jobs.append((e, r, c, setup16))
+            #res = e.cachedEstimate(r, channel(-1,-1), setup16, save=True)
+            #logger.info("Result: %s", res.val)
+        logger.info("Working on 2017 results")
+        for e in estimates17:
+            jobs.append((e,r,c, setup17))
+            #res = e.cachedEstimate(r, channel(-1,-1), setup17, save=True)
+            #logger.info("Result: %s", res.val)
+            for weight in PS_indices:
+                jobs.append((e,r,c, setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]})))
+                #res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]}), save=True)
+                #logger.info("Result: %s", res.val)
+
+
+if options.noMultiThreading:
+    results = map(wrapper, jobs)
+else:
+    from multiprocessing import Pool
+    pool = Pool(processes=8)
+    results = pool.map(wrapper, jobs)
+    pool.close()
+    pool.join()
+
+print setup16.preselection("MC")
+
+for r in regions:
     logger.info("Working on 2016 results")
-    for e in estimates16:
-        res = e.cachedEstimate(r, channel(-1,-1), setup16, save=True)
-        logger.info("Result: %s", res.val)
+    central = estimates16[0].cachedEstimate(r, channel(-1,-1), setup16)
+    print r.cutString()
+    print central
+    for e in estimates16[1:]:
+        res = e.cachedEstimate(r, channel(-1,-1), setup16)
+        print (res-central)/central
+        #logger.info("Result: %s", res.val)
     logger.info("Working on 2017 results")
     for e in estimates17:
-        res = e.cachedEstimate(r, channel(-1,-1), setup17, save=True)
-        logger.info("Result: %s", res.val)
+        central = e.cachedEstimate(r, channel(-1,-1), setup17)
+        print central
+        #logger.info("Result: %s", res.val)
         for weight in PS_indices:
-            res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]}), save=True)
-            logger.info("Result: %s", res.val)
+            res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]}))
+            print (res-central)/central
+            #logger.info("Result: %s", res.val)
+    
+    
 
+
+
+logger.info("All done.")
 

@@ -41,11 +41,12 @@ class SystematicEstimator:
 
     # For the datadriven subclasses which often need the same getYieldFromDraw we write those yields to a cache
     def yieldFromCache(self, setup, sample, c, selectionString, weightString):
+        print selectionString
         s = (sample, c, selectionString, weightString)
         if self.helperCache and self.helperCache.contains(s):
           return self.helperCache.get(s)
         else:
-          yieldFromDraw = u_float(**setup.samples[sample][c].getYieldFromDraw(selectionString, weightString))
+          yieldFromDraw = u_float(**setup.samples[sample][c].getYieldFromDraw(selectionString, weightString, split=100))
           if self.helperCache: self.helperCache.add(s, yieldFromDraw )
           return yieldFromDraw
 

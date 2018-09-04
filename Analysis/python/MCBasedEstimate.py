@@ -40,6 +40,5 @@ class MCBasedEstimate(SystematicEstimator):
             preSelection = setup.preselection('MC', nElectrons=channel.nE, nMuons=channel.nM, isFastSim = self.isFastSim)
             cut = "&&".join([region.cutString(setup.sys['selectionModifier']), preSelection['cut']])
             weight = preSelection['weightStr']
-
             logger.debug( "Using cut %s and weight %s"%(cut, weight) )
-            return setup.lumi/1000.*u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight) )
+            return setup.lumi/1000.*u_float(**self.sample.getYieldFromDraw(selectionString = cut, weightString = weight, split=100) )

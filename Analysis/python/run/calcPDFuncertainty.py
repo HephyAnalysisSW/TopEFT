@@ -45,15 +45,15 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
-postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 from TopEFT.Analysis.Setup          import Setup
@@ -68,7 +68,7 @@ elif options.regionsXSec:
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
@@ -83,7 +83,7 @@ WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=Fals
 #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 #postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 dirs = {}
 dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc_psw']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
@@ -258,6 +258,8 @@ if not options.combine:
 PDF_unc     = []
 Scale_unc   = []
 PS_unc      = []
+
+regions = regionsE[1:13:3]
 
 if options.combine:
     for c in [channel(-1,-1)]:#allChannels:

@@ -356,6 +356,7 @@ class Setup:
             if nLeptons==1:
                 lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
                 res['cuts'].append("Sum$(%s>40&&lep_%s>0)>0"%(lep_pt, self.leptonId))
+                res['cuts'].append("nlep==1") # loose lepton veto
             elif nLeptons==2:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:

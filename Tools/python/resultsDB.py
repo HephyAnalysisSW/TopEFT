@@ -135,10 +135,13 @@ class resultsDB:
 
     def getDicts(self, key):
         objs = self.getObjects(key)
-        o = []
-        for obj in objs:
-            o.append({c:str(v) for c,v in zip( self.columns, obj ) })
-        return o
+        if objs:
+            o = []
+            for obj in objs:
+                o.append({c:str(v) for c,v in zip( self.columns, obj ) })
+            return o
+        else:
+            return False
     
     def getTable(self, key):
         '''
@@ -181,16 +184,19 @@ class resultsDB:
         logger.debug("Getting only the newest entry in the database matching the key. You should know what you're doing here.")
         objs = self.getDicts(key)
         if not plain:
-            if len(objs[-1]["value"]) > 50:
-                try:
-                    return cPickle.loads(objs[-1]["value"])
-                except:
-                    return False
+            if objs:
+                if len(objs[-1]["value"]) > 50:
+                    try:
+                        return cPickle.loads(objs[-1]["value"])
+                    except:
+                        return False
+                else:
+                    try:
+                        return u_float.fromString(objs[-1]["value"])
+                    except IndexError:
+                        return False
             else:
-                try:
-                    return u_float.fromString(objs[-1]["value"])
-                except IndexError:
-                    return False
+                return False
         else:
             try:
                 return objs[-1]["value"]
