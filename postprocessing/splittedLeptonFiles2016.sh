@@ -20,65 +20,65 @@
 #lepton_heppy_mapper.heppy_sample_names
 
 
-#QCD
-#EMEnriched
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt20to30_EMEnriched #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_EMEnriched #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_EMEnriched_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt50to80_EMEnriched_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_EMEnriched_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt120to170_EMEnriched #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_EMEnriched #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300toInf_EMEnriched #SPLIT20
-#bcToE
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_20to30_bcToE #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_30to80_bcToE #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_80to170_bcToE #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_170to250_bcToE #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_250toInf_bcToE #SPLIT20
-#MuEnriched
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt15to20_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt20to30_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt50to80_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt120to170_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5_ext2 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5_ext2 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt600to800_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt600to800_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt1000toInf_Mu5 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt1000toInf_Mu5_ext #SPLIT20
-#TT_Jets
-#SingleLepton
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromTbar #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromTbar_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromT #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromT_ext #SPLIT20
-#Dilepton
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_DiLepton #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_DiLepton_ext #SPLIT20
-#other
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TT_pow_ext3 #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TT_pow #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTLep_pow #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTSemiLep_pow #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT600to800_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT800to1200_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT1200to2500_ext #SPLIT20
-python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT2500toInf_ext #SPLIT20
+##QCD
+##EMEnriched
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt20to30_EMEnriched #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_EMEnriched #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_EMEnriched_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt50to80_EMEnriched_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_EMEnriched_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt120to170_EMEnriched #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_EMEnriched #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300toInf_EMEnriched #SPLIT20
+##bcToE
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_20to30_bcToE #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_30to80_bcToE #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_80to170_bcToE #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_170to250_bcToE #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt_250toInf_bcToE #SPLIT20
+##MuEnriched
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt15to20_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt20to30_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt30to50_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt50to80_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt80to120_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt120to170_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt170to300_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt300to470_Mu5_ext2 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt470to600_Mu5_ext2 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt600to800_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt600to800_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt1000toInf_Mu5 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample QCD_Pt1000toInf_Mu5_ext #SPLIT20
+##TT_Jets
+##SingleLepton
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromTbar #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromTbar_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromT #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_SingleLeptonFromT_ext #SPLIT20
+##Dilepton
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_DiLepton #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_DiLepton_ext #SPLIT20
+##other
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TT_pow_ext3 #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TT_pow #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTLep_pow #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTSemiLep_pow #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT600to800_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT800to1200_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT1200to2500_ext #SPLIT20
+#python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample TTJets_LO_HT2500toInf_ext #SPLIT20
 #Drell-Yan
 #VJets
 python -i splittedLeptonFiles.py  --version v1 --year 2016  --logLevel DEBUG --sample DYJetsToLL_M10to50 #SPLIT20
