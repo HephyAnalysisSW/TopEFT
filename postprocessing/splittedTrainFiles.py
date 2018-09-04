@@ -11,7 +11,134 @@ from RootTools.core.Sample import *
 # TopEFT
 from TopEFT.Tools.user import skim_output_directory as input_directory
 from TopEFT.Tools.user import trainingFiles_directory as output_directory
-from TopEFT.postprocessing.deepLeptonSamplesForTraining import deepLeptonSignalSamples, deepLeptonBackgroundSamples
+#from TopEFT.postprocessing.deepLeptonSamplesForTraining import deepLeptonSignalSamples, deepLeptonBackgroundSamples
+
+def deepLeptonSignalSamples(year):
+
+    if year==2016:
+        SignalSamples = [
+
+        'TTJets_SingleLeptonFromTbar',
+        'TTJets_SingleLeptonFromTbar_ext',
+        'TTJets_SingleLeptonFromT',
+        'TTJets_SingleLeptonFromT_ext',
+
+        'TTJets_DiLepton',
+        'TTJets_DiLepton_ext',
+
+        'TTJets',
+        'TTJets_LO',
+        'TT_pow_ext3',
+        'TT_pow',
+        'TTLep_pow',
+        'TTSemiLep_pow',
+        'TTJets_LO_HT600to800_ext',
+        'TTJets_LO_HT800to1200_ext',
+        'TTJets_LO_HT1200to2500_ext',
+        'TTJets_LO_HT2500toInf_ext',
+
+                        ]
+
+    if year==2017:
+        SignalSamples = [
+
+        'TTJets',
+        'TTLep_pow',
+        'TTHad_pow',
+        'TTSemi_pow',
+        'TTJets_SingleLeptonFromT',
+        'TTLep_pow_TuneDown',
+        'TTLep_pow_TuneUp',
+        'TTLep_pow_hdampDown',
+        'TTLep_pow_hdampUp',
+
+                        ]
+
+    return SignalSamples
+
+def deepLeptonBackgroundSamples(year):
+
+    if year==2016:
+        BackgroundSamples = [
+
+        'QCD_Pt20to30_EMEnriched',
+        'QCD_Pt30to50_EMEnriched',
+        'QCD_Pt30to50_EMEnriched_ext',
+        'QCD_Pt50to80_EMEnriched_ext',
+        'QCD_Pt80to120_EMEnriched_ext',
+        'QCD_Pt120to170_EMEnriched',
+        'QCD_Pt170to300_EMEnriched',
+        'QCD_Pt300toInf_EMEnriched',
+
+        'QCD_Pt_20to30_bcToE',
+        'QCD_Pt_30to80_bcToE',
+        'QCD_Pt_80to170_bcToE',
+        'QCD_Pt_170to250_bcToE',
+        'QCD_Pt_250toInf_bcToE',
+
+        'QCD_Pt15to20_Mu5',
+        'QCD_Pt20to30_Mu5',
+        'QCD_Pt30to50_Mu5',
+        'QCD_Pt50to80_Mu5',
+        'QCD_Pt80to120_Mu5',
+        'QCD_Pt80to120_Mu5_ext',
+        'QCD_Pt120to170_Mu5',
+        'QCD_Pt170to300_Mu5',
+        'QCD_Pt170to300_Mu5_ext',
+        'QCD_Pt300to470_Mu5',
+        'QCD_Pt300to470_Mu5_ext',
+        'QCD_Pt300to470_Mu5_ext2',
+        'QCD_Pt470to600_Mu5',
+        'QCD_Pt470to600_Mu5_ext',
+        'QCD_Pt470to600_Mu5_ext2',
+        'QCD_Pt600to800_Mu5',
+        'QCD_Pt600to800_Mu5_ext',
+        'QCD_Pt800to1000_Mu5',
+        'QCD_Pt800to1000_Mu5_ext',
+        'QCD_Pt800to1000_Mu5_ext2',
+        'QCD_Pt1000toInf_Mu5',
+        'QCD_Pt1000toInf_Mu5_ext',
+
+                        ]
+    if year==2017:
+        BackgroundSamples = [
+
+        'QCD_Pt15to20_EMEnriched',
+        'QCD_Pt20to30_EMEnriched',
+        'QCD_Pt30to50_EMEnriched',
+        'QCD_Pt50to80_EMEnriched',
+        'QCD_Pt80to120_EMEnriched',
+        'QCD_Pt120to170_EMEnriched',
+        'QCD_Pt170to300_EMEnriched',
+        'QCD_Pt300toInf_EMEnriched',
+
+        'QCD_Pt15to20_bcToE',
+        'QCD_Pt20to30_bcToE',
+        'QCD_Pt30to80_bcToE',
+        'QCD_Pt80to170_bcToE',
+        'QCD_Pt170to250_bcToE',
+        'QCD_Pt250toInf_bcToE',
+
+        'QCD_Pt15to20_Mu5',
+        'QCD_Pt20to30_Mu5',
+        'QCD_Pt30to50_Mu5',
+        'QCD_Pt50to80_Mu5',
+        'QCD_Pt80to120_Mu5',
+        'QCD_Pt120to170_Mu5',
+        'QCD_Pt170to300_Mu5',
+        'QCD_Pt300to470_Mu5',
+        'QCD_Pt470to600_Mu5',
+        'QCD_Pt600to800_Mu5',
+        'QCD_Pt800to1000_Mu5',
+        'QCD_Pt1000toInf_Mu5',
+
+                        ]
+
+    return BackgroundSamples
+
+
+
+
 
 #parser
 def get_parser():
@@ -58,7 +185,7 @@ leptonFlavours = [
                     {'Name':'muo', 'pdgId': 13},
                  ]
 
-
+postfix = '' if options.nJobs==1 else "_%i" % options.job
 
 #Loop
 for leptonFlavour in leptonFlavours:
@@ -69,7 +196,7 @@ for leptonFlavour in leptonFlavours:
     for leptonClass in leptonClasses:
         inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptCut)
         inputList = [(os.path.join( inputPath, s )) for s in leptonClass['SampleList']]
-        selectionString = '(evt%50==10)'
+        selectionString = '(evt%'+str(options.nJobs)+'=='+str(options.job)+')'
         classSample = Sample.fromDirectory( leptonClass['Name'], inputList, 'tree', None, selectionString) 
         #print classSample.files
 
@@ -103,7 +230,7 @@ for leptonFlavour in leptonFlavours:
     nEntries = {'Prompt': n_Prompt, 'NonPrompt': n_NonPrompt, 'Fake': n_Fake}
     TChain   = {'Prompt': chPrompt, 'NonPrompt': chNonPrompt, 'Fake': chFake}
 
-    outputPath = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], ptCut, 'trainfile_' )
+    outputPath = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], ptCut, 'modulo_'+str(options.job)+'_trainfile_' )
     dirname = os.path.dirname( outputPath )
     if not os.path.exists( dirname ):
         os.makedirs( dirname )
