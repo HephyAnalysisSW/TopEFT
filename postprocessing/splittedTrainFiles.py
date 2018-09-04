@@ -1,14 +1,17 @@
 # Standard imports
 import ROOT
 import os
-
+import sys
+import importlib
 import random
+
+# RootTools
+from RootTools.core.Sample import *
 
 # TopEFT
 from TopEFT.Tools.user import skim_output_directory as input_directory
 from TopEFT.Tools.user import trainingFiles_directory as output_directory
-from deepLeptonSamplesForTraining import deepLeptonSignalSamples, deepLeptonBackgroundSamples
-from RootTools.core.Sample import *
+from TopEFT.postprocessing.deepLeptonSamplesForTraining import deepLeptonSignalSamples, deepLeptonBackgroundSamples
 
 #parser
 def get_parser():
