@@ -95,7 +95,7 @@ TT_pow_isrdown  = Sample.fromDirectory(name="TT_pow_isrdown", treeName="Events",
 
 ## Fall17 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/singlelep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/singlelepTiny/"
 dirs = {}
 dirs['TTSemi_pow']  = ['TTSemi_pow']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
@@ -118,7 +118,7 @@ regions = allRegions if options.selectRegion is None else  [allRegions[options.s
 from TopEFT.Analysis.MCBasedEstimate import MCBasedEstimate
 from TopEFT.Tools.user import analysis_results
 
-PS_indices = range(1086, 1090)
+PS_indices = ['PSweight_nom_isrUp', 'PSweight_nom_fsrUp', 'PSweight_nom_isrDown', 'PSweight_nom_fsrDown']
 PSweight_original = "abs(LHEweight_wgt[1080])"
 
 cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/partonShowerStudy/"
@@ -155,11 +155,11 @@ for r in regions:
             #logger.info("Result: %s", res.val)
         logger.info("Working on 2017 results")
         for e in estimates17:
-            jobs.append((e,r,c, setup17))
+            jobs.append((e,r,c, setup17.systematicClone(sys={'reweight':['PSweight_central']})))
             #res = e.cachedEstimate(r, channel(-1,-1), setup17, save=True)
             #logger.info("Result: %s", res.val)
             for weight in PS_indices:
-                jobs.append((e,r,c, setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]})))
+                jobs.append((e,r,c, setup17.systematicClone(sys={'reweight':['(%s)'%weight]})))
                 #res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]}), save=True)
                 #logger.info("Result: %s", res.val)
 
@@ -186,11 +186,11 @@ for r in regions:
         #logger.info("Result: %s", res.val)
     logger.info("Working on 2017 results")
     for e in estimates17:
-        central = e.cachedEstimate(r, channel(-1,-1), setup17)
+        central = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['PSweight_central']}))
         print central
         #logger.info("Result: %s", res.val)
         for weight in PS_indices:
-            res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['LHEweight_wgt[%s]/LHEweight_wgt[1080]'%weight]}))
+            res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['(%s)'%weight]}))
             print (res-central)/central
             #logger.info("Result: %s", res.val)
     
