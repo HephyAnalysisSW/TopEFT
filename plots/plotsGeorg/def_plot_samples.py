@@ -5,12 +5,12 @@ import os
 # RootTools
 from RootTools.core.standard import *
 
-def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, selection, sampleSize):
+def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
 
     #define paths and names
     base_directory = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/'
-    file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, selection)
-    sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+selection
+    file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
+    sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
     texfileName    = ('small_' if sampleSize=='small' else '')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
     texfilePath    = os.path.join(file_directory, texfileName)
 
@@ -323,18 +323,18 @@ def getElePOGIdIso(leptonVarDict):
     return POGId
 
 #Helper Box in plots
-def drawObjects(isTestData, Flavour, Samples, ptCut, RelIsoCut):
+def drawObjects(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
     tex = ROOT.TLatex()
     tex.SetNDC()
     tex.SetTextSize(0.04)
     tex.SetTextAlign(31) # align right
     lines = [
       (0.22, 0.97, '#it{CMS preliminary} '),
-      (1.03, 0.97, ('Electron ' if Flavour=="ele" else 'Muon ')+('TestData' if isTestData else 'TrainData')+' ('+Samples+')'+' , '+ptCut+('' if RelIsoCut=='' else ', relIso<='+str(RelIsoCut))),
+      (1.03, 0.97, ('Electron ' if Flavour=="ele" else 'Muon ')+('TestData' if isTestData else 'TrainData')+' ('+Samples+')'+' , '+ptSelection+('' if RelIsoCut=='' else ', relIso<='+str(RelIsoCut))),
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-def drawObjectsSmall(isTestData, Flavour, Samples, ptCut, RelIsoCut):
+def drawObjectsSmall(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
     tex = ROOT.TLatex()
     tex.SetNDC()
     tex.SetTextSize(0.025)
