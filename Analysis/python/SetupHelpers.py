@@ -12,6 +12,9 @@ class channel:
         else:
             self.name = "all"
 
+singlelepChannels   = [channel(1,0), channel(0,1)]
+allSinglelepChannels= [channel(-1,-1)] + singlelepChannels
+
 trilepChannels      = [channel(3,0), channel(2,1), channel(1,2), channel(0,3)]
 allTrilepChannels   = [channel(-1,-1)] + trilepChannels
 

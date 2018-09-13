@@ -35,16 +35,16 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v18/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v17/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
@@ -109,7 +109,7 @@ setup4l.year            = year
 ## CR setups ##
 setup3l_CR              = setup3l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
 setup3l_NP_CR           = setup3l_NP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
-setup4l_CR              = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
+setup4l_CR              = setup4l.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow2':"onZ"})
 
 ## define list of setups ##
 setups = []
@@ -260,7 +260,8 @@ def wrapper(s):
         c.addUncertainty('PartonShower',        'lnN') # correlated.
         c.addUncertainty('nonprompt',           'lnN') # correlated?!
         c.addUncertainty('WZ_xsec',             'lnN') # correlated.
-        c.addUncertainty('WZ_bb',               'lnN') # correlated.
+        c.addUncertainty('WZ_bb',               'lnN') # correlated
+        c.addUncertainty('WZ_powheg',           'lnN') # correlated
         c.addUncertainty('ZZ_xsec',             'lnN') # correlated.
         c.addUncertainty('ZG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
@@ -302,11 +303,13 @@ def wrapper(s):
 
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
-                        if args.WZtoPowheg and name.count('WZ'):
+                        if name.count('WZ'):
                             logger.info("Using reweighting to powheg for WZ sample")
                             wzReweighting = WZReweighting( cacheDir = reweightCacheWZ )
                             f = wzReweighting.cachedReweightingFunc( setup.WZselection )
-                            expected = e.reweight1D(r, channel, setup, f)
+                            powhegExpected = e.reweight1D(r, channel, setup, f)
+                            expected = e.cachedEstimate(r, channel, setup)
+                            WZ_powheg_unc = (powhegExpected-expected)/expected
                         else:
                             expected = e.cachedEstimate(r, channel, setup)
                         logger.info("Adding expectation %s for process %s", expected.val, name)
@@ -322,6 +325,8 @@ def wrapper(s):
                             btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
                             trigger     = 1 + e.triggerSystematic(r, channel, setup).val        if expected.val>0.01 else 1.1
                             leptonSF    = 1 + e.leptonSFSystematic(r, channel, setup).val       if expected.val>0.01 else 1.1
+                            if name.count('WZ'):
+                                WZ_powheg   = 1 + WZ_powheg_unc.val                                 if expected.val>0.01 else 1.1
 
                             c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val)
                             if not name.count('nonprompt'):
@@ -332,18 +337,19 @@ def wrapper(s):
                                 c.specifyUncertainty('leptonSF',    binname, name, leptonSF)
                                 c.specifyUncertainty('scale',       binname, name, 1.01) 
                                 c.specifyUncertainty('PDF',         binname, name, 1.01)
-                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.026 )
+                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.025 )
 
-                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.20)
+                            if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.10)
                             if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
                             if name.count('WZ'):
                                 c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
                                 if setup == setup3l:
                                     c.specifyUncertainty('WZ_bb',     binname, name, 1.08)
+                                c.specifyUncertainty('WZ_powheg',     binname, name, WZ_powheg)
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.15)
+                            if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.11)
 
 
                         #MC bkg stat (some condition to neglect the smaller ones?)

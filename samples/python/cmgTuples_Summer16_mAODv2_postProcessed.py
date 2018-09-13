@@ -35,7 +35,7 @@ dirs["WZ_powheg"]       = ["WZTo3LNu_comb"]#, "WZTo2L2Q"]
 
 dirs['TTW']             = ["TTWToLNu_ext_comb"]
 dirs['TTH']             = ["TTHnobb_pow"]
-dirs['TTX']             = ["TTGJets_comb", "TTTT", "tWll", "tZq_ll_ext","TTHnobb_pow"] # TG, THQ, THW, TTVV missing
+dirs['TTX']             = ["TTGJets_comb", "TGJets", "TTTT", "tWll", "tZq_ll_ext","TTHnobb_pow"]#, "THW", "THQ", "TTWW", "TTWZ", "TTZZ"]
 dirs['TZQ']             = ["tZq_ll_ext"]
 
 dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWToLNu_ext_comb","tZq_ll_ext","TTZToLLNuNu_ext"]

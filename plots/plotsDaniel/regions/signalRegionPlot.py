@@ -15,9 +15,10 @@ parser.add_option("--combine",              action='store_true', help="Combine r
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option('--signal',               action="store_true")
 parser.add_option('--blinded',              action="store_true")
+parser.add_option('--WZreweight',           action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
-parser.add_option('--bestfit',              dest="bestfit", default = False, action = "store_true", help="Apply pulls to signal?")
+parser.add_option('--bestFit',              dest="bestFit", default = False, action = "store_true", help="Apply pulls to signal?")
 parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
 (options, args) = parser.parse_args()
 
@@ -86,10 +87,11 @@ cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
+WZreweight = "" if not options.WZreweight else "WZreweight_"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_SRandCR/%s/ewkDM_dipoles/"%(options.year,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/ewkDM_dipoles/"%(options.year,WZreweight,subDir)
 
 if options.combine:
     cardDir = cardDir.replace('2016', 'COMBINED')
@@ -116,7 +118,7 @@ for i, r in enumerate(regions):
     totalUncertainty    = 0.
 
     if options.postFit:
-        suffix = '_bestfit' if options.bestfit else '_r1'
+        suffix = '_bestfit' if options.bestFit else '_r1'
         postFitResults = getPrePostFitFromMLF(cardFile.replace('.txt','_FD%s.root'%suffix)) #r1
 
     for p,tex in processes:
@@ -412,13 +414,13 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4l_dataV2_%s"%(subDir,cardName,options.year if not options.combine else "COMBINED")
+plotName = "%s%s_signalRegions_incl4l_dataV2_%s%s"%(subDir,cardName,WZreweight,options.year if not options.combine else "COMBINED")
 if options.postFit:
     plotName += "_postFit"
 if options.blinded:
     plotName += "_blinded"
-if options.bestfit:
-    plotName += "_bestfit"
+if options.bestFit:
+    plotName += "_bestFit"
 
 plotting.draw(
     Plot.fromHisto(plotName,

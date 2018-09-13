@@ -389,9 +389,14 @@ if isMC:
     read_variables.append( VectorTreeVariable.fromString('genPartAll[pt/F,eta/F,phi/F,mass/F,pdgId/I,status/I,charge/I,motherId/I,grandmotherId/I,nMothers/I,motherIndex1/I,motherIndex2/I,nDaughters/I,daughterIndex1/I,daughterIndex2/I,isPromptHard/I]', nMax=200 )) # default nMax is 100, which would lead to corrupt values in this case
     read_variables.append( TreeVariable.fromString('genWeight/F') )
     read_variables.append( TreeVariable.fromString('nIsr/I') )
+    read_variables.append( VectorTreeVariable.fromString('LHEweight[wgt/F,id/I]',  nMax=1100) )
     if options.keepPhotons:
         read_variables.append( VectorTreeVariable.fromString('gamma[mcPt/F]') )
 
+    new_variables.append('PSweight_central/F')
+    for ps in ['isrUp', 'isrDown', 'fsrUp', 'fsrDown']:
+        for multiplier in ['red', 'nom', 'cons']:
+            new_variables.append('PSweight_%s_%s/F'%(multiplier, ps))
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
@@ -826,6 +831,24 @@ def filler( event ):
 
         if isMC:
            event.TTGJetsEventType = getTTGJetsEventType(r)
+
+    if isMC:
+        event.PSweight_central      = r.LHEweight_wgt[1080]
+
+        event.PSweight_red_isrUp    = r.LHEweight_wgt[1082]
+        event.PSweight_red_fsrUp    = r.LHEweight_wgt[1083]
+        event.PSweight_red_isrDown  = r.LHEweight_wgt[1084]
+        event.PSweight_red_fsrDown  = r.LHEweight_wgt[1085]
+
+        event.PSweight_nom_isrUp    = r.LHEweight_wgt[1086]
+        event.PSweight_nom_fsrUp    = r.LHEweight_wgt[1087]
+        event.PSweight_nom_isrDown  = r.LHEweight_wgt[1088]
+        event.PSweight_nom_fsrDown  = r.LHEweight_wgt[1089]
+
+        event.PSweight_cons_isrUp    = r.LHEweight_wgt[1090]
+        event.PSweight_cons_fsrUp    = r.LHEweight_wgt[1091]
+        event.PSweight_cons_isrDown  = r.LHEweight_wgt[1092]
+        event.PSweight_cons_fsrDown  = r.LHEweight_wgt[1093]
 
     if addSystematicVariations:
         for j in allJets:
