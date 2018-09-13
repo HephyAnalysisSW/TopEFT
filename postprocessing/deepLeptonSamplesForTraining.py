@@ -11,16 +11,16 @@ def deepLeptonSignalSamples(year):
         'TTJets_DiLepton',
         'TTJets_DiLepton_ext',
         
-        'TTJets',
-        'TTJets_LO',
-        'TT_pow_ext3',
-        'TT_pow',
-        'TTLep_pow',
-        'TTSemiLep_pow',
-        'TTJets_LO_HT600to800_ext',
-        'TTJets_LO_HT800to1200_ext',
-        'TTJets_LO_HT1200to2500_ext',
-        'TTJets_LO_HT2500toInf_ext',
+        #'TTJets',
+        #'TTJets_LO',
+        #'TT_pow_ext3',
+        #'TT_pow',
+        #'TTLep_pow',
+        #'TTSemiLep_pow',
+        #'TTJets_LO_HT600to800_ext',
+        #'TTJets_LO_HT800to1200_ext',
+        #'TTJets_LO_HT1200to2500_ext',
+        #'TTJets_LO_HT2500toInf_ext',
                     
                         ]
     

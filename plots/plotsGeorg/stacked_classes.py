@@ -82,7 +82,7 @@ for plot in plotList:
     pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
 
     isTrainData=samples["isTrainData"]  #1=true, 0=false
-
+    print sampleMuo.files
 ####################################
 # loop over samples and draw plots #
 ####################################

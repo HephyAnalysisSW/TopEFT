@@ -28,10 +28,10 @@ def deepLeptonSignalSamples(year):
 
         'TTJets',
         'TTJets_LO',
-        'TT_pow_ext3',
-        'TT_pow',
-        'TTLep_pow',
-        'TTSemiLep_pow',
+        #'TT_pow_ext3',
+        #'TT_pow',
+        #'TTLep_pow',
+        #'TTSemiLep_pow',
         'TTJets_LO_HT600to800_ext',
         'TTJets_LO_HT800to1200_ext',
         'TTJets_LO_HT1200to2500_ext',
@@ -43,14 +43,14 @@ def deepLeptonSignalSamples(year):
         SignalSamples = [
 
         'TTJets',
-        'TTLep_pow',
-        'TTHad_pow',
-        'TTSemi_pow',
+        #'TTLep_pow',
+        #'TTHad_pow',
+        #'TTSemi_pow',
         'TTJets_SingleLeptonFromT',
-        'TTLep_pow_TuneDown',
-        'TTLep_pow_TuneUp',
-        'TTLep_pow_hdampDown',
-        'TTLep_pow_hdampUp',
+        #'TTLep_pow_TuneDown',
+        #'TTLep_pow_TuneUp',
+        #'TTLep_pow_hdampDown',
+        #'TTLep_pow_hdampUp',
 
                         ]
 
@@ -137,8 +137,9 @@ def deepLeptonBackgroundSamples(year):
     return BackgroundSamples
 
 
-
-
+#settings
+ptSelection   = 'pt_10_to_inf'
+sampleSelection = 'TTJetsVsQCD'
 
 #parser
 def get_parser():
@@ -163,11 +164,6 @@ options = get_parser().parse_args()
 #import RootTools.core.logger as logger_rt
 #logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
-#settings
-#year    = 2017
-ptCut   = 'pt_10_to_inf'
-#version = 'v1_small'
-
 #define signal and background samples
 samplesPrompt    = deepLeptonSignalSamples(options.year)
 samplesNonPrompt = deepLeptonBackgroundSamples(options.year)
@@ -181,8 +177,8 @@ leptonClasses  = [
                     {'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 },
                  ]
 leptonFlavours = [
-                    {'Name':'ele', 'pdgId': 11}, 
                     {'Name':'muo', 'pdgId': 13},
+                    {'Name':'ele', 'pdgId': 11}, 
                  ]
 
 postfix = '' if options.nJobs==1 else "_%i" % options.job
@@ -194,7 +190,7 @@ for leptonFlavour in leptonFlavours:
     leptonClasses[2]['TChain'] = ROOT.TChain('tree')
 
     for leptonClass in leptonClasses:
-        inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptCut)
+        inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptSelection)
         inputList = [(os.path.join( inputPath, s )) for s in leptonClass['SampleList']]
         selectionString = '(evt%'+str(options.nJobs)+'=='+str(options.job)+')'
         classSample = Sample.fromDirectory( leptonClass['Name'], inputList, 'tree', None, selectionString) 
@@ -230,7 +226,7 @@ for leptonFlavour in leptonFlavours:
     nEntries = {'Prompt': n_Prompt, 'NonPrompt': n_NonPrompt, 'Fake': n_Fake}
     TChain   = {'Prompt': chPrompt, 'NonPrompt': chNonPrompt, 'Fake': chFake}
 
-    outputPath = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], ptCut, 'modulo_'+str(options.job)+'_trainfile_' )
+    outputPath = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], ptSelection, sampleSelection, 'modulo_'+str(options.job)+'_trainfile_' )
     dirname = os.path.dirname( outputPath )
     if not os.path.exists( dirname ):
         os.makedirs( dirname )
