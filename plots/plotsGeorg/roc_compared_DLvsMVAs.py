@@ -52,21 +52,19 @@ options = get_parser().parse_args()
 ###################
 isTestData = options.isTestData
 
-leptonFlavours = [{'FullName':'Electron', 'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13, 'TrainDates': [], 'plotTestData': isTestData}]
+leptonFlavours = [{'FullName':'Electron' if options.flavour=='ele' else 'Muon', 'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13, 'TrainDates': [], 'plotTestData': isTestData}]
 #Flavour Plots
 
 
 ##previous results
-#leptonFlavours[0]['TrainDates'].append({'Date': 20180731,             'TrainType': 'std', 'Plots': [
-#                                                                                                     {'Name': 'DeepLepton_lessVars', 'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+1, 'lineWidth': 2},
-#                                                                                                     ]})
-#leptonFlavours[0]['TrainDates'].append({'Date': 20180730,             'TrainType': 'std', 'Plots': [
-#                                                                                                     {'Name': 'DeepLepton_withoutSV', 'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+0, 'lineWidth': 2},
-#                                                                                                     ]})
+#if options.flavour=='ele':
+#    leptonFlavours[0]['TrainDates'].append({'Date': 20180913,         'TrainType': options.trainingType, 'SampleSize': options.sampleSize, 'Plots': [
+#                                                                                                         {'Name': 'DeepLepton_excluded_JetBTagCSVs', 'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+1, 'lineWidth': 2},
+#                                                                                                         ]})
 
 
 #acutal results
-leptonFlavours[0]['TrainDates'].append({'Date': options.trainingDate, 'TrainType': options.trainingType, 'Plots': [
+leptonFlavours[0]['TrainDates'].append({'Date': options.trainingDate, 'TrainType': options.trainingType, 'SampleSize': options.sampleSize, 'Plots': [
                                                                                                      {'Name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTV',          'Color':ROOT.kGray,    'lineWidth': 2},
                                                                                                      {'Name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTH',          'Color':ROOT.kGray+1,  'lineWidth': 2},
                                                                                                      {'Name': 'DeepLepton',          'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+2, 'lineWidth': 2},
@@ -140,6 +138,7 @@ for leptonFlavour in leptonFlavours:
     for trainDate in leptonFlavour['TrainDates']:
         #load sample
         samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        #amples=plot_samples_v2(options.version, options.year, options.flavour, trainDate['Date'], options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
         print samples["sample"]
 
         # reader class
@@ -232,4 +231,4 @@ for leptonFlavour in leptonFlavours:
                                    ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            c.Print(os.path.join(directory, leptonFlavour["FullName"]+("_TestData_" if isTestData else "_TrainData_")+'roc_compared_'+ptCuts[i]["Name"]+'_relIso<='+str(relIsoCuts[j])+'.png'))
+            c.Print(os.path.join(directory, 'roc_compared_'+ptCuts[i]["Name"]+'_relIso<='+str(relIsoCuts[j])+'.png'))

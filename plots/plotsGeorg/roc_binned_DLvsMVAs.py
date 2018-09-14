@@ -65,7 +65,7 @@ leptonFlavourList.append({"Name":"Electron" if options.flavour=='ele' else "Muon
 
 MVAList=[]
 MVAList.append({"Name":"LeptonMVA_TTV",  "Type":"MVA_Id",  "Var":"lep_mvaTTV",           "plotColor":ROOT.kGray,       "lineWidth":2})
-MVAList.append({"Name":"LeptonMVA_TTH",  "Type":"MVA_Id",  "Var":"lep_mvaTTH",           "plotColor":ROOT.kGray,       "lineWidth":2})
+MVAList.append({"Name":"LeptonMVA_TTH",  "Type":"MVA_Id",  "Var":"lep_mvaTTH",           "plotColor":ROOT.kGray+1,     "lineWidth":2})
 MVAList.append({"Name":"DeepLepton",     "Type":"DL_Id",   "Var":"prob_lep_isPromptId",  "plotColor":ROOT.kGreen+2,    "lineWidth":2})
     
 binnedList=[]

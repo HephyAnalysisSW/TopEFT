@@ -538,7 +538,7 @@ for leptonFlavour in leptonFlavours:
                                                 str(options.year),
                                                 options.flavour,
                                                 options.sampleSelection,
-                                                str(options.trainingDate) if options.trainingDate==0 else options.sampleSize+'_sample',                
+                                                str(options.trainingDate) if not options.trainingDate==0 else options.sampleSize+'_sample',                
                                                 'TestData' if isTestData else 'TrainData',
                                                 'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
                                                 ))
