@@ -92,8 +92,8 @@ if samples["leptonFlavour"]=="muo":
     ecalTypes.append({"Name":"All", "selectionString": "abs(lep_etaSc)>=0."})
 
 pt_cuts=[]
-pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10&&lep_pt<25"})
 pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
+pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10&&lep_pt<25"})
 
 isTestData=samples["isTestData"]  #1=true, 0=false
 
