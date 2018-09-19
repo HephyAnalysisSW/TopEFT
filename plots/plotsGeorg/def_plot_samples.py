@@ -11,28 +11,34 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     base_directory = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/'
     file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
-    texfileName    = ('small_' if sampleSize=='small' else '')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
+    texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
     texfilePath    = os.path.join(file_directory, texfileName)
+    
+    predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'evaluation' if sampleSize=='full' else sampleSize+'_evaluation', 'testdata' if isTestData else 'traindata')
 
     #create FileList
     with open(texfilePath,'r') as f:
-        FileList = f.read().splitlines()
+        if trainingDate==0:
+            FileList = f.read().splitlines()
+        else:
+            FileList = os.listdir(predict_directory)
+            FileList.remove('tree_association.txt')
+            FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
+
     FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
     sample   = Sample.fromFiles( leptonFlavour, texName = sample_texName, files =FileList, treeName="tree")
 
     if not trainingDate==0:
-        predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'small_evaluation' if sampleSize=='small' else 'evaluation', 'testdata' if isTestData else 'traindata')
-
-        with open(texfilePath,'r') as f:
-            FilePredictList = f.read().splitlines()
+        FilePredictList = os.listdir(predict_directory)
+        FilePredictList.remove('tree_association.txt')
 
         FilePredictList = [filepath.replace(filepath, os.path.join(predict_directory, filepath)) for filepath in FilePredictList]
-        FilePredictList = [filepath.replace(".root", "_predict.root") for filepath in FilePredictList]
 
         samplePredict = Sample.fromFiles( leptonFlavour+"_friend", texName = sample_texName+"_predict", files = FilePredictList, treeName="tree")
         sample.addFriend(samplePredict, "tree")
 
     samples={"leptonFlavour":leptonFlavour, "sample":sample, "trainingDate":trainingDate, "isTestData":isTestData}
+    
     return samples
 
 def histo_plot_variables(trainingDate):
@@ -177,6 +183,7 @@ def eS(p, rocdataset):
             ntruth+=1.
             if data[1]>=p:
                 ntruthid+=1.
+    print ntruth, ntruthid
     return 0. if ntruth==0. else  ntruthid/ntruth
 
 def eB(p, rocdataset):

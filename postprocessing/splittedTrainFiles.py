@@ -26,23 +26,23 @@ def deepLeptonSignalSamples(year):
         'TTJets_DiLepton',
         'TTJets_DiLepton_ext',
 
-        'TTJets',
-        'TTJets_LO',
+        #'TTJets',
+        #'TTJets_LO',
         #'TT_pow_ext3',
         #'TT_pow',
         #'TTLep_pow',
         #'TTSemiLep_pow',
-        'TTJets_LO_HT600to800_ext',
-        'TTJets_LO_HT800to1200_ext',
-        'TTJets_LO_HT1200to2500_ext',
-        'TTJets_LO_HT2500toInf_ext',
+        #'TTJets_LO_HT600to800_ext',
+        #'TTJets_LO_HT800to1200_ext',
+        #'TTJets_LO_HT1200to2500_ext',
+        #'TTJets_LO_HT2500toInf_ext',
 
                         ]
 
     if year==2017:
         SignalSamples = [
 
-        'TTJets',
+        #'TTJets',
         #'TTLep_pow',
         #'TTHad_pow',
         #'TTSemi_pow',
@@ -139,7 +139,8 @@ def deepLeptonBackgroundSamples(year):
 
 #settings
 ptSelection   = 'pt_10_to_inf'
-sampleSelection = 'TTJetsVsQCD'
+sampleSelection = 'SlDlTTJetsVsQCD'
+#sampleSelection = 'TTJetsVsQCD'
 
 #parser
 def get_parser():
@@ -153,6 +154,7 @@ def get_parser():
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                     help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
+    argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
 
     return argParser
 
@@ -177,8 +179,7 @@ leptonClasses  = [
                     {'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 },
                  ]
 leptonFlavours = [
-                    {'Name':'muo', 'pdgId': 13},
-                    {'Name':'ele', 'pdgId': 11}, 
+                    {'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13},
                  ]
 
 postfix = '' if options.nJobs==1 else "_%i" % options.job

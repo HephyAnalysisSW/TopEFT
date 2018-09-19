@@ -35,7 +35,7 @@ def get_parser():
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf'],         required = True, help="Which pt selection?")
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -131,20 +131,46 @@ for leptonFlavour in leptonFlavourList:
                 x    = array('d')
                 y_eS = array('d')
                 y_eB = array('d')
+
+                #calculate cut value for eB<=0.01 on average for whole data 
+                fullReaderData = []
+                for dataset in readerData:
+                    for datapoint in dataset:
+                        fullReaderData.append(datapoint)
+
+                prange = [pval*0.0001 for pval in range(9000 if plot['Type']=='DL_Id' else 8000,10000)]
+                for pval in prange:
+                    eBVal=eB(pval,fullReaderData)
+                    cutVal=pval 
+                    #print pval, xval
+                    if eBVal<=0.01:
+                        break
+                print cutVal, eBVal
                 for dataset in readerData:
                     #print j+1, len(dataset)
                     j += 1
-                    prange=[1] if plot["Type"]=="POG_Id" else [pval*0.001 for pval in range(500,1000)]
-                    for pval in prange:
-                        xval=eB(pval,dataset)
-                        p=pval 
-                        #print pval, xval
-                        if xval<=0.01:
-                            break
                     if not len(dataset)==0:
                         x.append(j*5)
-                        y_eS.append(eS(p,dataset))
-                        y_eB.append(xval)
+                        y_eS.append(eS(cutVal,dataset))
+                        y_eB.append(eB(cutVal,dataset))
+                        print j*5, cutVal, y_eB[-1], y_eS[-1]
+
+                #old bin-wise calculation of cut value
+                #for dataset in readerData:
+                #    #print j+1, len(dataset)
+                #    j += 1
+                #    prange=[1] if plot["Type"]=="POG_Id" else [pval*0.0001 for pval in range(9000,10000)]
+                #    for pval in prange:
+                #        xval=eB(pval,dataset)
+                #        p=pval 
+                #        #print pval, xval
+                #        if xval<=0.01:
+                #            break
+                #    if not len(dataset)==0:
+                #        x.append(j*5)
+                #        y_eS.append(eS(p,dataset))
+                #        y_eB.append(xval)
+                #        print j*5, p, xval, y_eS[-1]
 
                 #Draw Graphs
                 n=len(x)
@@ -152,14 +178,16 @@ for leptonFlavour in leptonFlavourList:
                 gname=("eS "+plot["Name"]+" relIsoCut="+str(relIsoCut) if plot["Type"]=="POG_Id" else "eS "+plot["Name"]+" (eB<=0.01)"+" relIsoCut="+str(relIsoCut))
                 g[ng].SetName(gname)
                 g[ng].SetTitle(gname)
-                g[ng].SetLineColor(colorList[ng])
-                g[ng].SetLineWidth(lineWidthList[ng])
+                #g[ng].SetLineColor(colorList[ng])
+                #g[ng].SetLineWidth(lineWidthList[ng])
                 g[ng].SetMarkerColor(colorList[ng])
-                #g[ng].SetMarkerStyle( 5 )
+                g[ng].SetMarkerStyle( 9 ) #
                 g[ng].SetFillStyle(0)
                 g[ng].SetFillColor(0)
-                g[ng].SetMarkerSize(0)
-                g[ng].Draw("C")
+                #g[ng].SetMarkerSize(0)
+                g[ng].SetMarkerSize(0.5)
+                #g[ng].Draw("C")
+                g[ng].Draw("P")
                 #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
                 mg.Add(g[ng])
 
@@ -170,22 +198,22 @@ for leptonFlavour in leptonFlavourList:
                 gname=("eB "+plot["Name"]+" relIsoCut="+str(relIsoCut) if plot["Type"]=="POG_Id" else "eB "+plot["Name"]+" (for plotted eS)"+" relIsoCut="+str(relIsoCut))
                 graph.SetName(gname)
                 graph.SetTitle(gname)
-                graph.SetLineStyle( 2 )
-                graph.SetLineColor(colorList[ng])
-                graph.SetLineWidth(lineWidthList[ng])
+                #graph.SetLineStyle( 2 )
+                #graph.SetLineColor(colorList[ng])
+                #graph.SetLineWidth(lineWidthList[ng])
                 graph.SetMarkerColor(colorList[ng])
-                #graph.SetMarkerStyle( 5 )
+                graph.SetMarkerStyle( 4 )
                 graph.SetFillStyle( 0 )
                 graph.SetFillColor( 0 )
-                graph.SetMarkerSize( 0 )
-                graph.Draw("C")
+                graph.SetMarkerSize( 0.5 )
+                graph.Draw("P")
                 #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
                 mg.Add(graph)
 
                 ng += 1
 
             #Draw Multigraph
-            mg.Draw("AC")
+            mg.Draw("AP")
             #mg.SetTitle(leptonFlavour["sample"].texName+(" - TrainData" if isTrainData else " - TestData"))
             mg.GetXaxis().SetTitle('pt')
             mg.GetYaxis().SetTitle('eS,eB')
