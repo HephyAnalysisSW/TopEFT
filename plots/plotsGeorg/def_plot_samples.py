@@ -170,6 +170,8 @@ def roc_plot_variables():
     "lep_eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I",
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
+    "lep_eta/F",
+    "nSV/I",
     ]
 
     return variables
@@ -194,6 +196,7 @@ def eB(p, rocdataset):
             ntruth+=1.
             if data[1]>=p:
                 ntruthid+=1.
+    print ntruth, ntruthid
     return 0. if ntruth==0. else ntruthid/ntruth
 
 ## define classes

@@ -20,7 +20,7 @@ plot_directory=plot_directory_
 # plot samples definitions
 from def_plot_samples import *
 
-#rser
+#parser
 def get_parser():
     ''' Argument parser for post-processing module.
     '''
@@ -36,6 +36,7 @@ def get_parser():
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nSV'],         required = True, help="Which variable for binning?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -67,13 +68,22 @@ MVAList=[]
 MVAList.append({"Name":"LeptonMVA_TTV",  "Type":"MVA_Id",  "Var":"lep_mvaTTV",           "plotColor":ROOT.kGray,       "lineWidth":2})
 MVAList.append({"Name":"LeptonMVA_TTH",  "Type":"MVA_Id",  "Var":"lep_mvaTTH",           "plotColor":ROOT.kGray+1,     "lineWidth":2})
 MVAList.append({"Name":"DeepLepton",     "Type":"DL_Id",   "Var":"prob_lep_isPromptId",  "plotColor":ROOT.kGreen+2,    "lineWidth":2})
-    
-binnedList=[]
-binnedList.append({"Name":"pt", "VarName":"|pt|", "Var":"lep_pt", "abs":1, "cuts":[0, 250], "bins":50})
+
+binnedList={}
+binnedList.update({"pt":  {"VarName":"|pt|",    "Var":"lep_pt",    "abs":1, "cuts":[0, 250],      "bins":50, "binsEB":5 }})
+binnedList.update({"eta": {"VarName":"|etaSc|", "Var":"lep_etaSc", "abs":1, "cuts":[0, 2.5],      "bins":50, "binsEB":5 }})
+binnedList.update({"nSV": {"VarName":"nSV",     "Var":"nSV",       "abs":0, "cuts":[-0.5, 10.5],  "bins":11, "binsEB":11}})
 
 logY=0
 
 relIsoCuts=[1.0]
+
+ptCuts=[]
+if options.binned=='pt':
+    ptCuts.append({"Name":"pt10to250","lower_limit":10, "upper_limit":250         })
+else:
+    ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
+    ptCuts.append({"Name":"pt10to25", "lower_limit":10, "upper_limit":25          })
 
 ####################################
 # loop over samples and draw plots #
@@ -82,8 +92,8 @@ relIsoCuts=[1.0]
 for leptonFlavour in leptonFlavourList:
 
     for relIsoCut in relIsoCuts:
-    
-        for binVar in binnedList:
+
+        for ptCut in ptCuts:    
 
             colorList=[]
             lineWidthList=[]
@@ -95,6 +105,7 @@ for leptonFlavour in leptonFlavourList:
             mg=ROOT.TMultiGraph()
             g=[]
             ng=0
+            binWidth = (binnedList[options.binned]["cuts"][1]-binnedList[options.binned]["cuts"][0])/binnedList[options.binned]["bins"]
 
             for plot in MVAList:
                 
@@ -102,15 +113,15 @@ for leptonFlavour in leptonFlavourList:
                 lineWidthList.append(plot["lineWidth"])
 
                 # reader class
-                readerData=[[] for i in xrange(binVar["bins"])]
+                readerData=[[] for i in xrange(binnedList[options.binned]["bins"])]
                 reader = leptonFlavour["sample"].treeReader(  map( TreeVariable.fromString, variables ) )
                 reader.start()
                 while reader.run():
-                    if abs(reader.event.lep_pdgId)==leptonFlavour["pdgId"]:
-                        cut_val = getattr(reader.event, binVar["Var"]) 
-                        if cut_val >= binVar["cuts"][0] and cut_val <  binVar["cuts"][1]:
+                    if abs(reader.event.lep_pdgId)==leptonFlavour["pdgId"] and reader.event.lep_pt>=ptCut["lower_limit"] and reader.event.lep_pt<=ptCut["upper_limit"]:
+                        cut_val = abs(getattr(reader.event, binnedList[options.binned]["Var"])) 
+                        if cut_val >= binnedList[options.binned]["cuts"][0] and cut_val <  binnedList[options.binned]["cuts"][1]:
                             
-                            j=int(math.ceil(cut_val/(binVar["cuts"][1]-binVar["cuts"][0])*binVar["bins"]))-1
+                            j=int(math.ceil(cut_val/(binnedList[options.binned]["cuts"][1]-binnedList[options.binned]["cuts"][0])*binnedList[options.binned]["bins"]))-1
 
 
                             #check if lepton passes relIso and Impact Parameter cuts
@@ -132,28 +143,29 @@ for leptonFlavour in leptonFlavourList:
                 y_eS = array('d')
                 y_eB = array('d')
 
-                #calculate cut value for eB<=0.01 on average for whole data 
-                fullReaderData = []
-                for dataset in readerData:
-                    for datapoint in dataset:
-                        fullReaderData.append(datapoint)
+                #calculate cut value for eB<=0.01 on average for e.g. n=2 data bins 
+                for i in xrange(int(binnedList[options.binned]["bins"]/binnedList[options.binned]["binsEB"])):
+                    binReaderData = [readerData[k] for k in xrange(i*binnedList[options.binned]["binsEB"],(i+1)*binnedList[options.binned]["binsEB"])]
+                    eBreaderData  = []
+                    for dataset in binReaderData:
+                        for datapoint in dataset:
+                            eBreaderData.append(datapoint) 
 
-                prange = [pval*0.0001 for pval in range(9000 if plot['Type']=='DL_Id' else 8000,10000)]
-                for pval in prange:
-                    eBVal=eB(pval,fullReaderData)
-                    cutVal=pval 
-                    #print pval, xval
-                    if eBVal<=0.01:
-                        break
-                print cutVal, eBVal
-                for dataset in readerData:
-                    #print j+1, len(dataset)
-                    j += 1
-                    if not len(dataset)==0:
-                        x.append(j*5)
-                        y_eS.append(eS(cutVal,dataset))
-                        y_eB.append(eB(cutVal,dataset))
-                        print j*5, cutVal, y_eB[-1], y_eS[-1]
+                    prange = [pval*0.0001 for pval in xrange(9000 if plot['Type']=='DL_Id' else 1000,10000)]
+                    for pval in prange:
+                        eBVal=eB(pval,eBreaderData)
+                        cutVal=pval 
+                        #print pval, xval
+                        if eBVal<=0.01:
+                            break
+                    print cutVal, eBVal
+                    for dataset in binReaderData:
+                        j += 1
+                        if not len(dataset)==0:
+                            x.append(j*binWidth)
+                            y_eS.append(eS(cutVal,dataset))
+                            y_eB.append(eB(cutVal,dataset)*10)
+                            print j*binWidth, cutVal, y_eB[-1], y_eS[-1]
 
                 #old bin-wise calculation of cut value
                 #for dataset in readerData:
@@ -175,10 +187,10 @@ for leptonFlavour in leptonFlavourList:
                 #Draw Graphs
                 n=len(x)
                 g.append(ROOT.TGraph(n,x,y_eS))
-                gname=("eS "+plot["Name"]+" relIsoCut="+str(relIsoCut) if plot["Type"]=="POG_Id" else "eS "+plot["Name"]+" (eB<=0.01)"+" relIsoCut="+str(relIsoCut))
+                gname=("eS "+plot["Name"]+" (eB<=0.01)")
                 g[ng].SetName(gname)
                 g[ng].SetTitle(gname)
-                #g[ng].SetLineColor(colorList[ng])
+                g[ng].SetLineColor( 0 )
                 #g[ng].SetLineWidth(lineWidthList[ng])
                 g[ng].SetMarkerColor(colorList[ng])
                 g[ng].SetMarkerStyle( 9 ) #
@@ -195,11 +207,11 @@ for leptonFlavour in leptonFlavourList:
                 #Draw Graphs
                 n=len(x)
                 graph=ROOT.TGraph(n,x,y_eB)
-                gname=("eB "+plot["Name"]+" relIsoCut="+str(relIsoCut) if plot["Type"]=="POG_Id" else "eB "+plot["Name"]+" (for plotted eS)"+" relIsoCut="+str(relIsoCut))
+                gname=("eB x 10 "+plot["Name"]+" (for plotted eS)")
                 graph.SetName(gname)
                 graph.SetTitle(gname)
                 #graph.SetLineStyle( 2 )
-                #graph.SetLineColor(colorList[ng])
+                graph.SetLineColor( 0 )
                 #graph.SetLineWidth(lineWidthList[ng])
                 graph.SetMarkerColor(colorList[ng])
                 graph.SetMarkerStyle( 4 )
@@ -215,12 +227,12 @@ for leptonFlavour in leptonFlavourList:
             #Draw Multigraph
             mg.Draw("AP")
             #mg.SetTitle(leptonFlavour["sample"].texName+(" - TrainData" if isTrainData else " - TestData"))
-            mg.GetXaxis().SetTitle('pt')
+            mg.GetXaxis().SetTitle(binnedList[options.binned]["VarName"])
             mg.GetYaxis().SetTitle('eS,eB')
             if logY==0:
                 mg.GetYaxis().SetRangeUser(0.0,1.02)
-            c.BuildLegend(0.55,0.15,0.9,0.4)
-            drawObjects(isTestData, options.flavour, options.sampleSelection, 'pt10to250', relIsoCut )
+            c.BuildLegend(0.55,0.35,0.9,0.6)
+            drawObjects(isTestData, options.flavour, options.sampleSelection, ptCut['Name'], relIsoCut )
             #drawObjectsSmall(isTestData, options.flavour, 'SLDL_TTJets+QCD', 'pt10to250', relIsoCut ) 
             directory=(os.path.join(
                                     plot_directory,
@@ -232,4 +244,4 @@ for leptonFlavour in leptonFlavourList:
                                    ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            c.Print(os.path.join(directory, 'roc_binned_'+binVar["Name"]+" relIsoCut="+str(relIsoCut)+'.png'))
+            c.Print(os.path.join(directory, 'roc_binned_'+options.binned+"_relIsoCut="+str(relIsoCut)+'_'+ptCut['Name']+'.png'))
