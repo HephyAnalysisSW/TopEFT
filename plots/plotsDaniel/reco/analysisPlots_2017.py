@@ -28,8 +28,8 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v3')
-argParser.add_argument('--selection',           action='store',      default='trilep-Zcand-lepSelTTZ-njet1p-btag0-onZ')
+argParser.add_argument('--plot_directory',      action='store',      default='94X_mva_v14')
+argParser.add_argument('--selection',           action='store',      default='trilep-Zcand-lepSelTTZ-min_mll12-njet1p-btag0-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
@@ -41,7 +41,7 @@ args = argParser.parse_args()
 from TopEFT.Tools.puProfileCache    import puProfile
 from TopEFT.Tools.puReweighting     import getReweightingFunction
 from TopEFT.samples.helpers         import fromHeppySample
-WZTo3LNu_fxfx = fromHeppySample("WZTo3LNu_fxfx", data_path = "/a/b/c", maxN = None, MCgeneration="Fall17")
+WZTo3LNu_fxfx = fromHeppySample("WZTo3LNu_fxfx", data_path = "/a/b/c", maxN = None, MCgeneration="Fall17", forceProxy=True)
 
 #
 # Logger
@@ -63,12 +63,16 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v3/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
 
 data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
@@ -441,29 +445,29 @@ def reconstructLeptonicTop( event, sample ):
     
 #sequence.append( reconstructLeptonicTop )
 
-def getCosThetaStar( event, sample ):
-    # get the negative-charge lepton from Z
-    lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
-    
-    # get the Z and lepton vectors
-    Z   = ROOT.TVector3()
-    l   = ROOT.TVector3()
-
-    # set the values
-    Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
-    l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
-
-    # get cos(theta)
-    cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
-    
-    # get beta and gamma
-    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
-    beta    = sqrt( 1 - 1/gamma**2 )
-    
-    cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
-    event.cosThetaStar = cosThetaStar
-
-sequence.append( getCosThetaStar )
+#def getCosThetaStar( event, sample ):
+#    # get the negative-charge lepton from Z
+#    lm_index = event.Z_l1_index if event.lep_pdgId[event.Z_l1_index] > 0 else event.Z_l2_index
+#    
+#    # get the Z and lepton vectors
+#    Z   = ROOT.TVector3()
+#    l   = ROOT.TVector3()
+#
+#    # set the values
+#    Z.SetPtEtaPhi(event.Z_pt,               event.Z_eta,                event.Z_phi)
+#    l.SetPtEtaPhi(event.lep_pt[lm_index],   event.lep_eta[lm_index],    event.lep_phi[lm_index])
+#
+#    # get cos(theta)
+#    cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
+#    
+#    # get beta and gamma
+#    gamma   = sqrt(1+event.Z_pt**2/event.Z_mass**2 * cosh(event.Z_eta)**2 )
+#    beta    = sqrt( 1 - 1/gamma**2 )
+#    
+#    cosThetaStar = (-beta + cosTheta) / (1 - beta*cosTheta)
+#    event.cosThetaStar = cosThetaStar
+#
+#sequence.append( getCosThetaStar )
 
 def getM3l( event, sample ):
     # get the invariant mass of the 3l system
@@ -498,10 +502,10 @@ sequence.append( getLooseLeptonMult )
 
 
 def getLeptonSelection( mode ):
-  if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
-  elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
-  elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
-  elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
+  if   mode=="mumumu": return "nMuons_tight_3l==3&&nElectrons_tight_3l==0"
+  elif mode=="mumue":  return "nMuons_tight_3l==2&&nElectrons_tight_3l==1"
+  elif mode=="muee":   return "nMuons_tight_3l==1&&nElectrons_tight_3l==2"
+  elif mode=="eee":    return "nMuons_tight_3l==0&&nElectrons_tight_3l==3"
 
 #
 # Loop over channels
@@ -524,7 +528,7 @@ for index, mode in enumerate(allModes):
     if args.noData: lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
 
-    DY_sample = DY_HT_LO_17 if not args.DYincl else DY_LO_17
+    #DY_sample = DY_HT_LO_17 if not args.DYincl else DY_LO_17
 
     if args.TTZ_LO:
         TTZ_mc = TTZ_LO
@@ -534,7 +538,7 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZ_mc ]
     else:
-        mc             = [ TTZ_mc , TTW_17, TZQ_17, TTX_17, WZ_amcatnlo_17, rare_17, nonprompt_17 ]
+        mc             = [ TTZ_mc , TTW_17, TTX_17, WZ_amcatnlo_17, rare_17, nonpromptMC_17, ZZ_17, ZGTo2LG ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -544,14 +548,15 @@ for index, mode in enumerate(allModes):
         sample.scale          = lumi_scale*1.#lumi_scale * 4.666/4.42965 # get same x-sec as amc@NLO
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger/F', 'reweightLeptonTrackingSF/F', 'nTrueInt/F', 'reweightPU36fb/F']
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightTrigger_tight_3l/F', 'reweightLeptonTrackingSF_tight_3l/F','reweightLeptonSF_tight_3l/F', 'nTrueInt/F', 'reweightPU36fb/F']
 
       # preliminary PU reweighting (using only WZ weights)
 
       #puProfiles = puProfile( source_sample = WZTo3LNu_fxfx )
       #mcHist = puProfiles.cachedTemplate( selection="( 1 )", weight='genWeight', overwrite=False )
       #nTrueInt36fb_puRW        = getReweightingFunction(data="PU_2017_42400_XSecCentral", mc="Fall17", mcHist=mcHist)
-      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger*event.reweightLeptonTrackingSF*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
+      #sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_3l*event.reweightLeptonSF_tight_3l*event.reweightPU36fb #*nTrueInt36fb_puRW(event.nTrueInt)
+      sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_3l*event.reweightPU36fb
       tr = triggerSelector(2017)
       sample.setSelectionString([getFilterCut(isData=False, year=2017), getLeptonSelection(mode), tr.getSelection("MC")])
 
@@ -1110,7 +1115,7 @@ for index, mode in enumerate(allModes):
     
     plots.append(Plot(
         name = "cosThetaStar", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.2',
-        attribute = lambda event, sample:event.cosThetaStar,
+        attribute = TreeVariable.fromString( "cosThetaStar/F" ),
         binning=[10,-1,1],
     ))
     

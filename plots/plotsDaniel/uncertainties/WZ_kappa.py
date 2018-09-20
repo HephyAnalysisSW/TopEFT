@@ -33,23 +33,25 @@ from RootTools.core.standard import *
 from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter import cutInterpreter
 
-## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v7/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-## 2017
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+## 2016 ##
+postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v11/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+
+## 2017 ##
+postProcessing_directory = "TopEFT_PP_2017_mva_v9/trilep/"
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 postProcessing_directory = "TopEFT_PP_2017_mva_v7/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare", "nonprompt"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "TZQ", "rare"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = regionsE
@@ -57,8 +59,8 @@ setup.regions           = regionsE
 setupCR = setup.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
 
 trueVar     = "jet_hadronFlavour"
-reweightUp  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'1.5',trueVar)
-reweightDo  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.5',trueVar)
+reweightUp  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'1.20',trueVar)
+reweightDo  = "((Sum$(abs(%s)==5)>0)*%s+(Sum$(abs(%s)==5)==0))"%(trueVar,'0.80',trueVar)
 
 setup_bUp   = setup.systematicClone(sys={"reweight":[reweightUp]})
 setup_bDown = setup.systematicClone(sys={"reweight":[reweightDo]})
@@ -93,11 +95,12 @@ for i,r in enumerate(setup.regions):
         kappa_bDown = res[2]/res[5]
         print r
         print abs(kappa_bUp-kappa)/kappa, abs(kappa_bDown-kappa)/kappa
+        print abs(kappa_bUp-kappa_bDown)/2.
         hists["WZ0b"].SetBinContent(i+1, res[3].val)
         hists["WZ1b"].SetBinContent(i+1, res[0].val)
         hists["kappa"].SetBinContent(i+1, kappa.val)
-        hists["kappa_bUp"].SetBinContent(i+1, kappa_bUp.val)
-        hists["kappa_bDown"].SetBinContent(i+1, kappa_bDown.val)
+        hists["kappa_bUp"].SetBinContent(i+1, kappa.val + (kappa_bUp.val-kappa_bDown.val)/2.)
+        hists["kappa_bDown"].SetBinContent(i+1, kappa.val - (kappa_bUp.val-kappa_bDown.val)/2.)
 
 
 hists["WZ0b"].legendText = "WZ, 0b"

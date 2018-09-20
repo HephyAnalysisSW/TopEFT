@@ -18,7 +18,7 @@ from RootTools.core.standard import *
 from TopEFT.Tools.user import data_directory
 
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
 
 from TopEFT.samples.color import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
@@ -37,12 +37,10 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 sample  = Sample.fromDirectory(name="TTZ_LO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z (LO)", directory=directories['TTZ_LO'])
 sample2 = Sample.fromDirectory(name="TTZ_NLO", treeName="Events", isData=False, color=color.TTJets, texName="t#bar{t}Z, Z#rightarrowll (NLO)", directory=directories['TTZToLLNuNu_ext'])
 
-data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_v20/trilep/"
 
 dirs = {}
 dirs['WZTo3LNu_amcatnlo']   = ["WZTo3LNu_amcatnlo"]
-dirs['WZTo3LNu']     = ['WZTo3LNu']
+dirs['WZTo3LNu']     = ['WZTo3LNu_comb']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
 sample  = Sample.fromDirectory(name="WZTo3LNu_amcatnlo", treeName="Events", isData=False, color=color.TTJets, texName="WZ MG (NLO)", directory=directories['WZTo3LNu_amcatnlo'])
@@ -50,7 +48,8 @@ sample2 = Sample.fromDirectory(name="WZTo3LNu_powheg", treeName="Events", isData
 
 
 selection = cutInterpreter.cutString('trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
-WZselection = cutInterpreter.cutString('trilep-looseVeto-Zcand-lepSelTTZ-njet0p-btag0-onZloose')
+WZselection = cutInterpreter.cutString('trilep-looseVeto-Zcand-lepSelTTZ-njet1p-btag0-onZ')
+WZselection = cutInterpreter.cutString('trilep-Zcand-onZ-lepSelTTZ-njet1p')
 
 selection = WZselection
 
@@ -114,8 +113,10 @@ def drawObjects( ):
 #plots = [[ h_central ], [ h_central_NLO ]]
 plots = [[ h_central ], [ h_central_NLO ]]
 
+print "Reweighting factor from amc@NLO to powheg: %.3f"%(h_central.Integral()/h_central_NLO.Integral())
+
 plotting.draw(
-    Plot.fromHisto("WZ_Z_pt",
+    Plot.fromHisto("WZ_Z_pt_inclusive",
                 plots,
                 texX = "p_{T}(Z) (GeV)"
             ),

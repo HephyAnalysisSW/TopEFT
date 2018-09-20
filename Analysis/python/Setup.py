@@ -22,7 +22,7 @@ from TopEFT.Tools.helpers import getObjFromFile
 
 ##define samples
 # 2016
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 # 2017
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
@@ -34,6 +34,7 @@ from TopEFT.Analysis.SetupHelpers import getZCut, channel, trilepChannels, quadl
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.triggerSelector import triggerSelector
 from TopEFT.Analysis.regions import *
+from TopEFT.Tools.cutInterpreter import *
 
 #to run on data
 dataLumi2016        = Run2016.lumi
@@ -49,13 +50,12 @@ lumi = dataLumi2016
 
 #Define defaults here
 zMassRange          = 10
-default_mllMin      = 0
+default_mllMin      = 12
 default_zWindow1    = "onZ"
 default_zWindow2    = "offZ"
 default_nJets       = (3, -1)   # written as (min, max)
 default_nBTags      = (1, -1)
 default_metMin      = 0
-
 
 #default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF', 'reweightTrigger', 'reweightLeptonTrackingSF'], 'selectionModifier':None}
 default_parameters   = {
@@ -75,8 +75,12 @@ class Setup:
         self.resultsFile= 'calculatedLimits_%s.db'%self.name
         self.year       = year
         self.nLeptons   = nLeptons
-        
-        if nLeptons == 2:
+        self.short      = False
+ 
+        if nLeptons == 1:
+            self.tight_ID    = "tight_3l" # for parton shower study
+            self.FO_ID       = "FO_3l"
+        elif nLeptons == 2:
             self.tight_ID    = "tight_SS"
             self.FO_ID       = "FO_SS"
         elif nLeptons == 3:
@@ -92,6 +96,18 @@ class Setup:
         self.leptonId = self.FO_ID if self.nonprompt else self.tight_ID
 
         self.default_sys = {'weight':'weight', 'reweight':['reweightPU36fb', 'reweightBTagDeepCSV_SF'], 'selectionModifier':None} # 'reweightTrigger_%s'%self.leptonId, 'reweightLeptonTrackingSF_%s'%self.leptonId
+        if nLeptons == 1:
+            # no trigger/lepton reweighting
+            pass
+        elif nLeptons == 3:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
+            if self.year == 2017: #in 2016 already included in leptonSF
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+        elif nLeptons == 4:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+            if self.year == 2017: #in 2016 already included in leptonSF
+                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
+
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]
@@ -120,6 +136,7 @@ class Setup:
             self.dataLumi     = dataHighLumi
 
         self.genSelection = "Sum$(GenJet_pt>30)>=3&& abs(Z_mass-91.2)<10&&(abs(Z_daughterPdg)==11 || abs(Z_daughterPdg)==13 || abs(Z_daughterPdg)==15 )"
+        self.WZselection  = cutInterpreter.cutString('trilep-Zcand-onZ-lepSelTTZ-njet1p')
 
         # Data
         if year == 2017:
@@ -130,26 +147,26 @@ class Setup:
         # MC
         if year == 2017:
             TTZSample           = TTZtoLLNuNu_17
-            WZSample            = WZ_amcatnlo_17 # no powheg yet
+            WZSample            = WZ_amcatnlo_17
             TTXSample           = TTX_17
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
+            ZGSample            = ZGTo2LG
             ZZSample            = ZZ_17
             rareSample          = rare_17
-            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
             ttbarSample         = TTLep_pow_17
         else:
             ## use 2016 samples as default (we do combine on card file level)
             TTZSample           = TTZtoLLNuNu
-            WZSample            = WZ_powheg # might update to powheg?
+            WZSample            = WZ_amcatnlo
             TTXSample           = TTX
             TTWSample           = TTW
             TZQSample           = TZQ
+            ZGSample            = ZGTo2LG
             ZZSample            = ZZ
             rareSample          = rare
-            #rare_noZZSample     = rare_noZZ
             nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
             ttbarSample         = TTLep_pow
@@ -162,9 +179,9 @@ class Setup:
             'TTX' :         TTXSample,
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,
+            'ZG' :          ZGSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
-            #'rare_noZZ':    rare_noZZSample,
             'nonprompt':    nonpromptSample,
             'ttbar':        ttbarSample,
             'pseudoData':   pseudoDataSample,
@@ -204,11 +221,11 @@ class Setup:
                     res.sys[k] = list(set(res.sys[k]+sys[k])) #Add with unique elements
                     for upOrDown in ['Up','Down']:
                       if 'reweightPU36fb'+upOrDown                              in res.sys[k]: res.sys[k].remove('reweightPU36fb')
-                      if 'reweightTrigger_%s'%self.leptonId+upOrDown            in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
+                      if 'reweightTrigger%s_%s'%(upOrDown, self.leptonId)       in res.sys[k]: res.sys[k].remove('reweightTrigger_%s'%self.leptonId)
                       if 'reweightBTagDeepCSV_SF_b_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
                       if 'reweightBTagDeepCSV_SF_l_'+upOrDown                   in res.sys[k]: res.sys[k].remove('reweightBTagDeepCSV_SF')
-                      if 'reweightLeptonTrackingSF_%s'%self.leptonId+upOrDown   in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
-                      if 'reweightLeptonSF_%s'%self.leptonId+upOrDown           in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
+                      if 'reweightLeptonTrackingSF%s_%s'%(upOrDown, self.leptonId)  in res.sys[k]: res.sys[k].remove('reweightLeptonTrackingSF_%s'%self.leptonId)
+                      if 'reweightLeptonSF%s_%s'%(upOrDown, self.leptonId)          in res.sys[k]: res.sys[k].remove('reweightLeptonSF_%s'%self.leptonId)
                 else:
                     res.sys[k] = sys[k] # if sys[k] else res.sys[k]
 
@@ -228,15 +245,15 @@ class Setup:
     def weightString(self):
         return "*".join([self.sys['weight']] + (self.sys['reweight'] if self.sys['reweight'] else []))
 
-    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False, short=False):
+    def preselection(self, dataMC , nElectrons=-1, nMuons=-1, isFastSim = False):
         '''Get preselection  cutstring.'''
-        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, short=short, hadronicSelection = False, **self.parameters)
+        return self.selection(dataMC, nElectrons=nElectrons, nMuons=nMuons, isFastSim = isFastSim, hadronicSelection = False, **self.parameters)
 
     def selection(self, dataMC,
                         mllMin, metMin, zWindow1, zWindow2, zMassRange,
                         nJets, nBTags,
                         nElectrons=-1, nMuons=-1,
-                        hadronicSelection = False,  isFastSim = False, short=False):
+                        hadronicSelection = False,  isFastSim = False):
         '''Define full selection
            dataMC: 'Data' or 'MC'
            nElectrons, nMuons: Number of E and M. -1: all
@@ -291,12 +308,12 @@ class Setup:
             res['prefixes'].append(prefix)
 
         if metMin and metMin>0:
-          res['cuts'].append('met_pt'+sysStr+metStr+'>='+str(metMin))
-          res['prefixes'].append('met'+str(metMin))
+            res['cuts'].append('met_pt'+sysStr+metStr+'>='+str(metMin))
+            res['prefixes'].append('met'+str(metMin))
 
         if not hadronicSelection:
             if mllMin and mllMin>0:
-              res['cuts'].append('Z_mass>='+str(mllMin))
+              res['cuts'].append('min_dl_mass>='+str(mllMin))
               res['prefixes'].append('mll'+str(mllMin))
 
             if nMuons >= 0 and nElectrons >= 0:
@@ -316,12 +333,17 @@ class Setup:
                 if not self.nonprompt: res['cuts'].append("Z_fromTight>0")
             elif nLeptons == 4:
                 res['cuts'].append(getZCut(zWindow1, "Z1_mass_4l", zMassRange))
-                if nMuons%2 == 0:
-                    logger.info("Z window 2 off Z, nMuons %s", nMuons)
-                    res['cuts'].append(getZCut("offZ", "Z2_mass_4l", zMassRange))
+                if zWindow2 == 'offZ':
+                    # if number of muons is even, go off-Z
+                    if nMuons%2 == 0:
+                        logger.info("Z window 2 off Z, nMuons %s", nMuons)
+                        res['cuts'].append(getZCut("offZ", "Z2_mass_4l", zMassRange))
+                    else:
+                        logger.info("Z window 2 all Z, nMuons %s", nMuons)
+                        res['cuts'].append(getZCut("allZ", "Z2_mass_4l", zMassRange))
                 else:
-                    logger.info("Z window 2 all Z, nMuons %s", nMuons)
-                    res['cuts'].append(getZCut("allZ", "Z2_mass_4l", zMassRange))
+                    logger.info("Z window 2 %s, nMuons %s", zWindow2, nMuons)
+                    res['cuts'].append(getZCut(zWindow2, "Z2_mass_4l", zMassRange))
             # no Z-mass cut for 2l case
 
             res['cuts'].append(chStr)
@@ -331,7 +353,11 @@ class Setup:
             else:
                 res['cuts'].append('nLeptons_%s>=%i'%(self.leptonId, nLeptons))
 
-            if nLeptons==2:
+            if nLeptons==1:
+                lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
+                res['cuts'].append("Sum$(%s>40&&lep_%s>0)>0"%(lep_pt, self.leptonId))
+                res['cuts'].append("nlep==1") # loose lepton veto
+            elif nLeptons==2:
                 raise NotImplementedError("Not yet thought about SS selection")
             elif nLeptons==3:
                 lep_pt = "(lep_%s*(lep_pt - lep_ptCorr) + lep_ptCorr)"%self.tight_ID
@@ -353,15 +379,15 @@ class Setup:
                 res['cuts'].append("Sum$(lep_pt>40&&lep_%s>0)>0 && Sum$(lep_pt>10&&lep_%s>0)>3"%(self.leptonId, self.leptonId)) #check if this is good enough
                 res['cuts'].append("min_dl_mass>12&&totalLeptonCharge==0")
             else:
-                raise NotImplementedError("nLeptons has to be 2 or 3 or 4. That's already more than enough to think about.")
+                raise NotImplementedError("nLeptons has to be 1 or 2 or 3 or 4. That's already more than enough to think about.")
 
         # Need a better solution for the Setups for different eras
         if self.year == 20167: self.year = 2016 #FIXME since we use 2016 MC for now
-        if not short: res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
+        if not self.short: res['cuts'].append(getFilterCut(isData=(dataMC=='Data'), isFastSim=isFastSim, year = self.year))
         # apply triggers in MC
         if not dataMC == 'Data':
             tr = triggerSelector(self.year)
-            if not short: res['cuts'].append(tr.getSelection("MC"))
+            if not self.short: res['cuts'].append(tr.getSelection("MC"))
         res['cuts'].extend(self.externalCuts)
         
         return {'cut':"&&".join(res['cuts']), 'prefix':'-'.join(res['prefixes']), 'weightStr': ( self.weightString() if dataMC == 'MC' else 'weight')}

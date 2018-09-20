@@ -1,182 +1,194 @@
-#standard imports
+###########
+# imports #
+###########
+
+# Standard imports
 import ROOT
 import os
 from array import array
+from copy import deepcopy
+from multiprocessing import Pool
+from functools import partial
 
 # RootTools
-from RootTools.core.standard import * 
+from RootTools.core.standard import *
 
 # User specific 
 from TopEFT.Tools.user import plot_directory
-plot_directory_=os.path.join(plot_directory, 'roc_plots')
+plot_directory_=os.path.join(plot_directory, 'DeepLepton')
 plot_directory=plot_directory_
 
-# data
-samplelist=[]
-# add samples
+# plot samples definitions
+from def_plot_samples import *
 
-#QCD files
-#samplelist.append(Sample.fromFiles( "QCD", texName = "QCD_Pt120to170", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root"
-#], treeName="tree"))
+#################
+# load plotlist #
+#################
 
-#TTJets files
-#samplelist.append(Sample.fromFiles( "TTJets", texName = "TTJets_SingleLeptonFromTbar", files = [
-#"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root"
-#], treeName="tree"))
+plotList=plot_plotList()
 
-#QCD + TTJets
-samplelist.append(Sample.fromFiles( "QCD+TTJets", texName = "QCD_Pt120to170+TTJets_SingleLeptonFromTbar", files = [
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/QCD_Pt120to170/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_1/treeProducer/tree.root",
-"/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/CMSData/TTJets_SingleLeptonFromTbar_2/treeProducer/tree.root"
-], treeName="tree"))
+for plot in plotList:
 
-# variables to read
-variables = [
-"run/I",
-"lumi/I",
-"evt/l",
-"lep_trackerHits/I",
-"lep_innerTrackChi2/F",
-"lep_pdgId/I",
-"lep_segmentCompatibility/F",
-"lep_sigmaIEtaIEta/F",
-"lep_mcMatchPdgId/I",
-"lep_mcMatchId/I",
-"lep_mcMatchAny/I",
-"lep_mvaIdSpring16/F",
-"lep_pt/F",
+##############################
+# load samples and variables #
+##############################
 
-"lep_etaSc/F",                  #electrons (|etaSc|<=1.479 barrel cuts, |etaSc|>1.479 endcap cuts)              #Electron supercluster pseudorapidity for Leptons after the preselection : 0 at: 0x4109bd0
-"lep_full5x5_sigmaIetaIeta/F",  #electrons (barrel: <0.0104,     endcap: <0.0305)                               #Electron full5x5_sigmaIetaIeta for Leptons after the preselection : 0 at: 0x411d5c0 
-"lep_dEtaInSeed/F",             #electrons (barrel: | |<0.00353, endcap: | |<0.00567)                           #DeltaEta wrt ele SC seed for Leptons after the preselection : 0 at: 0x411e850
-"lep_dPhiScTrkIn/F",            #electrons (barrel: | |<0.0499,  endcap: | |<0.0165)                            #Electron deltaPhiSuperClusterTrackAtVtx (without absolute value!) for Leptons after the preselection : 0 at: 0x41083f0
-"lep_relIso03/F",               #electrons (barrel: <0.0361,     endcap: <0.094)       #muons <0.1              #PF Rel Iso, R=0.3, pile-up corrected for Leptons after the preselection : 0 at: 0x410f640
-"lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) for Leptons after the preselection : 0 at: 0x4108f90   
-"lep_lostOuterHits/I",          #electrons (barrel: 1,           endcap: 1)                                     #Number of lost hits on inner track for Leptons after the preselection : 0 at: 0x4101ee0
-"lep_convVeto/I",               #electrons yes                                                                  #Conversion veto (always true for muons) for Leptons after the preselection : 0 at: 0x410e5c0
-"lep_hadronicOverEm/F",         #electrons                                                                      #Electron hadronicOverEm for Leptons after the preselection : 0 at: 0x4108990
-"lep_rho/F",                    #electrons                                                                      #rho for Leptons after the preselection : 0 at: 0x4117d20
-"lep_jetDR/F",                                                                         #(muons <=0.3)           #deltaR(lepton, nearest jet) for Leptons after the preselection : 0 at: 0x411ca70
-"lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
-"lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
-"lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
-"lep_isPromptId/I",
-"lep_isNonPromptId/I",
-"lep_isFakeId/I",
-]
+    #define samples for electorns and muons
+    if plot[3]=="iso":
+        samples=plot_samples_iso(plot[0],plot[1],plot[2]) 
+    else:
+        samples=plot_samples(plot[0],plot[1],plot[2])
 
-#select electrons 11, or mouns 13
-pdgIds=[11,13]
-#pt cut >=
-pt_cut=25
+    # variables to read
+    variables=roc_plot_variables()
 
-#define function to calculate eS and eB
-def eS(p, rocdataset):
-    ntruth=0.
-    ntruthid=0.
-    for data in rocdataset:
-        if data[0]==1:
-            ntruth+=1.
-            if data[1]>=p:
-                ntruthid+=1.
-    return 0. if ntruth==0. else  ntruthid/ntruth
+#########################
+# define plot structure #
+#########################
 
-def eB(p, rocdataset):
-    ntruth=0.
-    ntruthid=0.
-    for data in rocdataset:
-        if not data[0]==1:
-            ntruth+=1.
-            if data[1]>=p:
-                ntruthid+=1.
-    return 0. if ntruth==0. else ntruthid/ntruth
+    leptonFlavourList=[]
+    MVAList=[]
 
-for pdgId in pdgIds:
-    lepType="_ele" if pdgId==11 else "_moun" if pdgId==13 else "_defineleptontype"
+    if samples["leptonType"]=="Ele":
+        sampleEle=samples["sample"]
+        leptonFlavourList.append({"Name":"Electron", "ShortName":"ele", "pdgId":11, "sample":sampleEle})
+        MVAList.append({"Name":"MVA_Fall17noIso",    "Type":"MVA_Id", "Var":"lep_mvaIdFall17noIso", "plotColor":[ROOT.kGray,ROOT.kGray+1,ROOT.kGray+2,ROOT.kGray+3,ROOT.kWhite], "lineWidth":1})
+        MVAList.append({"Name":"DeepLeptonSummer18", "Type":"DL_Id",  "Var":"prob_lep_isPromptId", "plotColor":[ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2,ROOT.kRed+3,ROOT.kRed+4], "lineWidth":2})
 
-    for sample in samplelist:
-        #roc data
-        rocdata=[[],[]]
-        pdata=[]
-        xdata=[]
-        ydata=[]
-        nmaxdata=[]
-        plotdata=["|pdgId|=%i" %pdgId,"|pdgId|=%i, pt>=%i" %(pdgId, pt_cut)]
-        # reader class
-        reader = sample.treeReader(  map( TreeVariable.fromString, variables ) )
+    if samples["leptonType"]=="Muo":
+        sampleMuo=samples["sample"]
+        leptonFlavourList.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo})
+        MVAList.append({"Name":"DeepLeptonSummer18", "Type":"DL_Id", "Var":"prob_lep_isPromptId", "plotColor":[ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2,ROOT.kRed+3,ROOT.kRed+4], "lineWidth":2})        
 
-        # loop
-        reader.start()
+    pt_cuts=[]
+    pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25})
+    pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
 
-        counter=0
-        while reader.run():
-            if abs(reader.event.lep_pdgId)==pdgId:
-                rocdata[0].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16]) 
-                #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
+    relIsoCuts=[0.1,0.2,0.3,0.4,1.0]
+    isTrainData=samples["isTrainData"]  #1=true, 0=false
+    plotDate=samples["plotDate"]
+    logY=1
 
-                if reader.event.lep_pt>=pt_cut:
-                    rocdata[1].append([reader.event.lep_isPromptId, reader.event.lep_mvaIdSpring16])
-                    #print "pdgId %i, pt %f,  mcMatchId %i, mva %f" %(reader.event.lep_pdgId, reader.event.lep_pt, abs(reader.event.lep_mcMatchId), abs(reader.event.lep_mvaIdSpring16))
-                counter+=1
+####################################
+# loop over samples and draw plots #
+####################################
 
-            #if counter>1000: break
+    for leptonFlavour in leptonFlavourList:
 
-        #calculate eS and eB
-        for rocdataset in rocdata:
-            p=array('d')
-            x=array('d')
-            y=array('d')
+        for pt_cut in pt_cuts:
+        
+            readerData=[]
+            plotLegend=[]
+            
+            colorList=[]
+            lineWidthList=[]
+            
+            #Draw TGraph
+            c=ROOT.TCanvas()
+            if logY: c.SetLogy()
+            mg=ROOT.TMultiGraph()
+            g=[]
+            ng=0
+             
+            for MVA in MVAList:
+                i=0
+                for relIsoCut in relIsoCuts:
+                    legendString=MVA["Name"]+" |pdgId|="+str(leptonFlavour["pdgId"])+" relIso03Cut="+str(relIsoCut)
+                    plotLegend.append(legendString)
+                    colorList.append(MVA["plotColor"][i])
+                    lineWidthList.append(MVA["lineWidth"])
+                    readerData.append([])
+                    i += 1
 
-            npmin=-100
-            npmax=100
-            nmax=0
-            xymax=0.
-            for np in xrange(npmin,npmax,1):
-                i=np-npmin
-                p.append(np/100.)
-                x.append(eS(p[i], rocdataset))
-                y.append(1-eB(p[i], rocdataset))
-                if ((x[i]*y[i])>xymax):
-                    xymax=x[i]*y[i]
-                    nmax=i
-                #print p[i], x[i], y[i]
-            print "maximum at: ", p[nmax], x[nmax], y[nmax]
-            pdata.append(p)
-            xdata.append(x)
-            ydata.append(y)
-            nmaxdata.append(nmax)
+            # reader class
+            reader = leptonFlavour["sample"].treeReader(  map( TreeVariable.fromString, variables ) )
+            # loop
+            reader.start()
 
-        #Draw TGraph
-        c=ROOT.TCanvas()
-        mg=ROOT.TMultiGraph()
-        mg.Draw("APL")
-        g=[]
-        nmaxtext=ROOT.TLatex()
-        for i in xrange(len(rocdata)):
-            p=pdata[i]
-            x=xdata[i]
-            y=ydata[i]
-            gname=plotdata[i]
-            nmax=nmaxdata[i]
-            n=len(x)
-            g.append(ROOT.TGraph(n,x,y))
-            g[i].SetName(gname)
-            g[i].SetTitle(gname)
-            g[i].SetLineColor( 1 )
-            g[i].SetLineWidth( 1 )
-            g[i].SetMarkerColor( 4+2*i )
-            g[i].SetMarkerStyle( 5 )
-            g[i].Draw("ALP")
-            nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%f1.2" %p[nmax])
-            mg.Add(g[i])
-        mg.Draw("APL")
-        mg.SetTitle( 'roc curve - '+sample.texName )
-        mg.GetXaxis().SetTitle( 'eS' )
-        mg.GetYaxis().SetTitle( '1-eB' )
-        c.BuildLegend()
-        if not os.path.exists(plot_directory): 
-            os.makedirs(plot_directory)
-        c.Print(os.path.join(plot_directory, sample.texName+lepType+'_roc_plot.png'))
+            while reader.run():
+                j=0
+                for plot in MVAList:
+                    for relIsoCut in relIsoCuts:
+                        if abs(reader.event.lep_pdgId)==leptonFlavour["pdgId"] and (reader.event.lep_pt>=pt_cut["lower_limit"] and reader.event.lep_pt<=pt_cut["upper_limit"]):
+                            #print "pdgId %i, pt %f" %(reader.event.lep_pdgId, reader.event.lep_pt)
+
+                            #check if lepton passes relIso and Impact Parameter cuts
+                            passIsoId = passIso(relIsoCut, reader.event.lep_relIso03)
+                            #passIPId  = passIP(reader.event.lep_pdgId, reader.event.lep_etaSc, reader.event.lep_dxy, reader.event.lep_dz)
+                            
+                            if passIsoId:
+                                #Electron WPs (incl Iso cut and IP cuts)
+                                #if plot["Type"]=="POG_Id" and plot["Flavour"]=="Ele":
+                                #    leptonVarDict={
+                                #                    "etaSc": reader.event.lep_etaSc,
+                                #                    "full5x5_sigmaIetaIeta": reader.event.lep_full5x5_sigmaIetaIeta,
+                                #                    "abs(dEtaInSeed)": abs(reader.event.lep_dEtaInSeed),
+                                #                    "abs(dPhiIn)": abs(reader.event.lep_dPhiScTrkIn),
+                                #                    "H/E": reader.event.lep_hadronicOverEm,
+                                #                    "abs(1/E-1/p)": abs(reader.event.lep_eInvMinusPInv),
+                                #                    "missingInnerHits": reader.event.lep_lostHits,
+                                #                    "conversionVeto": reader.event.lep_convVeto
+                                #                   }
+                                #    elePOGId  = getElePOGId(leptonVarDict)
+                                #    readerData[j].append([reader.event.lep_isPromptId, 1 if (elePOGId>=plot["ValElePOGId"] and passIsoId and passIPId) else 0])
+                                ##Muon WP (incl Iso cut and IP cuts)
+                                #if plot["Type"]=="POG_Id" and plot["Flavour"]=="Muo":
+                                #    readerData[j].append([reader.event.lep_isPromptId, 1 if (getattr(reader.event, plot["Var"])==1 and passIsoId and passIPId) else 0])
+                                #Lepton MVAs (nonIso)
+                                if plot["Type"]=="MVA_Id":
+                                    readerData[j].append([reader.event.lep_isPromptId, getattr(reader.event, plot["Var"])])
+                                #DeepLepton
+                                if plot["Type"]=="DL_Id":
+                                    readerData[j].append([reader.event.lep_isPromptId, getattr(reader.event, plot["Var"])])
+
+                        j += 1
+
+            #calculate eS and eB
+            for dataset in readerData:
+                p=array('d')
+                x=array('d')
+                y=array('d')
+
+                prange=[pval*0.01 for pval in xrange(-100,100)]
+                for pval in prange:
+                    x.append(eS(pval, dataset))
+                    y.append(eB(pval, dataset)) if logY else y.append(1-eB(pval, dataset))
+                
+                #parallelize calculations 
+                #if __name__ == '__main__':
+                #    pool = Pool(processes=4)
+                #    eS_p=partial(eS,rocdataset=dataset)
+                #    x=array('d', pool.map(eS_p, [pval for pval in prange]))
+                #    eB_p=partial(eB,rocdataset=dataset)
+                #    y=array('d', pool.map(eB_p if logY else 1-eB_p, [pval for pval in prange]))
+                
+                gname=plotLegend[ng]
+                n=len(x)
+                g.append(ROOT.TGraph(n,x,y))
+                g[ng].SetName(gname)
+                g[ng].SetTitle(gname)
+                g[ng].SetLineColor(colorList[ng])
+                g[ng].SetLineWidth(lineWidthList[ng])
+                g[ng].SetMarkerColor(colorList[ng])
+                #g[ng].SetMarkerStyle( 5 )
+                g[ng].SetFillStyle(0)
+                g[ng].SetFillColor(0)
+                g[ng].SetMarkerSize(0)
+                g[ng].Draw("C")
+                #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
+                mg.Add(g[ng])
+                ng += 1
+            mg.Draw("AC")
+            #mg.SetTitle(pt_cut["Name"]+" "+leptonFlavour["sample"].texName+(" - TrainData" if isTrainData else " - TestData"))
+            mg.GetXaxis().SetTitle('eS')
+            mg.GetXaxis().SetLimits(0.597, 1.003)
+            mg.GetYaxis().SetTitle('eB' if logY else '1-eB')
+            mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
+            #c.BuildLegend(0.12,0.90,0.5,0.7) if logY else c.BuildLegend()
+            c.BuildLegend()
+            drawObjects(isTrainData, samples["leptonType"], 'TTJets+QCD', pt_cut["Name"], '' )
+            drawObjectsSmall(isTrainData, samples["leptonType"], 'TTJets+QCD', pt_cut["Name"], '' )
+            directory=(os.path.join(plot_directory, leptonFlavour["Name"], plotDate))
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            c.Print(os.path.join(directory, ("TrainData" if isTrainData else "TestData")+'_roc_'+pt_cut["Name"]+'_relIsoCuts'+'.png'))

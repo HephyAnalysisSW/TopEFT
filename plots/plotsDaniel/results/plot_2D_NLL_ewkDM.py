@@ -6,8 +6,20 @@ from functools                      import partial
 
 from RootTools.core.standard        import *
 
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_v21/trilep/"
+## 2016
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+
+## 2017
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
+postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+
 
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
 from TopEFT.Tools.niceColorPalette  import niceColorPalette
@@ -35,6 +47,7 @@ argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--prefit",         action='store_true', help="Use pre-fit NLL?")
+argParser.add_argument("--expected",         action='store_true', help="Use expected results?")
 argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 
 args = argParser.parse_args()
@@ -74,7 +87,10 @@ if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
     cardDir += "_shape"
-cardDir += "_lowUnc"
+exp = "_expected" if args.expected else ''
+cardDir += "_lowUnc_WZreweight%s_SRandCR"%exp
+
+#/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc_WZreweight_SRandCR/
 
 limitDir    = os.path.join(baseDir, 'cardFiles', cardDir, subDir, '_'.join([args.model, args.plane]))
 
@@ -165,6 +181,25 @@ z = []
 
 res_dic = {}
 
+print "Searching for bestfit point"
+
+bestNLL = 9999.
+bestFitPoint = ('SM', x_shift, y_shift)
+
+# scan all results to find best fit
+for i,s in enumerate(signals):
+    if resDB.contains({"signal":s.name}):
+        res = resDB.getDicts({"signal":s.name})[0]
+        #res = getResult(s)
+        if type(res) == type({}):
+            ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
+            if ttZ_NLL_abs_check < ttZ_NLL_abs:
+                ttZ_NLL_abs = ttZ_NLL_abs_check
+                bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
+            #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+
+print "Best fit found for signal %s, %s, %s"%bestFitPoint
+print
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
@@ -220,6 +255,7 @@ for i,s in enumerate(signals):
         else:
             print "No results for %s found"%s.name
 
+
 proc = "ttZ"
 
 #print res_dic
@@ -233,6 +269,8 @@ nybins = max(1, min(500, nbins_y*multiplier))
 print "Number of bins on x-axis: %s"%nxbins
 print "Number of bins on y-axis: %s"%nybins
 
+print "Best fit found for signal %s, %s, %s"%bestFitPoint
+print
 
 hist = a.GetHistogram().Clone()
 
@@ -274,6 +312,8 @@ if args.useXSec:
     postFix += "_useXSec"
 if args.useShape:
     postFix += "_useShape"
+if args.expected:
+    postFix += "_expected"
 if args.smooth:
     hist.Smooth()
     postFix += "_smooth"
@@ -281,7 +321,9 @@ if args.smooth:
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
 #contours = {'ttZ': [-0.1,0.,1.,4.]}
-contours = {'ttZ': [1.,4.]}
+#contours = {'ttZ': [1.,4.]}
+contours = {'ttZ': [1.515**2,2.486**2]}
+
 drawContours = True
 if drawContours:
     histsForCont = hist.Clone()
@@ -330,19 +372,19 @@ latex1.SetTextAlign(11)
 
 latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 latex1.DrawLatex(0.14,0.92,'#bf{%s model}'%args.model)
-latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
+latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
 
 #latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
 #latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_fullUncertainties/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_2016_data/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
 
-if False:
+if True:
     debug.Draw("ap0")
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix+"_grid")+'.png')
 

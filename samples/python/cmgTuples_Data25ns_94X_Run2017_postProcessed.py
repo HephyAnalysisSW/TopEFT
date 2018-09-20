@@ -58,8 +58,10 @@ MuonEG_Run2017                  = getSample('MuonEG',           'Run2017',      
 allSamples_Data25ns_2017 = []
 allSamples_Data25ns_2017 += [SingleMuon_Run2017, SingleElectron_Run2017, MuonEG_Run2017, DoubleEG_Run2017, DoubleMuon_Run2017]
 
-Run2017 = Sample.combine("Run2017", [SingleMuon_Run2017, SingleElectron_Run2017, MuonEG_Run2017, DoubleEG_Run2017, DoubleMuon_Run2017], texName = "Data 2017")
-Run2017.lumi = 41.*1000
+Run2017         = Sample.combine("Run2017", [SingleMuon_Run2017, SingleElectron_Run2017, MuonEG_Run2017, DoubleEG_Run2017, DoubleMuon_Run2017], texName = "Data 2017")
+Run2017.lumi    = 41.*1000
+Run2017.color   = ROOT.kBlack
+Run2017.isData  = True
 
 for s in allSamples_Data25ns_2017:
   s.color   = ROOT.kBlack

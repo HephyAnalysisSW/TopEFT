@@ -13,20 +13,20 @@ def alwaysFalse(*args, **kwargs):
 
 # Jets & b-jets
 
-jetVars = ['eta','pt','phi','btagCSV', 'id', 'area', 'btagDeepCSV']
+jetVars = ['eta','pt','phi','btagCSV', 'id', 'id16', 'area', 'btagDeepCSV']
 
 def getJets(c, jetVars=jetVars, jetColl="Jet"):
     return [getObjDict(c, jetColl+'_', jetVars, i) for i in range(int(getVarValue(c, 'n'+jetColl)))]
 
-def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
-  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and j['id']
+def isAnalysisJet(j, ptCut=30, absEtaCut=2.4, ptVar='pt', idVar='id'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut and ( j[idVar] if idVar is not None else True )
 
 def getGoodJets(c, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetColl="Jet"):
     return filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=jetColl))
 
-def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"]):
+def getAllJets(c, leptons, ptCut=30, absEtaCut=2.4, jetVars=jetVars, jetCollections=[ "Jet", "DiscJet"], idVar='id'):
 
-    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
+    jets = sum( [ filter(lambda j:isAnalysisJet(j, ptCut=ptCut, absEtaCut=absEtaCut, idVar=idVar), getJets(c, jetVars, jetColl=coll)) for coll in jetCollections], [] )
     res  = []
 
     for jet in jets:
@@ -87,9 +87,12 @@ def muonSelector( lepton_selection, year):
     mva_threshold_3l = 0.4
     mva_threshold_SS = 0.6
 
-    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsvFO_3l = 0.5 if year == 2017 else 0.4
+    closestJetDCsvFO    = 0.4 if year == 2017 else 0.3
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
-    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
+
+    ptRatioThreshold_3l = 0.4 if year == 2017 else 0.4 # keep in case of changes
+    ptRatioThreshold    = 0.4 if year == 2017 else 0.5
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about muon selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
@@ -128,7 +131,7 @@ def muonSelector( lepton_selection, year):
                 and l["pt"] >= 10\
                 and l["mediumMuonId"]>=1\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
-                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO ) or l["mvaTTV"] >= mva_threshold_3l )
+                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold_3l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_3l ) or l["mvaTTV"] >= mva_threshold_3l )
 
     elif lepton_selection == 'FO_SS':
         loose_ = muonSelector( 'loose', year )
@@ -193,13 +196,21 @@ def eleSelector( lepton_selection, year ):
     mva_threshold_3l = 0.4
     mva_threshold_SS = 0.6
 
-    closestJetDCsvFO    = 0.2 if year == 2017 else 0.4
+    closestJetDCsvFO_3l = 0.5 if year == 2017 else 0.4
+    closestJetDCsvFO    = 0.4 if year == 2017 else 0.3
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
-    ptRatioThreshold    = 0.3 if year == 2017 else 0.4
+
+    ptRatioThreshold_3l = 0.4 if year == 2017 else 0.4 # keep in case of changes
+    ptRatioThreshold    = 0.4 if year == 2017 else 0.5
 
     eleMVA              = "mvaIdFall17noIso" if year == 2017 else "mvaIdSpring16"
-    eleMVAval1          = 0.0 if year == 2017 else -0.1
-    eleMVAval2          = 0.3 if year == 2017 else 0.8
+
+    eleMVAval1_3l       = -0.3 if year == 2017 else -0.1
+    eleMVAval1          =  0.4 if year == 2017 else  0.3
+
+    eleMVAval2_3l       =  0.6 if year == 2017 else  0.8
+    eleMVAval2          =  0.4 if year == 2017 else  0.3
+
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
@@ -237,7 +248,7 @@ def eleSelector( lepton_selection, year ):
                 loose_(l) \
                 and l["pt"] >= 10\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
-                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold and l["jetBTagDeepCSV"] <= closestJetDCsvFO and l[eleMVA] >= (eleMVAval1 + (abs(l["eta"])>=1.479) * eleMVAval2 )) or l["mvaTTV"] >= mva_threshold_3l )
+                and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold_3l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_3l and l[eleMVA] >= (eleMVAval1_3l + (abs(l["eta"])>=1.479) * eleMVAval2_3l )) or l["mvaTTV"] >= mva_threshold_3l )
 
     elif lepton_selection == 'FO_SS':
         loose_ = eleSelector( 'loose', year )
@@ -352,3 +363,8 @@ def getFilterCut(isData=False, isFastSim = False, year = 2016):
 
     if isData: filterCut += "&&weight>0"
     return filterCut
+
+def isGoodDelphesJet( j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  
+def isGoodDelphesLepton( j, ptCut=10, absEtaCut=3, ptVar='pt'):
+  return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  

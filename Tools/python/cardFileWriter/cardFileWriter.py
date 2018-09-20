@@ -1,4 +1,9 @@
 import shutil
+
+# Logging
+import logging
+logger = logging.getLogger(__name__)
+
 class cardFileWriter:
     def __init__(self):
         self.reset()
@@ -20,17 +25,24 @@ class cardFileWriter:
         self.maxUncNameWidth = 30
         self.maxUncStrWidth = 30
         self.hasContamination=False
+        self.rateParameters = []
+        self.precision = 10
+
+    
+    def setPrecision(self, prec):
+        self.precision = prec
+
 
     def addBin(self, name, processes, niceName=""):
         if len(name)>30:
-            print "Name for bin",name,"too long. Max. length is 30."
+            logger.info("Name for bin",name,"too long. Max. length is 30.")
             return
         if self.niceNames.has_key(name):
-            print "Bin already there! (",name,")"
+            logger.info("Bin already there! (",name,")")
             return
         for p in processes:
             if len(p)>30:
-                print "Name for process", p, "in bin", name, "is too long. Max. length is 30."
+                logger.info("Name for process", p, "in bin", name, "is too long. Max. length is 30.")
                 return
         self.niceNames[name]=niceName
         self.bins.append(name)
@@ -55,8 +67,14 @@ class cardFileWriter:
             del self.uncertaintyString[name]
             return
 
+    def addRateParameter(self, p, value, r):
+        if [ a[0] for a in self.rateParameters ].count(p):
+            logger.info("Rate parameter for process %s already added!"%p)
+            return
+        self.rateParameters.append((p, value, r))
+
     def specifyExpectation(self, b, p, exp):
-        self.expectation[(b,p)] = exp
+        self.expectation[(b,p)] = round(exp, self.precision)
 
     def specifyObservation(self, b, obs):
         if not isinstance(obs, int):
@@ -75,7 +93,7 @@ class cardFileWriter:
         print "Adding ",u,"=",val,"for all bins and processes!"
         for b in self.bins:
             for p in self.processes[b]:
-                self.uncertaintyVal[(u,b,p)] = val
+                self.uncertaintyVal[(u,b,p)] = round(val,self.precision)
 
     def specifyUncertainty(self, u, b, p, val):
         if u not in self.uncertainties:
@@ -93,7 +111,7 @@ class cardFileWriter:
             _val=1.0
         else:
             _val = val
-        self.uncertaintyVal[(u,b,p)] = _val
+        self.uncertaintyVal[(u,b,p)] = round(_val,self.precision)
 
     def getUncertaintyString(self, k):
         u, b, p = k
@@ -183,6 +201,13 @@ class cardFileWriter:
             outfile.write( u.ljust(self.maxUncNameWidth)+' '+self.uncertaintyString[u].ljust(self.maxUncStrWidth)+' '+
                                           ' '.join( [' '.join([self.getUncertaintyString((u,b,p)).rjust(self.defWidth) for p in self.processes[b]] ) for b in unmutedBins]) +'\n')
 
+        for p in self.rateParameters:
+            outfile.write('\n')
+            for b in self.bins:
+                outfile.write('%s_norm_%s rateParam %s %s (@0*1) %s_norm\n'%(p[0], b, b, p[0], p[0]))
+            outfile.write('%s_norm extArg %s %s\n'%(p[0], str(p[1]), str(p[2])))
+
+
         outfile.close()
         print "[cardFileWrite] Written card file %s"%fname
         return fname
@@ -249,7 +274,7 @@ class cardFileWriter:
         shutil.rmtree(uniqueDirname)
         return res
 
-    def calcNuisances(self, fname=None, options=""):
+    def calcNuisances(self, fname=None, options="", masks=''):
         import uuid, os
         ustr          = str(uuid.uuid4())
         uniqueDirname = os.path.join(self.releaseLocation, ustr)
@@ -268,22 +293,29 @@ class cardFileWriter:
         assert os.path.exists(filename), "File not found: %s"%filename
 
         # create the workspace
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py %s -o myWorkspace.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%(filename)
         # get the nuisances for r = 1
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --forceRecreateNLL --setParameterRanges r=0.99,1.01"
+        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.95,1.05 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%masks
         combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_r1.txt"
         combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_r1_full.txt"
         combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_r1.tex"
         combineCommand +=";python diffNuisances.py -af latex fitDiagnostics.root &> nuisances_r1_full.tex"
         
+        os.system(combineCommand)
+        
+        shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD_r1.root'))
+        
         #get the nuisances for bestfit
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --forceRecreateNLL --setParameterRanges r=0.,5."
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root  -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
+        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.,5. --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties "
         combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_bestfit.txt"
         combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_bestfit_full.txt"
         combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_bestfit.tex"
         combineCommand +=";python diffNuisances.py -af latex fitDiagnostics.root &> nuisances_bestfit_full.tex"
 
         os.system(combineCommand)
+
+        shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD_bestfit.root'))
 
         for files in filePostfixes:
             tempResFile = "%s/%s"%(uniqueDirname, files)
@@ -292,6 +324,31 @@ class cardFileWriter:
 
         shutil.rmtree(uniqueDirname)
         return
+
+    def combineCards(self, cards):
+
+        import uuid, os
+        ustr          = str(uuid.uuid4())
+        uniqueDirname = os.path.join(self.releaseLocation, ustr)
+        logger.info("Creating %s", uniqueDirname)
+        os.makedirs(uniqueDirname)
+
+        years = cards.keys()
+        cmd = ''
+        for year in years:
+            cmd += " dc_%s=%s"%(year, cards[year])
+
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s > combinedCard.txt"%cmd
+        os.system(combineCommand)
+        resFile = cards[years[0]].replace(str(years[0]), 'COMBINED')
+        f = resFile.split('/')[-1]
+        resPath = resFile.replace(f, '')
+        if not os.path.isdir(resPath):
+            os.makedirs(resPath)
+        logger.info("Putting combined card into dir %s", resPath)
+        shutil.copyfile(uniqueDirname+"/combinedCard.txt", resFile)
+
+        return resFile
 
     def calcNLL(self, fname=None, options=""):
         '''
@@ -331,7 +388,7 @@ class cardFileWriter:
     def consitencyCheck(self, a, b):
         return a - 0.01 <= b <= a + 0.01
 
-    def physicsModel(self, fname=None, options=""):
+    def physicsModel(self, fname=None, options="", normList=[], masks=''):
         '''
         Alternative version to get NLL. Results are similar, but should be more flexible for future changes, and also faster.
         '''
@@ -346,16 +403,21 @@ class cardFileWriter:
           filename = fname if fname else os.path.join(uniqueDirname, ustr+".txt")
           self.writeToFile(filename)
         
+        normOption = ''
+        if normList:
+            from TopEFT.Tools.cardFileWriter.getNorms import getNorms
+            normOption += " > output.txt"
+        
         # create combine workspace
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py %s -o myWorkspace.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel %s"%filename
         os.system(combineCommand)
         # use multiDimFit to first obtain fit and NLL value for r=1, then let r float
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root --setParameterRanges r=0.99,1.01 --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all"
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --setParameterRanges r=0.99,1.01 --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all %s --setParameters %s"%(normOption,masks)
         os.system(combineCommand)
 
         nll_r_one   = self.readNLLFile(uniqueDirname+"/higgsCombineTest.MultiDimFit.mH120.root")
 
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root --setParameterRanges r=0.,5. --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all"
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --setParameterRanges r=0.,5. --saveNLL --fastScan --floatOtherPOIs=0 --saveSpecifiedNuis=all %s"%normOption
         os.system(combineCommand)
         
         nll_r_float = self.readNLLFile(uniqueDirname+"/higgsCombineTest.MultiDimFit.mH120.root")
@@ -370,6 +432,13 @@ class cardFileWriter:
         
         print nll_r_one
         print nll_r_float
+        
+        if normList:
+            getNorms(dirName=uniqueDirname, normsToExtract=normList)
+            shutil.copyfile(uniqueDirname + '/SF.txt', fname.replace('.txt','_SF.txt'))
+        
+        #os.listdir
+        shutil.copyfile(uniqueDirname+"/higgsCombineTest.MultiDimFit.mH120.root", fname.replace(".txt",".root"))
         
         shutil.rmtree(uniqueDirname)
         return nll_r_one
