@@ -196,7 +196,7 @@ def eB(p, rocdataset):
             ntruth+=1.
             if data[1]>=p:
                 ntruthid+=1.
-    print ntruth, ntruthid
+    #print ntruth, ntruthid
     return 0. if ntruth==0. else ntruthid/ntruth
 
 ## define classes
