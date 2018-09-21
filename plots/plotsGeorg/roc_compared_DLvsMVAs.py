@@ -187,7 +187,7 @@ for leptonFlavour in leptonFlavours:
                     for pval in xrange(901,990):
                         prange.append(pval*0.001)
                     for pval in xrange(9901,10000):
-                        prange.apppend(pval*0.0001)
+                        prange.append(pval*0.0001)
 
                 for pval in prange:
                     x.append(eS(pval, dataset))
