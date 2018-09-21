@@ -37,6 +37,7 @@ def get_parser():
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
     argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'],         required = True, help="Which variable for binning?")
+    argParser.add_argument('--eBbins',          action='store', type=int, choices=[1,5,10,25,50],         required = True, help="Calculate eB for how many bins?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -70,9 +71,9 @@ MVAList.append({"Name":"LeptonMVA_TTH",  "Type":"MVA_Id",  "Var":"lep_mvaTTH",  
 MVAList.append({"Name":"DeepLepton",     "Type":"DL_Id",   "Var":"prob_lep_isPromptId",  "plotColor":ROOT.kGreen+2,    "lineWidth":2})
 
 binnedList={}
-binnedList.update({"pt":       {"VarName":"|pt|",                                           "Var":"lep_pt",                                             "abs":1, "cuts":[0, 250],      "bins":50, "binsEB":5 }})
-binnedList.update({"eta":      {"VarName":"|etaSc|" if options.flavour=='ele' else "|eta|", "Var":"lep_etaSc" if options.flavour=='ele' else "lep_eta", "abs":1, "cuts":[0, 2.5],      "bins":50, "binsEB":5 }})
-binnedList.update({"nTrueInt": {"VarName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 55],       "bins":55, "binsEB":5 }})
+binnedList.update({"pt":       {"VarName":"|pt|",                                           "Var":"lep_pt",                                             "abs":1, "cuts":[0, 250],      "bins":50, "binsEB":options.eBbins }})
+binnedList.update({"eta":      {"VarName":"|etaSc|" if options.flavour=='ele' else "|eta|", "Var":"lep_etaSc" if options.flavour=='ele' else "lep_eta", "abs":1, "cuts":[0, 2.5],      "bins":50, "binsEB":options.eBbins }})
+binnedList.update({"nTrueInt": {"VarName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50, "binsEB":options.eBbins }})
 
 logY=0
 
@@ -234,13 +235,18 @@ for leptonFlavour in leptonFlavourList:
             mg.GetYaxis().SetTitle('eS,eB')
             if logY==0:
                 mg.GetYaxis().SetRangeUser(0.0,1.02)
-            if options.binned=='eta':
+            if options.flavour=='muo':
+                if options.binned=='pt':
+                    ya = 0.35
+                else:
+                    ya = 0.65
+            if options.flavour=='ele':
+                if ptCut['Name']=="pt10to25":
+                    ya = 0.65
                 if ptCut['Name']=="pt25toInf":
                     ya = 0.25
                 else:
-                    ya = 0.45
-            else:
-                ya = 0.35
+                    ya = 0.35
             yb = ya + 0.25
             c.BuildLegend(0.55,ya,0.9,yb)
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCut['Name'], relIsoCut )
@@ -255,4 +261,4 @@ for leptonFlavour in leptonFlavourList:
                                    ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            c.Print(os.path.join(directory, 'roc_binned_'+options.binned+"_relIsoCut="+str(relIsoCut)+'_'+ptCut['Name']+'.png'))
+            c.Print(os.path.join(directory, 'roc_binned_'+options.binned+"_relIsoCut="+str(relIsoCut)+'_'+ptCut['Name']+'_eB_for_'+str(options.eBbins)+'bins'+'.png'))
