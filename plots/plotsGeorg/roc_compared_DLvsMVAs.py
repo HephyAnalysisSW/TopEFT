@@ -217,8 +217,8 @@ for leptonFlavour in leptonFlavours:
             mg.GetXaxis().SetLimits(0.597, 1.003)
             mg.GetYaxis().SetTitle('eB' if logY else '1-eB')
             mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
-            #c.BuildLegend(0.12,0.90,0.5,0.7) if logY else c.BuildLegend()
-            c.BuildLegend()
+            c.BuildLegend(0.12,0.7,0.5,0.9) if logY else c.BuildLegend()
+            #c.BuildLegend()
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
             directory=(os.path.join(
