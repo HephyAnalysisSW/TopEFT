@@ -180,7 +180,15 @@ for leptonFlavour in leptonFlavours:
                 x=array('d')
                 y=array('d')
 
-                prange=[pval*(0.01 if plotTypeList[ng]=='MVA_Id' else 0.001) for pval in (xrange(-100,100) if plotTypeList[ng]=='MVA_Id' else xrange(0,1000))]
+                if plotTypeList[ng]=='MVA_Id':
+                    prange = [pval*0.01 for pval in xrange(-100,100)]
+                else:
+                    prange = [pval*0.01 for pval in xrange(0,90)]
+                    for pval in xrange(901,990):
+                        prange.append(pval*0.001)
+                    for pval in xrange(9901,10000):
+                        prange.apppend(pval*0.0001)
+
                 for pval in prange:
                     x.append(eS(pval, dataset))
                     y.append(eB(pval, dataset)) if logY else y.append(1-eB(pval, dataset))
