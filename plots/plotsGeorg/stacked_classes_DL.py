@@ -356,6 +356,11 @@ for leptonFlavour in leptonFlavours:
                 attribute = lambda lepton, sample: lepton.npfCand_muon,
                 binning=[21,0,20],
             ))
+            plots.append(Plot(name=plotname+'nTrueInt',
+                texX = 'nTrueInt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.nTrueInt,
+                binning=[55,0,55],
+            ))
             plots.append(Plot(name=plotname+'mvaTTH',
                 texX = 'mvaTTH', texY = 'Number of Events',
                 attribute = lambda lepton, sample: lepton.lep_mvaTTH, 

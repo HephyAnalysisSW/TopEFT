@@ -128,6 +128,7 @@ def histo_plot_variables(trainingDate):
     "lep_isFakeId/I",
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
+    "nTrueInt/F",
     ]
 
     if not trainingDate==0: 
@@ -171,7 +172,7 @@ def roc_plot_variables():
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
     "lep_eta/F",
-    "nSV/I",
+    "nTrueInt/F",
     ]
 
     return variables
