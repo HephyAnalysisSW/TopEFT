@@ -22,7 +22,8 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
             FileList = f.read().splitlines()
         else:
             FileList = os.listdir(predict_directory)
-            FileList.remove('tree_association.txt')
+            if 'tree_association.txt' in FileList:
+                FileList.remove('tree_association.txt')
             FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
 
     FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
@@ -30,7 +31,8 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
 
     if not trainingDate==0:
         FilePredictList = os.listdir(predict_directory)
-        FilePredictList.remove('tree_association.txt')
+        if 'tree_association.txt' in FilePredictList:
+            FilePredictList.remove('tree_association.txt')
 
         FilePredictList = [filepath.replace(filepath, os.path.join(predict_directory, filepath)) for filepath in FilePredictList]
 
@@ -58,6 +60,10 @@ def histo_plot_variables(trainingDate):
     "lep_relIso03/F",             
     "lep_relIso04/F",             
     "lep_miniRelIso/F",             
+    "lep_chargedHadRelIso03/F",
+    "lep_chargedHadRelIso04/F",
+    "lep_miniRelIsoNeutral/F",
+    "lep_miniRelIsoCharged/F",
 
     "lep_lostHits/I", #lost inner hits
     "lep_innerTrackValidHitFraction/F",         

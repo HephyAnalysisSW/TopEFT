@@ -16,43 +16,93 @@ from TopEFT.Tools.user import trainingFiles_directory as output_directory
 def deepLeptonSignalSamples(year):
 
     if year==2016:
+        #SignalSamples = [
+
+        #'TTJets_SingleLeptonFromTbar',
+        #'TTJets_SingleLeptonFromTbar_ext',
+        #'TTJets_SingleLeptonFromT',
+        #'TTJets_SingleLeptonFromT_ext',
+
+        #'TTJets_DiLepton',
+        #'TTJets_DiLepton_ext',
+
+        ##'TTJets',
+        ##'TTJets_LO',
+        ##'TT_pow_ext3',
+        ##'TT_pow',
+        ##'TTLep_pow',
+        ##'TTSemiLep_pow',
+        ##'TTJets_LO_HT600to800_ext',
+        ##'TTJets_LO_HT800to1200_ext',
+        ##'TTJets_LO_HT1200to2500_ext',
+        ##'TTJets_LO_HT2500toInf_ext',
+
+        #                ]
+
         SignalSamples = [
-
-        'TTJets_SingleLeptonFromTbar',
-        'TTJets_SingleLeptonFromTbar_ext',
-        'TTJets_SingleLeptonFromT',
-        'TTJets_SingleLeptonFromT_ext',
-
-        'TTJets_DiLepton',
-        'TTJets_DiLepton_ext',
-
-        #'TTJets',
-        #'TTJets_LO',
-        #'TT_pow_ext3',
-        #'TT_pow',
-        #'TTLep_pow',
-        #'TTSemiLep_pow',
-        #'TTJets_LO_HT600to800_ext',
-        #'TTJets_LO_HT800to1200_ext',
-        #'TTJets_LO_HT1200to2500_ext',
-        #'TTJets_LO_HT2500toInf_ext',
-
+        'DY1JetsToLL_M50_LO',
+        'DY2JetsToLL_M50_LO',
+        'DY3JetsToLL_M50_LO',
+        'DY4JetsToLL_M50_LO',
+        #'DYJetsToLL_M10to50',
+        #'DYJetsToLL_M10to50_ext',
+        #'DYJetsToLL_M10to50_LO',
+        'DYJetsToLL_M50',
+        'DYJetsToLL_M50_HT100to200',
+        'DYJetsToLL_M50_HT100to200_ext',
+        'DYJetsToLL_M50_HT1200to2500',
+        'DYJetsToLL_M50_HT200to400',
+        'DYJetsToLL_M50_HT200to400_ext',
+        'DYJetsToLL_M50_HT2500toInf',
+        'DYJetsToLL_M50_HT400to600',
+        'DYJetsToLL_M50_HT600to800',
+        'DYJetsToLL_M50_HT70to100',
+        'DYJetsToLL_M50_HT800to1200',
+        'DYJetsToLL_M50_LO_ext',
+        'DYJetsToLL_M50_LO_ext2',
                         ]
 
     if year==2017:
+        #SignalSamples = [
+
+        ##'TTJets',
+        ##'TTLep_pow',
+        ##'TTHad_pow',
+        ##'TTSemi_pow',
+        #'TTJets_SingleLeptonFromT',
+        ##'TTLep_pow_TuneDown',
+        ##'TTLep_pow_TuneUp',
+        ##'TTLep_pow_hdampDown',
+        ##'TTLep_pow_hdampUp',
+
+        #                ]
+
         SignalSamples = [
-
-        #'TTJets',
-        #'TTLep_pow',
-        #'TTHad_pow',
-        #'TTSemi_pow',
-        'TTJets_SingleLeptonFromT',
-        #'TTLep_pow_TuneDown',
-        #'TTLep_pow_TuneUp',
-        #'TTLep_pow_hdampDown',
-        #'TTLep_pow_hdampUp',
-
+        'DY1JetsToLL_M50_LO',
+        'DY1JetsToLL_M50_LO_ext',
+        'DY2JetsToLL_M50_LO',
+        'DY2JetsToLL_M50_LO_ext',
+        'DY3JetsToLL_M50_LO',
+        'DY3JetsToLL_M50_LO_ext',
+        'DY4JetsToLL_M50_LO',
+        #'DYJetsToLL_M10to50_LO',
+        'DYJetsToLL_M50',
+        'DYJetsToLL_M50_ext',
+        'DYJetsToLL_M50_HT100to200',
+        'DYJetsToLL_M50_HT100to200_ext1',
+        'DYJetsToLL_M50_HT1200to2500',
+        'DYJetsToLL_M50_HT200to400',
+        'DYJetsToLL_M50_HT200to400_ext1',
+        'DYJetsToLL_M50_HT2500toInf',
+        'DYJetsToLL_M50_HT400to600',
+        'DYJetsToLL_M50_HT400to600_ext1',
+        'DYJetsToLL_M50_HT600to800',
+        'DYJetsToLL_M50_HT800to1200',
+        'DYJetsToLL_M50_LO',
+        'DYJetsToLL_M50_LO_ext',
                         ]
+
+
 
     return SignalSamples
 
@@ -139,8 +189,9 @@ def deepLeptonBackgroundSamples(year):
 
 #settings
 ptSelection   = 'pt_10_to_inf'
-sampleSelection = 'SlDlTTJetsVsQCD'
+#sampleSelection = 'SlDlTTJetsVsQCD'
 #sampleSelection = 'TTJetsVsQCD'
+sampleSelection = 'DYVsQCD'
 
 #parser
 def get_parser():
