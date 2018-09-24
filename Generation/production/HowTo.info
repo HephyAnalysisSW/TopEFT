@@ -1,0 +1,55 @@
+How to run sample production:
+
+the config files for 2016 and 2017 data samples are stored in cfg/<year>/
+
+you need to create
+1) a GEN-SIM sample from a gridpack
+    -) add the gridpack directory and file path to the crab production python file in
+        crab/crab_gen_config_generation_CMSSW_9_3_1.py
+
+    -) add the number of events and events/file to the python script
+
+    -) add the right config file path
+        ../cfg/2017/GEN-SIM-LHE_LO_0j_CMSSW_9_3_1.py for 2017
+
+    -) check if proxy is still valid or create a new one
+        use "voms-proxy-info" to check
+        use "voms-proxy-init -voms cms --valid 192:00 --vomslife 192:0 -out ~/private/.proxy" to create a new one
+
+    -) run the script !!!IN THE RIGHT CMSSW VERSION!!! with python <scriptname.py>
+        
+
+
+2) a AOD-SIM step1 sample from a GEN-SIM root file
+
+    -) add the DAS path to the crab production python file in
+        crab/crab_config_step1_CMSSW_8_0_21.py
+
+    -) add the number of events and events/file to the python script
+
+    -) add the right config file path
+        ../cfg/2017/../cfg/2017/AOD-SIM_step1_CMSSW_9_4_4_00189.py for 2017
+
+    -) check if proxy is still valid or create a new one
+        use "voms-proxy-info" to check
+        use "voms-proxy-init -voms cms --valid 192:00 --vomslife 192:0 -out ~/private/.proxy" to create a new one
+
+    -) run the script !!!IN THE RIGHT CMSSW VERSION!!! with python <scriptname.py>
+
+
+3) a MiniAOD-SIM sample from a AOD-SIM step1 root file
+
+    -) add the DAS path to the crab production python file in
+        crab/crab_config_RECOmAOD_CMSSW_8_0_21.py
+
+    -) add the number of events and events/file to the python script
+
+    -) add the right config file path
+        ../cfg/2017/../cfg/2017/AOD-SIMandMiniAOD-SIM_CMSSW_9_4_4_00189.py for 2017
+
+    -) check if proxy is still valid or create a new one
+        use "voms-proxy-info" to check
+        use "voms-proxy-init -voms cms --valid 192:00 --vomslife 192:0 -out ~/private/.proxy" to create a new one
+
+    -) run the script !!!IN THE RIGHT CMSSW VERSION!!! with python <scriptname.py>
+
