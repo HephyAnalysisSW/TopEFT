@@ -3,8 +3,7 @@ import os
 
 class triggerEfficiency:
     def __init__(self, year):
-        '''
-        apply constant SF to leading lepton, if SF is larger than uncertainty inflate uncertainty accordingly
+        ''' apply constant SF to leading lepton, if SF is larger than uncertainty inflate uncertainty accordingly
         '''
 
         self.unc = 0.01 # updated because 2% was considered too conservative.
