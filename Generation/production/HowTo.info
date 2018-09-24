@@ -3,7 +3,7 @@ How to run sample production:
 the config files for 2016 and 2017 data samples are stored in cfg/<year>/
 
 you need to create
-1) a GEN-SIM sample from a gridpack
+1) a GEN-SIM sample from a gridpack (run in 9_3_1 for 2017)
     -) add the gridpack directory and file path to the crab production python file in
         crab/crab_gen_config_generation_CMSSW_9_3_1.py
 
@@ -20,7 +20,7 @@ you need to create
         
 
 
-2) a AOD-SIM step1 sample from a GEN-SIM root file
+2) a AOD-SIM step1 sample from a GEN-SIM root file (run in 9_4_4 for 2017)
 
     -) add the DAS path to the crab production python file in
         crab/crab_config_step1_CMSSW_8_0_21.py
@@ -37,7 +37,7 @@ you need to create
     -) run the script !!!IN THE RIGHT CMSSW VERSION!!! with python <scriptname.py>
 
 
-3) a MiniAOD-SIM sample from a AOD-SIM step1 root file
+3) a MiniAOD-SIM sample from a AOD-SIM step1 root file (run in 9_4_4 for 2017)
 
     -) add the DAS path to the crab production python file in
         crab/crab_config_RECOmAOD_CMSSW_8_0_21.py
