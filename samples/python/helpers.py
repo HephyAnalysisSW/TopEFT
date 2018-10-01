@@ -86,7 +86,10 @@ def fromHeppySample(sample, data_path, module = None, maxN = None, MCgeneration 
 
             if module is not None:
                 module_ = module
-            if "Run2016" in sample:
+            if "07Aug17" in sample:
+                from TopEFT.samples.heppy_dpm_samples import data_07Aug17_heppy_mapper as data_heppy_mapper
+                return data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+            elif "03Feb2017" in sample:
                 from TopEFT.samples.heppy_dpm_samples import data_03Feb2017_heppy_mapper as data_heppy_mapper
                 return data_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
             elif "Run2017" in sample:

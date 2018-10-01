@@ -38,7 +38,7 @@ else:
 
 class SignalReweighting:
 
-    def __init__( self, source_sample, target_sample, cacheDir = None):
+    def __init__( self, source_sample, target_sample, cacheDir = None, template_draw_string = 'Z_pt:Z_cosThetaStar'):
 
         self.source_sample = source_sample
         self.target_sample = target_sample 
@@ -47,7 +47,7 @@ class SignalReweighting:
 
         self.cosThetaStar_binning = [ i/5. for i in range(-5,6) ] 
         self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 2000 ]
-        self.template_draw_string = 'Z_pt:Z_cosThetaStar'
+        self.template_draw_string = template_draw_string
 
     def initCache(self, cacheDir):
         self.cache = resultsDB(os.path.join(cacheDir, 'signalReweightingTemplates.sql'), "signalWeights", ["selection", "weight", "source", "target"])

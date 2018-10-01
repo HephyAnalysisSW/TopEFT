@@ -7,7 +7,7 @@ class triggerEfficiency:
         apply constant SF to leading lepton, if SF is larger than uncertainty inflate uncertainty accordingly
         '''
 
-        self.unc = 0.02
+        self.unc = 0.01 # updated because 2% was considered too conservative.
         if year == 2016:
             self.maxPt   = 120.
             self.SF      = 0.985

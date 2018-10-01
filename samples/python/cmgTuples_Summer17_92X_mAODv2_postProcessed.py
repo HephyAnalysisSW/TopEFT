@@ -32,7 +32,7 @@ dirs["WW"]              = ["WW"]
 dirs["WZ"]              = ["WZ"]
 dirs["ZZ"]              = ["ZZ"]
 
-dirs["DY_LO"]           = ["DYJetsToLL_M50_LO_ext", "DYJetsToLL_M10to50_LO" ]
+dirs["DY_LO"]           = ["DYJetsToLL_M50_LO_comb", "DYJetsToLL_M10to50_LO" ]
 
 #dirs['TTW']             = ["TTWToLNu_ext_comb"]
 #dirs['TTX']             = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll"] # should be complete

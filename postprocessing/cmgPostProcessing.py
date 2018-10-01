@@ -12,7 +12,7 @@ import shutil
 
 from array import array
 from operator import mul
-from math import sqrt, atan2, sin, cos, cosh
+from math import sqrt, atan2, sin, cos, cosh, isnan
 
 # RootTools
 from RootTools.core.standard import *
@@ -105,6 +105,7 @@ if isDiLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
+#    skimConds.append( "( run==%s&&lumi==%s&&evt==%s )"%(283052, 75, 124332542) )
 if isQuadLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=3 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=4" )
 if isSingleLep:
@@ -230,7 +231,7 @@ if addSystematicVariations:
         sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_Moriond17_B_H.csv'
     elif options.year == 2017:
         effFile         = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_deepCSV_eta.pkl'
-        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_94XSF_V2_B_F.csv'
+        sfFile          = '$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/DeepCSV_94XSF_V3_B_F.csv'
     btagEff_DeepCSV = btagEfficiency( effFile = effFile, sfFile = sfFile, fastSim = False )
 
 # LHE cut (DY samples)
@@ -353,6 +354,7 @@ else:
     branchKeepStrings = branchKeepStrings_DATAMC + branchKeepStrings_MC
 
 jetVars = ['pt/F', 'rawPt/F', 'eta/F', 'phi/F', 'id/I', 'btagCSV/F', 'btagDeepCSV/F', 'area/F', 'DFb/F', 'DFbb/F'] + jetCorrInfo + jetMCInfo
+if options.year == 2016: jetVars += ['id16/I']
 jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
@@ -366,7 +368,7 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRatiov2/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
@@ -387,9 +389,14 @@ if isMC:
     read_variables.append( VectorTreeVariable.fromString('genPartAll[pt/F,eta/F,phi/F,mass/F,pdgId/I,status/I,charge/I,motherId/I,grandmotherId/I,nMothers/I,motherIndex1/I,motherIndex2/I,nDaughters/I,daughterIndex1/I,daughterIndex2/I,isPromptHard/I]', nMax=200 )) # default nMax is 100, which would lead to corrupt values in this case
     read_variables.append( TreeVariable.fromString('genWeight/F') )
     read_variables.append( TreeVariable.fromString('nIsr/I') )
+    read_variables.append( VectorTreeVariable.fromString('LHEweight[wgt/F,id/I]',  nMax=1100) )
     if options.keepPhotons:
         read_variables.append( VectorTreeVariable.fromString('gamma[mcPt/F]') )
 
+    new_variables.append('PSweight_central/F')
+    for ps in ['isrUp', 'isrDown', 'fsrUp', 'fsrDown']:
+        for multiplier in ['red', 'nom', 'cons']:
+            new_variables.append('PSweight_%s_%s/F'%(multiplier, ps))
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
 
@@ -414,6 +421,12 @@ read_variables += [\
     VectorTreeVariable.fromString('Jet[%s]'% ( ','.join(jetVars) ) ),
     VectorTreeVariable.fromString('DiscJet[%s]'% ( ','.join(jetVars) ) )
 ]
+
+if options.year == 2016:
+    read_variables += [\
+        TreeVariable.fromString('nJetAll/I'),
+        VectorTreeVariable.fromString('JetAll[%s]'% ( ','.join(jetVars) ) )
+    ]
 
 if isData: new_variables.extend( ['jsonPassed/I'] )
 new_variables.extend( ['nBTag/I', 'nBTagDeepCSV/I', 'ht/F', 'metSig/F', 'nJetSelected/I'] )
@@ -508,6 +521,9 @@ def filler( event ):
     # weight
     if isMC:
         event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
+        if isnan(event.weight):
+            logger.info("Weight is NaN! genweight: %s, lumiScaleFactor: %s"%(r.genWeight, lumiScaleFactor))
+            event.weight = 0.
         event.reweightLeptonTrackingSF      = 1
         event.reweightLeptonTrackingSFUp    = 1
         event.reweightLeptonTrackingSFDown  = 1
@@ -608,22 +624,6 @@ def filler( event ):
             setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
             setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
             
-            # tracking SFs only for 2016 so far
-            if options.year == 2016:
-                reweightSF      = 1
-                reweightSFUp    = 1
-                reweightSFDown  = 1
-                if len(leptonCollections[tight_id]) > 0:
-                    for l in leptonCollections[tight_id]:
-                        eta_var = 'etaSc' if abs(l['pdgId'])==11 else 'eta'
-                        trackingSF, trackingSF_err = leptonTrackingSF.getSF(l['pdgId'], l['pt'], l[eta_var])
-                        reweightSF      *= trackingSF
-                        reweightSFUp    *= (trackingSF + trackingSF_err)
-                        reweightSFDown  *= (trackingSF - trackingSF_err)
-                    setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reweightSF)
-                    setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reweightSFUp)
-                    setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reweightSFDown)
-
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
                 trigg, trigg_err = triggerSF.getSF(leptonCollections[tight_id])
@@ -631,11 +631,16 @@ def filler( event ):
                 setattr(event, "reweightTriggerUp_%s"%tight_id,      trigg + trigg_err)
                 setattr(event, "reweightTriggerDown_%s"%tight_id,    trigg - trigg_err)
 
+                # keep the weights, can be removed in the future
+                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      1)
+                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    1)
+                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  1)
+
                 # get different lepton SF readers
                 leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!
-                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta']) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
 
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:
@@ -724,9 +729,17 @@ def filler( event ):
         H = Z_vectors[0] + Z_vectors[1]
         event.Higgs_mass = H.M()
 
-
     # take the leptons that are not from the leading Z candidate and assign them as nonZ, ignorant about if they actually form a Z candidate
+
+    # As a start, take the leading two leptons as non-Z. To be overwritten as soon as we have a Z candidate, otherwise one lepton can be both from Z and non-Z
+    if len(leptonCollections["tight_4l"])>0:
+        event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][0]['index']
+    if len(leptonCollections["tight_4l"])>1:
+        event.nonZ1_l2_index_4l = leptonCollections["tight_4l"][1]['index']
     if len(allZCands_4l)>0:
+        # reset nonZ1_leptons
+        event.nonZ1_l1_index_4l = -1
+        event.nonZ1_l2_index_4l = -1
         nonZ_tightLepton_indices_4l = [ i for i in range(len(leptonCollections['tight_4l'])) if i not in [allZCands_4l[0][1], allZCands_4l[0][2]] ]
 
         event.nonZ1_l1_index_4l = leptonCollections["tight_4l"][nonZ_tightLepton_indices_4l[0]]['index'] if len(nonZ_tightLepton_indices_4l)>0 else -1
@@ -737,17 +750,21 @@ def filler( event ):
     if len(leptonCollections["tight_4l"]) >= 4:
         cleaningCollection = "loose"
     elif len(leptonCollections["FO_3l"]) >= 3:
-        cleaningCollection = "FO_3l"
+        cleaningCollection = "FO_3l" # was FO
     elif len(leptonCollections["FO_SS"]) >= 2:
         cleaningCollection = "FO_SS"
     else:
         cleaningCollection = "FO_SS" # Could also do something else here
 
     # Jets and lepton jet cross-cleaning.
-    allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+    if options.year == 2016:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"], idVar='id16')
+    else:
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
     selected_jets, other_jets = [], []
     for j in allJets:
-        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4):
+        idVar = 'id16' if options.year==2016 else 'id'
+        if isAnalysisJet(j, ptCut=30, absEtaCut=2.4, idVar=idVar):
             selected_jets.append( j )
         else:
             other_jets.append( j )
@@ -814,6 +831,24 @@ def filler( event ):
 
         if isMC:
            event.TTGJetsEventType = getTTGJetsEventType(r)
+
+    if isMC:
+        event.PSweight_central      = r.LHEweight_wgt[1080]
+
+        event.PSweight_red_isrUp    = r.LHEweight_wgt[1082]
+        event.PSweight_red_fsrUp    = r.LHEweight_wgt[1083]
+        event.PSweight_red_isrDown  = r.LHEweight_wgt[1084]
+        event.PSweight_red_fsrDown  = r.LHEweight_wgt[1085]
+
+        event.PSweight_nom_isrUp    = r.LHEweight_wgt[1086]
+        event.PSweight_nom_fsrUp    = r.LHEweight_wgt[1087]
+        event.PSweight_nom_isrDown  = r.LHEweight_wgt[1088]
+        event.PSweight_nom_fsrDown  = r.LHEweight_wgt[1089]
+
+        event.PSweight_cons_isrUp    = r.LHEweight_wgt[1090]
+        event.PSweight_cons_fsrUp    = r.LHEweight_wgt[1091]
+        event.PSweight_cons_isrDown  = r.LHEweight_wgt[1092]
+        event.PSweight_cons_fsrDown  = r.LHEweight_wgt[1093]
 
     if addSystematicVariations:
         for j in allJets:
