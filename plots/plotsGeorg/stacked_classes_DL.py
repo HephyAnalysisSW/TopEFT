@@ -32,10 +32,10 @@ def get_parser():
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'],         required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -93,7 +93,11 @@ if samples["leptonFlavour"]=="muo":
 
 pt_cuts=[]
 pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
-pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10&&lep_pt<25"})
+if options.ptSelection=='pt_10_to_inf':
+    pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10&&lep_pt<25"})
+else:
+    pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15&&lep_pt<25"})
+    
 
 isTestData=samples["isTestData"]  #1=true, 0=false
 

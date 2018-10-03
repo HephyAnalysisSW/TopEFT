@@ -17,14 +17,14 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'evaluation' if sampleSize=='full' else sampleSize+'_evaluation', 'testdata' if isTestData else 'traindata')
 
     #create FileList
-    with open(texfilePath,'r') as f:
-        if trainingDate==0:
+    if trainingDate==0:
+        with open(texfilePath,'r') as f:
             FileList = f.read().splitlines()
-        else:
-            FileList = os.listdir(predict_directory)
-            if 'tree_association.txt' in FileList:
-                FileList.remove('tree_association.txt')
-            FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
+    else:
+        FileList = os.listdir(predict_directory)
+        if 'tree_association.txt' in FileList:
+            FileList.remove('tree_association.txt')
+        FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
 
     FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
     sample   = Sample.fromFiles( leptonFlavour, texName = sample_texName, files =FileList, treeName="tree")

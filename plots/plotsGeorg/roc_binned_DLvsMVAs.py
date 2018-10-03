@@ -32,10 +32,10 @@ def get_parser():
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
     argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'],         required = True, help="Which variable for binning?")
     argParser.add_argument('--eBbins',          action='store', type=int, choices=[1,5,10,25,50],         required = True, help="Calculate eB for how many bins?")
 
@@ -84,8 +84,7 @@ if options.binned=='pt':
     ptCuts.append({"Name":"pt10to250","lower_limit":10, "upper_limit":250         })
 else:
     ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
-    ptCuts.append({"Name":"pt10to25", "lower_limit":10, "upper_limit":25          })
-
+    ptCuts.append({"Name":"pt10to25" if options.ptSelection=='pt_10_to_inf' else "pt15to25","lower_limit":10 if options.ptSelection=='pt_10_to_inf' else 15, "upper_limit":25})
 ####################################
 # loop over samples and draw plots #
 ####################################
@@ -152,7 +151,25 @@ for leptonFlavour in leptonFlavourList:
                         for datapoint in dataset:
                             eBreaderData.append(datapoint) 
 
-                    prange = [pval*0.0001 for pval in xrange(8500 if plot['Type']=='DL_Id' else 5000,10000)]
+                    if plot['Type']=='DL_Id':
+                        prange = [pval*0.01 for pval in xrange(85,90)]
+                        for pval in xrange(901,990):
+                            prange.append(pval*0.001)
+                        for pval in xrange(9901,9990):
+                            prange.append(pval*0.0001)
+                        for pval in xrange(99901,99990):
+                            prange.append(pval*0.00001)
+                        for pval in xrange(999901,999990):
+                            prange.append(pval*0.000001)
+                        for pval in xrange(9999901,9999990):
+                            prange.append(pval*0.0000001)
+                        for pval in xrange(99999901,99999990):
+                            prange.append(pval*0.00000001)
+                        for pval in xrange(999999901,999999990):
+                            prange.append(pval*0.000000001)
+                    if plot['Type']=='MVA_Id':
+                        prange = [pval*0.0001 for pval in xrange(9000,10000)]
+
                     eBValMin=1.1
                     for pval in prange:
                         eBVal=eB(pval,eBreaderData)
