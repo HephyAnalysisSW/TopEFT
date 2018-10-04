@@ -22,17 +22,18 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1'],                   required = True, help="Version for output directory")
-    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
-    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
-    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD'],      required = True, help="Which sample selection?")
-    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1','v1_small'],                required = True, help="Version for output directory")
+    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                      required = True, help="Which year?")
+    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'], required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD'],   required = True, help="Which sample selection?")
+
+    argParser.add_argument('--nJobs',           action='store', nargs='?', type=int, default=1, help="Maximum number of simultaneous jobs.")
+    argParser.add_argument('--job',             action='store',            type=int, default=0, help="Run only job i")
 
     return argParser
+
+options = get_parser().parse_args()
 
 #some helper functions
 def printData(data):
@@ -46,18 +47,18 @@ def varList(pfCandId):
 
     #define related variables of PF candidates
     pfCandVarList = [
-    #'pfCand_'+pfCandId+'_pdgId',
-    #'pfCand_'+pfCandId+'_pt',
-    #'pfCand_'+pfCandId+'_eta',
-    #'pfCand_'+pfCandId+'_phi',
-    #'pfCand_'+pfCandId+'_mass',
-    #'pfCand_'+pfCandId+'_puppiWeight',
-    #'pfCand_'+pfCandId+'_hcalFraction',
-    #'pfCand_'+pfCandId+'_fromPV',
-    #'pfCand_'+pfCandId+'_dxy_pf',
-    #'pfCand_'+pfCandId+'_dz_pf',
-    #'pfCand_'+pfCandId+'_dzAssociatedPV',
-    #'pfCand_'+pfCandId+'_deltaR',
+    'pfCand_'+pfCandId+'_pdgId',
+    'pfCand_'+pfCandId+'_pt',
+    'pfCand_'+pfCandId+'_eta',
+    'pfCand_'+pfCandId+'_phi',
+    'pfCand_'+pfCandId+'_mass',
+    'pfCand_'+pfCandId+'_puppiWeight',
+    'pfCand_'+pfCandId+'_hcalFraction',
+    'pfCand_'+pfCandId+'_fromPV',
+    'pfCand_'+pfCandId+'_dxy_pf',
+    'pfCand_'+pfCandId+'_dz_pf',
+    'pfCand_'+pfCandId+'_dzAssociatedPV',
+    'pfCand_'+pfCandId+'_deltaR',
     'pfCand_'+pfCandId+'_ptRel',
                     ]
 
@@ -65,25 +66,39 @@ def varList(pfCandId):
 
 #define PF candidates for loop
 pfCandIdList = [
-                #'neutral',
+                'neutral',
                 'charged',
-                #'photon',
-                #'electron',
-                #'muon',
+                'photon',
+                'electron',
+                'muon',
                ]
 
 #define paths
-inputPath  = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/v1_small/2016/ele/pt_10_to_inf/DYVsQCD'
-outputPath = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/v1_small/2016/ele/pt_10_to_inf/DYVsQCD/ptRelSorted/'
+TrainFilePath = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles'
+inputPath     = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputPath    = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection+'_ptRelSorted')
 
 #get file list
-#inputPath = os.path.join(inputPath, options.version, options.flavour, options.ptSelection, options.sampleSelection)
-inputFileList = os.listdir(inputPath)
+inputFileList  = os.listdir(inputPath)
+removeFileList = []
 for inputFile in inputFileList:
-    if not '.root' in inputFile:
-        inputFileList.remove(inputFile) 
+    if '.root' not in inputFile:
+        removeFileList.append(inputFile)
+for inputFile in removeFileList:
+    inputFileList.remove(inputFile)
 
 print inputFileList
+print 'total files: ', len(inputFileList)
+
+nJobFiles = int(len(inputFileList)/options.nJobs)
+jobFileList = []
+
+for i in xrange(nJobFiles):
+    jobFileList.append(inputFileList[options.job*nJobFiles+i])
+
+inputFileList = jobFileList
+
+print 'selected files in this job: ', inputFileList
 
 #Loop over input files
 for inputFile in inputFileList:
@@ -99,48 +114,58 @@ for inputFile in inputFileList:
     #Loop over PF candidate ID
     for pfCandId in pfCandIdList:
         pfCandVarList = varList(pfCandId)
-        npfCand = 'npfCand_'+pfCandId
 
         #add branches
         for pfCandVar in pfCandVarList:
             name = pfCandVar+'_ptRelSorted'
-            values = array('f', np.tile(0.0, 100))
-            varName = 'values[npfCand_charged]/F'
-            oFileTree.Branch(name , values, varName )
+            varName = name+'[npfCand_'+pfCandId+']/F'
+            vars()[name] = array('f', np.tile(0.0, 100))
+            oFileTree.Branch(name , vars()[name], varName )
             
 
-        #loop over all entries
-        for i in xrange(2):
-            iFileTree.GetEntry(i)
+    #loop over all entries
+    #for i in xrange(5):
+    for i in xrange(nEntries):
+        iFileTree.GetEntry(i)
+
+        for pfCandId in pfCandIdList:
+            pfCandVarList = varList(pfCandId)
+            npfCand = 'npfCand_'+pfCandId
 
             #check if number of leaves matches number of PF candidates
-            leaf = oFileTree.GetLeaf('pfCand_'+pfCandId+'_ptRel')
-            npf  = oFileTree.GetLeaf(npfCand).GetValue()
-            if leaf.GetLen() != npf:
+            ptRel = oFileTree.GetLeaf('pfCand_'+pfCandId+'_ptRel')
+            npf   = oFileTree.GetLeaf(npfCand).GetValue()
+            if ptRel.GetLen() != npf:
                 print 'Wrong number of PF candidates!'
 
-            #collect ptRel values + indices (entry, leaf, ptRel)
-            leafData = []
-            for j in xrange(leaf.GetLen()):
-                leafData.append([i, j, leaf.GetValue(j)])
+            #collect ptRel  + indices (entry, leaf, ptRel)
+            ptRelData = []
+            for j in xrange(ptRel.GetLen()):
+                ptRelData.append([i, j, ptRel.GetValue(j)])
            
             #reorder leaf indices by ptRel, entry indices remain the same
-            leafData=sorted(leafData, key=getKey, reverse=True)
+            ptRelData=sorted(ptRelData, key=getKey, reverse=True)
 
-            #fill pTRel sorted values in branches
-            k=0
-            for instance in leafData:
-                values[k]=instance[2]
-                k +=1
-            print values
 
-            iFileTree.CopyAddresses(oFileTree)
-            oFileTree.Fill() 
+            for pfCandVar in pfCandVarList:
+                name = pfCandVar+'_ptRelSorted'
+                pfVar = oFileTree.GetLeaf(pfCandVar)
 
+                #fill pTRel sorted vars()[name] in branches
+                k=0
+                for instance in ptRelData:
+                    vars()[name][k]=pfVar.GetValue(instance[1])
+                    k +=1
+                #print vars()[name]
+
+        iFileTree.CopyAddresses(oFileTree)
+        oFileTree.Fill() 
+
+    print '%i of %i Entries processed for %s' %(i+1, nEntries, inputFile)
 
     #save and close files
     iFile.Close()
-    oFile.Write()
+    oFile.Write(os.path.join(outputPath,inputFile),oFile.kOverwrite)
     oFile.Close()
 
 
