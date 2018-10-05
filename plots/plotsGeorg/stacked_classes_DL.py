@@ -89,14 +89,14 @@ if samples["leptonFlavour"]=="ele":
 if samples["leptonFlavour"]=="muo":
     sampleMuo=samples["sample"]
     leptonFlavours.append({"Name":"Muon", "ShortName":"muo", "pdgId":13, "sample":sampleMuo, "selectionString": "abs(lep_pdgId)==13", "date":plotDate})
-    ecalTypes.append({"Name":"All", "selectionString": "abs(lep_etaSc)>=0."})
+    ecalTypes.append({"Name":"All", "selectionString": "abs(lep_eta)>=0."})
 
 pt_cuts=[]
-pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
+pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25."})
 if options.ptSelection=='pt_10_to_inf':
-    pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10&&lep_pt<25"})
+    pt_cuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25, "selectionString": "lep_pt>=10.&&lep_pt<25."})
 else:
-    pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15&&lep_pt<25"})
+    pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15.&&lep_pt<25."})
     
 
 isTestData=samples["isTestData"]  #1=true, 0=false
