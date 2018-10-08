@@ -82,7 +82,7 @@ for plot in plotList:
     pt_cuts.append({"Name":"pt25toInf","lower_limit":25, "selectionString": "lep_pt>=25"})
 
     isTrainData=samples["isTrainData"]  #1=true, 0=false
-
+    print sampleMuo.files
 ####################################
 # loop over samples and draw plots #
 ####################################
@@ -211,6 +211,26 @@ for plot in plotList:
                 plots.append(Plot(name=plotname+'RelIso04',
                     texX = 'relIso04', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_relIso04,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'chargedHadRelIso03',
+                    texX = 'chargedHadRelIso03', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chargedHadRelIso03,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'chargedHadRelIso04',
+                    texX = 'chargedHadRelIso04', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chargedHadRelIso04,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'miniRelIsoNeutral',
+                    texX = 'miniRelIsoNeutral', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_miniRelIsoNeutral,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'miniRelIsoCharged',
+                    texX = 'miniRelIsoCharged', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_miniRelIsoCharged,
                     binning=[90,0,0.7],
                 ))
                 plots.append(Plot(name=plotname+'miniRelIso',
