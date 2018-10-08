@@ -175,27 +175,101 @@ else:
 
 print setup16.preselection("MC")
 
-for r in regions:
+variations  = ["isrUp", "fsrUp", "isrDown", "fsrDown"]
+colors      = [ROOT.kRed+1, ROOT.kGreen+1, ROOT.kBlue+1, ROOT.kGray+2]
+
+
+hists = {}
+Nbins = len(regions)
+for year in [2016,2017]:
+    hists[year] = {}
+    for i, var in enumerate(variations):
+        hists[year][var] = ROOT.TH1F("%s_%s"%(year,var),"%s_%s"%(year,var), Nbins, 0, Nbins)
+        hists[year][var].style = styles.lineStyle(colors[i]-(year%2016), width=2)
+        hists[year][var].legendText = "%s_%s"%(year,var)
+        
+
+for i, r in enumerate(regions):
     logger.info("Working on 2016 results")
     central = estimates16[0].cachedEstimate(r, channel(-1,-1), setup16)
     print r.cutString()
     print central
-    for e in estimates16[1:]:
+    for j,e in enumerate(estimates16[1:]):
         res = e.cachedEstimate(r, channel(-1,-1), setup16)
         print (res-central)/central
+        
+        hists[2016][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
+        
         #logger.info("Result: %s", res.val)
     logger.info("Working on 2017 results")
     for e in estimates17:
         central = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['PSweight_central']}))
         print central
         #logger.info("Result: %s", res.val)
-        for weight in PS_indices:
+        for j, weight in enumerate(PS_indices):
             res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['(%s)'%weight]}))
             print (res-central)/central
+            hists[2017][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
             #logger.info("Result: %s", res.val)
     
     
 
+
+def drawObjects( isData=False, lumi=36. ):
+    tex = ROOT.TLatex()
+    tex.SetNDC()
+    tex.SetTextSize(0.04)
+    tex.SetTextAlign(11) # align right
+    lines = [
+      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS Preliminary'),
+      (0.75, 0.95, '%sfb^{-1} (13 TeV)'%int(lumi) )
+    ]
+    return [tex.DrawLatex(*l) for l in lines]
+
+
+drawObjects = drawObjects( isData=False, lumi=round(35.9,0))
+
+
+
+plots_fsr =  [ [hists[2016]["fsrUp"]], [hists[2017]["fsrUp"]], [hists[2016]["fsrDown"]], [hists[2017]["fsrDown"]] ]
+plots_isr =  [ [hists[2016]["isrUp"]], [hists[2017]["isrUp"]], [hists[2016]["isrDown"]], [hists[2017]["isrDown"]] ] 
+
+
+from TopEFT.Tools.user              import plot_directory
+
+plotting.draw(
+    Plot.fromHisto("FSR",
+                plots_fsr,
+                texX = "Signal Region"
+            ),
+    plot_directory = os.path.join(plot_directory, "partonShower"),
+    logX = False, logY = False, sorting = False,
+    #legend = (0.74,0.80-0.010*8, 0.95, 0.80),
+    legend = [ (0.15,0.9-0.03*sum(map(len, plots_fsr)),0.9,0.9), 2],
+    widths = {'x_width':700, 'y_width':600},
+    yRange = (-0.2, 0.2),
+    #yRange = (0.03, [0.001,0.5]),
+    #ratio = {'yRange': (0.6, 1.4), 'drawObjects':boxes, 'texY':"#kappa"},
+    drawObjects = drawObjects,
+    copyIndexPHP = True,
+)
+
+plotting.draw(
+    Plot.fromHisto("ISR",
+                plots_isr,
+                texX = "Signal Region"
+            ),
+    plot_directory = os.path.join(plot_directory, "partonShower"),
+    logX = False, logY = False, sorting = False,
+    #legend = (0.74,0.80-0.010*8, 0.95, 0.80),
+    legend = [ (0.15,0.9-0.03*sum(map(len, plots_isr)),0.9,0.9), 2],
+    widths = {'x_width':700, 'y_width':600},
+    yRange = (-0.2, 0.2),
+    #yRange = (0.03, [0.001,0.5]),
+    #ratio = {'yRange': (0.6, 1.4), 'drawObjects':boxes, 'texY':"#kappa"},
+    drawObjects = drawObjects,
+    copyIndexPHP = True,
+)
 
 
 logger.info("All done.")

@@ -35,17 +35,28 @@ Currents
 #Dipoles
 #'''
 #
-for i, x in enumerate(ewkDM_currents):
-    #print i, x.name
-    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal currents --useShape --useXSec --year 2017 --expected --includeCR --WZtoPowheg --only=%s'"%str(i))
-    if i > 400: break
-    if submitCMD.startswith("submit"):
-        time.sleep(2)
 
-for i, x in enumerate(ewkDM_currents):
-    #print i, x.name
-    os.system(submitCMD+"'python run_combination.py --signal dipoles --model ewkDM --only=%s --useXSec --useShape --includeCR --expected --WZtoPowheg'"%str(i))
-    if i > 400: break
+#for i, x in enumerate(ewkDM_dipoles):
+#    #print i, x.name
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
+#    if i > 437: break
+#    #if submitCMD.startswith("submit"):
+#    #    time.sleep(2)
+
+for i, x in enumerate(dim6top_dipoles):
+    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
+    if i > 299: break
+
+for i, x in enumerate(dim6top_currents):
+    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
+    if i > 320: break
+
+
+
+#for i, x in enumerate(ewkDM_currents):
+#    #print i, x.name
+#    os.system(submitCMD+"'python run_combination.py --signal dipoles --model ewkDM --only=%s --useXSec --useShape --includeCR --expected --WZtoPowheg'"%str(i))
+#    if i > 400: break
 
 ## for resubmission of failed jobs:
 #from TopEFT.Analysis.run.getResults import getResult

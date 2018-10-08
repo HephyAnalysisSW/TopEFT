@@ -168,7 +168,7 @@ class resultsDB:
 
     def contains(self, key):
         objs = self.getObjects(key)
-        return len(objs) if type(objs) == type([]) else 1 # in case there's a locking problem act as if stuff existed
+        return len(objs) if type(objs) == type([]) else 0 # in case there's a locking problem act as if stuff existed
 
     def getObject(self, key):
         objs = self.getObjects(key)
@@ -279,6 +279,7 @@ class resultsDB:
                 time.sleep(0.01)
             except:
                 pass
+            return value
             self.close()
                 
 
