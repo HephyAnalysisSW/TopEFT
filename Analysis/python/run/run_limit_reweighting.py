@@ -409,7 +409,7 @@ def wrapper(s):
                     logger.info('Adding signal %s'%(sig.val * xSecScale * xSecMod))
                     
                     if sig.val>0:
-                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.026 )
+                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.025 )
                         if not args.statOnly:
                             # uncertainties
                             pu          = 1 + e.PUSystematic( r, channel, setup).val
@@ -434,9 +434,10 @@ def wrapper(s):
                             c.specifyUncertainty('trigger'+postfix,     binname, "signal", trigger)
                             c.specifyUncertainty('leptonSF',            binname, "signal", leptonSF)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
-                            c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
-                            #c.specifyUncertainty('PartonShower',binname, "signal", 1 + PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
+                            if setup in [setup3l, setup4l]:
+                                c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
+                                c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
+                                c.specifyUncertainty('PartonShower',binname, "signal", PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
                             #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
                             #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 

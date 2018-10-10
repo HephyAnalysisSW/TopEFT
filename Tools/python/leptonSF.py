@@ -52,8 +52,8 @@ class leptonSF:
         if not ID in maps_ele[year].keys():
             raise Exception("Don't know ID %s"%ID)
         self.mu         = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key) for (file, key) in maps_mu[year][ID]]
-        #self.mu_stat    = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_stat') for (file, key) in maps_mu[year][ID]]
-        #self.mu_sys     = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_sys') for (file, key) in maps_mu[year][ID]]
+        self.mu_stat    = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_stat') for (file, key) in maps_mu[year][ID]]
+        self.mu_sys     = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_sys') for (file, key) in maps_mu[year][ID]]
         self.ele        = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key) for (file, key) in maps_ele[year][ID]]
         self.ele_stat   = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_stat') for (file, key) in maps_ele[year][ID]]
         self.ele_sys    = [getObjFromFile(os.path.expandvars(os.path.join(self.dataDir, file)), key+'_sys') for (file, key) in maps_ele[year][ID]]
@@ -79,8 +79,8 @@ class leptonSF:
         # LeptonSF. for electrons in 2016 use eta instead of abs(eta)
         eta = eta if ( self.year == 2016 and abs(pdgId) == 11 ) else abs(eta)
         if abs(pdgId)==13:
-          if pt >= 120: pt = 119 # last bin is valid to infinity
-          effMaps = self.mu # self.mu_sys if unc == 'sys' else self.mu_stat
+          if pt >= 200: pt = 199 # last bin is valid to infinity
+          effMaps = self.mu_sys if unc == 'sys' else self.mu_stat
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in effMaps])
         elif abs(pdgId)==11:
           if pt >= 200: pt = 199 # last bin is valid to infinity
