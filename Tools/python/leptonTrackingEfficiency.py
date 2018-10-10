@@ -60,7 +60,7 @@ class leptonTrackingEfficiency:
             # SFs are 1. https://hypernews.cern.ch/HyperNews/CMS/get/muon/1425/1.html
 
 
-    def getSF(self, pdgId, pt, eta):
+    def getSF(self, pdgId, pt, eta, sigma=0):
 
         if abs(pdgId)==11:
             if not (eta<=self.e_etaMax):
@@ -86,10 +86,10 @@ class leptonTrackingEfficiency:
             val     = sf_hist.GetBinContent( sf_hist.FindBin(eta, pt_forVal) )
             valErr  = sf_hist.GetBinError( sf_hist.FindBin(eta, pt_forVal) )
             
-            return u_float(val, valErr)
+            return val + sigma*valErr
 
         elif abs(pdgId)==13:
-            return u_float(1,0)
+            return 1
 
         else:
             raise ValueError( "Lepton pdgId %i neither electron or muon"%pdgId )

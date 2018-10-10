@@ -68,17 +68,17 @@ class leptonSF:
         else: res = u_float(1)
         return res
 
-    def getSF(self, pdgId, pt, eta, unc='sys', sigma=0):
+    def getSF(self, pdgId, pt, eta, unc='Syst', sigma=0):
         # electrons always use supercluster eta.
         # LeptonSF. for electrons in 2016 use eta instead of abs(eta)
-        eta = eta if ( self.year == 2016 and abs(pdgId) == 11 ) else abs(eta)
+        eta = eta if abs(pdgId) == 11 else abs(eta)
         if abs(pdgId)==13:
           if pt >= 200: pt = 199 # last bin is valid to infinity
-          effMaps = self.mu_sys if unc == 'sys' else self.mu_stat
+          effMaps = self.mu_sys if unc == 'Syst' else self.mu_stat
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in effMaps])
         elif abs(pdgId)==11:
           if pt >= 200: pt = 199 # last bin is valid to infinity
-          effMaps = self.ele_sys if unc == 'sys' else self.ele_stat
+          effMaps = self.ele_sys if unc == 'Syst' else self.ele_stat
           sf = self.mult([self.getPartialSF(effMap, pt, eta) for effMap in effMaps])
         else: 
           raise Exception("Lepton SF for PdgId %i not known"%pdgId)
