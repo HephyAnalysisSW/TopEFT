@@ -100,14 +100,9 @@ class Setup:
             # no trigger/lepton reweighting
             pass
         elif nLeptons == 3:
-            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
-            if self.year == 2017: #in 2016 already included in leptonSF
-                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSFSyst_tight_3l', 'reweightEleSFStat_tight_3l', 'reweightMuSFStat_tight_3l', 'reweightLeptonTrackingSF_tight_3l']
         elif nLeptons == 4:
-            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
-            if self.year == 2017: #in 2016 already included in leptonSF
-                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
-
+            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSFSyst_tight_4l', 'reweightEleSFStat_tight_4l', 'reweightMuSFStat_tight_4l', 'reweightLeptonTrackingSF_tight_4l']
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]

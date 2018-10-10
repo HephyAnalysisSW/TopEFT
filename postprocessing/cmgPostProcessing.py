@@ -403,7 +403,7 @@ if isMC:
     new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
     for i in ["tight_SS","tight_3l","tight_4l"]:
         new_variables.extend(['reweightTrigger_%s/F'%i, 'reweightTriggerUp_%s/F'%i, 'reweightTriggerDown_%s/F'%i, 'reweightLeptonTrackingSF_%s/F'%i,'reweightLeptonTrackingSFUp_%s/F'%i, 'reweightLeptonTrackingSFDown_%s/F'%i])
-        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightEleSFStatUp_%s/F'%i, 'reweightEleSFStatDown_%s/F'%i, 'reweightEleSFSystUp_%s/F'%i, 'reweightEleSFSystDown_%s/F'%i, 'reweightMuSFStatUp_%s/F'%i, 'reweightMuSFStatDown_%s/F'%i, 'reweightMuSFSystUp_%s/F'%i, 'reweightMuSFSystDown_%s/F'%i])
+        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightLeptonSFSyst_%s/F'%i, 'reweightLeptonSFSystUp_%s/F'%i, 'reweightLeptonSFSystDown_%s/F'%i, 'reweightMuSFStat_%s/F'%i, 'reweightMuSFStatUp_%s/F'%i, 'reweightMuSFStatDown_%s/F'%i, 'reweightEleSFStat_%s/F'%i, 'reweightEleSFStatUp_%s/F'%i, 'reweightEleSFStatDown_%s/F'%i ])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -623,8 +623,9 @@ def filler( event ):
             setattr(event, "reweightLeptonSF_%s"%tight_id,      0)
             for unc in ['Syst','Stat']:
                 for flavor in ["Ele", "Mu"]:
-                    setattr(event, "reweight%sSF%sUp_%s"%(flavor, unc, tight_id),    0)
-                    setattr(event, "reweight%sSF%sDown_%s"%(flavor, unc, tight_id),  0)
+                    setattr(event, "reweight%sSF%s_%s"%(flavor, unc, tight_id),     0)
+                    setattr(event, "reweight%sSF%sUp_%s"%(flavor, unc, tight_id),   0)
+                    setattr(event, "reweight%sSF%sDown_%s"%(flavor, unc, tight_id), 0)
             
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
@@ -644,14 +645,20 @@ def filler( event ):
                 # central value for all leptons
                 setattr(event, "reweightLeptonSF_%s"%tight_id,          reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
 
-                # variations split into ele/mu and syst/stat (4 pairs in total)
+                # variations split into syst/stat, stat split into ele/mu (uncorrelated)
                 electronsTmp    = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 11 ]
                 muonsTmp        = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 13 ]
 
-                for unc in ['Syst','Stat']:
-                    for flavor, collection in [("Ele", electronsTmp), ("Mu", muonsTmp)]:
-                        setattr(event, "reweight%sSF%sUp_%s"%(flavor, unc, tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc=unc, sigma = +1) for l in collection], 1) )
-                        setattr(event, "reweight%sSF%sDown_%s"%(flavor, unc, tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc=unc, sigma = -1) for l in collection], 1) )
+                for flavor, collection in [("Ele", electronsTmp), ("Mu", muonsTmp)]:
+                    centralValue = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma =  0) for l in collection], 1)
+                    setattr(event, "reweight%sSFStat_%s"%(flavor, tight_id),      1 )
+                    setattr(event, "reweight%sSFStatUp_%s"%(flavor, tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = +1) for l in collection], 1)/centralValue )
+                    setattr(event, "reweight%sSFStatDown_%s"%(flavor, tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = -1) for l in collection], 1)/centralValue )
+
+                setattr(event, "reweightLeptonSFSyst_%s"%(tight_id),      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma =  0) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystUp_%s"%(tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystDown_%s"%(tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = -1) for l in leptonCollections[tight_id]], 1) )
+
 
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:
