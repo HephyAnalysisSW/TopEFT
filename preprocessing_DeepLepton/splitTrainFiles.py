@@ -281,9 +281,8 @@ for leptonFlavour in leptonFlavours:
     TChain   = {'Prompt': chPrompt, 'NonPrompt': chNonPrompt, 'Fake': chFake}
 
     outputDir = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], options.ptSubSelection, sampleSelection)
-    dirname = os.path.dirname( outputDir )
-    if not os.path.exists( dirname ):
-        os.makedirs( dirname )
+    if not os.path.exists( outputDir ):
+        os.makedirs( outputDir )
     outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
     
     
