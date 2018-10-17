@@ -21,6 +21,7 @@ color.TTZtoLLNuNu    = 91
 color.signal         = ROOT.kOrange
 color.TTZtoQQ        = 91
 color.TTG            = ROOT.kRed
+color.TTG_signal     = 91
 color.TZQ            = 9
 color.TWZ            = ROOT.kBlue-4
 color.WJetsToLNu     = ROOT.kRed-10

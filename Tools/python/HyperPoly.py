@@ -61,7 +61,7 @@ class HyperPoly:
         self.initialized = False
 
     # Initialize with data ( c1, ..., cN )
-    def initialize( self, param_points):
+    def initialize( self, param_points, ref_point = None):
 
         # Let's not allow re-initialization.
         if self.initialized:
@@ -77,6 +77,12 @@ class HyperPoly:
         self.param_points = param_points 
         # Number of variables
         self.nvar = len( param_points[0] ) 
+        # Reference point
+        self.ref_point = ref_point if ref_point is not None else tuple([0 for var in xrange(self.nvar)])
+        # Check reference point
+        if len(self.ref_point)!=self.nvar:
+            logger.error('Reference point has length %i but should have length %i', len(self.ref_point), self.nvar )
+            raise RuntimeError
 
         logger.debug( "Make parametrization of polynomial in %i variables to order %i" % (self.nvar, self.order ) )
 
@@ -118,19 +124,20 @@ class HyperPoly:
     def wEXT_expectation(self, weights, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( wEXT_meas*i_meas*j_meas*k_meas... )
         '''
-        return sum( [ weights[n]*np.prod( [ self.param_points[n][elem] for elem in combination ] ) for n in xrange(self.N) ] ) / float(self.N)
+        return sum( [ weights[n]*np.prod( [ (self.param_points[n][elem]-self.ref_point[elem]) for elem in combination ] ) for n in xrange(self.N) ] ) / float(self.N)
 
     def expectation(self, combination ):
         ''' Compute <wEXT ijk...> = 1/Nmeas Sum_meas( i_meas*j_meas*k_meas... )
         '''
-        return sum( [ np.prod( [ self.param_points[n][elem] for elem in combination ] ) for n in range(self.N) ]) / float(self.N)
+        return sum( [ np.prod( [ (self.param_points[n][elem] - self.ref_point[elem]) for elem in combination ] ) for n in range(self.N) ]) / float(self.N)
 
     def eval( self, coefficients, *point ):
         ''' Evaluate parametrization
         '''
         if not len(point) == self.nvar:
             raise ValueError( "Polynomial degree is %i. Got %i arguments." % (self.nvar, len(point) ) )
-        return sum( coefficients[n] * np.prod( [ point[elem] for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
+#        return sum( ( coefficients[n] - self.reference_coefficients[n] ) * np.prod( [ point[elem] for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
+        return sum( coefficients[n] * np.prod( [ (point[elem] - self.ref_point[elem]) for elem in self.combination[n] ] ) for n in range(self.ndof) ) 
    
     def chi2( self, coefficients, weights):
         return sum( [ (self.eval(coefficients, *self.param_points[n]) - weights[n])**2 for n in range(self.N) ] )
@@ -149,24 +156,33 @@ class HyperPoly:
                 for var in range(self.nvar):
                     power = self.combination[n].count( var )
                     if power>0:
-                        sub_substring.append( "x%i" % var if power==1 else "x%i**%i" % (var, power)  )
+#                        sub_substring.append( "x%i" % (var) if power==1 else "x%i**%i" % (var, power)  )
+                        if abs(self.ref_point[var])>min_abs_float:
+                            sub_substring.append( "(x%i-%f)" % (var, self.ref_point[var]) if power==1 else "(x%i-%f)**%i" % (var, self.ref_point[var], power)  )
+                        else:
+                            sub_substring.append( "x%i" % (var) if power==1 else "x%i**%i" % (var, power)  )
                 substrings.append( "*".join(sub_substring) ) 
         return  ( "+".join( filter( lambda s: len(s)>0, substrings) ) ).replace("+-","-")
 
 if __name__ == "__main__":
 
     # 3rd order parametrization
+    def f1(x,y,z):
+        return (x-z)**3+(y-2)**2
+    ref_point = (0,3,0)
+
     p = HyperPoly(3)
 
     param_points = [ (x,y,z) for x in range(-3,3) for y in range(-3,3) for z in range( -3,3)]
-    p.initialize( param_points )
+    p.initialize( param_points, ref_point)
     
-    def f1(x,y,z):
-        return (x+y-z)**3
     weights     = [ f1(*point) for point in param_points]
     coeff = p.get_parametrization( weights )
 
-    print "chi2/ndof", p.chi2_ndof(coeff, weights)
+    print "len param_points", len(param_points)
+    print "coeff", coeff
+    print "chi2/ndof", p.chi2_ndof( coeff, weights)
+    print "ndof", p.ndof
     print "String:", p.root_func_string(coeff)
 
     #def f2(x,y,z):
@@ -176,4 +192,3 @@ if __name__ == "__main__":
 
     #print "chi2/ndof", p.chi2_ndof(coeff, weights)
     #print "String:", p.root_func_string(coeff)
-
