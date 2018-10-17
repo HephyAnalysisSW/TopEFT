@@ -46,7 +46,7 @@ class SystematicEstimator:
         if self.helperCache and self.helperCache.contains(s):
           return self.helperCache.get(s)
         else:
-          yieldFromDraw = u_float(**setup.samples[sample][c].getYieldFromDraw(selectionString, weightString, split=100))
+          yieldFromDraw = u_float(**setup.samples[sample][c].getYieldFromDraw(selectionString, weightString))
           if self.helperCache: self.helperCache.add(s, yieldFromDraw )
           return yieldFromDraw
 
@@ -64,6 +64,7 @@ class SystematicEstimator:
 
     def cachedEstimate(self, region, channel, setup, save=True, overwrite=False):
         key =  self.uniqueKey(region, channel, setup)
+        #print "contains?", self.cache.contains(key)
         if (self.cache and self.cache.contains(key)) and not overwrite:
             res = self.cache.get(key)
             logger.debug( "Loading cached %s result for %r : %r"%(self.name, key, res) )

@@ -16,43 +16,93 @@ from TopEFT.Tools.user import trainingFiles_directory as output_directory
 def deepLeptonSignalSamples(year):
 
     if year==2016:
+        #SignalSamples = [
+
+        #'TTJets_SingleLeptonFromTbar',
+        #'TTJets_SingleLeptonFromTbar_ext',
+        #'TTJets_SingleLeptonFromT',
+        #'TTJets_SingleLeptonFromT_ext',
+
+        #'TTJets_DiLepton',
+        #'TTJets_DiLepton_ext',
+
+        ##'TTJets',
+        ##'TTJets_LO',
+        ##'TT_pow_ext3',
+        ##'TT_pow',
+        ##'TTLep_pow',
+        ##'TTSemiLep_pow',
+        ##'TTJets_LO_HT600to800_ext',
+        ##'TTJets_LO_HT800to1200_ext',
+        ##'TTJets_LO_HT1200to2500_ext',
+        ##'TTJets_LO_HT2500toInf_ext',
+
+        #                ]
+
         SignalSamples = [
-
-        'TTJets_SingleLeptonFromTbar',
-        'TTJets_SingleLeptonFromTbar_ext',
-        'TTJets_SingleLeptonFromT',
-        'TTJets_SingleLeptonFromT_ext',
-
-        'TTJets_DiLepton',
-        'TTJets_DiLepton_ext',
-
-        #'TTJets',
-        #'TTJets_LO',
-        #'TT_pow_ext3',
-        #'TT_pow',
-        #'TTLep_pow',
-        #'TTSemiLep_pow',
-        #'TTJets_LO_HT600to800_ext',
-        #'TTJets_LO_HT800to1200_ext',
-        #'TTJets_LO_HT1200to2500_ext',
-        #'TTJets_LO_HT2500toInf_ext',
-
+        'DY1JetsToLL_M50_LO',
+        'DY2JetsToLL_M50_LO',
+        'DY3JetsToLL_M50_LO',
+        'DY4JetsToLL_M50_LO',
+        #'DYJetsToLL_M10to50',
+        #'DYJetsToLL_M10to50_ext',
+        #'DYJetsToLL_M10to50_LO',
+        #'DYJetsToLL_M50',
+        #'DYJetsToLL_M50_HT100to200',
+        #'DYJetsToLL_M50_HT100to200_ext',
+        #'DYJetsToLL_M50_HT1200to2500',
+        #'DYJetsToLL_M50_HT200to400',
+        #'DYJetsToLL_M50_HT200to400_ext',
+        #'DYJetsToLL_M50_HT2500toInf',
+        #'DYJetsToLL_M50_HT400to600',
+        #'DYJetsToLL_M50_HT600to800',
+        #'DYJetsToLL_M50_HT70to100',
+        #'DYJetsToLL_M50_HT800to1200',
+        #'DYJetsToLL_M50_LO_ext',
+        #'DYJetsToLL_M50_LO_ext2',
                         ]
 
     if year==2017:
+        #SignalSamples = [
+
+        ##'TTJets',
+        ##'TTLep_pow',
+        ##'TTHad_pow',
+        ##'TTSemi_pow',
+        #'TTJets_SingleLeptonFromT',
+        ##'TTLep_pow_TuneDown',
+        ##'TTLep_pow_TuneUp',
+        ##'TTLep_pow_hdampDown',
+        ##'TTLep_pow_hdampUp',
+
+        #                ]
+
         SignalSamples = [
-
-        #'TTJets',
-        #'TTLep_pow',
-        #'TTHad_pow',
-        #'TTSemi_pow',
-        'TTJets_SingleLeptonFromT',
-        #'TTLep_pow_TuneDown',
-        #'TTLep_pow_TuneUp',
-        #'TTLep_pow_hdampDown',
-        #'TTLep_pow_hdampUp',
-
+        'DY1JetsToLL_M50_LO',
+        'DY1JetsToLL_M50_LO_ext',
+        'DY2JetsToLL_M50_LO',
+        'DY2JetsToLL_M50_LO_ext',
+        'DY3JetsToLL_M50_LO',
+        'DY3JetsToLL_M50_LO_ext',
+        'DY4JetsToLL_M50_LO',
+        #'DYJetsToLL_M10to50_LO',
+        #'DYJetsToLL_M50',
+        #'DYJetsToLL_M50_ext',
+        #'DYJetsToLL_M50_HT100to200',
+        #'DYJetsToLL_M50_HT100to200_ext1',
+        #'DYJetsToLL_M50_HT1200to2500',
+        #'DYJetsToLL_M50_HT200to400',
+        #'DYJetsToLL_M50_HT200to400_ext1',
+        #'DYJetsToLL_M50_HT2500toInf',
+        #'DYJetsToLL_M50_HT400to600',
+        #'DYJetsToLL_M50_HT400to600_ext1',
+        #'DYJetsToLL_M50_HT600to800',
+        #'DYJetsToLL_M50_HT800to1200',
+        #'DYJetsToLL_M50_LO',
+        #'DYJetsToLL_M50_LO_ext',
                         ]
+
+
 
     return SignalSamples
 
@@ -138,9 +188,11 @@ def deepLeptonBackgroundSamples(year):
 
 
 #settings
-ptSelection   = 'pt_10_to_inf'
-sampleSelection = 'SlDlTTJetsVsQCD'
+ptSelection     = 'pt_10_to_inf'
+ptSubSelection  = {'pt_25_to_inf': [25,'std::numeric_limits<double>::infinity()'], 'pt_10_to_25': [10,25], 'pt_10_to_inf': [10,'std::numeric_limits<double>::infinity()'], 'pt_15_to_inf': [15,'std::numeric_limits<double>::infinity()']}
+#sampleSelection = 'SlDlTTJetsVsQCD'
 #sampleSelection = 'TTJetsVsQCD'
+sampleSelection = 'DYVsQCD'
 
 #parser
 def get_parser():
@@ -155,6 +207,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
+    argParser.add_argument('--ptSubSelection',              action='store',                     type=str,   choices=['pt_10_to_25','pt_25_to_inf','pt_10_to_inf', 'pt_15_to_inf'],    required = True,             help="Which flavour?")
 
     return argParser
 
@@ -193,7 +246,7 @@ for leptonFlavour in leptonFlavours:
     for leptonClass in leptonClasses:
         inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptSelection)
         inputList = [(os.path.join( inputPath, s )) for s in leptonClass['SampleList']]
-        selectionString = '(evt%'+str(options.nJobs)+'=='+str(options.job)+')'
+        selectionString = '(evt%'+str(options.nJobs)+'=='+str(options.job)+'&&lep_pt>='+str(ptSubSelection[options.ptSubSelection][0])+'&&lep_pt<='+str(ptSubSelection[options.ptSubSelection][1])+')'
         classSample = Sample.fromDirectory( leptonClass['Name'], inputList, 'tree', None, selectionString) 
         #print classSample.files
 
@@ -227,11 +280,12 @@ for leptonFlavour in leptonFlavours:
     nEntries = {'Prompt': n_Prompt, 'NonPrompt': n_NonPrompt, 'Fake': n_Fake}
     TChain   = {'Prompt': chPrompt, 'NonPrompt': chNonPrompt, 'Fake': chFake}
 
-    outputPath = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], ptSelection, sampleSelection, 'modulo_'+str(options.job)+'_trainfile_' )
-    dirname = os.path.dirname( outputPath )
-    if not os.path.exists( dirname ):
-        os.makedirs( dirname )
-
+    outputDir = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], options.ptSubSelection, sampleSelection)
+    if not os.path.exists( outputDir ):
+        os.makedirs( outputDir )
+    outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
+    
+    
     while (counter['Prompt']<n_Prompt and counter['NonPrompt']<n_NonPrompt and counter['Fake']<n_Fake):
 
         #(re)create and save output files

@@ -37,8 +37,8 @@ from TopEFT.Analysis.regions import *
 from TopEFT.Tools.cutInterpreter import *
 
 #to run on data
-dataLumi2016        = Run2016.lumi
-dataLumi2017        = 41290
+dataLumi2016        = 35900
+dataLumi2017        = 41900
 dataLumi201617      = dataLumi2016 + dataLumi2017
 dataLumi20161718    = 150000
 dataHighLumi        = 3e6
@@ -99,15 +99,19 @@ class Setup:
         if nLeptons == 1:
             # no trigger/lepton reweighting
             pass
-        elif nLeptons == 3:
-            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
-            if self.year == 2017: #in 2016 already included in leptonSF
-                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
-        elif nLeptons == 4:
-            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
-            if self.year == 2017: #in 2016 already included in leptonSF
-                self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
 
+        #elif nLeptons == 3:
+        #    self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
+        #    if self.year == 2017: #in 2016 already included in leptonSF
+        #        self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+        #elif nLeptons == 4:
+        #    self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+        #    if self.year == 2017: #in 2016 already included in leptonSF
+        #        self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
+        elif nLeptons == 3:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSFSyst_tight_3l', 'reweightEleSFStat_tight_3l', 'reweightMuSFStat_tight_3l', 'reweightLeptonTrackingSF_tight_3l']
+        elif nLeptons == 4:
+            self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSFSyst_tight_4l', 'reweightEleSFStat_tight_4l', 'reweightMuSFStat_tight_4l', 'reweightLeptonTrackingSF_tight_4l']
 
         self.resultsColumns     = ['signal', 'exp', 'obs', 'exp1up', 'exp1down', 'exp2up', 'exp2down', 'NLL_prefit', 'dNLL_postfit_r1', 'dNLL_bestfit']
         self.uncertaintyColumns = ["region", "channel", "PDFset"]

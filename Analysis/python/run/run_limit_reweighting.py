@@ -240,6 +240,12 @@ def wrapper(s):
         logger.info("Looking into backup DB for x-sec")
         p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
         xsec = p.xsecDB.get(modification_dict)
+    if not xsec:
+        try:
+            p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
+            xsec = p.xsecDB.get(modification_dict)
+        except IndexError:
+            logger.info("No x-sec found.")
     logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')
@@ -309,6 +315,7 @@ def wrapper(s):
                             f = wzReweighting.cachedReweightingFunc( setup.WZselection )
                             powhegExpected = e.reweight1D(r, channel, setup, f)
                             expected = e.cachedEstimate(r, channel, setup)
+                            print expected
                             WZ_powheg_unc = (powhegExpected-expected)/expected
                         else:
                             expected = e.cachedEstimate(r, channel, setup)
@@ -405,9 +412,10 @@ def wrapper(s):
                     logger.info("x-sec is multiplied by %s",xSecMod)
                     
                     c.specifyExpectation(binname, 'signal', sig.val * xSecScale * xSecMod )
+                    logger.info('Adding signal %s'%(sig.val * xSecScale * xSecMod))
                     
                     if sig.val>0:
-                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.026 )
+                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.025 )
                         if not args.statOnly:
                             # uncertainties
                             pu          = 1 + e.PUSystematic( r, channel, setup).val
@@ -432,9 +440,10 @@ def wrapper(s):
                             c.specifyUncertainty('trigger'+postfix,     binname, "signal", trigger)
                             c.specifyUncertainty('leptonSF',            binname, "signal", leptonSF)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
-                            c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
-                            c.specifyUncertainty('PartonShower',binname, "signal", 1 + PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val)
+                            if setup in [setup3l, setup4l]:
+                                c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
+                                c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
+                                c.specifyUncertainty('PartonShower',binname, "signal", PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
                             #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
                             #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 
@@ -473,6 +482,7 @@ def wrapper(s):
         if args.calcNuisances:
             c.calcNuisances(cardFileName, masks=masks)
         # extract the NLL
+        #nll = c.calcNLL(cardFileName, options="")
         nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"], masks=masks) # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})

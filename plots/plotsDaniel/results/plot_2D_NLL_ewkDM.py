@@ -8,21 +8,21 @@ from RootTools.core.standard        import *
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
-from TopEFT.Tools.niceColorPalette  import niceColorPalette
+from TopEFT.Tools.niceColorPalette  import niceColorPalette, redColorPalette
 from TopEFT.Tools.helpers           import getCouplingFromName
 from TopEFT.Analysis.Setup          import Setup
 from TopEFT.Tools.resultsDB             import resultsDB
@@ -34,8 +34,10 @@ from TopEFT.samples.gen_fwlite_benchmarks import *
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
+#niceColorPalette()
 ROOT.gStyle.SetNumberContours(255)
-
+#ROOT.gStyle.SetPalette(ROOT.kCherry)#, ctypes.c_int(112), 0.3)#, *nullptr, 0.3)
+redColorPalette()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -47,8 +49,10 @@ argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"
 argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
 argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
 argParser.add_argument("--prefit",         action='store_true', help="Use pre-fit NLL?")
-argParser.add_argument("--expected",         action='store_true', help="Use expected results?")
+argParser.add_argument("--expected",       action='store_true', help="Use expected results?")
+argParser.add_argument("--unblinded",      action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+argParser.add_argument("--combined",       action='store_true', help="Use combined results?")
 
 args = argParser.parse_args()
 
@@ -82,13 +86,16 @@ def toGraph2D(name,title,length,x,y,z):
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
-cardDir = "regionsE_%s"%(year)
+cardDir = "regionsE_%s"%(year) if not args.combined else "regionsE_COMBINED"
 if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
     cardDir += "_shape"
 exp = "_expected" if args.expected else ''
-cardDir += "_lowUnc_WZreweight%s_SRandCR"%exp
+cardDir += "_lowUnc%s_SRandCR"%exp
+
+#regionsE_COMBINED_xsec_shape_lowUnc_expected_SRandCR
+#regionsE_2017_xsec_shape_lowUnc_expected_SRandCR
 
 #/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc_WZreweight_SRandCR/
 
@@ -102,9 +109,9 @@ fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
 
 # get the absolute post fit NLL value of pure ttZ
 if args.model == "ewkDM":
-    ttZ_res = resDB.getDicts({"signal":ewkDM_central.name})[0]
+    ttZ_res = resDB.getDicts({"signal":ewkDM_central.name})[-1]
 elif args.model == "dim6top_LO":
-    ttZ_res = resDB.getDicts({"signal":dim6top_central.name})[0]
+    ttZ_res = resDB.getDicts({"signal":dim6top_central.name})[-1]
 
 if args.prefit:
     ttZ_NLL_abs = float(ttZ_res["NLL_prefit"])
@@ -117,6 +124,7 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 if args.model == "ewkDM":
     if args.plane == "currents":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_currents ]
+        #signals = [ x for x in ewkDM_currents ]
         x_var = 'DC1V'
         y_var = 'DC1A'
         #x_shift = 0.
@@ -184,12 +192,14 @@ res_dic = {}
 print "Searching for bestfit point"
 
 bestNLL = 9999.
+
+SMPoint = ('SM', x_shift, y_shift)
 bestFitPoint = ('SM', x_shift, y_shift)
 
 # scan all results to find best fit
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
-        res = resDB.getDicts({"signal":s.name})[0]
+        res = resDB.getDicts({"signal":s.name})[-1]
         #res = getResult(s)
         if type(res) == type({}):
             ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
@@ -198,13 +208,15 @@ for i,s in enumerate(signals):
                 bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
+if args.expected: bestFitPoint = SMPoint
+
 print "Best fit found for signal %s, %s, %s"%bestFitPoint
 print
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
-        res = resDB.getDicts({"signal":s.name})[0]
+        res = resDB.getDicts({"signal":s.name})[-1]
         #res = getResult(s)
         print s.name
         if type(res) == type({}):
@@ -218,18 +230,20 @@ for i,s in enumerate(signals):
                 nll_value = 2*limit
             elif limit > -0.1 and limit < 0:
                 # catch rounding errors
+                print limit
                 nll_value = 0
             elif limit < -900:
                 # if the fit failed, add a dummy value (these points should easily be excluded)
                 nll_value = 100
             else:
+                print limit
                 print "No good result found for %s, results is %s"%(s.name, limit)
                 continue
             
             # Add results
             print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-            if True:#s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
-            #if True:
+            #if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+            if True:
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
                 y.append(s.var2 + y_shift)
@@ -315,7 +329,7 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    hist.Smooth()
+    hist.Smooth(1,"k5b")
     postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
@@ -323,6 +337,7 @@ cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 #contours = {'ttZ': [-0.1,0.,1.,4.]}
 #contours = {'ttZ': [1.,4.]}
 contours = {'ttZ': [1.515**2,2.486**2]}
+#contours = {'ttZ': [1.515**2, 3.5]}
 
 drawContours = True
 if drawContours:
@@ -340,7 +355,7 @@ if drawContours:
 pads = ROOT.TPad("pad_%s"%proc,"",0.,0.,1.,1.)
 pads.SetRightMargin(0.20)
 pads.SetLeftMargin(0.14)
-pads.SetTopMargin(0.11)
+pads.SetTopMargin(0.15)
 pads.Draw()
 pads.cd()
 
@@ -350,36 +365,100 @@ hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
 hist.Draw("colz")
+alpha = 0.5
 
 if drawContours:
     for conts in [cont_p2]:
         for cont in conts:
             cont.SetLineColor(ROOT.kRed)
-            cont.SetLineWidth(2)
-            cont.SetLineStyle(7)
-            cont.Draw("same")
+            #cont.SetFillColor(ROOT.kRed)
+            #cont.SetFillColorAlpha(ROOT.kRed, alpha)
+            #cont.SetFillStyle()
+            cont.SetLineWidth(3)
+            #cont.SetLineStyle(7)
+            #cont.Draw("CFL same")
+            cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
             cont.SetLineColor(ROOT.kOrange)
-            cont.SetLineWidth(2)
-            cont.SetLineStyle(7)
-            cont.Draw("same")
+            #cont.SetFillColorAlpha(ROOT.kOrange, alpha)
+            cont.SetLineWidth(3)
+            #cont.SetLineStyle(7)
+            #cont.Draw("CFL same")
+            cont.Draw("L same")
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
-latex1.SetTextSize(0.04)
+latex1.SetTextSize(0.035)
 latex1.SetTextAlign(11)
 
-latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
-latex1.DrawLatex(0.14,0.92,'#bf{%s model}'%args.model)
-latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
+if not args.unblinded:
+    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+else:
+    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+
+if args.model == "ewkDM":
+    latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')
+    latex1.DrawLatex(0.14,0.87,'#bf{coupling model}')
+else:
+    latex1.DrawLatex(0.14,0.91,'#bf{top EFT}')
+    latex1.DrawLatex(0.14,0.87,'#bf{model}')
+
+if args.combined:
+    setup.lumi = 35900+41900
+
+if not args.unblinded:
+    latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
+else:
+    latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
 
 #latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
 #latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
+SMpoint = ROOT.TGraph(1)
+SMpoint.SetName("SMpoint")
+BFpoint = ROOT.TGraph(1)
+BFpoint.SetName("BFpoint")
+
+print SMPoint[1], SMPoint[2], 1
+SMpoint.SetPoint(0, SMPoint[1], SMPoint[2])
+BFpoint.SetPoint(0, bestFitPoint[1], bestFitPoint[2])
+
+SMpoint.SetMarkerStyle(23)
+SMpoint.SetMarkerSize(2)
+SMpoint.SetMarkerColor(ROOT.kGreen+2)
+BFpoint.SetMarkerStyle(22)
+BFpoint.SetMarkerSize(2)
+BFpoint.SetMarkerColor(ROOT.kBlue+2)
+
+SMpoint.Draw("p same")
+BFpoint.Draw("p same")
+
+leg = ROOT.TLegend(0.45,0.86,0.70,0.95)
+leg.SetFillColor(ROOT.kWhite)
+leg.SetShadowColor(ROOT.kWhite)
+leg.SetBorderSize(0)
+leg.SetTextSize(0.035)
+leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
+leg.Draw()
+
+
+leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
+leg2.SetFillColor(ROOT.kWhite)
+leg2.SetShadowColor(ROOT.kWhite)
+leg2.SetBorderSize(0)
+leg2.SetTextSize(0.035)
+leg2.AddEntry(SMpoint, '#bf{SM}', 'p')
+leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
+leg2.Draw()
+
+
 plotDir = os.path.join( plot_directory,"NLL_plots_2D_2016_data/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
+
+args.year = "COMBINED" if args.combined else args.year
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)

@@ -25,7 +25,7 @@ import pickle
 import math
 
 # Analysis
-from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels
+from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels, allQuadlepChannels, quadlepChannels
 from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB, regionsXSec
 from TopEFT.Tools.u_float           import u_float 
 from TopEFT.Tools.resultsDB         import resultsDB
@@ -59,12 +59,14 @@ from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 from TopEFT.Analysis.Setup          import Setup
 
 year = 2017 if options.sample.count("17") else 2016
-setup = Setup(year=year, nLeptons=3)
+setup3l = Setup(year=year, nLeptons=3)
 if options.btagWZ:
-    setup.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
+    setup3l.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
 elif options.regionsXSec:
-    setup.parameters.update({"nBTags":(0,-1), "nJets":(2,-1)})
+    setup3l.parameters.update({"nBTags":(0,-1), "nJets":(2,-1)})
 
+setup4l = Setup(year=year, nLeptons=4)
+setup4l.parameters.update({'nJets':(1,-1), 'nBTags':(1,-1), 'zMassRange':20, 'zWindow2':"offZ"})
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
@@ -110,8 +112,9 @@ else:
 regions = allRegions if not options.selectRegion else  [allRegions[options.selectRegion]]
 
 #setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(0,-1), 'nBTags':(0,-1), 'zWindow1':'allZ'})
-setupIncl = setup.systematicClone(parameters={'mllMin':0, 'nJets':(2,-1), 'nBTags':(1,-1), 'zWindow1':'onZ'})
-setup.verbose     = True
+setupIncl3l = setup3l.systematicClone(parameters={'mllMin':0, 'nJets':(2,-1), 'nBTags':(1,-1), 'zWindow1':'onZ'})
+setupIncl4l = setup4l.systematicClone(parameters={'mllMin':0, 'nJets':(1,-1), 'nBTags':(1,-1), 'zWindow1':'onZ'})
+#setup.verbose     = True
 
 # use more inclusive selection in terms of lepton multiplicity in the future?
 
@@ -157,7 +160,7 @@ elif options.sample == "TTZ_NLO_17":
     ## PS weights ##
     PSweights = True
     # starting from 1080: 0,1 are central. 2,3,4,5 are reduced, 6,7,8,9 are nominal, 10,11,12,13 are enhanced.
-    PS_indices = range(1086, 1090)
+    PS_indices = [1086, 1088, 1083, 1085]#range(1086, 1090)
     #PS_indices = range(1090, 1094)
     PSweight_original = "abs(LHEweight_wgt[1080])"
 
@@ -218,16 +221,25 @@ def wrapper(args):
 jobs=[]
 
 # remove all so to avoid unnecessary concurrency. All will be calculated as sum of the individual channels later
-seperateChannels = allTrilepChannels
+seperateChannels3l = allTrilepChannels
 allTrilepChannelNames = [ c.name for c in allTrilepChannels ]
-seperateChannels.pop(allTrilepChannelNames.index('all'))
+seperateChannels3l.pop(allTrilepChannelNames.index('all'))
+
+seperateChannels4l = allQuadlepChannels
+allQuadlepChannelNames4l = [ c.name for c in allQuadlepChannels ]
+seperateChannels4l.pop(allQuadlepChannelNames4l.index('all'))
+
 
 if not options.skipCentral:
     # First run over seperate channels
-    jobs.append((noRegions[0], channel(-1,-1), setupIncl))
+    jobs.append((noRegions[0], channel(-1,-1), setupIncl3l))
+    jobs.append((noRegions[0], channel(-1,-1), setupIncl4l))
     for var in variations:
-        for c in seperateChannels:
-            jobs.append((noRegions[0], c, setupIncl.systematicClone(sys={'reweight':[var]})))
+        for c in seperateChannels3l:
+            jobs.append((noRegions[0], c, setupIncl3l.systematicClone(sys={'reweight':[var]})))
+        for c in seperateChannels4l:
+            jobs.append((noRegions[0], c, setupIncl4l.systematicClone(sys={'reweight':[var]})))
+
 
 ## then one can sum up over all (currently done in the combine step)
 #for var in variations:
@@ -235,8 +247,11 @@ if not options.skipCentral:
 
 
 if not options.combine:
-    for c in seperateChannels:
-        for region in regions:
+    for region in regions:
+        seperateChannels = seperateChannels4l if region in regions4lB else seperateChannels3l
+        for c in seperateChannels:
+        #for region in regions:
+            setup = setup4l if region in regions4lB else setup3l
             jobs.append((region, c, setup))
             for var in variations:
                 jobs.append((region, c, setup.systematicClone(sys={'reweight':[var]})))
@@ -265,7 +280,8 @@ if options.combine:
     for c in [channel(-1,-1)]:#allChannels:
     
         for region in regions:
-            
+            setup = setup4l if region in regions4lB else setup3l
+            setupIncl = setupIncl4l if region in regions4lB else setupIncl3l 
             logger.info("Region: %s", region)
             
             scales = []
@@ -386,14 +402,14 @@ if options.combine:
             scale_cache.get({"region":region, "channel":c.name, "PDFset":'scale'})
             PS_cache.get({"region":region, "channel":c.name, "PDFset":'PSscale'})
 
-logger.info('Min. PDF uncertainty: %.3f', min(PDF_unc))
-logger.info('Max. PDF uncertainty: %.3f', max(PDF_unc))
-
-logger.info('Min. scale uncertainty: %.3f', min(Scale_unc))
-logger.info('Max. scale uncertainty: %.3f', max(Scale_unc))
-
-logger.info('Min. PS scale uncertainty: %.3f', min(PS_unc))
-logger.info('Max. PS scale uncertainty: %.3f', max(PS_unc))
+    logger.info('Min. PDF uncertainty: %.3f', min(PDF_unc))
+    logger.info('Max. PDF uncertainty: %.3f', max(PDF_unc))
+    
+    logger.info('Min. scale uncertainty: %.3f', min(Scale_unc))
+    logger.info('Max. scale uncertainty: %.3f', max(Scale_unc))
+    
+    logger.info('Min. PS scale uncertainty: %.3f', min(PS_unc))
+    logger.info('Max. PS scale uncertainty: %.3f', max(PS_unc))
 
 
 

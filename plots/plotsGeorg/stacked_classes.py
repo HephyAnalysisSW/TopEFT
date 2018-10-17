@@ -213,6 +213,26 @@ for plot in plotList:
                     attribute = lambda lepton, sample: lepton.lep_relIso04,
                     binning=[90,0,0.7],
                 ))
+                plots.append(Plot(name=plotname+'chargedHadRelIso03',
+                    texX = 'chargedHadRelIso03', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chargedHadRelIso03,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'chargedHadRelIso04',
+                    texX = 'chargedHadRelIso04', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chargedHadRelIso04,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'miniRelIsoNeutral',
+                    texX = 'miniRelIsoNeutral', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_miniRelIsoNeutral,
+                    binning=[90,0,0.7],
+                ))
+                plots.append(Plot(name=plotname+'miniRelIsoCharged',
+                    texX = 'miniRelIsoCharged', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_miniRelIsoCharged,
+                    binning=[90,0,0.7],
+                ))
                 plots.append(Plot(name=plotname+'miniRelIso',
                     texX = 'miniRelIso', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_miniRelIso,

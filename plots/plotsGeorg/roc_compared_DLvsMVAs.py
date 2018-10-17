@@ -34,10 +34,10 @@ def get_parser():
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD','DYVsQCD_ptRelSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','full'],         required = True, help="small sample or full sample?")
+    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -82,7 +82,7 @@ variables=roc_plot_variables()
 
 ptCuts=[]
 ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
-ptCuts.append({"Name":"pt10to25","lower_limit":10, "upper_limit":25})
+ptCuts.append({"Name":"pt10to25" if options.ptSelection=='pt_10_to_inf' else "pt15to25","lower_limit":10 if options.ptSelection=='pt_10_to_inf' else 15, "upper_limit":25})
 
 relIsoCuts = [1.0,0.4,0.2,0.1,0.05]
 
@@ -180,7 +180,29 @@ for leptonFlavour in leptonFlavours:
                 x=array('d')
                 y=array('d')
 
-                prange=[pval*0.01 for pval in (xrange(-100,100) if plotTypeList[ng]=='MVA_Id' else xrange(0,100))]
+                if plotTypeList[ng]=='MVA_Id':
+                    prange = [pval*0.01 for pval in xrange(-100,80)]
+                    for pval in xrange(801,990):
+                        prange.append(pval*0.001)
+                    for pval in xrange(9901,10000):
+                        prange.append(pval*0.0001)
+                else:
+                    prange = [pval*0.01 for pval in xrange(0,90)]
+                    for pval in xrange(901,990):
+                        prange.append(pval*0.001)
+                    for pval in xrange(9901,9990):
+                        prange.append(pval*0.0001)
+                    for pval in xrange(99901,99990):
+                        prange.append(pval*0.00001)
+                    for pval in xrange(999901,999990):
+                        prange.append(pval*0.000001)
+                    for pval in xrange(9999901,9999990):
+                        prange.append(pval*0.0000001)
+                    for pval in xrange(99999901,99999990):
+                        prange.append(pval*0.00000001)
+                    for pval in xrange(999999901,999999990):
+                        prange.append(pval*0.000000001)
+
                 for pval in prange:
                     x.append(eS(pval, dataset))
                     y.append(eB(pval, dataset)) if logY else y.append(1-eB(pval, dataset))
@@ -217,8 +239,8 @@ for leptonFlavour in leptonFlavours:
             mg.GetXaxis().SetLimits(0.597, 1.003)
             mg.GetYaxis().SetTitle('eB' if logY else '1-eB')
             mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
-            #c.BuildLegend(0.12,0.90,0.5,0.7) if logY else c.BuildLegend()
-            c.BuildLegend()
+            c.BuildLegend(0.12,0.7,0.5,0.9) if logY else c.BuildLegend()
+            #c.BuildLegend()
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
             directory=(os.path.join(
