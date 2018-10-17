@@ -74,7 +74,7 @@ pfCandIdList = [
                ]
 
 #define paths
-TrainFilePath = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles'
+TrainFilePath = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles'
 inputPath     = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 outputPath    = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection+'_ptRelSorted')
 
