@@ -44,12 +44,14 @@ Currents
 #    #    time.sleep(2)
 
 for i, x in enumerate(dim6top_dipoles):
-    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
-    if i > 299: break
+    #os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
+    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --signal dipoles --useShape --useXSec --includeCR --expected --only=%s'"%str(i))
+    #if i > 299: break
 
-for i, x in enumerate(dim6top_currents):
-    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
-    if i > 320: break
+#for i, x in enumerate(dim6top_currents):
+    #os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --expected --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --signal currents --useShape --useXSec --includeCR --expected --only=%s'"%str(i))
+    #if i > 320: break
 
 
 

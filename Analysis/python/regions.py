@@ -30,6 +30,7 @@ regionsH = getRegions2D("Z_pt", [0,100,200,400,-1], "lep_pt[Z_l2_index]", [0, 30
 
 regionsXSec = getRegions2D("nBTag", [1, 2, -1], "nJetSelected", [2,3,4,5,-1])
 regionsXSecB = getRegions2D("nBTag", [1, 2, -1], "nJetSelected", [1,2,3,-1])
+regionsXSecC = getRegions2D("nBTag", [1, -1], "nJetSelected", [3,4,5,-1])
 
 ## 4l signal regions
 regions4l = getRegions2D("Z1_pt_4l", [0,-1], "Z1_cosThetaStar_4l", [-1,-0.6, 0.6, 1])

@@ -38,6 +38,7 @@ special_cuts = {
     "onZZ":              "abs(Z1_mass_4l-91.1876)<20&&abs(Z2_mass_4l-91.1876)<20",
     "onZ1":              "abs(Z1_mass_4l-91.1876)<20",
     "offZ2":             "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.1876)>20",
+    "offZ2met":          "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.1876)>20",
     "onZloose":          "abs(Z_mass-91.1876)<15",
     "offZ":              "abs(Z_mass-91.1876)>10",
   }

@@ -99,6 +99,15 @@ class Setup:
         if nLeptons == 1:
             # no trigger/lepton reweighting
             pass
+
+        #elif nLeptons == 3:
+        #    self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSF_tight_3l']
+        #    if self.year == 2017: #in 2016 already included in leptonSF
+        #        self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_3l']
+        #elif nLeptons == 4:
+        #    self.default_sys['reweight'] += ['reweightTrigger_tight_4l', 'reweightLeptonSF_tight_4l']
+        #    if self.year == 2017: #in 2016 already included in leptonSF
+        #        self.default_sys['reweight'] += ['reweightLeptonTrackingSF_tight_4l']
         elif nLeptons == 3:
             self.default_sys['reweight'] += ['reweightTrigger_tight_3l', 'reweightLeptonSFSyst_tight_3l', 'reweightEleSFStat_tight_3l', 'reweightMuSFStat_tight_3l', 'reweightLeptonTrackingSF_tight_3l']
         elif nLeptons == 4:

@@ -208,6 +208,8 @@ for i,s in enumerate(signals):
                 bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
+if args.expected: bestFitPoint = SMPoint
+
 print "Best fit found for signal %s, %s, %s"%bestFitPoint
 print
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
@@ -240,8 +242,8 @@ for i,s in enumerate(signals):
             
             # Add results
             print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
-            if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
-            #if True:
+            #if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+            if True:
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
                 y.append(s.var2 + y_shift)
@@ -370,18 +372,20 @@ if drawContours:
         for cont in conts:
             cont.SetLineColor(ROOT.kRed)
             #cont.SetFillColor(ROOT.kRed)
-            cont.SetFillColorAlpha(ROOT.kRed, alpha)
+            #cont.SetFillColorAlpha(ROOT.kRed, alpha)
             #cont.SetFillStyle()
-            cont.SetLineWidth(2)
+            cont.SetLineWidth(3)
             #cont.SetLineStyle(7)
-            cont.Draw("CFL same")
+            #cont.Draw("CFL same")
+            cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
             cont.SetLineColor(ROOT.kOrange)
-            cont.SetFillColorAlpha(ROOT.kOrange, alpha)
-            cont.SetLineWidth(2)
+            #cont.SetFillColorAlpha(ROOT.kOrange, alpha)
+            cont.SetLineWidth(3)
             #cont.SetLineStyle(7)
-            cont.Draw("CFL same")
+            #cont.Draw("CFL same")
+            cont.Draw("L same")
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
@@ -435,8 +439,8 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'f')
-leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'f')
+leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
 leg.Draw()
 
 

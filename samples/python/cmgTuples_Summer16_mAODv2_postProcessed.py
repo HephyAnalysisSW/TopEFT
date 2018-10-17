@@ -26,7 +26,7 @@ logger.info("Loading MC samples from directory %s", os.path.join(data_directory,
 
 
 dirs = {}
-dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_ext"]
+dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_ext_comb"]
 #dirs['TTZ_LO']          = ["TTZ_LO"]
 dirs["WZ_amcatnlo"]     = ["WZTo3LNu_amcatnlo"]#, "WZTo2L2Q"]
 dirs["WZ_powheg"]       = ["WZTo3LNu_comb"]#, "WZTo2L2Q"]
@@ -38,7 +38,7 @@ dirs['TTH']             = ["TTHnobb_pow"]
 dirs['TTX']             = ["TTGJets_comb", "TGJets", "TTTT", "tWll", "tZq_ll_ext","TTHnobb_pow"]#, "THW", "THQ", "TTWW", "TTWZ", "TTZZ"]
 dirs['TZQ']             = ["tZq_ll_ext"]
 
-dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWToLNu_ext_comb","tZq_ll_ext","TTZToLLNuNu_ext"]
+dirs['TTX_all']         = ["TTGJets_comb", "TTHnobb_pow", "TTTT", "tWll", "TTWToLNu_ext_comb","tZq_ll_ext","TTZToLLNuNu_ext_comb"]
 
 #dirs['rare']            = ["WGToLNuG","WWZ","WZZ","ZGTo2LG_ext","ZZTo4L","ZZZ"] # should be complete, ZZTo2L2Nu and ZZTo2L2Q are in fact nonprompt. Can be added again
 

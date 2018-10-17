@@ -36,9 +36,9 @@ from TopEFT.Tools.cutInterpreter    import cutInterpreter
 
 ## 2016
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -71,6 +71,9 @@ setupNP.regions           = noRegions + regionsE
 setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
 
+#reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
+#reweights3l = reweights + ["reweightTriggerDown_tight_3l", "reweightTriggerUp_tight_3l", "reweightLeptonSFDown_tight_3l", "reweightLeptonSFUp_tight_3l"]
+#reweights4l = reweights + ["reweightTriggerDown_tight_4l", "reweightTriggerUp_tight_4l", "reweightLeptonSFDown_tight_4l", "reweightLeptonSFUp_tight_4l"]
 reweights = ["reweightBTagDeepCSV_SF_b_Up", "reweightBTagDeepCSV_SF_b_Down", "reweightBTagDeepCSV_SF_l_Up", "reweightBTagDeepCSV_SF_l_Down", "reweightPU36fbUp", "reweightPU36fbDown"]
 reweights3l = reweights + ["reweightTriggerDown_tight_3l", "reweightTriggerUp_tight_3l", "reweightLeptonSFSystDown_tight_3l", "reweightLeptonSFSystUp_tight_3l", "reweightEleSFStatDown_tight_3l", "reweightEleSFStatUp_tight_3l", "reweightMuSFStatDown_tight_3l", "reweightMuSFStatUp_tight_3l", "reweightLeptonTrackingSFDown_tight_3l", "reweightLeptonTrackingSFUp_tight_3l"]
 reweights4l = reweights + ["reweightTriggerDown_tight_4l", "reweightTriggerUp_tight_4l", "reweightLeptonSFSystDown_tight_4l", "reweightLeptonSFSystUp_tight_4l", "reweightEleSFStatDown_tight_4l", "reweightEleSFStatUp_tight_4l", "reweightMuSFStatDown_tight_4l", "reweightMuSFStatUp_tight_4l", "reweightLeptonTrackingSFDown_tight_4l", "reweightLeptonTrackingSFUp_tight_4l"]
@@ -161,10 +164,10 @@ logger.info("Starting estimates for sample %s", setup.samples[options.sample].na
 
 for setup in allSetups:
 
-    signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
-    data        = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
-    observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
-    nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setup, cacheDir=setup.defaultCacheDir())
+    signal      = MCBasedEstimate(name="TTZ_%s"%year, sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
+    data        = DataObservation(name="Data_%s"%year, sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
+    observation = MCBasedEstimate(name="observation_%s"%year, sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
+    nonprompt   = FakeEstimate(name="nonPromptDD_%s"%year, sample=setup.samples["Data"], setup=setup, cacheDir=setup.defaultCacheDir())
 
     estimatorsC = [ copy.deepcopy(e) for e in estimators ]
     for e in estimatorsC: e.initCache(setup.defaultCacheDir())

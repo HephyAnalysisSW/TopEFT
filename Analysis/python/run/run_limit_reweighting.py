@@ -240,6 +240,12 @@ def wrapper(s):
         logger.info("Looking into backup DB for x-sec")
         p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
         xsec = p.xsecDB.get(modification_dict)
+    if not xsec:
+        try:
+            p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
+            xsec = p.xsecDB.get(modification_dict)
+        except IndexError:
+            logger.info("No x-sec found.")
     logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')
