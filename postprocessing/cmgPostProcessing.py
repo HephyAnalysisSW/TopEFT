@@ -358,7 +358,7 @@ if isSingleLep:
 
 # Load reweight pickle file if supposed to keep weights. 
 extra_variables = []
-if args.addReweights and isMC:
+if options.addReweights and isMC:
 
     # Determine coefficients for storing in vector
     # Sort Ids wrt to their position in the card file
@@ -423,7 +423,8 @@ if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,mi
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
 # store this extra Id information
-extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_2l', 'FO_1l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_2l', 'tight_1l','tight_SS']
+#extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_2l', 'FO_1l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_2l', 'tight_1l','tight_SS']
+extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
 tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
@@ -591,7 +592,7 @@ def filler( event ):
         event.reweightTriggerUp     = 1
         event.reweightTriggerDown   = 1
 
-        if args.addReweights:
+        if options.addReweights:
             event.nrw    = weightInfo.nid
             lhe_weights  = reader.products['lhe'].weights()
             weights      = []

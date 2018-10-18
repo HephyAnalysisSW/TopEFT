@@ -78,7 +78,7 @@ def getGenPartsAll(c, collection="genPartAll", genVars=genVars):
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
-lepton_selections = ['loose', 'FO_SS', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_3l', 'tight_4l']
+lepton_selections = ['loose', 'FO_SS', 'FO_1l', 'FO_2l', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_2l', 'tight_1l', 'tight_3l', 'tight_4l']
 
 # muons 
 def muonSelector( lepton_selection, year):

@@ -137,8 +137,20 @@ class SystematicEstimator:
 
     def leptonSFSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp_%s'%setup.leptonId]}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown_%s'%setup.leptonId]}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFSystUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFSystDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def eleSFSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightEleSFStatUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightEleSFStatDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def muSFSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightMuSFStatUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightMuSFStatDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def triggerSystematic(self, region, channel, setup):
