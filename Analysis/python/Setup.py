@@ -156,6 +156,7 @@ class Setup:
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
             ZGSample            = ZGTo2LG
+            #XGamma              = XGamma_17
             ZZSample            = ZZ_17
             rareSample          = rare_17
             nonpromptSample     = nonpromptMC_17
@@ -169,6 +170,7 @@ class Setup:
             TTWSample           = TTW
             TZQSample           = TZQ
             ZGSample            = ZGTo2LG
+            XGSample            = Xgamma
             ZZSample            = ZZ
             rareSample          = rare
             nonpromptSample     = nonpromptMC
@@ -184,6 +186,7 @@ class Setup:
             'TTW' :         TTWSample,
             'TZQ' :         TZQSample,
             'ZG' :          ZGSample,
+            'XG' :          XGSample,
             'rare':         rareSample,
             'ZZ':           ZZSample,
             'nonprompt':    nonpromptSample,

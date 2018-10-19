@@ -4,7 +4,7 @@ parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
-parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "WZ_amc", "TTX", "TTW", "ZG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
+parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "XG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
 parser.add_option("--overwrite", action='store_true', help="Overwrite?")
@@ -43,9 +43,9 @@ from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 import TopEFT.Tools.logger as logger
@@ -59,7 +59,7 @@ from TopEFT.Analysis.Setup              import Setup
 year                    = int(options.year)
 setup                   = Setup(year=year, nLeptons=3)
 estimators              = estimatorList(setup)
-setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])
+setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
 setup.regions           = noRegions + regionsE

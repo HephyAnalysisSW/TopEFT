@@ -85,7 +85,7 @@ if args.expected:
 ## 3l setup ##
 setup3l                 = Setup(year, nLeptons=3)
 estimators3l            = estimatorList(setup3l)
-setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
+setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup3l.reweightRegions = regionsReweight
 setup3l.channels        = [channel(-1,-1)] # == 'all'
 setup3l.regions         = regionsE if not args.merged else noRegions
@@ -518,7 +518,7 @@ def wrapper(s):
     print 'btag_heavy', min(uncertainties['btag_heavy']), max(uncertainties['btag_heavy'])
     print 'btag_light', min(uncertainties['btag_light']), max(uncertainties['btag_light'])
     print 'trigger', min(uncertainties['trigger']), max(uncertainties['trigger'])
-    print 'leptonSF', min(uncertainties['leptonSF']), max(uncertainties['leptonSF'])
+    print 'leptonSF', min(uncertainties['leptonSFSyst']), max(uncertainties['leptonSFSyst'])
 
 
 

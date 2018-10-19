@@ -32,7 +32,7 @@ def wrapper(s):
     #name = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
     name = "ewkDM_ttZ_ll"
     cardFile = name+".txt"
-    cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc_expected_SRandCR/ewkDM_dipoles/"+cardFile
+    cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc_SRandCR/ewkDM_dipoles/"+cardFile
     combineDirname = os.path.join(releaseLocation, "ewkDM_dipoles")
     logger.info("Creating %s"%combineDirname)
     if not os.path.isdir(combineDirname): os.makedirs(combineDirname)
@@ -59,7 +59,7 @@ def wrapper(s):
     if args.bkgOnly:
         shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s_bkgOnly.pdf"%(plotDir,"ewkDM"))
     else:
-        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"ewkDM_SM_expected_preapp"))
+        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"ewkDM_SM_expected_preARC"))
     logger.info("Copied result to %s"%plotDir)
 
     if args.removeDir:
