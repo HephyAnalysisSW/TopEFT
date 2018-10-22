@@ -311,7 +311,7 @@ def drawLabelsLower( regions ):
     diff = (max-min) / len(regions)
     
     lines  = [(min+6*diff, 0.10, "N_{b}=0"),        (min+13.5*diff, 0.10, "N_{b}#geq0"),      (min+21*diff, 0.10, "N_{b}#geq1"),      (min+28.5*diff, 0.10, "N_{b}#geq1")]
-    lines += [(min+6*diff, 0.21, "N_{jet}#geq1"),   (min+13.5*diff, 0.21, "N_{jet}#geq1"),    (min+21*diff, 0.21, "N_{jet}#geq3"),    (min+28.5*diff, 0.21, "N_{jet}#geq1")]
+    lines += [(min+6*diff, 0.21, "N_{jet}#geq1"),   (min+13.5*diff, 0.21, "N_{jet}#geq0"),    (min+21*diff, 0.21, "N_{jet}#geq3"),    (min+28.5*diff, 0.21, "N_{jet}#geq1")]
     lines += [(min+6*diff, 0.32, "N_{lep}=3"),      (min+13.5*diff, 0.32, "N_{lep}=4"),       (min+21*diff, 0.32, "N_{lep}=3"),       (min+28.5*diff, 0.32, "N_{lep}=4")]
 
     return [tex.DrawLatex(*l) for l in lines]

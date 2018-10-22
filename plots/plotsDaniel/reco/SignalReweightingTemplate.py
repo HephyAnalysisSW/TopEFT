@@ -51,7 +51,7 @@ class SignalReweighting:
         self.template_draw_string = 'Z_pt:Z_cosThetaStar'
 
     def initCache(self, cacheDir):
-        self.cache = resultsDB(os.path.join(cacheDir, 'signalReweightingTemplates.sql'), "signalWeights", ["selection", "weight", "source", "target"])
+        self.cache = resultsDB(os.path.join(cacheDir, 'signalReweightingTemplates_v2.sql'), "signalWeights", ["selection", "weight", "source", "target"])
         #if cacheDir:
         #    self.cacheDir = cacheDir
         #    try:    os.makedirs(cacheDir)
@@ -129,15 +129,15 @@ if __name__ == "__main__":
     # reweighting class
     cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
     
-    #source_gen = ewkDM_ttZ_ll_gen
-    #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
+    source_gen = ewkDM_ttZ_ll_gen
+    target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
     #target_gen = ewkDM_ttZ_ll_gen_DC2A_0p200000_DC2V_0p200000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_1p000000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
     
-    source_gen = dim6top_all[0]
-    target_gen = dim6top_dipoles[313]
+    #source_gen = dim6top_all[0]
+    #target_gen = dim6top_dipoles[313]
     #target_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
 
     signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = target_gen, cacheDir = cacheDir)
@@ -173,8 +173,8 @@ if __name__ == "__main__":
     if args.makePlots:
     
         # reco signals
-        postProcessing_directory = "TopEFT_PP_v19/trilep/"
-        data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+        postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
+        data_directory           = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
         from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
         source_reco = ttZ0j_ll
@@ -380,45 +380,45 @@ if __name__ == "__main__":
         scaling = {1:0, 2:0}
         ghistos = [ [h_g_pt['source']], [h_g_pt['target']], [h_g_pt['source_reweighted']] ]
         gplot = Plot.fromHisto( "pt_gen", texX = 'p_{T}(Z) (gen)' , texY = 'a.u.', histos = ghistos)
-        plotting.draw( gplot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, copyIndexPHP = True, scaling = scaling)
+        plotting.draw( gplot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, copyIndexPHP = True, scaling = scaling)
 
         histos = [ [h_pt['source']], [h_pt['target']], [h_pt['source_reweighted']] ]
         plot = Plot.fromHisto( "pt", texX = 'p_{T}(Z) (reco)', texY = 'a.u.', histos = histos)
-        plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 )) 
+        plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 )) 
 
         for var in plotVars:
             h[var]['source_reweighted'].Scale( h[var]['target'].Integral()/h[var]['source_reweighted'].Integral())
             histos = [ [h[var]['source']], [h[var]['target']], [h[var]['source_reweighted']] ]
             plot = Plot.fromHisto( var, texX = h[var]['texX'], texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = True, yRange = (0.008,8.), copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = True, yRange = (0.008,8.), copyIndexPHP = True, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
 
         for pt_bin in pt_bins:
             histos = [ [h_cosThetaStar_pt['source'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i"%pt_bin, texX = 'cos(#theta^{*}) (reco)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 )) 
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 )) 
 
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['source'][pt_bin]], [h_g_cosThetaStar_pt['target'][pt_bin]], [h_g_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_gen"%pt_bin, texX = 'cos(#theta^{*}) (gen)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
         scaling = {1:0}
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_target"%pt_bin, texX = 'cos(#theta^{*}) (target)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
         
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['source'][pt_bin]], [h_cosThetaStar_pt['source'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_source"%pt_bin, texX = 'cos(#theta^{*}) (source)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
         for pt_bin in pt_bins:
             h_g_cosThetaStar_pt['target'][pt_bin].Divide(h_g_cosThetaStar_pt['source'][pt_bin])
             h_cosThetaStar_pt['target'][pt_bin].Divide(h_cosThetaStar_pt['source'][pt_bin])
             histos = [ [h_g_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_ratio"%pt_bin, texX = 'cos(#theta^{*}) (ratio)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
     
