@@ -33,7 +33,7 @@ def get_parser():
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD', 'DYVsQCD_ptRelSorted'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
     argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'],         required = True, help="Which variable for binning?")
@@ -77,7 +77,7 @@ binnedList.update({"nTrueInt": {"VarName":"nTrueInt",                           
 
 logY=0
 
-relIsoCuts=[1.0]
+relIsoCuts=[0.5]
 
 ptCuts=[]
 if options.binned=='pt':
@@ -143,7 +143,8 @@ for leptonFlavour in leptonFlavourList:
                 y_eS = array('d')
                 y_eB = array('d')
 
-                #calculate cut value for eB<=0.01 on average for e.g. n=2 data bins 
+                #calculate cut value for eB<=0.01 on average for e.g. n=options.eBbins data bins
+                #select reader data
                 for i in xrange(int(binnedList[options.binned]["bins"]/binnedList[options.binned]["binsEB"])):
                     binReaderData = [readerData[k] for k in xrange(i*binnedList[options.binned]["binsEB"],(i+1)*binnedList[options.binned]["binsEB"])]
                     eBreaderData  = []
@@ -151,59 +152,28 @@ for leptonFlavour in leptonFlavourList:
                         for datapoint in dataset:
                             eBreaderData.append(datapoint) 
 
-                    if plot['Type']=='DL_Id':
-                        prange = [pval*0.01 for pval in xrange(85,90)]
-                        for pval in xrange(901,990):
-                            prange.append(pval*0.001)
-                        for pval in xrange(9901,9990):
-                            prange.append(pval*0.0001)
-                        for pval in xrange(99901,99990):
-                            prange.append(pval*0.00001)
-                        for pval in xrange(999901,999990):
-                            prange.append(pval*0.000001)
-                        for pval in xrange(9999901,9999990):
-                            prange.append(pval*0.0000001)
-                        for pval in xrange(99999901,99999990):
-                            prange.append(pval*0.00000001)
-                        for pval in xrange(999999901,999999990):
-                            prange.append(pval*0.000000001)
-                    if plot['Type']=='MVA_Id':
-                        prange = [pval*0.0001 for pval in xrange(9000,10000)]
+                    #find maxpval, where eB(maxpval, eBreaderData)<=0.01
+                    factorList = [[10**val, 0.1**val] for val in xrange(1,10)]
+                    maxpval = 1.
+                    for factor in factorList:
+                        prange = [pval*factor[1] for pval in xrange(maxpval*factor[0]-10,maxpval*factor[0])]
+                        for pval in prange:
+                            eBVal = eB(pval,eBreaderData)
+                            if eBVal<=0.01 and not eBVal==0.:
+                                maxpval = pval
+                                break
 
-                    eBValMin=1.1
-                    for pval in prange:
-                        eBVal=eB(pval,eBreaderData)
-                        if eBVal<eBValMin:
-                            eBValMin=eBVal
-                            cutVal=pval 
-                        #print pval, xval
-                        if eBValMin<=0.01 and not eBValMin==0.:
-                            break
-                    print cutVal, eBValMin
+                    print '\n'
+                    print maxpval, eBVal
+
+                    #calculate bin values
                     for dataset in binReaderData:
                         j += 1
                         if not len(dataset)==0:
                             x.append(j*binWidth)
-                            y_eS.append(eS(cutVal,dataset))
-                            y_eB.append(eB(cutVal,dataset)*10)
-                            print j*binWidth, cutVal, y_eB[-1], y_eS[-1]
-
-                #old bin-wise calculation of cut value
-                #for dataset in readerData:
-                #    #print j+1, len(dataset)
-                #    j += 1
-                #    prange=[1] if plot["Type"]=="POG_Id" else [pval*0.0001 for pval in range(9000,10000)]
-                #    for pval in prange:
-                #        xval=eB(pval,dataset)
-                #        p=pval 
-                #        #print pval, xval
-                #        if xval<=0.01:
-                #            break
-                #    if not len(dataset)==0:
-                #        x.append(j*5)
-                #        y_eS.append(eS(p,dataset))
-                #        y_eB.append(xval)
-                #        print j*5, p, xval, y_eS[-1]
+                            y_eS.append(eS(maxpval,dataset))
+                            y_eB.append(eB(maxpval,dataset)*10)
+                            print j*binWidth, maxpval, y_eB[-1], y_eS[-1]
 
                 #Draw Graphs
                 n=len(x)
