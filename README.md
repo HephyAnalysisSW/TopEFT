@@ -1,6 +1,27 @@
 # TopEFT
 Repository for work on top quark coupling measurements
 
+## Gridpacks:  
+  
+Code taken from the TTXPheno/gridpacks repository. Cards available there!  
+Available gridpacks, pkl files, customize cards and STDOUTs stored at:  
+```  
+/afs/hephy.at/data/llechner01/TopEFT/gridpacks/<date>/<process>/order<poly order>/  
+```  
+### 25/09/2018  
+2nd order WC gridpacks  
+Reference Point: ctZ = 4., ctZI = 4., ctW = 4., ctWI = 4.  
+Run cards and proc cards taken from TTGamma_Dilept CMS Analysis
+changed to DIM6 model with DIM6 <= 1 for the gamma vertex
+
+| process               | poly order | # coeff | Wilson coefficients  | Link to GEN-SIM events | Link to MiniAOD events |  
+|:---------------------:|:----------:|:-------:|:--------------------:|:----------------------:|:----------------------:|  
+| ttgamma dilept        | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma semilept t    | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma semilept tbar | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma had           | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+
+
 ## Installation CMSSW_9_4_X
 
 ```

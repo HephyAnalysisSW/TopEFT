@@ -177,15 +177,15 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as hep
 data_07Aug17_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
 # Summer16 MC
-mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14_4.pkl'
-robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16']
+mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14_5.pkl'
+robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16', '/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v16']
 mc_dpm_directories = robert_2016_1l_v1
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, mc_cache_file, multithreading=multithreading)
 
 # Private signal MC with 0 jets (LO) and 0 lepton requirement
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_2016_0l_v1.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_0l_v1']
+signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_2016_1l_v18.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v18']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttX0j_signal_samples
 signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading)

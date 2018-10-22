@@ -78,20 +78,26 @@ def getGenPartsAll(c, collection="genPartAll", genVars=genVars):
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
-lepton_selections = ['loose', 'FO_SS', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_3l', 'tight_4l']
+lepton_selections = ['loose', 'FO_SS', 'FO_1l', 'FO_2l', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_2l', 'tight_1l', 'tight_3l', 'tight_4l']
 
 # muons 
 def muonSelector( lepton_selection, year):
 
     mva_threshold_4l = -0.4
     mva_threshold_3l = 0.4
+    mva_threshold_2l = 0.4 # DUMMY VALUE, change ASAP
+    mva_threshold_1l = 0.4 # DUMMY VALUE, change ASAP
     mva_threshold_SS = 0.6
 
     closestJetDCsvFO_3l = 0.5 if year == 2017 else 0.4
+    closestJetDCsvFO_2l = 0.5 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
+    closestJetDCsvFO_1l = 0.5 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
     closestJetDCsvFO    = 0.4 if year == 2017 else 0.3
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
 
     ptRatioThreshold_3l = 0.4 if year == 2017 else 0.4 # keep in case of changes
+    ptRatioThreshold_2l = 0.4 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
+    ptRatioThreshold_1l = 0.4 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
     ptRatioThreshold    = 0.4 if year == 2017 else 0.5
 
     if lepton_selection not in lepton_selections:
@@ -133,6 +139,26 @@ def muonSelector( lepton_selection, year):
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
                 and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold_3l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_3l ) or l["mvaTTV"] >= mva_threshold_3l )
 
+    elif lepton_selection == 'FO_2l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_2l and l["jetPtRatiov2"] > ptRatioThreshold_2l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_2l ) or l["mvaTTV"] >= mva_threshold_2l )
+
+    elif lepton_selection == 'FO_1l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_1l and l["jetPtRatiov2"] > ptRatioThreshold_1l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_1l ) or l["mvaTTV"] >= mva_threshold_1l )
+
     elif lepton_selection == 'FO_SS':
         loose_ = muonSelector( 'loose', year )
         def func(l):
@@ -162,6 +188,26 @@ def muonSelector( lepton_selection, year):
                 and l["mediumMuonId"]>=1\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
                 and l["mvaTTV"] >= mva_threshold_3l
+
+    elif lepton_selection == 'tight_2l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_2l
+
+    elif lepton_selection == 'tight_1l':
+        loose_ = muonSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["mediumMuonId"]>=1\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_1l
 
     elif lepton_selection == 'tight_SS':
         loose_ = muonSelector( 'loose', year )
@@ -194,29 +240,38 @@ def eleSelector( lepton_selection, year ):
 
     mva_threshold_4l = -0.4
     mva_threshold_3l = 0.4
+    mva_threshold_2l = 0.4 # DUMMY VALUE, change ASAP
+    mva_threshold_1l = 0.4 # DUMMY VALUE, change ASAP
     mva_threshold_SS = 0.6
 
     closestJetDCsvFO_3l = 0.5 if year == 2017 else 0.4
+    closestJetDCsvFO_2l = 0.5 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
+    closestJetDCsvFO_1l = 0.5 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
     closestJetDCsvFO    = 0.4 if year == 2017 else 0.3
     closestJetDCsv      = 0.8001 if year == 2017 else 0.8958
 
     ptRatioThreshold_3l = 0.4 if year == 2017 else 0.4 # keep in case of changes
+    ptRatioThreshold_2l = 0.4 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
+    ptRatioThreshold_1l = 0.4 if year == 2017 else 0.4 # DUMMY VALUE, change ASAP
     ptRatioThreshold    = 0.4 if year == 2017 else 0.5
 
     eleMVA              = "mvaIdFall17noIso" if year == 2017 else "mvaIdSpring16"
 
     eleMVAval1_3l       = -0.3 if year == 2017 else -0.1
+    eleMVAval1_2l       = -0.3 if year == 2017 else -0.1 # DUMMY VALUE, change ASAP
+    eleMVAval1_1l       = -0.3 if year == 2017 else -0.1 # DUMMY VALUE, change ASAP
     eleMVAval1          =  0.4 if year == 2017 else  0.3
 
     eleMVAval2_3l       =  0.6 if year == 2017 else  0.8
+    eleMVAval2_2l       =  0.6 if year == 2017 else  0.8 # DUMMY VALUE, change ASAP
+    eleMVAval2_1l       =  0.6 if year == 2017 else  0.8 # DUMMY VALUE, change ASAP
     eleMVAval2          =  0.4 if year == 2017 else  0.3
 
 
     if lepton_selection not in lepton_selections:
         raise ValueError( "Don't know about ele selection %r. Allowed: %r" % (lepton_selection, lepton_selections) )
 
-    '''
-    All selections based on loose definition
+    ''' All selections based on loose definition
     '''
 
     if lepton_selection == 'loose':
@@ -250,6 +305,24 @@ def eleSelector( lepton_selection, year ):
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
                 and ( ( l["mvaTTV"] < mva_threshold_3l and l["jetPtRatiov2"] > ptRatioThreshold_3l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_3l and l[eleMVA] >= (eleMVAval1_3l + (abs(l["eta"])>=1.479) * eleMVAval2_3l )) or l["mvaTTV"] >= mva_threshold_3l )
 
+    elif lepton_selection == 'FO_2l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_2l and l["jetPtRatiov2"] > ptRatioThreshold_2l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_2l and l[eleMVA] >= (eleMVAval1_2l + (abs(l["eta"])>=1.479) * eleMVAval2_2l )) or l["mvaTTV"] >= mva_threshold_2l )
+
+    elif lepton_selection == 'FO_1l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and ( ( l["mvaTTV"] < mva_threshold_1l and l["jetPtRatiov2"] > ptRatioThreshold_1l and l["jetBTagDeepCSV"] <= closestJetDCsvFO_1l and l[eleMVA] >= (eleMVAval1_1l + (abs(l["eta"])>=1.479) * eleMVAval2_1l )) or l["mvaTTV"] >= mva_threshold_1l )
+
     elif lepton_selection == 'FO_SS':
         loose_ = eleSelector( 'loose', year )
         def func(l):
@@ -276,6 +349,24 @@ def eleSelector( lepton_selection, year ):
                 and l["pt"] >= 10\
                 and l["jetBTagDeepCSV"] <= closestJetDCsv\
                 and l["mvaTTV"] >= mva_threshold_3l
+
+    elif lepton_selection == 'tight_2l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_2l
+
+    elif lepton_selection == 'tight_1l':
+        loose_ = eleSelector( 'loose', year )
+        def func(l):
+            return \
+                loose_(l) \
+                and l["pt"] >= 10\
+                and l["jetBTagDeepCSV"] <= closestJetDCsv\
+                and l["mvaTTV"] >= mva_threshold_1l
 
     elif lepton_selection == 'tight_SS':
         loose_ = eleSelector( 'loose', year )
@@ -341,8 +432,10 @@ def getGoodTaus(c, collVars=tauVars):
 idCutBased={'loose':1 ,'medium':2, 'tight':3}
 photonVars=['eta','pt','phi','mass','idCutBased','pdgId']
 photonVarsMC = photonVars + ['mcPt']
+
 def getPhotons(c, collVars=photonVars, idLevel='loose'):
     return [getObjDict(c, 'gamma_', collVars, i) for i in range(int(getVarValue(c, 'ngamma')))]
+
 def getGoodPhotons(c, ptCut=50, idLevel="loose", isData=True, collVars=None):
     if collVars is None: collVars = photonVars if isData else photonVarsMC
     return [p for p in getPhotons(c, collVars) if p['idCutBased'] >= idCutBased[idLevel] and p['pt'] > ptCut and p['pdgId']==22]
@@ -366,5 +459,6 @@ def getFilterCut(isData=False, isFastSim = False, year = 2016):
 
 def isGoodDelphesJet( j, ptCut=30, absEtaCut=2.4, ptVar='pt'):
   return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  
+
 def isGoodDelphesLepton( j, ptCut=10, absEtaCut=3, ptVar='pt'):
   return j[ptVar]>ptCut and abs(j['eta'])<absEtaCut  

@@ -4,19 +4,19 @@ config = Configuration()
 
 config.section_("General")
 config.General.requestName = "tmp"
-config.General.workArea = 'crab_dim6top'
+config.General.workArea = 'crab_dim6top_18Mai18'
 config.General.transferLogs = True
 
 config.section_("JobType")
 config.JobType.pluginName = 'PrivateMC'
-config.JobType.psetName = '../cfg/GEN-SIM-LHE_LO_0j_CMSSW_9_3_1.py'
+config.JobType.psetName = '../cfg/2017/GEN-SIM-LHE_LO_0j_CMSSW_9_3_1.py'
 config.JobType.disableAutomaticOutputCollection = False
 
 config.section_("Data")
 config.Data.splitting = 'EventBased'
 
 config.Data.unitsPerJob = 5000
-config.Data.totalUnits  = 1000000 
+config.Data.totalUnits  = 5000000 
 config.Data.publication = True
 config.Data.publishDBS = 'phys03'
 
@@ -29,7 +29,7 @@ config.Site.storageSite = 'T2_AT_Vienna'
 config.section_("User")
 
 if __name__ == '__main__':
-    gridpack_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/"
+    gridpack_dir = "/afs/hephy.at/data/llechner01/TTXPheno/gridpacks/18052018_ref/ttgamma/order2/"
 
     import os
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     for outputDatasetTag, gridpack in [
 
-        ('dim6top_21March18','ttZ0j_rwgt_625_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.tar.xz'),
+        ('dim6top_18Mai18_ref','ttgamma0j_rwgt_slc6_amd64_gcc630_CMSSW_9_3_0_tarball.tar.xz'),
     ]:
         config.Data.outputDatasetTag = outputDatasetTag
         config.JobType.inputFiles = [os.path.join(gridpack_dir, gridpack)]

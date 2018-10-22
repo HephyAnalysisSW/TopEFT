@@ -4,27 +4,41 @@ import os
 
 # RootTools
 from RootTools.core.standard import *
+from TopEFT.Tools.user import trainingFiles_directory as base_directory
 
 def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
 
     #define paths and names
-    base_directory = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/'
+    #base_directory = trainingsFiles_directory
     file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
     texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
     texfilePath    = os.path.join(file_directory, texfileName)
     
-    predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'evaluation' if sampleSize=='full' else sampleSize+'_evaluation', 'testdata' if isTestData else 'traindata')
+    if sampleSize == 'full':
+        sizePattern = '_'
+    elif sampleSize =='small':
+        sizePattern = '_Small'
+    elif sampleSize =='medium':
+        sizePattern = '_Medium'
+    elif sampleSize =='large':
+        sizePattern = '_Large'
+        
+    predict_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
 
     #create FileList
-    with open(texfilePath,'r') as f:
-        if trainingDate==0:
+    if trainingDate==0:
+        with open(texfilePath,'r') as f:
             FileList = f.read().splitlines()
-        else:
-            FileList = os.listdir(predict_directory)
-            if 'tree_association.txt' in FileList:
-                FileList.remove('tree_association.txt')
-            FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
+    else:
+        FileList = os.listdir(predict_directory)
+        if 'tree_association.txt' in FileList:
+            FileList.remove('tree_association.txt')
+        FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
+
+    #limit length of FileList, to save time for plot processing
+    #if len(FileList)>50:
+    #    del FileList[50:]
 
     FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
     sample   = Sample.fromFiles( leptonFlavour, texName = sample_texName, files =FileList, treeName="tree")
@@ -42,6 +56,45 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     samples={"leptonFlavour":leptonFlavour, "sample":sample, "trainingDate":trainingDate, "isTestData":isTestData}
     
     return samples
+
+#old version
+#def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
+#
+#    #define paths and names
+#    base_directory = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/'
+#    file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
+#    sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
+#    texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
+#    texfilePath    = os.path.join(file_directory, texfileName)
+#    
+#    predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'evaluation' if sampleSize=='full' else sampleSize+'_evaluation', 'testdata' if isTestData else 'traindata')
+#
+#    #create FileList
+#    if trainingDate==0:
+#        with open(texfilePath,'r') as f:
+#            FileList = f.read().splitlines()
+#    else:
+#        FileList = os.listdir(predict_directory)
+#        if 'tree_association.txt' in FileList:
+#            FileList.remove('tree_association.txt')
+#        FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
+#
+#    FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
+#    sample   = Sample.fromFiles( leptonFlavour, texName = sample_texName, files =FileList, treeName="tree")
+#
+#    if not trainingDate==0:
+#        FilePredictList = os.listdir(predict_directory)
+#        if 'tree_association.txt' in FilePredictList:
+#            FilePredictList.remove('tree_association.txt')
+#
+#        FilePredictList = [filepath.replace(filepath, os.path.join(predict_directory, filepath)) for filepath in FilePredictList]
+#
+#        samplePredict = Sample.fromFiles( leptonFlavour+"_friend", texName = sample_texName+"_predict", files = FilePredictList, treeName="tree")
+#        sample.addFriend(samplePredict, "tree")
+#
+#    samples={"leptonFlavour":leptonFlavour, "sample":sample, "trainingDate":trainingDate, "isTestData":isTestData}
+#    
+#    return samples
 
 def histo_plot_variables(trainingDate):
 

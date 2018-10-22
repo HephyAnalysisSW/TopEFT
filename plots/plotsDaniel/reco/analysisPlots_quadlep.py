@@ -72,20 +72,20 @@ if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 
 if args.year == 2016:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2016_mva_v16/trilep/"
+    postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
     from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 
 else:
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
     from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
     # load MC from here for now
     data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    postProcessing_directory = "TopEFT_PP_2017_mva_v14/trilep/"
+    postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
     from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
@@ -179,6 +179,10 @@ def drawPlots(plots, mode, dataMCScale):
 
 # define 4l selections
 offZ2 = "&&abs(Z2_mass_4l-91.2)>20" if args.selection.count("offZ2") else ""
+offZ2 = "&&met_pt > 80" if args.selection.count("offZ2met") else offZ2
+
+print offZ2
+
 def getLeptonSelection( mode ):
     if   mode=="mumumumu":  return "nMuons_tight_4l==4&&nElectrons_tight_4l==0" + offZ2
     elif mode=="mumumue":   return "nMuons_tight_4l==3&&nElectrons_tight_4l==1"
@@ -573,7 +577,7 @@ for index, mode in enumerate(allModes):
             sample.reduceFiles( to = 1 )
 
     # Use some defaults
-    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='both')
+    Plot.setDefaults(stack = stack, weight = staticmethod(weight_), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='both')
 
     plots = []
     

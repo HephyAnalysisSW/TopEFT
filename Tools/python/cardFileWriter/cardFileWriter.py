@@ -366,15 +366,21 @@ class cardFileWriter:
           self.writeToFile(filename)
 
         # too tight constraints lead to failing fits
-        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 0.99 --rMax 1.01 -n Nominal --saveNLL --forceRecreateNLL "+filename
-        print combineCommand
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py -o myWorkspace.root --channel-masks --X-allow-no-signal %s"%filename
         os.system(combineCommand)
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --algo grid --points 1 --rMin 0.99 --rMax 1.01 -n Nominal --saveNLL --saveSpecifiedNuis=all %s --setParameters %s"%(normOption,masks)
+        #os.system(combineCommand)
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 0.99 --rMax 1.01 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        #print combineCommand
+        #os.system(combineCommand)
         nll = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
+        print nll
         combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 100 --rMin 0. --rMax 2.0 -n Nominal %s --saveNLL --forceRecreateNLL %s > log.txt"%(options, filename)
         os.system(combineCommand)
         nll2 = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
-        
+        print nll2
+
         nll["bestfit"] = nll2["nll"]
         #print "Comparing the two fits"
         #print nll["nll0"], nll2["nll0"]

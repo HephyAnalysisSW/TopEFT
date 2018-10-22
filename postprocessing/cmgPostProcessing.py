@@ -28,6 +28,9 @@ from TopEFT.Tools.objectSelection            import getGoodBJets, getGoodJets, i
 from TopEFT.Tools.overlapRemovalTTG          import getTTGJetsEventType
 from TopEFT.Tools.puProfileCache             import puProfile
 
+from TopEFT.Tools.WeightInfo                 import WeightInfo
+from TopEFT.Tools.HyperPoly                  import HyperPoly
+
 from TopEFT.Tools.mt2Calculator              import mt2Calculator
 from TopEFT.Tools.genMatch                   import getGenMatch
 from TopEFT.Tools.user                       import results_directory
@@ -74,8 +77,11 @@ def get_parser():
     argParser.add_argument('--remakeTTVLeptonMVA',          action='store_true',                                                    default=True,                       help="Remake TTV lepton MVA?")
     argParser.add_argument('--skipSystematicVariations',    action='store_true',                                                                                        help="Don't calulcate BTag, JES and JER variations.")
     argParser.add_argument('--doTopPtReweighting',          action='store_true',                                                                                        help="Top pt reweighting?")
+    argParser.add_argument('--doCRReweighting',             action='store_true',                                                                                        help="color reconnection reweighting?")
     argParser.add_argument('--forceProxy',                  action='store_true',                                                                                        help="Don't check certificate")
     argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
+    argParser.add_argument('--addReweights',                action='store_true',                                                                                        help="Add reweights for sample EFT reweighting?")
+    argParser.add_argument('--interpolationOrder',          action='store',         nargs='?',  type=int,                           default=2,                          help="Interpolation order for EFT weights.")
 
     return argParser
 
@@ -92,7 +98,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 # Flags 
 isDiLep     =   options.skim.lower().startswith('dilep')
 isTriLep    =   options.skim.lower().startswith('trilep')
-isQuadLep    =   options.skim.lower().startswith('quadlep')
+isQuadLep   =   options.skim.lower().startswith('quadlep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
 isInclusive =   options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
@@ -133,7 +139,7 @@ if len(samples)==0:
     sys.exit(-1)
 
 isData = False not in [s.isData for s in samples]
-isMC   =  True not in [s.isData for s in samples]
+isMC   = True not in [s.isData for s in samples]
 
 # Check that all samples which are concatenated have the same x-section.
 assert isData or len(set([s.heppy.xSection for s in samples]))==1, "Not all samples have the same xSection: %s !"%(",".join([s.name for s in samples]))
@@ -143,7 +149,7 @@ xSection = samples[0].heppy.xSection if isMC else None
 
 # Trigger selection
 from TopEFT.Tools.triggerSelector import triggerSelector
-ts = triggerSelector(options.year)
+ts           = triggerSelector(options.year)
 triggerCond  = ts.getSelection(options.samples[0] if isData else "MC")
 treeFormulas = {"triggerDecision": {'string':triggerCond} }
 if isData and options.triggerSelection:
@@ -173,6 +179,13 @@ elif len(samples)==1:
     sample = samples[0]
 else:
     raise ValueError( "Need at least one sample. Got %r",samples )
+
+try:
+    xsec = sample.xsec
+    nEvents = sample.nEvents
+    lumiweight1fb = xsec * 1000. / nEvents
+except:
+    pass
 
 if options.fileBasedSplitting:
     len_orig = len(sample.files)
@@ -209,6 +222,22 @@ if doTopPtReweighting:
 else:
     topScaleF = 1
     logger.info( "Sample will NOT have top pt reweighting. topScaleF=%f",topScaleF )
+
+if options.doCRReweighting:
+    from TopEFT.Tools.colorReconnectionReweighting import getCRWeight, getCRDrawString
+    logger.info( "Sample will have CR reweighting." )
+    selectionString = "&&".join(skimConds)
+    print sample.weightString
+    #norm = sample.getYieldFromDraw( selectionString = selectionString, weightString = "genWeight" )
+    norm = float(sample.chain.GetEntries(selectionString))
+    CRScaleF = sample.getYieldFromDraw( selectionString = selectionString, weightString = getCRDrawString() )
+    print CRScaleF['val']
+    CRScaleF = CRScaleF['val']/norm#['val']
+    logger.info(" Using norm: %s"%norm )
+    logger.info(" Found CRScaleF: %s"%CRScaleF)
+else:
+    CRScaleF = 1
+    logger.info( "Sample will NOT have CR reweighting. CRScaleF=%f",CRScaleF )
 
 # systematic variations
 addSystematicVariations = (not isData) and (not options.skipSystematicVariations)
@@ -327,6 +356,27 @@ if options.keepLHEWeights:
 if isSingleLep:
     branchKeepStrings_DATAMC += ['HLT_*']
 
+# Load reweight pickle file if supposed to keep weights. 
+extra_variables = []
+if options.addReweights and isMC:
+
+    # Determine coefficients for storing in vector
+    # Sort Ids wrt to their position in the card file
+
+    weightInfo = WeightInfo( sample.reweight_pkl )
+
+    # weights for the ntuple
+    rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in weightInfo.variables)+"]")
+    rw_vector.nMax  = weightInfo.nid
+    extra_variables.append(rw_vector)
+
+    # coefficients for the weight parametrization
+    param_vector      = TreeVariable.fromString( "p[C/F]" )
+    param_vector.nMax = HyperPoly.get_ndof(weightInfo.nvar, options.interpolationOrder)
+    hyperPoly         = HyperPoly( options.interpolationOrder )
+    extra_variables.append(param_vector)
+    extra_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
+
 # Jet variables to be read from chain
 jetCorrInfo = ['corr/F', 'corr_JECUp/F', 'corr_JECDown/F'] if addSystematicVariations else []
 if isMC:
@@ -373,6 +423,7 @@ if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,mi
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
 # store this extra Id information
+#extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_2l', 'FO_1l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_2l', 'tight_1l','tight_SS']
 extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
 tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
@@ -399,11 +450,13 @@ if isMC:
             new_variables.append('PSweight_%s_%s/F'%(multiplier, ps))
     if options.doTopPtReweighting: 
         new_variables.append('reweightTopPt/F')
+    if options.doCRReweighting:
+        new_variables.append('reweightCR/F')
 
     new_variables.extend(['reweightPU36fb/F','reweightPU36fbUp/F','reweightPU36fbDown/F'])
-    for i in ["tight_SS","tight_3l","tight_4l"]:
+    for i in ["tight_SS","tight_1l","tight_2l","tight_3l","tight_4l"]:
         new_variables.extend(['reweightTrigger_%s/F'%i, 'reweightTriggerUp_%s/F'%i, 'reweightTriggerDown_%s/F'%i, 'reweightLeptonTrackingSF_%s/F'%i,'reweightLeptonTrackingSFUp_%s/F'%i, 'reweightLeptonTrackingSFDown_%s/F'%i])
-        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightLeptonSFUp_%s/F'%i, 'reweightLeptonSFDown_%s/F'%i])
+        new_variables.extend(['reweightLeptonSF_%s/F'%i, 'reweightLeptonSFSyst_%s/F'%i, 'reweightLeptonSFSystUp_%s/F'%i, 'reweightLeptonSFSystDown_%s/F'%i, 'reweightMuSFStat_%s/F'%i, 'reweightMuSFStatUp_%s/F'%i, 'reweightMuSFStatDown_%s/F'%i, 'reweightEleSFStat_%s/F'%i, 'reweightEleSFStatUp_%s/F'%i, 'reweightEleSFStatDown_%s/F'%i ])
 
     if not options.skipGenMatching:
         TreeVariable.fromString( 'nGenLep/I' ),
@@ -520,16 +573,58 @@ def filler( event ):
 
     # weight
     if isMC:
-        event.weight = lumiScaleFactor*r.genWeight if lumiScaleFactor is not None else 1
+        if lumiScaleFactor is not None:
+            event.weight = lumiScaleFactor*r.genWeight
+        else:
+            try:
+                event.weight = event.lumiweight1fb
+            except:
+                event.weight = 1
+
         if isnan(event.weight):
             logger.info("Weight is NaN! genweight: %s, lumiScaleFactor: %s"%(r.genWeight, lumiScaleFactor))
             event.weight = 0.
+
         event.reweightLeptonTrackingSF      = 1
         event.reweightLeptonTrackingSFUp    = 1
         event.reweightLeptonTrackingSFDown  = 1
         event.reweightTrigger       = 1
         event.reweightTriggerUp     = 1
         event.reweightTriggerDown   = 1
+
+        if options.addReweights:
+            event.nrw    = weightInfo.nid
+            lhe_weights  = reader.products['lhe'].weights()
+            weights      = []
+            param_points = []
+            for weight in lhe_weights:
+                # Store nominal weight (First position!) 
+                if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
+                if not weight.id in weightInfo.id: continue
+                pos = weightInfo.data[weight.id]
+                event.rw_w[pos] = weight.wgt
+                weights.append( weight.wgt )
+                interpreted_weight = interpret_weight(weight.id)
+                for var in weightInfo.variables:
+                    getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
+                # weight data for interpolation
+                if not hyperPoly.initialized:
+                    param_points.append( tuple(interpreted_weight[var] for var in weightInfo.variables) )
+
+            # get list of values of ref point in specific order
+            ref_point_coordinates = [weightInfo.ref_point_coordinates[var] for var in weightInfo.variables]
+
+            # Initialize with Reference Point
+            if not hyperPoly.initialized: hyperPoly.initialize( param_points, ref_point_coordinates )
+            coeff = hyperPoly.get_parametrization( weights )
+
+            # = HyperPoly(weight_data, args.interpolationOrder)
+            event.np = hyperPoly.ndof
+            event.chi2_ndof = hyperPoly.chi2_ndof(coeff, weights)
+            #logger.debug( "chi2_ndof %f coeff %r", event.chi2_ndof, coeff )
+            if event.chi2_ndof>10**-6: logger.warning( "chi2_ndof is large: %f", event.chi2_ndof )
+            for n in xrange(hyperPoly.ndof):
+                event.p_C[n] = coeff[n]
 
     elif isData:
         event.weight = 1
@@ -610,7 +705,6 @@ def filler( event ):
     if isMC:
         for tight_id in tight_lep_ids:
 
-            
             # initialize the weights with 0 to not run into problems with nan handeling in root
             setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      0)
             setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    0)
@@ -621,8 +715,15 @@ def filler( event ):
             setattr(event, "reweightTriggerDown_%s"%tight_id,    0)
             
             setattr(event, "reweightLeptonSF_%s"%tight_id,      0)
-            setattr(event, "reweightLeptonSFUp_%s"%tight_id,    0)
-            setattr(event, "reweightLeptonSFDown_%s"%tight_id,  0)
+
+            setattr(event, "reweightLeptonSFSyst_%s"%(tight_id),     0)
+            setattr(event, "reweightLeptonSFSystUp_%s"%(tight_id),   0)
+            setattr(event, "reweightLeptonSFSystDown_%s"%(tight_id), 0)
+
+            for flavor in ["Ele", "Mu"]:
+                setattr(event, "reweight%sSFStat_%s"%(flavor, tight_id),     0)
+                setattr(event, "reweight%sSFStatUp_%s"%(flavor, tight_id),   0)
+                setattr(event, "reweight%sSFStatDown_%s"%(flavor, tight_id), 0)
             
             # Calculate trigger SFs            
             if len(leptonCollections[tight_id]) > 0:
@@ -632,15 +733,31 @@ def filler( event ):
                 setattr(event, "reweightTriggerDown_%s"%tight_id,    trigg - trigg_err)
 
                 # keep the weights, can be removed in the future
-                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      1)
-                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    1)
-                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  1)
+                setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      reduce(mul, [leptonTrackingSF.getSF( pdgId = l['pdgId'], pt  =   l['pt'], eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta']), sigma=0) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reduce(mul, [leptonTrackingSF.getSF( pdgId = l['pdgId'], pt  =   l['pt'], eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta']), sigma=1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reduce(mul, [leptonTrackingSF.getSF( pdgId = l['pdgId'], pt  =   l['pt'], eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta']), sigma=-1) for l in leptonCollections[tight_id]], 1) )
 
                 # get different lepton SF readers
                 leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!
-                setattr(event, "reweightLeptonSF_%s"%tight_id,      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFUp_%s"%tight_id,    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = +1) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFDown_%s"%tight_id,  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], sigma = -1) for l in leptonCollections[tight_id]], 1) )
+
+                # central value for all leptons
+                setattr(event, "reweightLeptonSF_%s"%tight_id,          reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
+
+                # variations split into syst/stat, stat split into ele/mu (uncorrelated)
+                electronsTmp    = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 11 ]
+                muonsTmp        = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 13 ]
+
+                for flavor, collection in [("Ele", electronsTmp), ("Mu", muonsTmp)]:
+                    centralValue = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma =  0) for l in collection], 1)
+                    centralValue = centralValue if centralValue>0 else 1
+                    setattr(event, "reweight%sSFStat_%s"%(flavor, tight_id),      1 )
+                    setattr(event, "reweight%sSFStatUp_%s"%(flavor, tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = +1) for l in collection], 1)/centralValue )
+                    setattr(event, "reweight%sSFStatDown_%s"%(flavor, tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = -1) for l in collection], 1)/centralValue )
+
+                setattr(event, "reweightLeptonSFSyst_%s"%(tight_id),      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma =  0) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystUp_%s"%(tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystDown_%s"%(tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = -1) for l in leptonCollections[tight_id]], 1) )
+
 
     # get variables used in 4l analysis. Only 4l collection important.
     if len(leptonCollections["tight_4l"])>1:
@@ -777,12 +894,15 @@ def filler( event ):
     nonBJetsDeepCSV  = filter(lambda j:not ( isBJet(j, tagger = 'DeepCSV', year = options.year) and abs(j['eta'])<=2.4 ), selected_jets)
 
     # Store jets
-    event.nJetSelected   = len(selected_jets)
-    jets_stored = allJets 
-    event.njet        = len(jets_stored)
+    event.nJetSelected = len(selected_jets)
+    jets_stored        = allJets 
+    event.njet         = len(jets_stored)
     for iJet, jet in enumerate(jets_stored):
         for b in jetVarNames:
             getattr(event, "jet_"+b)[iJet] = jet[b]
+
+    if isMC and options.doCRReweighting:
+        event.reweightCR = getCRWeight(len(selected_jets))
 
     # ETmiss
     event.met_pt  = r.met_pt
@@ -819,7 +939,7 @@ def filler( event ):
           event.photon_phi        = photons[0]['phi']
           event.photon_idCutBased = photons[0]['idCutBased']
           if isMC:
-            genPhoton       = getGenPhoton(gPart)
+            genPhoton           = getGenPhoton(gPart)
             event.photon_genPt  = genPhoton['pt']  if genPhoton is not None else float('nan')
             event.photon_genEta = genPhoton['eta'] if genPhoton is not None else float('nan')
 

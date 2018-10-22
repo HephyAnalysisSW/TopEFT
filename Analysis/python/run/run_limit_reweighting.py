@@ -35,9 +35,9 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
@@ -85,7 +85,7 @@ if args.expected:
 ## 3l setup ##
 setup3l                 = Setup(year, nLeptons=3)
 estimators3l            = estimatorList(setup3l)
-setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "TTW", "ZG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
+setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup3l.reweightRegions = regionsReweight
 setup3l.channels        = [channel(-1,-1)] # == 'all'
 setup3l.regions         = regionsE if not args.merged else noRegions
@@ -240,6 +240,12 @@ def wrapper(s):
         logger.info("Looking into backup DB for x-sec")
         p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
         xsec = p.xsecDB.get(modification_dict)
+    if not xsec:
+        try:
+            p = Process(process = "ttZ_ll", nEvents = 5000, config = config, xsec_cache=xsecDB_Backup)
+            xsec = p.xsecDB.get(modification_dict)
+        except IndexError:
+            logger.info("No x-sec found.")
     logger.info("Found modified x-sec of %s", xsec)
     
     cardFileName = os.path.join(limitDir, s.name+'.txt')
@@ -249,11 +255,14 @@ def wrapper(s):
         c.setPrecision(3)
         postfix = '_%s'%args.year
         c.addUncertainty('PU',                  'lnN') # correlated
-        c.addUncertainty('JEC'+postfix,         'lnN') # uncorrelated, for now!
+        c.addUncertainty('JEC',                 'lnN') # correlated
+        c.addUncertainty('JER',                 'lnN') # correlated
         c.addUncertainty('btag_heavy'+postfix,  'lnN') # uncorrelated, wait for offical recommendation
         c.addUncertainty('btag_light'+postfix,  'lnN') # uncorrelated, wait for offical recommendation
         c.addUncertainty('trigger'+postfix,     'lnN') # uncorrelated, statistics dominated
-        c.addUncertainty('leptonSF',            'lnN') # correlated
+        c.addUncertainty('leptonSFSyst',        'lnN') # correlated
+        c.addUncertainty('eleSFStat'+postfix,   'lnN') # uncorrelated
+        c.addUncertainty('muSFStat'+postfix,    'lnN') # uncorrelated
         c.addUncertainty('scale',               'lnN') # correlated.
         c.addUncertainty('scale_sig',           'lnN') # correlated.
         c.addUncertainty('PDF',                 'lnN') # correlated.
@@ -266,9 +275,9 @@ def wrapper(s):
         c.addUncertainty('ZG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
         c.addUncertainty('ttX',                 'lnN') # correlated.
-        c.addUncertainty('Lumi'+postfix, 'lnN')
+        c.addUncertainty('Lumi'+postfix,        'lnN')
 
-        uncList = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'leptonSF', 'trigger']
+        uncList = ['PU', 'JEC', 'btag_heavy', 'btag_light', 'leptonSFSyst', 'trigger']
         for unc in uncList:
             uncertainties[unc] = []
         
@@ -281,10 +290,10 @@ def wrapper(s):
             # extract the nominal and nonprompt setup from the pair
             setup, setupNP = setupPair
             
-            signal      = MCBasedEstimate(name="TTZ", sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
+            signal      = MCBasedEstimate(name="TTZ_%s"%args.year, sample=setup.samples["TTZ"], cacheDir=setup.defaultCacheDir())
             #nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
             if args.unblind or (setup == setup3l_CR) or (setup == setup4l_CR):
-                observation = DataObservation(name="Data", sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
+                observation = DataObservation(name="Data_%s"%args.year, sample=setup.samples["Data"], cacheDir=setup.defaultCacheDir())
                 logger.info("Using data!")
             else:
                 observation = MCBasedEstimate(name="observation", sample=setup.samples["pseudoData"], cacheDir=setup.defaultCacheDir())
@@ -309,6 +318,7 @@ def wrapper(s):
                             f = wzReweighting.cachedReweightingFunc( setup.WZselection )
                             powhegExpected = e.reweight1D(r, channel, setup, f)
                             expected = e.cachedEstimate(r, channel, setup)
+                            print expected
                             WZ_powheg_unc = (powhegExpected-expected)/expected
                         else:
                             expected = e.cachedEstimate(r, channel, setup)
@@ -321,23 +331,30 @@ def wrapper(s):
                             # uncertainties
                             pu          = 1 + e.PUSystematic( r, channel, setup).val            if expected.val>0.01 else 1.1
                             jec         = 1 + e.JECSystematic( r, channel, setup).val           if expected.val>0.01 else 1.1
+                            jer         = 1 + e.JERSystematic( r, channel, setup).val           if expected.val>0.01 else 1.1
                             btag_heavy  = 1 + e.btaggingSFbSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
                             btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
                             trigger     = 1 + e.triggerSystematic(r, channel, setup).val        if expected.val>0.01 else 1.1
-                            leptonSF    = 1 + e.leptonSFSystematic(r, channel, setup).val       if expected.val>0.01 else 1.1
+                            leptonSFSyst= 1 + e.leptonSFSystematic(r, channel, setup).val       if expected.val>0.01 else 1.1
+                            eleSFStat   = 1 + e.eleSFSystematic(r, channel, setup).val          if expected.val>0.01 else 1.1
+                            muSFStat    = 1 + e.muSFSystematic(r, channel, setup).val           if expected.val>0.01 else 1.1
+
                             if name.count('WZ'):
                                 WZ_powheg   = 1 + WZ_powheg_unc.val                                 if expected.val>0.01 else 1.1
 
                             c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val)
                             if not name.count('nonprompt'):
-                                c.specifyUncertainty('JEC'+postfix,         binname, name, jec)
+                                c.specifyUncertainty('JEC',                 binname, name, jec)
+                                c.specifyUncertainty('JER',                 binname, name, jer)
                                 c.specifyUncertainty('btag_heavy'+postfix,  binname, name, btag_heavy)
                                 c.specifyUncertainty('btag_light'+postfix,  binname, name, btag_light)
                                 c.specifyUncertainty('trigger'+postfix,     binname, name, trigger)
-                                c.specifyUncertainty('leptonSF',    binname, name, leptonSF)
-                                c.specifyUncertainty('scale',       binname, name, 1.01) 
-                                c.specifyUncertainty('PDF',         binname, name, 1.01)
-                                c.specifyUncertainty('Lumi'+postfix, binname, name, 1.025 )
+                                c.specifyUncertainty('leptonSFSyst',        binname, name, leptonSFSyst)
+                                c.specifyUncertainty('eleSFStat'+postfix,   binname, name, eleSFStat)
+                                c.specifyUncertainty('muSFStat'+postfix,    binname, name, muSFStat)
+                                c.specifyUncertainty('scale',               binname, name, 1.01) 
+                                c.specifyUncertainty('PDF',                 binname, name, 1.01)
+                                c.specifyUncertainty('Lumi'+postfix,        binname, name, 1.025 )
 
                             if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.10)
                             if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
@@ -364,7 +381,7 @@ def wrapper(s):
                     c.addUncertainty(uname, 'lnN')
                     
                     if setup.nLeptons == 3 and setupNP:
-                        nonprompt   = FakeEstimate(name="nonPromptDD", sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
+                        nonprompt   = FakeEstimate(name="nonPromptDD_%s"%args.year, sample=setup.samples["Data"], setup=setupNP, cacheDir=setup.defaultCacheDir())
                         np = nonprompt.cachedEstimate(r, channel, setupNP)
                         if np.val < 0.01:
                             np = u_float(0.01,0.)
@@ -405,17 +422,21 @@ def wrapper(s):
                     logger.info("x-sec is multiplied by %s",xSecMod)
                     
                     c.specifyExpectation(binname, 'signal', sig.val * xSecScale * xSecMod )
+                    logger.info('Adding signal %s'%(sig.val * xSecScale * xSecMod))
                     
                     if sig.val>0:
-                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.026 )
+                        c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.025 )
                         if not args.statOnly:
                             # uncertainties
                             pu          = 1 + e.PUSystematic( r, channel, setup).val
                             jec         = 1 + e.JECSystematic( r, channel, setup).val
+                            jer         = 1 + e.JERSystematic( r, channel, setup).val
                             btag_heavy  = 1 + e.btaggingSFbSystematic(r, channel, setup).val
                             btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val
                             trigger     = 1 + e.triggerSystematic(r, channel, setup).val
-                            leptonSF    = 1 + e.leptonSFSystematic(r, channel, setup).val
+                            leptonSFSyst= 1 + e.leptonSFSystematic(r, channel, setup).val
+                            eleSFStat   = 1 + e.eleSFSystematic(r, channel, setup).val
+                            muSFStat    = 1 + e.muSFSystematic(r, channel, setup).val 
 
                             if sig.sigma/sig.val < 0.05:
                                 uncertainties['PU']         += [pu]
@@ -423,18 +444,22 @@ def wrapper(s):
                                 uncertainties['btag_heavy'] += [btag_heavy]
                                 uncertainties['btag_light'] += [btag_light]
                                 uncertainties['trigger']    += [trigger]
-                                uncertainties['leptonSF']   += [leptonSF]
+                                uncertainties['leptonSFSyst']   += [leptonSFSyst]
 
                             c.specifyUncertainty('PU',                  binname, "signal", pu)
-                            c.specifyUncertainty('JEC'+postfix,         binname, "signal", jec)
+                            c.specifyUncertainty('JEC',                 binname, "signal", jec)
+                            c.specifyUncertainty('JER',                 binname, "signal", jer)
                             c.specifyUncertainty('btag_heavy'+postfix,  binname, "signal", btag_heavy)
                             c.specifyUncertainty('btag_light'+postfix,  binname, "signal", btag_light)
                             c.specifyUncertainty('trigger'+postfix,     binname, "signal", trigger)
-                            c.specifyUncertainty('leptonSF',            binname, "signal", leptonSF)
+                            c.specifyUncertainty('leptonSFSyst',        binname, "signal", leptonSFSyst)
+                            c.specifyUncertainty('eleSFStat'+postfix,   binname, "signal", eleSFStat)
+                            c.specifyUncertainty('muSFStat'+postfix,    binname, "signal", muSFStat)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
-                            c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
-                            c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
-                            c.specifyUncertainty('PartonShower',binname, "signal", 1 + PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val)
+                            if setup in [setup3l, setup4l]:
+                                c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
+                                c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
+                                c.specifyUncertainty('PartonShower',binname, "signal", PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
                             #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
                             #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 
@@ -473,6 +498,7 @@ def wrapper(s):
         if args.calcNuisances:
             c.calcNuisances(cardFileName, masks=masks)
         # extract the NLL
+        #nll = c.calcNLL(cardFileName, options="")
         nll = c.physicsModel(cardFileName, options="", normList=["WZ_norm","ZZ_norm"], masks=masks) # fastScan turns of profiling
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})
@@ -492,7 +518,7 @@ def wrapper(s):
     print 'btag_heavy', min(uncertainties['btag_heavy']), max(uncertainties['btag_heavy'])
     print 'btag_light', min(uncertainties['btag_light']), max(uncertainties['btag_light'])
     print 'trigger', min(uncertainties['trigger']), max(uncertainties['trigger'])
-    print 'leptonSF', min(uncertainties['leptonSF']), max(uncertainties['leptonSF'])
+    print 'leptonSF', min(uncertainties['leptonSFSyst']), max(uncertainties['leptonSFSyst'])
 
 
 
