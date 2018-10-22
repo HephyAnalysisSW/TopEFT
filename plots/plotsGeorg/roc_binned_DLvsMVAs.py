@@ -156,7 +156,8 @@ for leptonFlavour in leptonFlavourList:
                     factorList = [[10**val, 0.1**val] for val in xrange(1,10)]
                     maxpval = 1.
                     for factor in factorList:
-                        prange = [pval*factor[1] for pval in xrange(maxpval*factor[0]-10,maxpval*factor[0])]
+                        xrangeVal = int(round(maxpval*factor[0]))
+                        prange = [pval*factor[1] for pval in xrange(xrangeVal-10,xrangeVal)]
                         for pval in prange:
                             eBVal = eB(pval,eBreaderData)
                             if eBVal<=0.01 and not eBVal==0.:
