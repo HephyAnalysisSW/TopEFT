@@ -25,8 +25,8 @@ def get_parser():
     argParser.add_argument('--version',         action='store', type=str, choices=['v1','v1_small'],                required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                      required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'], required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD'],   required = True, help="Which sample selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf', 'noPtSelection'], required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD', 'TestSample'],   required = True, help="Which sample selection?")
 
     argParser.add_argument('--nJobs',           action='store', nargs='?', type=int, default=1, help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',             action='store',            type=int, default=0, help="Run only job i")
@@ -78,6 +78,9 @@ TrainFilePath = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles'
 inputPath     = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 outputPath    = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection+'_ptRelSorted')
 
+if not os.path.exists( outputPath ):
+    os.makedirs( outputPath )
+
 #get file list
 inputFileList  = os.listdir(inputPath)
 removeFileList = []
@@ -119,7 +122,7 @@ for inputFile in inputFileList:
         for pfCandVar in pfCandVarList:
             name = pfCandVar+'_ptRelSorted'
             varName = name+'[npfCand_'+pfCandId+']/F'
-            vars()[name] = array('f', np.tile(0.0, 100))
+            vars()[name] = array('f', np.tile(0.0, 100)) #important: maximum length of pf cands per pf cand flavour per lepton
             oFileTree.Branch(name , vars()[name], varName )
             
 
