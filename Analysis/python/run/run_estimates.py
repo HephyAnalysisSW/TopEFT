@@ -184,7 +184,7 @@ for setup in allSetups:
             elif options.sample == "nonprompt":
                 jobs.append((nonprompt, r, channel, setup))
             else:
-                setup.short = True if options.sample == 'ZG' and year == 2017 else False
+                setup.short = True if options.sample == 'XG' and year == 2017 else False
                 for e in estimatorsC:
                     #name = e.name.split('-')[0]
                     jobs.append((e, r, channel, setup))

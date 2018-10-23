@@ -12,6 +12,7 @@ from RootTools.core.standard import *
 #from TopEFT.Tools.PickleCache import PickleCache
 from TopEFT.Tools.resultsDB import resultsDB
 #from TopEFT.Analysis.Cache import Cache
+from TopEFT.Tools.u_float import u_float
 
 if __name__ == "__main__":
 
@@ -46,7 +47,7 @@ class SignalReweighting:
         #self.cache = Cache( os.path.join(cacheDir, 'signalReweightingTemplates.sql') )
 
         self.cosThetaStar_binning = [ i/5. for i in range(-5,6) ] 
-        self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 2000 ]
+        self.Z_pt_binning         = [ 0, 50, 100, 150, 200, 250, 300, 400, 500, 100000 ]
         self.template_draw_string = template_draw_string
 
     def initCache(self, cacheDir):
@@ -70,7 +71,7 @@ class SignalReweighting:
         t = self.cachedTemplate( selection=selection, weight=weight, save=save, overwrite=overwrite)
 
         def reweight_func( pt, cosThetaStar):
-            return t.GetBinContent( t.FindBin( cosThetaStar, pt ) )
+            return u_float( t.GetBinContent( t.FindBin( cosThetaStar, pt ) ), t.GetBinError( t.FindBin( cosThetaStar, pt) ) )
 
         return reweight_func
             

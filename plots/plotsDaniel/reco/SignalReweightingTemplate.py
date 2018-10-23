@@ -186,13 +186,14 @@ if __name__ == "__main__":
 
         # cutInterpreter & selectionString
         from TopEFT.Tools.cutInterpreter import cutInterpreter
-        reco_selection = cutInterpreter.cutString( 'lepSelTTZ-njet3p-btag1p-onZ')
+        #reco_selection = cutInterpreter.cutString( 'trilep-lepSelTTZ-njet3p-btag1p-onZ')
+        reco_selection = 'nJetSelected>=3&&nBTag>=1&&min_dl_mass>=12&&abs(Z_mass - 91.1876)<=10&&Z_fromTight>0&&nLeptons_tight_3l==3&&nLeptons_tight_3l==3&&Sum$((lep_tight_3l*(lep_pt - lep_ptCorr) + lep_ptCorr)>40&&lep_tight_3l>0)>0&&Sum$((lep_tight_3l*(lep_pt - lep_ptCorr) + lep_ptCorr)>20&&lep_tight_3l>0)>1&&Sum$((lep_tight_3l*(lep_pt - lep_ptCorr) + lep_ptCorr)>10&&lep_tight_3l>0)>2&&!(nLeptons_tight_4l>=4)&&Flag_goodVertices&&Flag_HBHENoiseIsoFilter&&Flag_HBHENoiseFilter&&Flag_globalTightHalo2016Filter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&Flag_badChargedHadronSummer2016&&Flag_badMuonSummer2016&&((HLT_TripleMu_12_10_5||HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ||HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ)||(HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL||HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)||(HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL||HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ||HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL||HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ||HLT_Mu8_DiEle12_CaloIdL_TrackIdL||HLT_DiMu9_Ele9_CaloIdL_TrackIdL)||(HLT_SingleMuTTZ)||(HLT_SingleEleTTZ))'
         logger.debug("Setting selectionString %s for reco samples", reco_selection)
         source_reco.setSelectionString( reco_selection )
         target_reco.setSelectionString( reco_selection )
 
         # Histos
-        pt_bins = [(0,100), (100,200), (200,-1), (-1,-1)]
+        pt_bins = [(0,100), (100,200), (200,400), (400,-1), (-1,-1)]
         h_pt = {s:ROOT.TH1F('h_pt', 'h_pt', 10, 0, 500) for s in ['source', 'target', 'source_reweighted']}
 
         h_pt['source']              .legendText = "SM (reco)"
@@ -353,17 +354,21 @@ if __name__ == "__main__":
             h_pt['target'].Fill( pt, r_target.event.weight )
 
             for var in plotVars:
-                h[var]['target'].Fill(h[var]["value"], r_source.event.weight )
+                h[var]['target'].Fill(h[var]["value"], r_target.event.weight )
 
             for pt_bin in pt_bins:
                 if (pt_bin[0]<0 or pt>pt_bin[0]) and (pt_bin[1]<0 or pt<pt_bin[1]):
                     h_cosThetaStar_pt['target'][pt_bin].Fill(cosThetaStar, r_target.event.weight) 
 
         # Scale     
-        h_pt['source_reweighted'].Scale( h_pt['target'].Integral()/h_pt['source_reweighted'].Integral())
+        #h_pt['source_reweighted'].Scale( h_pt['target'].Integral()/h_pt['source_reweighted'].Integral())
+        print "target integral", round(h_pt['target'].Integral(),2)
+        print "reweight integral", round(h_pt['source_reweighted'].Integral(),2)
         h_g_pt['source_reweighted'].Scale( h_g_pt['target'].Integral()/h_g_pt['source_reweighted'].Integral())
+        norm = h_cosThetaStar_pt['target'][(-1,-1)].Integral()/h_cosThetaStar_pt['source_reweighted'][(-1,-1)].Integral()
+        print "Norm", norm
         for pt_bin in pt_bins:
-            h_cosThetaStar_pt['source_reweighted'][pt_bin].Scale( h_cosThetaStar_pt['target'][pt_bin].Integral()/h_cosThetaStar_pt['source_reweighted'][pt_bin].Integral())
+            h_cosThetaStar_pt['source_reweighted'][pt_bin].Scale( norm )#h_cosThetaStar_pt['target'][pt_bin].Integral()/h_cosThetaStar_pt['source_reweighted'][pt_bin].Integral())
 
         # Plot
         def drawObjects( plotData, dataMCScale, lumi_scale ):
@@ -396,7 +401,7 @@ if __name__ == "__main__":
         for pt_bin in pt_bins:
             histos = [ [h_cosThetaStar_pt['source'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
             plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i"%pt_bin, texX = 'cos(#theta^{*}) (reco)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 )) 
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, drawObjects = drawObjects( False, 1, 1 )) 
 
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['source'][pt_bin]], [h_g_cosThetaStar_pt['target'][pt_bin]], [h_g_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
