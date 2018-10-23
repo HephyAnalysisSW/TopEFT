@@ -41,10 +41,7 @@ regionsUpgrade = getRegionsFromThresholds('Z_pt', [0,100,200,400,-1])
 
 ## regions for pT(Z), cos(Theta*) reweighting
 regionsReweight     = getRegions2D("Z_pt", [0, 50, 100, 150, 200, 250, 300, 400, 500, 100000], "cosThetaStar", [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
-#regionsReweight     = getRegions2D("Z_pt", [0, 100, 200, 400, 100000], "cosThetaStar", [-1, -0.6, 0, 0.6, 1])
-
 regionsReweight4l   = getRegions2D("Z1_pt_4l", [0, 50, 100, 150, 200, 250, 300, 400, 500, 100000], "Z1_cosThetaStar_4l", [-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
-#regionsReweight4l   = getRegions2D("Z1_pt_4l", [0, 100, 200, 100000], "Z1_cosThetaStar_4l", [-1, 0, 1])
 
 ## inclusive
 noRegions = [Region("Z_pt", (0, -1)) + Region("cosThetaStar", (-1, -1))] # For TTZ CR 
