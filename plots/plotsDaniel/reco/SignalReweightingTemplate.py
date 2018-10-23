@@ -130,9 +130,9 @@ if __name__ == "__main__":
     cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
     
     source_gen = ewkDM_ttZ_ll_gen
-    target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
+    #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
     #target_gen = ewkDM_ttZ_ll_gen_DC2A_0p200000_DC2V_0p200000
-    #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000
+    target_gen = ewkDM_ttZ_ll_gen_DC1A_0p500000_DC1V_0p500000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_1p000000
     #target_gen = ewkDM_ttZ_ll_gen_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
     
@@ -178,9 +178,9 @@ if __name__ == "__main__":
         from TopEFT.samples.cmgTuples_ttZ0j_Summer16_mAODv2_postProcessed import *
 
         source_reco = ttZ0j_ll
-        target_reco = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
+        #target_reco = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_0p176700
         #target_reco = ttZ0j_ll_DC2A_0p200000_DC2V_0p200000
-        #target_reco = ttZ0j_ll_DC1A_0p500000_DC1V_0p500000
+        target_reco = ttZ0j_ll_DC1A_0p500000_DC1V_0p500000
         #target_reco = ttZ0j_ll_DC1A_1p000000
         #target_reco = ttZ0j_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000
 
@@ -199,9 +199,9 @@ if __name__ == "__main__":
         h_pt['source']              .legendText = "SM (reco)"
         h_pt['source']              .style = styles.lineStyle( ROOT.kBlue, errors = True, width=2) 
         h_pt['target']              .legendText = "BSM (reco)"
-        h_pt['target']              .style = styles.lineStyle( ROOT.kGreen-1, errors = True, width=2) 
+        h_pt['target']              .style = styles.lineStyle( ROOT.kGreen+1, errors = True, width=2) 
         h_pt['source_reweighted']   .legendText = "SM (reco, reweighted)"
-        h_pt['source_reweighted']   .style = styles.lineStyle( ROOT.kRed, errors = True, width=2) 
+        h_pt['source_reweighted']   .style = styles.lineStyle( ROOT.kRed+1, errors = True, width=2) 
 
         h_g_pt = {s:ROOT.TH1F('h_g_pt', 'h_g_pt', 10, 0, 500) for s in ['source', 'target', 'source_reweighted']}
         h_g_pt['source']              .legendText = "SM (gen)"
@@ -209,7 +209,7 @@ if __name__ == "__main__":
         h_g_pt['target']              .legendText = "BSM (gen)"
         h_g_pt['target']              .style = styles.lineStyle( ROOT.kGreen+1, errors = False, width=2)
         h_g_pt['source_reweighted']   .legendText = "SM (gen, reweighted)"
-        h_g_pt['source_reweighted']   .style = styles.lineStyle( ROOT.kRed, errors = False, width=2)
+        h_g_pt['source_reweighted']   .style = styles.lineStyle( ROOT.kRed+1, errors = False, width=2)
 
 
         h_cosThetaStar_pt = {s:{p:ROOT.TH1F('h_pt_%i_%i'%p, 'h_pt_%i_%i'%p, 10, -1,1) for p in pt_bins} for s in ['source', 'target', 'source_reweighted']} 
@@ -217,9 +217,9 @@ if __name__ == "__main__":
             h_cosThetaStar_pt['source']           [pt_bin]  .legendText = "SM (reco)"
             h_cosThetaStar_pt['source']           [pt_bin]  .style = styles.lineStyle( ROOT.kBlue, errors = True, width=2) 
             h_cosThetaStar_pt['target']           [pt_bin]  .legendText = "BSM (reco)"
-            h_cosThetaStar_pt['target']           [pt_bin]  .style = styles.lineStyle( ROOT.kGreen, errors = True, width=2) 
+            h_cosThetaStar_pt['target']           [pt_bin]  .style = styles.lineStyle( ROOT.kGreen+1, errors = True, width=2) 
             h_cosThetaStar_pt['source_reweighted'][pt_bin]  .legendText = "SM (reco, reweighted)"
-            h_cosThetaStar_pt['source_reweighted'][pt_bin]  .style = styles.lineStyle( ROOT.kRed, errors = True, width=2) 
+            h_cosThetaStar_pt['source_reweighted'][pt_bin]  .style = styles.lineStyle( ROOT.kRed+1, errors = True, width=2) 
 
         h_g_cosThetaStar_pt = {s:{p:ROOT.TH1F('h_g_pt_%i_%i'%p, 'h_pt_%i_%i'%p, 10, -1,1) for p in pt_bins} for s in ['source', 'target', 'source_reweighted']}
         for pt_bin in pt_bins:
@@ -378,7 +378,7 @@ if __name__ == "__main__":
             tex.SetTextAlign(11) # align right
             lines = [
               (0.15, 0.95, 'CMS Preliminary' if plotData else 'CMS Simulation'), 
-              (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale)
+              (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.80, 0.95, '(13 TeV)')
             ]
             return [tex.DrawLatex(*l) for l in lines] 
         
@@ -400,30 +400,30 @@ if __name__ == "__main__":
 
         for pt_bin in pt_bins:
             histos = [ [h_cosThetaStar_pt['source'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
-            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i"%pt_bin, texX = 'cos(#theta^{*}) (reco)', texY = 'a.u.', histos = histos)
-            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, drawObjects = drawObjects( False, 1, 1 )) 
+            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i"%pt_bin, texX = 'cos(#theta*) (reco)', texY = 'a.u.', histos = histos)
+            plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, drawObjects = drawObjects( False, 1, 1 ), legend = [ (0.50,0.75,0.92,0.9), 1]) 
 
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['source'][pt_bin]], [h_g_cosThetaStar_pt['target'][pt_bin]], [h_g_cosThetaStar_pt['source_reweighted'][pt_bin]] ]
-            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_gen"%pt_bin, texX = 'cos(#theta^{*}) (gen)', texY = 'a.u.', histos = histos)
+            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_gen"%pt_bin, texX = 'cos(#theta*) (gen)', texY = 'a.u.', histos = histos)
             plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
         scaling = {1:0}
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]] ]
-            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_target"%pt_bin, texX = 'cos(#theta^{*}) (target)', texY = 'a.u.', histos = histos)
+            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_target"%pt_bin, texX = 'cos(#theta*) (target)', texY = 'a.u.', histos = histos)
             plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
         
         for pt_bin in pt_bins:
             histos = [ [h_g_cosThetaStar_pt['source'][pt_bin]], [h_cosThetaStar_pt['source'][pt_bin]] ]
-            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_source"%pt_bin, texX = 'cos(#theta^{*}) (source)', texY = 'a.u.', histos = histos)
+            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_source"%pt_bin, texX = 'cos(#theta*) (source)', texY = 'a.u.', histos = histos)
             plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
         for pt_bin in pt_bins:
             h_g_cosThetaStar_pt['target'][pt_bin].Divide(h_g_cosThetaStar_pt['source'][pt_bin])
             h_cosThetaStar_pt['target'][pt_bin].Divide(h_cosThetaStar_pt['source'][pt_bin])
             histos = [ [h_g_cosThetaStar_pt['target'][pt_bin]], [h_cosThetaStar_pt['target'][pt_bin]] ]
-            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_ratio"%pt_bin, texX = 'cos(#theta^{*}) (ratio)', texY = 'a.u.', histos = histos)
+            plot = Plot.fromHisto( "cosThetaStar_pt_%i_%i_ratio"%pt_bin, texX = 'cos(#theta*) (ratio)', texY = 'a.u.', histos = histos)
             plotting.draw( plot, plot_directory = os.path.join( plot_directory, 'reweightingPlots_closure', target_reco.name ), logY = False, scaling = scaling, drawObjects = drawObjects( False, 1, 1 ))
 
     
