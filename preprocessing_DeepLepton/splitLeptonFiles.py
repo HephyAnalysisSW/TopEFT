@@ -49,7 +49,6 @@ else:
     module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD'
     MCgeneration = "Fall17"
     from TopEFT.samples.heppy_dpm_samples import lepton_2017_heppy_mapper as lepton_heppy_mapper
-
 try:
     heppy_sample = getattr(importlib.import_module( module_ ), options.sample)
 except:
