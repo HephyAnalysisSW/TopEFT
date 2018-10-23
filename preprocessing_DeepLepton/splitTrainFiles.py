@@ -11,7 +11,7 @@ from RootTools.core.Sample import *
 # TopEFT
 from TopEFT.Tools.user import skim_output_directory as input_directory
 from TopEFT.Tools.user import trainingFiles_directory as output_directory
-#from TopEFT.postprocessing.deepLeptonSamplesForTraining import deepLeptonSignalSamples, deepLeptonBackgroundSamples
+from TopEFT.preprocessing_DeepLepton.deepLepton_trainingSamples_v3 import deepLeptonSignalSamples, deepLeptonBackgroundSamples
 
 def deepLeptonSignalSamples(year):
 
