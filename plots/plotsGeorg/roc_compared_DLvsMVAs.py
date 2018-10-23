@@ -35,7 +35,7 @@ def get_parser():
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD','DYVsQCD_ptRelSorted'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
 
@@ -84,7 +84,7 @@ ptCuts=[]
 ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
 ptCuts.append({"Name":"pt10to25" if options.ptSelection=='pt_10_to_inf' else "pt15to25","lower_limit":10 if options.ptSelection=='pt_10_to_inf' else 15, "upper_limit":25})
 
-relIsoCuts = [1.0,0.4,0.2,0.1,0.05]
+relIsoCuts = [0.5,0.25,0.1,0.05]
 
 logY=1
 
