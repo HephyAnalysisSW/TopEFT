@@ -126,7 +126,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
-scaling = { i+1:0 for i in range(len(signals)) }
+#scaling = { i+1:0 for i in range(len(signals)) }
+scaling = { 1:0 }
 
 def drawPlots(plots, mode, dataMCScale):
   for log in [False, True]:
