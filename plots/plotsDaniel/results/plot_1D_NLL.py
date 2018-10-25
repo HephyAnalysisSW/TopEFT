@@ -34,10 +34,6 @@ from TopEFT.samples.gen_fwlite_benchmarks import *
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
-#niceColorPalette()
-ROOT.gStyle.SetNumberContours(255)
-#ROOT.gStyle.SetPalette(ROOT.kCherry)#, ctypes.c_int(112), 0.3)#, *nullptr, 0.3)
-redColorPalette()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -103,8 +99,7 @@ def setCouplingValues(samples):
             for c,val in couplings:
                 setattr(x, c, val)
 
-setCouplingValues(dim6top_dipoles+dim6top_currents)
-
+setCouplingValues(dim6top_dipoles + dim6top_currents + ewkDM_dipoles + ewkDM_currents)
 ###### need to remove doubles
 
 # do the same stuff as in the analysis part
@@ -151,22 +146,22 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 
 if args.model == "ewkDM":
     if args.parameter == "DC1V":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if "DC1A" not in x.name ]
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1A == 0 and x.DC1V != 0 ]
         x_var = 'DC1V'
         x_shift = 0.24
     
     elif args.parameter == "DC1A":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if "DC1V" not in x.name ]
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
         x_var = 'DC1A'
         x_shift = -0.60
 
     elif args.parameter == "DC2V":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if "DC2A" not in x.name ]
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2A == 0 and x.DC2V != 0 ]
         x_var = 'DC2V'
         x_shift = 0.
 
     elif args.parameter == "DC2A":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if "DC2V" not in x.name ]
+        signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2V == 0 and x.DC2A != 0 ]
         x_var = 'DC2A'
         x_shift = 0.
 
@@ -175,12 +170,12 @@ if args.model == "ewkDM":
 
 elif args.model == "dim6top_LO":
     if args.parameter == "cpQM":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if "cpt" not in x.name ]
+        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpt == 0 and x.cpQM != 0 ]
         x_var = 'cpQM'
         x_shift = 0.
     
     elif args.parameter == "cpt":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if "cpQM" not in x.name ]
+        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpQM == 0 and x.cpt != 0 ]
         x_var = 'cpt'
         x_shift = 0.
     
@@ -270,7 +265,7 @@ for i,s in enumerate(signals):
             # Add results
             print "{:10.2f}{:10.2f}".format(s.var1+x_shift, nll_value)
 
-            if True:
+            if not (s.var1 + x_shift in x):
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
                 res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
@@ -296,35 +291,23 @@ delta = (x_max-x_min)/Nbins
 
 hist = ROOT.TH1F("NLL","", Nbins+1, x_min-delta/2, x_max+delta/2)
 hist.SetStats(0)
-#hist = ROOT.TGraph()
 
 for x_val in res_dic.keys():
-    hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+    if res_dic[x_val]>0:
+        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+    else:
+        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
 
-#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2", -4., 4.)
-fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -4., 4.)
+#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
+fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", -50., 50.)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(3)
 
 a = toGraph('NLL','NLL', len(x), x, z)
 
-raise NotImplementedError
+a.Fit(fun)
 
-print "Number of bins on x-axis: %s"%nxbins
-print "Number of bins on y-axis: %s"%nybins
-
-print "Best fit found for signal %s, %s, %s"%bestFitPoint
-print
-
-hist = a.GetHistogram().Clone()
-
-#nxbins = 200
-#nybins = 200
-
-a.SetNpx(nxbins)
-a.SetNpy(nybins)
-hist = a.GetHistogram().Clone()
-
+print "Best fit found for signal %s, %s"%bestFitPoint
 
 if x_var == "DC1V":
     hist.GetXaxis().SetTitle("C_{1,V}")
@@ -334,21 +317,18 @@ elif x_var == "cpQM":
     hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
 elif x_var == "ctZ":
     hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+elif x_var == "DC1A":
+    hist.GetXaxis().SetTitle("C_{1,A}")
+elif x_var == "DC2A":
+    hist.GetXaxis().SetTitle("C_{2,A}")
+elif x_var == "cpt":
+    hist.GetXaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
+elif x_var == "ctZI":
+    hist.GetXaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
 
-hist.GetXaxis().SetNdivisions(505)
-if y_var == "DC1A":
-    hist.GetYaxis().SetTitle("C_{1,A}")
-elif y_var == "DC2A":
-    hist.GetYaxis().SetTitle("C_{2,A}")
-elif y_var == "cpt":
-    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
-elif y_var == "ctZI":
-    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
-
-hist.GetYaxis().SetNdivisions(505)
-hist.GetYaxis().SetTitleOffset(1.0)
-hist.GetZaxis().SetTitle("-2 #DeltalnL")
-hist.GetZaxis().SetTitleOffset(1.2)
+#hist.GetYaxis().SetTitleOffset(1.0)
+hist.GetYaxis().SetTitle("-2 #DeltalnL")
+hist.GetYaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
 if args.prefit:
     postFix += "_prefit"
@@ -364,58 +344,65 @@ if args.smooth:
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
-#contours = {'ttZ': [-0.1,0.,1.,4.]}
-#contours = {'ttZ': [1.,4.]}
-contours = {'ttZ': [1.515**2,2.486**2]}
-#contours = {'ttZ': [1.515**2, 3.5]}
-
-drawContours = True
-if drawContours:
-    histsForCont = hist.Clone()
-    c_contlist = ((ctypes.c_double)*(len(contours[proc])))(*contours[proc])
-    histsForCont.SetContour(len(c_contlist),c_contlist)
-    histsForCont.Draw("contzlist")
-    cans.Update()
-    conts = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
-    #cont_m2 = conts.At(0).Clone()
-    #cont_m1 = conts.At(1).Clone()
-    cont_p1 = conts.At(0).Clone()
-    cont_p2 = conts.At(1).Clone()
-
 pads = ROOT.TPad("pad_%s"%proc,"",0.,0.,1.,1.)
-pads.SetRightMargin(0.20)
+pads.SetRightMargin(0.05)
 pads.SetLeftMargin(0.14)
 pads.SetTopMargin(0.15)
 pads.Draw()
 pads.cd()
 
-hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(19.95) #19.95
-hist.SetMinimum(0.)
-#hist.GetZaxis().SetRangeUser(0,4.95)
+hist.Draw("p")
 
-hist.Draw("colz")
-alpha = 0.5
+one = ROOT.TF1("one","[0]",x_min,x_max)
+one.SetParameter(0,1)
+one.SetLineColor(ROOT.kOrange)
 
-if drawContours:
-    for conts in [cont_p2]:
-        for cont in conts:
-            cont.SetLineColor(ROOT.kRed)
-            #cont.SetFillColor(ROOT.kRed)
-            #cont.SetFillColorAlpha(ROOT.kRed, alpha)
-            #cont.SetFillStyle()
-            cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
-            cont.Draw("L same")
-    for conts in [cont_p1]:
-        for cont in conts:
-            cont.SetLineColor(ROOT.kOrange)
-            #cont.SetFillColorAlpha(ROOT.kOrange, alpha)
-            cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
-            cont.Draw("L same")
+four = ROOT.TF1("four","[0]",x_min,x_max)
+four.SetParameter(0,4)
+four.SetLineColor(ROOT.kRed)
+
+nine = ROOT.TF1("nine","[0]",-10,10)
+nine.SetParameter(0,9)
+nine.SetLineColor(ROOT.kRed+1)
+
+plus1   = ROOT.TLine(fun.GetX(1,0,x_max),0,fun.GetX(1,0,x_max),1)
+minus1  = ROOT.TLine(fun.GetX(1,x_min,0),0,fun.GetX(1,x_min,0),1)
+plus1.SetLineColor(ROOT.kOrange)
+minus1.SetLineColor(ROOT.kOrange)
+
+plus2   = ROOT.TLine(fun.GetX(4,0,x_max),0,fun.GetX(4,0,x_max),4)
+minus2  = ROOT.TLine(fun.GetX(4,x_min,0),0,fun.GetX(4,x_min,0),4)
+plus2.SetLineColor(ROOT.kOrange+10)
+minus2.SetLineColor(ROOT.kOrange+10)
+
+one.SetMarkerSize(0)
+four.SetMarkerSize(0)
+
+for l in [one, four]:#, plus1, plus2, minus1, minus2]:
+    #l.SetLineStyle(2)
+    l.SetLineWidth(2)
+    l.Draw('same')
+
+SMpoint = ROOT.TGraph(1)
+SMpoint.SetName("SMpoint")
+BFpoint = ROOT.TGraph(1)
+BFpoint.SetName("BFpoint")
+
+SMpoint.SetPoint(0, SMPoint[1], hist.GetMaximum()/100.)
+BFpoint.SetPoint(0, bestFitPoint[1], hist.GetMaximum()/100.)
+
+SMpoint.SetMarkerStyle(23)
+SMpoint.SetMarkerSize(2)
+SMpoint.SetMarkerColor(ROOT.kGreen+2)
+BFpoint.SetMarkerStyle(22)
+BFpoint.SetMarkerSize(2)
+BFpoint.SetMarkerColor(ROOT.kBlue+2)
+
+SMpoint.Draw("p same")
+BFpoint.Draw("p same")
+
+fun.Draw("same")
+hist.Draw("p same")
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
@@ -442,37 +429,15 @@ if not args.unblinded:
 else:
     latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
 
-#latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
-#latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
-
-SMpoint = ROOT.TGraph(1)
-SMpoint.SetName("SMpoint")
-BFpoint = ROOT.TGraph(1)
-BFpoint.SetName("BFpoint")
-
-print SMPoint[1], SMPoint[2], 1
-SMpoint.SetPoint(0, SMPoint[1], SMPoint[2])
-BFpoint.SetPoint(0, bestFitPoint[1], bestFitPoint[2])
-
-SMpoint.SetMarkerStyle(23)
-SMpoint.SetMarkerSize(2)
-SMpoint.SetMarkerColor(ROOT.kGreen+2)
-BFpoint.SetMarkerStyle(22)
-BFpoint.SetMarkerSize(2)
-BFpoint.SetMarkerColor(ROOT.kBlue+2)
-
-SMpoint.Draw("p same")
-BFpoint.Draw("p same")
 
 leg = ROOT.TLegend(0.45,0.86,0.70,0.95)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
-leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
+leg.AddEntry(four, '#bf{95% C.L.}', 'l')
+leg.AddEntry(one, '#bf{68% C.L.}', 'l')
 leg.Draw()
-
 
 leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
 leg2.SetFillColor(ROOT.kWhite)
@@ -492,8 +457,4 @@ args.year = "COMBINED" if args.combined else args.year
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.parameter, setup.name, args.year, postFix)+e)
-
-if True:
-    debug.Draw("ap0")
-    cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.parameter, setup.name, args.year, postFix+"_grid")+'.png')
 

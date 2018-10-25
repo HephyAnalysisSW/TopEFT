@@ -155,6 +155,8 @@ minus2.SetLineColor(ROOT.kOrange+10)
 one.SetMarkerSize(0)
 four.SetMarkerSize(0)
 
+fun.Draw('same')
+
 for l in [one, four, plus1, plus2, minus1, minus2]:
     l.SetLineStyle(2)
     l.SetLineWidth(2)
