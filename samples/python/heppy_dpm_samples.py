@@ -134,7 +134,7 @@ class heppy_mapper:
                 logger.info( "Skipping to write %s because map is empty.", cache_file )
 
     def dump_files_dict( self, filename):
-        pickle.dump( {k.name:val.files for k, val in self.sample_map.iteritem()}, file(filename,'w') )
+        pickle.dump( {k.name:val.files for k, val in self.sample_map.iteritems()}, file(filename,'w') )
         logger.info( "Written %s", filename )
     
     @property                
@@ -228,4 +228,4 @@ robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTup
 mc_dpm_directories =robert_2016_1l_full_events 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 lepton_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
-lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
+#lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
