@@ -121,7 +121,7 @@ if isSingleLep:
 if isInclusive:
     skimConds = []
 
-maxN = 2 if options.small else None
+maxN = 100 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
 
 if options.year==2016:
@@ -230,11 +230,9 @@ if options.doCRReweighting:
     from TopEFT.Tools.colorReconnectionReweighting import getCRWeight, getCRDrawString
     logger.info( "Sample will have CR reweighting." )
     selectionString = "&&".join(skimConds)
-    print sample.weightString
     #norm = sample.getYieldFromDraw( selectionString = selectionString, weightString = "genWeight" )
     norm = float(sample.chain.GetEntries(selectionString))
     CRScaleF = sample.getYieldFromDraw( selectionString = selectionString, weightString = getCRDrawString() )
-    print CRScaleF['val']
     CRScaleF = CRScaleF['val']/norm#['val']
     logger.info(" Using norm: %s"%norm )
     logger.info(" Found CRScaleF: %s"%CRScaleF)
@@ -420,7 +418,17 @@ new_variables = [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
-if sync or options.remakeTTVLeptonMVA: lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if sync or options.remakeTTVLeptonMVA: 
+    lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
+if options.deepLepton:                 
+    lepton_branches_read  += ',edxy/F,edz/F,ip3d/F,sip3d/F,innerTrackChi2/F,innerTrackValidHitFraction/F,ptErrTk/F,rho/F,jetDR/F,trackerLayers/I,pixelLayers/I,trackerHits/I,lostHits/I,lostOuterHits/I,glbTrackProbability/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,trkKink/F,caloCompatibility/F,nStations/F'
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_neutral[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_charged[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_photon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_electron[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_SV[pt/F,eta/F,phi/F,chi2/F,ndof/F,dxy/F,edxy/F,ip3d/F,eip3d/F,sip3d/F,cosTheta/F,jetPt/F,jetEta/F,jetDR/F,maxDxyTracks/F,secDxyTracks/F,maxD3dTracks/F,secD3dTracks/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "nDL_pfCand_charged/I", "nDL_pfCand_photon/I", "nDL_pfCand_electron/I", "nDL_pfCand_muon/I", "nDL_SV/I"]) )
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
@@ -431,19 +439,21 @@ tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%(lep_id)
-lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
-lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
 
 if options.deepLepton:
-    theano_compile_dir = '/var/tmp/%s'%str(uuid.uuid4())
-    if not os.path.exists( theano_compile_dir ):
-        os.makedirs( theano_compile_dir )
-    os.environ['THEANO_FLAGS'] = 'base_compiledir=%s'%theano_compile_dir 
-    os.environ['KERAS_BACKEND'] = 'theano' 
+    #theano_compile_dir = '/var/tmp/%s'%str(uuid.uuid4())
+    #if not os.path.exists( theano_compile_dir ):
+    #    os.makedirs( theano_compile_dir )
+    #os.environ['THEANO_FLAGS'] = 'base_compiledir=%s'%theano_compile_dir 
+    #os.environ['KERAS_BACKEND'] = 'theano' 
 
     from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
     from TopEFT.Tools.DeepLeptonReader import evaluator
-    lepton_branches_store += ",deepLepton/F"
+    evaluator.verbosity = 0
+    lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F"
+
+lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
+lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
 
 new_variables+= [ 'lep[%s]' % lepton_branches_store ]
 
@@ -542,7 +552,7 @@ if addSystematicVariations:
 # Define a reader
 reader = sample.treeReader( \
     variables = read_variables ,
-    selectionString = "&&".join(skimConds)
+    selectionString = "&&".join(skimConds) if not options.sync else "(1)"
     )
 
 # Calculate photonEstimated met
@@ -690,6 +700,13 @@ def filler( event ):
             if deltaR(m,e) < 0.05:
                 eleMuOverlapIndices.append( leptons.index(e) )
 
+    # copy deep lepton prediction from evaluator
+    if options.deepLepton:
+
+        # Make deepLepton prediction for all LepGood
+        evaluator.setEvent( r )
+        deepLepton_prediction = evaluator.evaluate( )
+
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
         lep['ptCorr'] = 0.85 * lep['pt'] / lep['jetPtRatiov2']
@@ -702,8 +719,15 @@ def filler( event ):
             match,prompt, matchType = getGenMatch(lep, gPart)
             lep['isGenPrompt'] = prompt
 
+        if options.deepLepton:
+            if lep.has_key("iLepGood" ):
+                lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_prediction[lep["iLepGood"]]
+            else:
+                lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = float('nan'), float('nan'), float('nan')
+
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
+
     
     # Making the various lepton collections. leptons is the loose collection and is kept.
     leptonCollections = {'loose':leptons}
@@ -1188,11 +1212,6 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     maker.start()
     # Do the thing
     reader.start()
-
-    # prepend the deeplepton maker
-    if options.deepLepton:
-        evaluator.setEvent( reader.event )
-        maker.sequence = [ lambda e: evaluator.evaluate() ] + maker.sequence
 
     while reader.run():
         maker.run()

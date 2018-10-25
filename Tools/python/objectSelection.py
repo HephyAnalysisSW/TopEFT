@@ -389,7 +389,12 @@ lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I,mcPt/F'
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 
 
 def getAllLeptons(c, collVars=leptonVars, collection = "LepGood"):
-    return [getObjDict(c, '%s_'%collection, collVars, i) for i in range(int(getVarValue(c, 'n%s'%collection)))]
+    n = int(getVarValue(c, 'n%s'%collection))
+    res = [getObjDict(c, '%s_'%collection, collVars, i) for i in range(n)]
+    # recall intial index
+    for i in range(n):
+        res[i]['i%s'%collection] = i
+    return res
 
 def getLeptons(c, mu_selector, ele_selector, collVars=leptonVars):
     good_lep = [l for l in getAllLeptons(c, collVars, 'LepGood') if (abs(l["pdgId"])==11 and ele_selector(l)) or (abs(l["pdgId"])==13 and mu_selector(l))]

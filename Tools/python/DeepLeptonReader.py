@@ -92,6 +92,8 @@ class Evaluator:
 
         self._nevent = None
 
+        self.event = None
+
     # Setters to store means and branches
     def setMeans( self, means ):
         self.means = means
@@ -347,7 +349,7 @@ class Evaluator:
 #    [ np.array( features_normalized[i_lep][i_feat], np=float32), 
 #      np.array( pf_norm[flavor][i_lep][i_cand][i_feat], np=float32) ]
 
-    def evaluate( self ):
+    def evaluate( self):
         features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ], dtype=np.float32 )
         # [i_lep][i_flavor][i_cand][i_feat]
         pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ] )
@@ -355,7 +357,7 @@ class Evaluator:
         pf_normalized = np.swapaxes(pf_normalized, 0,1)
         np_features = [ features_normalized ] + [ np.array(list(pf_normalized[i]), dtype=np.float32) for i in range(len(pf_normalized))] 
         prediction = deepLeptonModel.predict( np_features )
-        self.event.deepLepton_prediction = prediction
+        return prediction
 
 # Model
 from keras.models import load_model
