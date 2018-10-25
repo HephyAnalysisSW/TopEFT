@@ -156,7 +156,7 @@ class Setup:
             TTWSample           = TTW_17
             TZQSample           = TZQ_17
             ZGSample            = ZGTo2LG
-            #XGamma              = XGamma_17
+            XGSample            = Xgamma
             ZZSample            = ZZ_17
             rareSample          = rare_17
             nonpromptSample     = nonpromptMC_17

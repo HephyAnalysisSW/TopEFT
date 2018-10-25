@@ -126,7 +126,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
-scaling = { i+1:0 for i in range(len(signals)) }
+#scaling = { i+1:0 for i in range(len(signals)) }
+scaling = { 1:0 }
 
 def drawPlots(plots, mode, dataMCScale):
   for log in [False, True]:
@@ -147,7 +148,7 @@ def drawPlots(plots, mode, dataMCScale):
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
+	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ) if not args.normalize else drawObjects( not args.noData, 1.0 , lumi_scale ),
         copyIndexPHP = True,
       )
 

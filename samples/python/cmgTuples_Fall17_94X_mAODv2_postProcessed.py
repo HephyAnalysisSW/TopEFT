@@ -26,13 +26,13 @@ logger.info("Loading MC samples from directory %s", os.path.join(data_directory,
 
 
 dirs = {}
-dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_amc", "TTZToLLNuNu_m1to10"]
+dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_amc_psw"]
 
 # all inclusive right now
 dirs["WZ_amcatnlo"]     = ["WZTo3LNu_fxfx"]
 
 dirs['TTW']             = ["TTWToLNu_fxfx"]
-dirs['TTX']             = ["TTGJets_comb","TTTT","TZQToLL","TTHnobb_pow"] # TTVV missing. should be minor
+dirs['TTX']             = ["TZQToLL","TTHnobb_pow","THQ","THW","TTWToLNu_fxfx","TTZToLLNuNu_m1to10","TTTT","TTWW","TTWZ","TTZZ" ] # TTG in XGamma, tWZ invalid
 dirs['TZQ']             = ["TZQToLL"]
 dirs['TTH']             = ["TTHnobb_pow"]
 
@@ -44,8 +44,8 @@ dirs['DY_LO']           = ['DYJetsToLL_M50_LO_comb']
 
 
 dirs['nonprompt']       = ['TTLep_pow', 'DYJetsToLL_M50_LO_comb']
-dirs['rare']            = ["WWW_4F", "WWZ_4F", "WZZ","ZZZ", "WWTo2L2Nu"] # not complete yet
-dirs['ZZ']              = ["ZZTo4L","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGluToZZTo4mu","GluGluToZZTo2e2tau","GluGluToZZTo2mu2tau"]
+dirs['rare']            = ["WWW_4F", "WWZ_4F", "WZZ","ZZZ", "WWTo2L2Nu", "WZG"]
+dirs['ZZ']              = ["ZZTo4L","GluGluToZZTo2e2mu","GluGluToZZTo4e","GluGluToZZTo4mu","GluGluToZZTo2e2tau","GluGluToZZTo2mu2tau","WmHZZ4L_comb", "WpHZZ4L", "QQHZZ4L_comb", "GGHZZ4L", "ZHZZ4LF_comb"]
 
 dirs['Zgamma']          = ['DYJetsToLL_M50_ext']
 
