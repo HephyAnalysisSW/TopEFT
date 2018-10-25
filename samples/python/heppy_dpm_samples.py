@@ -133,6 +133,10 @@ class heppy_mapper:
             else:
                 logger.info( "Skipping to write %s because map is empty.", cache_file )
 
+    def dump_files_dict( self, filename):
+        pickle.dump( {k.name:val.files for k, val in self.sample_map.iteritems()}, file(filename,'w') )
+        logger.info( "Written %s", filename )
+    
     @property                
     def heppy_sample_names( self ):
         return [s.name for s in self.sample_map.keys()]
@@ -204,13 +208,12 @@ mc_dpm_directories = robert_94X
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
 Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, Fall17_cache_file, multithreading=multithreading)
 
-# Summer16 MC for lepton training
+# Summer16 MC for Deeplepton training
 lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3.pkl' 
 robert_lepton2016_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/lepton/']
 mc_dpm_directories = robert_lepton2016_v3
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["lepton2016_v3"])
-
 ## Summer17 MC for lepton training
 ##lepton_2017_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Fall17_2017_lepton.pkl' 
 #lepton_2017_cache_file = '/afs/hephy.at/work/g/gmoertl/lepton/dpm_sample_caches/94X_MC_Fall17_2017_lepton.pkl'
@@ -218,3 +221,11 @@ lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_direct
 #mc_dpm_directories = georg_lepton_2017_v2 
 #from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
 #lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
+
+# Summer16 MC fullevents for Deeplepton
+lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events.pkl' 
+robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+mc_dpm_directories =robert_2016_1l_full_events 
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+lepton_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
+#lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )

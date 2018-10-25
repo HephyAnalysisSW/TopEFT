@@ -9,6 +9,7 @@ import random
 import subprocess
 import datetime
 import shutil
+import uuid
 
 from array import array
 from operator import mul
@@ -71,6 +72,7 @@ def get_parser():
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
+    argParser.add_argument('--deepLepton',                  action='store_true',                                                                                        help="Add deep lepton MVA?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
     argParser.add_argument('--keepPhotons',                 action='store_true',                                                                                        help="Keep photon information?")
@@ -131,7 +133,8 @@ if options.sync:
     from TopEFT.samples.sync import *
     samples = map( eval, options.samples ) 
 else:
-    samples = [ fromHeppySample(s, data_path = options.dataDir, maxN = maxN, MCgeneration=MCgeneration, forceProxy=options.forceProxy) for s in options.samples ]
+    force_sample_map = "lepton_2016_mc_heppy_mapper" if options.deepLepton else None
+    samples = [ fromHeppySample(s, data_path = options.dataDir, force_sample_map = force_sample_map, maxN = maxN, MCgeneration=MCgeneration, forceProxy=options.forceProxy) for s in options.samples ]
     logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
 if len(samples)==0:
@@ -271,7 +274,6 @@ if options.LHEHTCut>0:
 
 # output directory (store temporarily when running on dpm)
 if writeToDPM:
-    import uuid
     # Allow parallel processing of N threads on one worker
     directory = os.path.join('/tmp/%s'%os.environ['USER'], str(uuid.uuid4()), options.processingEra)
     if not os.path.exists( directory ):
@@ -431,6 +433,18 @@ extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%(lep_id)
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
 lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
+
+if options.deepLepton:
+    theano_compile_dir = '/var/tmp/%s'%str(uuid.uuid4())
+    if not os.path.exists( theano_compile_dir ):
+        os.makedirs( theano_compile_dir )
+    os.environ['THEANO_FLAGS'] = 'base_compiledir=%s'%theano_compile_dir 
+    os.environ['KERAS_BACKEND'] = 'theano' 
+
+    from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
+    from TopEFT.Tools.DeepLeptonReader import evaluator
+    lepton_branches_store += ",deepLepton/F"
+
 new_variables+= [ 'lep[%s]' % lepton_branches_store ]
 
 if isMC:
@@ -1168,11 +1182,17 @@ for ievtRange, eventRange in enumerate( eventRanges ):
     # Add the TTreeFormulas
     for formula in treeFormulas.keys():
         treeFormulas[formula]['TTreeFormula'] = ROOT.TTreeFormula(formula, treeFormulas[formula]['string'], clonedTree )
+
     maker = treeMaker_parent.cloneWithoutCompile( externalTree = clonedTree )
 
     maker.start()
     # Do the thing
     reader.start()
+
+    # prepend the deeplepton maker
+    if options.deepLepton:
+        evaluator.setEvent( reader.event )
+        maker.sequence = [ lambda e: evaluator.evaluate() ] + maker.sequence
 
     while reader.run():
         maker.run()
