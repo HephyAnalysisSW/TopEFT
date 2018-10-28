@@ -97,4 +97,4 @@ for lepton_id in lepton_ids:
     same = "same"
 
 c.SetLogx()
-c.Print(os.path.join( plot_directory, deep_lepton, "roc.png") )
+c.Print(os.path.join( plot_directory, "deep_lepton", "roc.png") )
