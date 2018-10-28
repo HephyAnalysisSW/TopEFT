@@ -223,7 +223,7 @@ lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_direct
 #lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
 
 # Summer16 MC fullevents for Deeplepton
-lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events.pkl' 
+lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v2.pkl' 
 robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
 mc_dpm_directories =robert_2016_1l_full_events 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples

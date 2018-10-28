@@ -72,6 +72,7 @@ def get_parser():
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
+    argParser.add_argument('--theano',                      action='store_true',                                                                                        help="Use theano for deeplepton?")
     argParser.add_argument('--deepLepton',                  action='store_true',                                                                                        help="Add deep lepton MVA?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
     argParser.add_argument('--keepLHEWeights',              action='store_true',                                                                                        help="Keep LHEWeights?")
@@ -119,7 +120,7 @@ if isQuadLep:
 if isSingleLep:
     skimConds.append( "Sum$(LepGood_pt>20&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>20&&abs(LepOther_eta)<2.5)>=1" )
 if isInclusive:
-    skimConds = []
+    skimConds = ["(1)"]
 
 maxN = 100 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
@@ -193,6 +194,9 @@ except:
 if options.fileBasedSplitting:
     len_orig = len(sample.files)
     sample = sample.split( n=options.nJobs, nSub=options.job)
+    if sample is None:  
+        logger.info( "No such sample. nJobs %i, job %i numer of files %i", options.nJobs, options.job, len_orig )
+        sys.exit(0)
     logger.info( "fileBasedSplitting: Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig, options.job, options.nJobs))
     logger.debug( "fileBasedSplitting: Files to be run over:\n%s", "\n".join(sample.files) )
 if isMC:
@@ -422,11 +426,11 @@ if sync or options.remakeTTVLeptonMVA:
     lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 if options.deepLepton:                 
     lepton_branches_read  += ',edxy/F,edz/F,ip3d/F,sip3d/F,innerTrackChi2/F,innerTrackValidHitFraction/F,ptErrTk/F,rho/F,jetDR/F,trackerLayers/I,pixelLayers/I,trackerHits/I,lostHits/I,lostOuterHits/I,glbTrackProbability/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,trkKink/F,caloCompatibility/F,nStations/F'
-    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_neutral[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_neutral[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=400 )) # default nMax is 100
     read_variables.append( VectorTreeVariable.fromString('DL_pfCand_charged[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
     read_variables.append( VectorTreeVariable.fromString('DL_pfCand_photon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,hcalFraction/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
-    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_electron[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
-    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_electron[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=50 )) # default nMax is 100
+    read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=50 )) # default nMax is 100
     read_variables.append( VectorTreeVariable.fromString('DL_SV[pt/F,eta/F,phi/F,chi2/F,ndof/F,dxy/F,edxy/F,ip3d/F,eip3d/F,sip3d/F,cosTheta/F,jetPt/F,jetEta/F,jetDR/F,maxDxyTracks/F,secDxyTracks/F,maxD3dTracks/F,secD3dTracks/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
     read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "nDL_pfCand_charged/I", "nDL_pfCand_photon/I", "nDL_pfCand_electron/I", "nDL_pfCand_muon/I", "nDL_SV/I"]) )
 # For the moment store all the branches that we read
@@ -441,11 +445,12 @@ extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%(lep_id)
 
 if options.deepLepton:
-    #theano_compile_dir = '/var/tmp/%s'%str(uuid.uuid4())
-    #if not os.path.exists( theano_compile_dir ):
-    #    os.makedirs( theano_compile_dir )
-    #os.environ['THEANO_FLAGS'] = 'base_compiledir=%s'%theano_compile_dir 
-    #os.environ['KERAS_BACKEND'] = 'theano' 
+    if options.theano:
+        theano_compile_dir = '/var/tmp/%s'%str(uuid.uuid4())
+        if not os.path.exists( theano_compile_dir ):
+            os.makedirs( theano_compile_dir )
+        os.environ['THEANO_FLAGS'] = 'base_compiledir=%s'%theano_compile_dir 
+        os.environ['KERAS_BACKEND'] = 'theano' 
 
     from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
     from TopEFT.Tools.DeepLeptonReader import evaluator
