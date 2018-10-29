@@ -1,12 +1,5 @@
 #!/bin/sh
 
-#DeepLepton plots
-#plotptSelection='pt_15_to_inf'
-#plotsampleSelection='DYvsQCD_sorted'
-#plottrainingDate=20181028
-#plotflavour='muo'
-#plotsampleSize='full'
-
 #######
 #muons#
 #######
