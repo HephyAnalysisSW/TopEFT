@@ -96,7 +96,7 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
 #    
 #    return samples
 
-def histo_plot_variables(trainingDate):
+def histo_plot_variables(trainingDate, version):
 
     variables = [
     "run/I",
@@ -182,22 +182,22 @@ def histo_plot_variables(trainingDate):
     "lep_mcMatchPdgId/I",
     "lep_mcMatchId/I",
     "lep_mcMatchAny/I",
-    "lep_isPromptId/I",
-    "lep_isNonPromptId/I",
-    "lep_isFakeId/I",
+    "lep_isPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isFakeId"+("" if version=='v1' else "_Training")+"/I",
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
     "nTrueInt/F",
     ]
 
-    if not trainingDate==0: 
-        variables.append("prob_lep_isPromptId/F")
-        variables.append("prob_lep_isNonPromptId/F")
-        variables.append("prob_lep_isFakeId/F")
+    if not trainingDate==0:
+        variables.append("prob_lep_isPromptId"+("" if version=='v1' else "_Training")+"/F")
+        variables.append("prob_lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/F")
+        variables.append("prob_lep_isFakeId"+("" if version=='v1' else "_Training")+"/F")
 
     return variables
 
-def roc_plot_variables():
+def roc_plot_variables(version):
 
     # variables to read
     variables = [
@@ -209,7 +209,7 @@ def roc_plot_variables():
     "lep_dEtaInSeed/F",             #electrons (barrel: | |<0.00353, endcap: | |<0.00567)                           #DeltaEta wrt ele SC seed for Leptons after the preselection : 0 at: 0x411e850
     "lep_dPhiScTrkIn/F",            #electrons (barrel: | |<0.0499,  endcap: | |<0.0165)                            #Electron deltaPhiSuperClusterTrackAtVtx (without absolute value!) for Leptons after the preselection : 0 at: 0x41083f0
     "lep_relIso03/F",               #electrons (barrel: <0.0361,     endcap: <0.094)       #muons <0.1              #PF Rel Iso, R=0.3, pile-up corrected for Leptons after the preselection : 0 at: 0x410f640
-    "lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) for Leptons after the preselection : 0 at: 0x4108f90   
+    "lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) ff version='v1' else "_Training")+"or Leptons after the preselection : 0 at: 0x4108f90   
     "lep_lostHits/I",               #electrons (barrel: 1,           endcap: 1)                                     #Number of lost hits on inner track for Leptons after the preselection : 0 at: 0x4101ee0
     "lep_convVeto/I",               #electrons yes                                                                  #Conversion veto (always true for muons) for Leptons after the preselection : 0 at: 0x410e5c0
     "lep_hadronicOverEm/F",         #electrons                                                                      #Electron hadronicOverEm for Leptons after the preselection : 0 at: 0x4108990
@@ -218,12 +218,12 @@ def roc_plot_variables():
     "lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
     "lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
     "lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
-    "lep_isPromptId/I",
-    "lep_isNonPromptId/I",
-    "lep_isFakeId/I",
-    "prob_lep_isPromptId/F",
-    "prob_lep_isNonPromptId/F",
-    "prob_lep_isFakeId/F",
+    "lep_isPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isFakeId"+("" if version=='v1' else "_Training")+"/I",
+    "prob_lep_isPromptId"+("" if version=='v1' else "_Training")+"/F",
+    "prob_lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/F",
+    "prob_lep_isFakeId"+("" if version=='v1' else "_Training")+"/F",
     "lep_tightId/I",
     "lep_mediumMuonId/I",
     "lep_pfMuonId/I",

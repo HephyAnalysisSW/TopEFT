@@ -29,13 +29,13 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1'],                   required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3'],                   required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
 
@@ -67,14 +67,14 @@ leptonFlavours = [{'FullName':'Electron' if options.flavour=='ele' else 'Muon', 
 leptonFlavours[0]['TrainDates'].append({'Date': options.trainingDate, 'TrainType': options.trainingType, 'SampleSize': options.sampleSize, 'Plots': [
                                                                                                      {'Name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTV',          'Color':ROOT.kGray,    'lineWidth': 2},
                                                                                                      {'Name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTH',          'Color':ROOT.kGray+1,  'lineWidth': 2},
-                                                                                                     {'Name': 'DeepLepton',          'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+2, 'lineWidth': 2},
+                                                                                                     {'Name': 'DeepLepton',          'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId'+('' if options.version=='v1' else '_Training'), 'Color':ROOT.kGreen+2, 'lineWidth': 2},
                                                                                                      ]})
 ##################
 # load variables #
 ##################
 
 # variables to read
-variables=roc_plot_variables()
+variables=roc_plot_variables(options.version)
 
 ###############
 # define cuts #
@@ -153,7 +153,7 @@ for leptonFlavour in leptonFlavours:
 
                         if reader.event.lep_pt>=ptCut["lower_limit"] and reader.event.lep_pt<=ptCut["upper_limit"] and reader.event.lep_relIso03 <= relIsoCut:
                             #print i, j, k, reader.event.lep_pt, reader.event.lep_relIso03, reader.event.lep_isPromptId, getattr(reader.event, plot["Variable"])
-                            readerData[i][j][k].append([reader.event.lep_isPromptId, getattr(reader.event, plot["Var"])])
+                            readerData[i][j][k].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
                     
                         j += 1
                     i += 1

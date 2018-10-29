@@ -27,13 +27,13 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1'],                   required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3'],                   required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
 
@@ -68,7 +68,7 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
 samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize)
     
 # variables to read
-read_variables=histo_plot_variables(options.trainingDate)
+read_variables=histo_plot_variables(options.trainingDate, options.version)
 
 #########################
 # define plot structure #
@@ -112,9 +112,9 @@ for leptonFlavour in leptonFlavours:
     sampleNonPrompt = deepcopy(leptonFlavour["sample"])
     sampleFake      = deepcopy(leptonFlavour["sample"])
 
-    samplePrompt.setSelectionString("(lep_isPromptId==1&&"+leptonFlavour["selectionString"]+")")
-    sampleNonPrompt.setSelectionString("(lep_isNonPromptId==1&&"+leptonFlavour["selectionString"]+")")
-    sampleFake.setSelectionString("(lep_isFakeId==1&&"+leptonFlavour["selectionString"]+")")
+    samplePrompt.setSelectionString("(lep_isPromptId"+('' if options.version=='v1' else '_Training')+"==1&&"+leptonFlavour["selectionString"]+")")
+    sampleNonPrompt.setSelectionString("(lep_isNonPromptId"+('' if options.version=='v1' else '_Training')+"==1&&"+leptonFlavour["selectionString"]+")")
+    sampleFake.setSelectionString("(lep_isFakeId"+('' if options.version=='v1' else '_Training')+"==1&&"+leptonFlavour["selectionString"]+")")
 
     samplePrompt.name    = "Prompt"
     sampleNonPrompt.name = "NonPrompt"
@@ -167,34 +167,34 @@ for leptonFlavour in leptonFlavours:
             #Lepton Classes
             plots.append(Plot(name=plotname+'ClassPrompt',
                 texX = 'isPrompt', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isPromptId,
+                attribute = lambda lepton, sample: lepton.lep_isPromptId if options.version=='v1' else lepton.lep_isPromptId_Training,
                 binning=[2,0,1],
             ))
             plots.append(Plot(name=plotname+'ClassNonPrompt',
                 texX = 'isNonPrompt', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
+                attribute = lambda lepton, sample: lepton.lep_isNonPromptId if options.version=='v1' else lepton.lep_isNonPromptId_Training,
                 binning=[2,0,1],
             ))
             plots.append(Plot(name=plotname+'ClassFake',
                 texX = 'isFake', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isFakeId,
+                attribute = lambda lepton, sample: lepton.lep_isFakeId if options.version=='v1' else lepton.lep_isFakeId_Training,
                 binning=[2,0,1],
             ))
             
             if not plotDate==0:
                 plots.append(Plot(name=plotname+'DL_prob_isPrompt',
                     texX = 'DL_prob_isPrompt', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isPromptId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isPromptId if options.version=='v1' else lepton.prob_lep_isPromptId_Training,
                     binning=[33,0,1],
                 ))
                 plots.append(Plot(name=plotname+'DL_prob_isNonPrompt',
                     texX = 'DL_prob_isNonPrompt', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId if options.version=='v1' else lepton.prob_lep_isNonPromptId_Training,
                     binning=[33,0,1],
                 ))
                 plots.append(Plot(name=plotname+'DL_prob_isFake',
                     texX = 'DL_prob_isFake', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isFakeId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isFakeId if options.version=='v1' else lepton.prob_lep_isFakeId_Training,
                     binning=[33,0,1],
                 ))
 
@@ -496,7 +496,7 @@ for leptonFlavour in leptonFlavours:
                 plots.append(Plot(name=plotname+'trkKink',
                     texX = 'trkKink', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_trkKink,
-                    binning=[100,0,50],
+                    binning=[100,0,200],
                 ))
             #other Variables
             plots.append(Plot(name=plotname+'mcMatchId',
