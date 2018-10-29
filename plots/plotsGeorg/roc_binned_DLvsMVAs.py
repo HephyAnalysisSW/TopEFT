@@ -31,7 +31,8 @@ def get_parser():
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
+    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                    required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
+    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                           help="path to prediction files?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted','DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
@@ -51,7 +52,7 @@ options = get_parser().parse_args()
 ##############################
 
 #define samples for electorns and muons
-samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize)
+samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath)
 
 # variables to read
 variables=roc_plot_variables(options.version)
@@ -239,14 +240,17 @@ for leptonFlavour in leptonFlavourList:
             c.BuildLegend(0.55,ya,0.9,yb)
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCut['Name'], relIsoCut )
             #drawObjectsSmall(isTestData, options.flavour, 'SLDL_TTJets+QCD', 'pt10to250', relIsoCut ) 
-            directory=(os.path.join(
-                                    plot_directory,
-                                    str(options.year), 
-                                    options.flavour, 
-                                    options.sampleSelection, 
-                                    str(options.trainingDate), 
-                                    'TestData' if isTestData else 'TrainData'
-                                   ))
+            if options.isTestData==99:
+                directory=(os.path.join(plot_directory, 'roc_testfiles'))
+            else:
+                directory=(os.path.join(
+                                        plot_directory,
+                                        str(options.year), 
+                                        options.flavour, 
+                                        options.sampleSelection, 
+                                        str(options.trainingDate), 
+                                        'TestData' if isTestData else 'TrainData'
+                                       ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
             c.Print(os.path.join(directory, 'roc_binned_'+options.binned+"_relIsoCut="+str(relIsoCut)+'_'+ptCut['Name']+'_eB_for_'+str(options.eBbins)+'bins'+'.png'))

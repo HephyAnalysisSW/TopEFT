@@ -6,7 +6,7 @@ import os
 from RootTools.core.standard import *
 from TopEFT.Tools.user import trainingFiles_directory as base_directory
 
-def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
+def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize, predictionPath):
 
     #define paths and names
     #base_directory = trainingsFiles_directory
@@ -27,6 +27,10 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     predict_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
 
     #create FileList
+    if isTestData==99:
+        file_directory =    os.path.join(predictionPath,'rootFile')
+        predict_directory = os.path.join(predictionPath,'prediction')
+
     if trainingDate==0:
         with open(texfilePath,'r') as f:
             FileList = f.read().splitlines()
@@ -245,7 +249,7 @@ def eS(p, rocdataset):
             ntruth+=1.
             if data[1]>=p:
                 ntruthid+=1.
-    print ntruth, ntruthid
+    #print ntruth, ntruthid
     return 0. if ntruth==0. else  ntruthid/ntruth
 
 def eB(p, rocdataset):

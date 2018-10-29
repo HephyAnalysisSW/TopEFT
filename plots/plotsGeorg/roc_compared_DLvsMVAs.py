@@ -33,7 +33,8 @@ def get_parser():
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
+    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                    required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
+    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                           help="path to prediction files?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
@@ -137,8 +138,8 @@ for leptonFlavour in leptonFlavours:
 
     for trainDate in leptonFlavour['TrainDates']:
         #load sample
-        samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
-        #amples=plot_samples_v2(options.version, options.year, options.flavour, trainDate['Date'], options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        #samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath) 
         print samples["sample"]
 
         # reader class
@@ -243,14 +244,17 @@ for leptonFlavour in leptonFlavours:
             #c.BuildLegend()
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
-            directory=(os.path.join(
-                                    plot_directory,
-                                    str(options.year),
-                                    options.flavour,
-                                    options.sampleSelection,
-                                    str(options.trainingDate),                
-                                    'TestData' if isTestData else 'TrainData'
-                                   ))
+            if options.isTestData==99:
+                directory=(os.path.join(plot_directory,'roc_testfiles'))
+            else:
+                directory=(os.path.join(
+                                        plot_directory,
+                                        str(options.year),
+                                        options.flavour,
+                                        options.sampleSelection,
+                                        str(options.trainingDate),                
+                                        'TestData' if isTestData else 'TrainData'
+                                       ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
             c.Print(os.path.join(directory, 'roc_compared_'+ptCuts[i]["Name"]+'_relIso<='+str(relIsoCuts[j])+'.png'))
