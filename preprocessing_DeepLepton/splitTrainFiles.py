@@ -63,6 +63,8 @@ def selectSamples(sampleSelection, year):
 
     if year == 2016:
         sampleSelectionDict = {
+        'DY_2016': { 'Prompt': DY_2016, 'NonPrompt': [], 'Fake': [] },
+        'QCD_2016': { 'Prompt': [], 'NonPrompt': QCD_2016, 'Fake': QCD_2016 },
         'DYvsQCD_2016': { 'Prompt': DY_2016, 'NonPrompt': QCD_2016, 'Fake': QCD_2016 },
         #'TTvsTTandQCD_2016': { 'Prompt': TTdile_2016, 'NonPrompt': TTsele_2016, 'Fake': QCD_2016 },
         'TTbar_2016': { 'Prompt': TTJets_diLepton_2016+TT_Lepton_2016, 'NonPrompt': TTJets_diLepton_2016+TT_Lepton_2016+TT_semiLepton_2016, 'Fake': TTJets_diLepton_2016+TT_Lepton_2016 },
@@ -85,7 +87,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTbar'],  required = True,             help="Which flavour?")
+    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DY', 'QCD', 'DYvsQCD', 'TTJets', 'TTbar'],  required = True,             help="Which flavour?")
     argParser.add_argument('--ptSubSelection',              action='store',                     type=str,   choices=['pt_10_to_inf', 'pt_15_to_inf'],              required = True,             help="Which flavour?")
 
     return argParser
@@ -113,11 +115,15 @@ print samplesNonPrompt
 print samplesFake
 
 #define structure
-leptonClasses  = [
-                    {'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 }, 
-                    {'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 }, 
-                    {'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 },
-                 ]
+leptonClasses  = []
+
+if samplesPrompt!=[]:
+    leptonClasses.append({'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 })
+if samplesNonPrompt!=[]:
+    leptonClasses.append({'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 })
+if samplesFake!=[]:
+    leptonClasses.append({'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 })
+
 leptonFlavours = [
                     {'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13},
                  ]
@@ -126,9 +132,9 @@ postfix = '' if options.nJobs==1 else "_%i" % options.job
 
 #Loop
 for leptonFlavour in leptonFlavours:
-    leptonClasses[0]['TChain'] = ROOT.TChain('tree')
-    leptonClasses[1]['TChain'] = ROOT.TChain('tree')
-    leptonClasses[2]['TChain'] = ROOT.TChain('tree')
+    #leptonClasses[0]['TChain'] = ROOT.TChain('tree')
+    #leptonClasses[1]['TChain'] = ROOT.TChain('tree')
+    #leptonClasses[2]['TChain'] = ROOT.TChain('tree')
 
     for leptonClass in leptonClasses:
         inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptSelection)

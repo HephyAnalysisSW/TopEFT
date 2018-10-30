@@ -21,11 +21,11 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1','v1_small','v2','v3'],                required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1','v1_small','v2','v3', 'v3_small'],                required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                      required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf', 'noPtSelection'], required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD', 'TTJets', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
 
     argParser.add_argument('--nJobs',           action='store', nargs='?', type=int, default=1, help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',             action='store',            type=int, default=0, help="Run only job i")

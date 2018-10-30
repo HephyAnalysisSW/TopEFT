@@ -245,7 +245,7 @@ for leptonFlavour in leptonFlavours:
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
             if options.isTestData==99:
-                directory=(os.path.join(plot_directory,'roc_testfiles'))
+                directory=(os.path.join(plot_directory,'roc_testfiles','DYvsQCD'))
             else:
                 directory=(os.path.join(
                                         plot_directory,

@@ -13,10 +13,12 @@
 #squeue|grep gmoertl
 
 #single jobs
-
-python -i splitTrainFiles.py --version v3 --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection TTJets --nJobs 60 --job 0
+python -i splitTrainFiles.py --version v3_small --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection TTJets --nJobs 2 --job 0
+python -i splitTrainFiles.py --version v3_small --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection DYvsQCD --nJobs 2 --job 0
+python -i splitTrainFiles.py --version v3_small --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection DY --nJobs 2 --job 0
+python -i splitTrainFiles.py --version v3_small --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection QCD --nJobs 2 --job 0
 
 ##full version
-#python -i splitTrainFiles.py --version v3 --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection TTbar #SPLIT60
+#python -i splitTrainFiles.py --version v3 --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection TTJets #SPLIT60
 #python -i splitTrainFiles.py --version v3 --year 2016 --flavour muo --ptSubSelection pt_15_to_inf --sampleSelection DYvsQCD #SPLIT60
 
