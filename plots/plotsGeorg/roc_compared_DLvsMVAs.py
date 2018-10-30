@@ -19,34 +19,11 @@ from TopEFT.Tools.user import plot_directory
 plot_directory_=os.path.join(plot_directory, 'DeepLepton')
 plot_directory=plot_directory_
 
-# plot samples definitions
-from def_plot_samples import *
+# DeepLepton plot script functions
+from def_DeepLepton_plots import *
 
-#parser
-def get_parser():
-    ''' Argument parser for post-processing module.
-    '''
-    import argparse
-    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
-
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3'],                   required = True, help="Version for output directory")
-    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
-    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
-    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                    required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
-    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                           help="path to prediction files?")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
-    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
-
-    #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
-    #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
-
-    return argParser
-
+# get argument parser
 options = get_parser().parse_args()
-
 
 ###################
 # define plotlist #
@@ -245,7 +222,7 @@ for leptonFlavour in leptonFlavours:
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
             if options.isTestData==99:
-                directory=(os.path.join(plot_directory,'roc_testfiles','DYvsQCD'))
+                directory=(os.path.join(plot_directory,'roc_testfiles',options.sampleSelection))
             else:
                 directory=(os.path.join(
                                         plot_directory,
