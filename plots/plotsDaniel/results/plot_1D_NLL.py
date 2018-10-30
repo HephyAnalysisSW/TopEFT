@@ -46,6 +46,7 @@ argParser.add_argument("--useXSec",         action='store_true', help="Use the x
 argParser.add_argument("--useShape",        action='store_true', help="Use the shape information?")
 argParser.add_argument("--prefit",          action='store_true', help="Use pre-fit NLL?")
 argParser.add_argument("--expected",        action='store_true', help="Use expected results?")
+argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
@@ -107,13 +108,19 @@ setCouplingValues(dim6top_dipoles + dim6top_currents + ewkDM_dipoles + ewkDM_cur
 subDir = ''
 baseDir = os.path.join(analysis_results, subDir)
 
-cardDir = "regionsE_%s"%(year) if not args.combined else "regionsE_COMBINED"
+if not args.inclusiveRegions:
+    cardDir = "regionsE_%s"%(year) if not args.combined else "regionsE_COMBINED"
+else:
+    cardDir = "inclusiveRegions_%s"%(year) if not args.combined else "inclusiveRegions_COMBINED"
+
 if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
     cardDir += "_shape"
 exp = "_expected" if args.expected else ''
-cardDir += "_lowUnc%s_SRandCR"%exp
+
+cardDir += "_lowUnc%s"%exp
+#cardDir += "_lowUnc%s_SRandCR"%exp
 
 #regionsE_COMBINED_xsec_shape_lowUnc_expected_SRandCR
 #regionsE_2017_xsec_shape_lowUnc_expected_SRandCR
@@ -341,6 +348,8 @@ if args.expected:
 if args.smooth:
     hist.Smooth(1,"k5b")
     postFix += "_smooth"
+if args.inclusiveRegions:
+    postFix += "inclusiveSR"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 

@@ -3,11 +3,12 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--noMultiThreading",     dest="noMultiThreading",      default = False,             action="store_true", help="noMultiThreading?")
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
-parser.add_option("--controlRegion",  action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
-parser.add_option("--sample", action='store', default='WZ', choices = ["WZ", "TTX", "XG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
-parser.add_option("--year",            action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-parser.add_option("--skipSystematics", action='store_true', help="Don't run the systematic variations")
-parser.add_option("--overwrite", action='store_true', help="Overwrite?")
+parser.add_option("--controlRegion",        action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
+parser.add_option("--inclusiveRegions",     action='store_true', help="Use any CRs cut?")
+parser.add_option("--sample",               action='store', default='WZ', choices = ["WZ", "TTX", "XG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ"], help="Choose which sample to run the estimates for")
+parser.add_option("--year",                 action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+parser.add_option("--skipSystematics",      action='store_true', help="Don't run the systematic variations")
+parser.add_option("--overwrite",            action='store_true', help="Overwrite?")
 (options, args) = parser.parse_args()
 
 # Standard imports
@@ -20,7 +21,7 @@ import copy
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers import *
-from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight, regions4l, regionsReweight4l, regions4lB
+from TopEFT.Analysis.regions      import regionsE, noRegions, regionsReweight, regions4l, regionsReweight4l, regions4lB, regionsXSec, noRegionsC, regions4lXSec
 from TopEFT.Tools.u_float      import u_float
 from TopEFT.Analysis.Region       import Region
 
@@ -62,11 +63,11 @@ estimators              = estimatorList(setup)
 setup.estimators        = estimators.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])
 setup.reweightRegions   = regionsReweight
 setup.channels          = [channel(-1,-1)]
-setup.regions           = noRegions + regionsE
+setup.regions           = (noRegions + regionsE) if not options.inclusiveRegions else (noRegionsC + regionsXSec)
 
 setupNP                 = Setup(year=year, nLeptons=3, nonprompt=True)
 setupNP.channels          = [channel(-1,-1)]
-setupNP.regions           = noRegions + regionsE
+setupNP.regions           = (noRegions + regionsE) if not options.inclusiveRegions else (noRegionsC + regionsXSec)
 
 setup.verbose = True
 #setupCR = setup.systematicClone(parameters={'nJets':(0,-1), 'nBTags':(0,0)})
@@ -86,7 +87,7 @@ estimators4l              = estimatorList(setup4l)
 setup4l.estimators        = estimators4l.constructEstimatorList(["ZZ", "rare"])
 setup4l.reweightRegions   = regionsReweight4l
 setup4l.channels          = [channel(-1,-1)]
-setup4l.regions           = noRegions + regions4lB
+setup4l.regions           = (noRegions + regions4lB) if not options.inclusiveRegions else (noRegionsC + regions4lXSec)
 
 ## 4l control region setup
 # to be added now
@@ -109,11 +110,11 @@ if options.controlRegion:
 # only run over 3l/4l when necessary
 if not options.controlRegion:
     if not options.sample in ["nonprompt"]:
-        setups = [setup, setup_CR]
+        setups = [setup, setup_CR] if not options.inclusiveRegions else [setup]
         if options.sample in ["ZZ","rare","TTX","TTZ","Data","pseudoData"]:
-            setups += [setup4l, setup4l_CR]
+            setups = setups + [setup4l, setup4l_CR] if not options.inclusiveRegions else setups + [setup4l]
     else:
-        setups = [setupNP, setupNP_CR]
+        setups = [setupNP, setupNP_CR] if not options.inclusiveRegions else [setupNP]
 else:
     if not options.sample in ["nonprompt"]:
         setups = [setup_CR] if '3l' in options.controlRegion else [setup4l_CR]

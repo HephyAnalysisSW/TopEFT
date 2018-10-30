@@ -8,16 +8,16 @@ from RootTools.core.standard        import *
 
 ## 2016
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 ## 2017
 data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
@@ -439,7 +439,10 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+try:
+    leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+except:
+    pass
 leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
 leg.Draw()
 
