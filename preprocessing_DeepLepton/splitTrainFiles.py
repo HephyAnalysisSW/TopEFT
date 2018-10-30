@@ -115,14 +115,11 @@ print samplesNonPrompt
 print samplesFake
 
 #define structure
-leptonClasses  = []
-
-if samplesPrompt!=[]:
-    leptonClasses.append({'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 })
-if samplesNonPrompt!=[]:
-    leptonClasses.append({'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 })
-if samplesFake!=[]:
-    leptonClasses.append({'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 })
+leptonClasses  = [
+                    {'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 },
+                    {'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 },
+                    {'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 },
+                 ]
 
 leptonFlavours = [
                     {'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13},
@@ -132,9 +129,9 @@ postfix = '' if options.nJobs==1 else "_%i" % options.job
 
 #Loop
 for leptonFlavour in leptonFlavours:
-    #leptonClasses[0]['TChain'] = ROOT.TChain('tree')
-    #leptonClasses[1]['TChain'] = ROOT.TChain('tree')
-    #leptonClasses[2]['TChain'] = ROOT.TChain('tree')
+    leptonClasses[0]['TChain'] = ROOT.TChain('tree')
+    leptonClasses[1]['TChain'] = ROOT.TChain('tree')
+    leptonClasses[2]['TChain'] = ROOT.TChain('tree')
 
     for leptonClass in leptonClasses:
         inputPath = os.path.join( input_directory, options.version, str(options.year), leptonFlavour['Name'], leptonClass['Name'], ptSelection)
