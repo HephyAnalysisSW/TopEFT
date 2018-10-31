@@ -80,13 +80,15 @@ else:
 
 isTestData=samples["isTestData"]  #1=true, 0=false
 
-preselectionString=lep_preselection(options.flavour) 
 
 ####################################
 # loop over samples and draw plots #
 ####################################
 
 for leptonFlavour in leptonFlavours:
+        
+    #preselectionString=lep_preselection(options.flavour) 
+    preselectionString=leptonFlavour["selectionString"] 
 
     #define class samples
     samplePrompt    = deepcopy(leptonFlavour["sample"])
