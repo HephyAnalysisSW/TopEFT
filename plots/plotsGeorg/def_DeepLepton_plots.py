@@ -163,6 +163,10 @@ def histo_plot_variables(trainingDate, version):
     "npfCand_muon/I",
 
     "pfCand_neutral[pt_ptRelSorted/F]",
+    "pfCand_charged[pt_ptRelSorted/F]",
+    "pfCand_photon[pt_ptRelSorted/F]",
+    "pfCand_electron[pt_ptRelSorted/F]",
+    "pfCand_muon[pt_ptRelSorted/F]",
 
     #Electron specific
     "lep_etaSc/F",                

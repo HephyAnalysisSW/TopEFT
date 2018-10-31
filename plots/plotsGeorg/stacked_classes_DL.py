@@ -316,17 +316,35 @@ for leptonFlavour in leptonFlavours:
             #    attribute = lambda lepton, sample: lepton.lep_ptErrTk,
             #    binning=[100,0,10] if leptonFlavour["Name"]=="Muon" else [100,0,50],
             #))
-            plots.append(Plot(name=plotname+'npfCand_neutral',
-                texX = 'npfCand_neutral', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_neutral,
-                #binning=[21,0,20],
-                binning=[4,0,3],
-            ))
-            plots.append(Plot(name=plotname+'pfCand_neutral_pt',
-                texX = 'pfCand_neutral_pt', texY = 'Number of Events',
-                attribute = lambda lepton, sample: sum([lepton.pfCand_neutral_pt_ptRelSorted[i] for i in xrange(lepton.npfCand_neutral)]),
-                binning=[100,0,5],
-            ))
+ 
+            #PF Candidates
+            pfCandDict = {
+                            'neutral'  : [ [21,0,20],[50,0,5]   ],
+                            'charged'  : [ [71,0,70],[200,0,20] ], 
+                            'photon'   : [ [41,0,40],[100,0,10] ], 
+                            'electron' : [ [21,0,20],[50,0,5]   ], 
+                            'muon'     : [ [21,0,20],[50,0,5]   ],
+                         }
+            for pfCand in pfCandDict:
+                name = lambda pfCand=pfCand : pfCand
+                plots.append(Plot(name=plotname+'pfCand_'+pfCand+'_n',
+                    texX = 'npfCand_'+pfCand, texY = 'Number of Events',
+                    attribute = lambda lepton, sample: getattr(lepton,'npfCand_'+pfCand),
+                    #binning=pfCandDict[pfCand][0],
+                    binning=[21,0,20],
+                ))
+                plots.append(Plot(name=plotname+'pfCand_'+pfCand+'_pt',
+                    texX = 'pfCand_'+pfCand+'_pt', texY = 'Number of Events',
+                    #attribute = lambda lepton, sample: sum([lepton.pfCand_neutral_pt_ptRelSorted[i] for i in xrange(lepton.npfCand_neutral)]),
+                    attribute = lambda lepton, sample: sum([getattr(lepton,'pfCand_'+pfCand+'_pt_ptRelSorted')[i] for i in xrange(getattr(lepton,'npfCand_'+pfCand))]),
+                    #binning=pfCandDict[pfCand][1],
+                    binning=[200,0,20],
+                ))
+            #plots.append(Plot(name=plotname+'pfCand_charged_pt',
+            #    texX = 'pfCand_charged_pt', texY = 'Number of Events',
+            #    attribute = lambda lepton, sample: sum([lepton.pfCand_charged_pt_ptRelSorted[i] for i in xrange(lepton.npfCand_charged)]),
+            #    binning=[200,0,20],
+            #))
             #plots.append(Plot(name=plotname+'npfCand_charged',
             #    texX = 'npfCand_charged', texY = 'Number of Events',
             #    attribute = lambda lepton, sample: lepton.npfCand_charged,
