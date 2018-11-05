@@ -422,13 +422,13 @@ def drawObjects(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-def drawObjectsSmall(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
+def drawObjectsSmall(preselection):
     tex = ROOT.TLatex()
     tex.SetNDC()
-    tex.SetTextSize(0.025)
-    tex.SetTextAlign(31) # align right
+    tex.SetTextSize(0.019)
+    tex.SetTextAlign(11) # align right
     lines = [
-      (0.99, 0.93, '#bf{eff(IP+ID)=  POG: (POG ID+IP+relIso)/relIso, LeptonMVA: (MVA ID+relIso)/relIso, DeepLepton: (DL ID)/relIso}')
+      (0.01, 0.93, '#bf{preselcetion: '+preselection+'}')
     ]
     return [tex.DrawLatex(*l) for l in lines]
 

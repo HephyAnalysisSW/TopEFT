@@ -99,8 +99,8 @@ isTestData=samples["isTestData"]  #1=true, 0=false
 
 for leptonFlavour in leptonFlavours:
         
-    #preselectionString=lep_preselection(options.flavour) 
-    preselectionString=leptonFlavour["selectionString"] 
+    preselectionString=lep_preselection(options.flavour) 
+    #preselectionString=leptonFlavour["selectionString"] 
 
     #define class samples
     samplePrompt    = deepcopy(leptonFlavour["sample"])

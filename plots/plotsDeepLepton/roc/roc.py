@@ -35,9 +35,9 @@ if args.small:
 event_selection = "(1)"
 
 # truth categories
-prompt_selection    = "(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37)"
-nonPrompt_selection = "(!(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37))&&(lep_mcMatchAny==4||lep_mcMatchAny==5)"
-fake_selection      = "(!(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37))&&(!(lep_mcMatchAny==4||lep_mcMatchAny==5))"
+prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
+nonPrompt_selection = "(!(abs(lep_mcMatchId==)6||abs(lep_mcMatchId==)23||abs(lep_mcMatchId==)24||abs(lep_mcMatchId==)25||abs(lep_mcMatchId==)37))&&(abs(lep_mcMatchAny==)4||abs(lep_mcMatchAny==)5)"
+fake_selection      = "(!(abs(lep_mcMatchId==)6||abs(lep_mcMatchId==)23||abs(lep_mcMatchId==)24||abs(lep_mcMatchId==)25||abs(lep_mcMatchId==)37))&&(!(abs(lep_mcMatchAny==)4||abs(lep_mcMatchAny==)5))"
 
 # lepton preselection
 loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
@@ -97,4 +97,4 @@ for lepton_id in lepton_ids:
     same = "same"
 
 c.SetLogx()
-c.Print(os.path.join( plot_directory, "deep_lepton", "roc.png") )
+c.Print(os.path.join( plot_directory, "DeepLepton", "roc.png") )
