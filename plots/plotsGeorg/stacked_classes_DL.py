@@ -11,6 +11,8 @@ import math
 
 # RootTools
 from RootTools.core.standard import *
+# TopEFT
+from TopEFT.Tools.helpers import getObjDict, getCollection
 
 # User specific 
 from TopEFT.Tools.user import plot_directory
@@ -78,6 +80,16 @@ else:
     pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15.&&lep_pt<25."})
     
 
+#PF Candidates
+pfCand_plot_binning = {
+                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] }, 
+                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] }, 
+                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   }, 
+                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+             }
+pfCand_flavors = pfCand_plot_binning.keys()
+
 isTestData=samples["isTestData"]  #1=true, 0=false
 
 
@@ -126,10 +138,13 @@ for leptonFlavour in leptonFlavours:
             # Sequence
             sequence = []
 
-            # Add a new fancy variable
-            def make_absEInvMinusPInv( event, sample ):
-                event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
-            sequence.append( make_absEInvMinusPInv)
+            def make_sumPt( event, sample ):
+                for flavor in pfCand_flavors:
+                    cands = getCollection( event, 'pfCand_%s'%flavor, ['pt_ptRelSorted'], 'npfCand_%s'%flavor )
+                    #print cands
+                    setattr( event, 'mult_%s'%flavor, len( cands ) )
+                    setattr( event, 'sumPt_%s'%flavor, sum( [ c['pt_ptRelSorted'] for c in cands ], 0. ) )
+            sequence.append( make_sumPt )
 
             #def print_mcmatchId( event, sample ):
             #    if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample:
@@ -147,380 +162,346 @@ for leptonFlavour in leptonFlavours:
             plots = []
             # Add plots
 
-            ##Lepton Classes
-            #plots.append(Plot(name=plotname+'ClassPrompt',
-            #    texX = 'isPrompt', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_isPromptId if options.version=='v1' else lepton.lep_isPromptId_Training,
-            #    binning=[2,0,1],
-            #))
-            #plots.append(Plot(name=plotname+'ClassNonPrompt',
-            #    texX = 'isNonPrompt', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_isNonPromptId if options.version=='v1' else lepton.lep_isNonPromptId_Training,
-            #    binning=[2,0,1],
-            #))
-            #plots.append(Plot(name=plotname+'ClassFake',
-            #    texX = 'isFake', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_isFakeId if options.version=='v1' else lepton.lep_isFakeId_Training,
-            #    binning=[2,0,1],
-            #))
-            #
-            #if not plotDate==0:
-            #    plots.append(Plot(name=plotname+'DL_prob_isPrompt',
-            #        texX = 'DL_prob_isPrompt', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.prob_lep_isPromptId if options.version=='v1' else lepton.prob_lep_isPromptId_Training,
-            #        binning=[33,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'DL_prob_isNonPrompt',
-            #        texX = 'DL_prob_isNonPrompt', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId if options.version=='v1' else lepton.prob_lep_isNonPromptId_Training,
-            #        binning=[33,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'DL_prob_isFake',
-            #        texX = 'DL_prob_isFake', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.prob_lep_isFakeId if options.version=='v1' else lepton.prob_lep_isFakeId_Training,
-            #        binning=[33,0,1],
-            #    ))
+            #Lepton Classes
+            plots.append(Plot(name=plotname+'ClassPrompt',
+                texX = 'isPrompt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isPromptId if options.version=='v1' else lepton.lep_isPromptId_Training,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'ClassNonPrompt',
+                texX = 'isNonPrompt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isNonPromptId if options.version=='v1' else lepton.lep_isNonPromptId_Training,
+                binning=[2,0,1],
+            ))
+            plots.append(Plot(name=plotname+'ClassFake',
+                texX = 'isFake', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_isFakeId if options.version=='v1' else lepton.lep_isFakeId_Training,
+                binning=[2,0,1],
+            ))
+            
+            if not plotDate==0:
+                plots.append(Plot(name=plotname+'DL_prob_isPrompt',
+                    texX = 'DL_prob_isPrompt', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.prob_lep_isPromptId if options.version=='v1' else lepton.prob_lep_isPromptId_Training,
+                    binning=[33,0,1],
+                ))
+                plots.append(Plot(name=plotname+'DL_prob_isNonPrompt',
+                    texX = 'DL_prob_isNonPrompt', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId if options.version=='v1' else lepton.prob_lep_isNonPromptId_Training,
+                    binning=[33,0,1],
+                ))
+                plots.append(Plot(name=plotname+'DL_prob_isFake',
+                    texX = 'DL_prob_isFake', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.prob_lep_isFakeId if options.version=='v1' else lepton.prob_lep_isFakeId_Training,
+                    binning=[33,0,1],
+                ))
 
-            ##Training Variables
-            #plots.append(Plot(name=plotname+'pt',
-            #    texX = 'pt', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_pt,
-            #    binning=[100,0,500],
-            #))
-            #plots.append(Plot(name=plotname+'eta',
-            #    texX = 'eta', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_eta,
-            #    binning=[60,-3.2,3.2],
-            #))
-            #plots.append(Plot(name=plotname+'phi',
-            #    texX = 'phi', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_phi,
-            #    binning=[60,-3.2,3.2],
-            #))
-            #plots.append(Plot(name=plotname+'rho',
-            #    texX = 'rho', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_rho,
-            #    binning=[80,0,40],
-            #))
-            #plots.append(Plot(name=plotname+'innerTrackChi2',
-            #    texX = 'innerTrackChi2', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_innerTrackChi2,
-            #    binning=[50,0,5] if leptonFlavour["Name"]=="Muon" else [50,0,10],
-            #))
-            #plots.append(Plot(name=plotname+'relIso03',
-            #    texX = 'relIso03', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_relIso03,
-            #    binning=[90,0,0.5],
-            #))
-            #plots.append(Plot(name=plotname+'relIso04',
-            #    texX = 'relIso04', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_relIso04,
-            #    binning=[90,0,0.7],
-            #))
-            #plots.append(Plot(name=plotname+'miniRelIso',
-            #    texX = 'miniRelIso', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_miniRelIso,
-            #    binning=[90,0,0.5],
-            #))
-            #plots.append(Plot(name=plotname+'lostOuterHits',
-            #    texX = 'lostOuterHits', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_lostOuterHits,
-            #    binning=[16,0,15],
-            #))
-            #plots.append(Plot(name=plotname+'lostInnerHits',
-            #    texX = 'lostInnerHits', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_lostHits,
-            #    binning=[16,0,15],
-            #))
+            #Training Variables
+            plots.append(Plot(name=plotname+'pt',
+                texX = 'pt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_pt,
+                binning=[100,0,500],
+            ))
+            plots.append(Plot(name=plotname+'eta',
+                texX = 'eta', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_eta,
+                binning=[60,-3.2,3.2],
+            ))
+            plots.append(Plot(name=plotname+'phi',
+                texX = 'phi', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_phi,
+                binning=[60,-3.2,3.2],
+            ))
+            plots.append(Plot(name=plotname+'rho',
+                texX = 'rho', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_rho,
+                binning=[80,0,40],
+            ))
+            plots.append(Plot(name=plotname+'innerTrackChi2',
+                texX = 'innerTrackChi2', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_innerTrackChi2,
+                binning=[50,0,5] if leptonFlavour["Name"]=="Muon" else [50,0,10],
+            ))
+            plots.append(Plot(name=plotname+'relIso03',
+                texX = 'relIso03', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_relIso03,
+                binning=[90,0,0.5],
+            ))
+            plots.append(Plot(name=plotname+'relIso04',
+                texX = 'relIso04', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_relIso04,
+                binning=[90,0,0.7],
+            ))
+            plots.append(Plot(name=plotname+'miniRelIso',
+                texX = 'miniRelIso', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_miniRelIso,
+                binning=[90,0,0.5],
+            ))
+            plots.append(Plot(name=plotname+'lostOuterHits',
+                texX = 'lostOuterHits', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_lostOuterHits,
+                binning=[16,0,15],
+            ))
+            plots.append(Plot(name=plotname+'lostInnerHits',
+                texX = 'lostInnerHits', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_lostHits,
+                binning=[16,0,15],
+            ))
 
-            #plots.append(Plot(name=plotname+'trackerLayers',
-            #    texX = 'trackerLayers', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_trackerLayers,
-            #    binning=[16,0,15],
-            #))
-            #plots.append(Plot(name=plotname+'pixelLayers',
-            #    texX = 'pixelLayers', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_pixelLayers,
-            #    binning=[16,0,15],
-            #))
-            #plots.append(Plot(name=plotname+'trackerHits',
-            #    texX = 'trackerHits', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_trackerHits,
-            #    binning=[16,0,15],
-            #))
-            #plots.append(Plot(name=plotname+'innerTrackValidHitFraction',
-            #    texX = 'innerTrackValidHitFraction', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_innerTrackValidHitFraction,
-            #    binning=[50,0.9,1.0],
-            #))
-            #plots.append(Plot(name=plotname+'jetDR',
-            #    texX = 'jetDR', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetDR,
-            #    binning=[50,0,0.1],
-            #))
-            #plots.append(Plot(name=plotname+'dxy',
-            #    texX = 'dxy', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_dxy,
-            #    binning=[60,-0.03,0.03] if leptonFlavour["Name"]=="Muon" else [60,-0.15,0.15],
-            #))
-            #plots.append(Plot(name=plotname+'dz',
-            #    texX = 'dz', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_dz,
-            #    binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-0.25,0.25],
-            #))
-            #plots.append(Plot(name=plotname+'errorDxy',
-            #    texX = 'errorDxy', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_edxy,
-            #    binning=[50,0,0.004] if leptonFlavour["Name"]=="Muon" else [100,0,0.008],
-            #))
-            #plots.append(Plot(name=plotname+'errorDz',
-            #    texX = 'errorDz', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_edz,
-            #    binning=[50,0,0.01] if leptonFlavour["Name"]=="Muon" else [100,0,0.02],
-            #))
-            #plots.append(Plot(name=plotname+'d3DwrtPV',
-            #    texX = 'd3DwrtPV', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_ip3d,
-            #    binning=[100,0,0.02] if leptonFlavour["Name"]=="Muon" else [100,0,0.04],
-            #))
-            #plots.append(Plot(name=plotname+'significanceD3DwrtPV',
-            #    texX = 'significanceD3DwrtPV', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_sip3d,
-            #    binning=[100,0,8],
-            #))
-            #plots.append(Plot(name=plotname+'effectiveArea03',
-            #    texX = 'EffectiveArea03', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_EffectiveArea03,
-            #    binning=[100,0,0.1] if leptonFlavour["Name"]=="Muon" else [300,0,0.3],
-            #))
-            #plots.append(Plot(name=plotname+'jetPtRatiov1',
-            #    texX = 'pt(lepton)/pt(nearestJet)', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetPtRatiov1,
-            #    binning=[50,0,1],
-            #))
-            #plots.append(Plot(name=plotname+'jetPtRatiov2',
-            #    texX = 'pt(lepton)/[rawpt(jet-PU-lep)*L2L3Res+pt(lepton)]', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetPtRatiov2,
-            #    binning=[50,0,1.25],
-            #))
-            #plots.append(Plot(name=plotname+'jetPtRelv1',
-            #    texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetPtRelv1,
-            #    binning=[100,0,7],
-            #))
-            #plots.append(Plot(name=plotname+'jetPtRelv2',
-            #    texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetPtRelv2,
-            #    binning=[200,0,20],
-            #))
-            #plots.append(Plot(name=plotname+'ptErrTk',
-            #    texX = 'ptErrorTrack', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_ptErrTk,
-            #    binning=[100,0,10] if leptonFlavour["Name"]=="Muon" else [100,0,50],
-            #))
+            plots.append(Plot(name=plotname+'trackerLayers',
+                texX = 'trackerLayers', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_trackerLayers,
+                binning=[16,0,15],
+            ))
+            plots.append(Plot(name=plotname+'pixelLayers',
+                texX = 'pixelLayers', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_pixelLayers,
+                binning=[16,0,15],
+            ))
+            plots.append(Plot(name=plotname+'trackerHits',
+                texX = 'trackerHits', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_trackerHits,
+                binning=[16,0,15],
+            ))
+            plots.append(Plot(name=plotname+'innerTrackValidHitFraction',
+                texX = 'innerTrackValidHitFraction', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_innerTrackValidHitFraction,
+                binning=[50,0.9,1.0],
+            ))
+            plots.append(Plot(name=plotname+'jetDR',
+                texX = 'jetDR', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetDR,
+                binning=[50,0,0.1],
+            ))
+            plots.append(Plot(name=plotname+'dxy',
+                texX = 'dxy', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dxy,
+                binning=[60,-0.03,0.03] if leptonFlavour["Name"]=="Muon" else [60,-0.15,0.15],
+            ))
+            plots.append(Plot(name=plotname+'dz',
+                texX = 'dz', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_dz,
+                binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-0.25,0.25],
+            ))
+            plots.append(Plot(name=plotname+'errorDxy',
+                texX = 'errorDxy', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_edxy,
+                binning=[50,0,0.004] if leptonFlavour["Name"]=="Muon" else [100,0,0.008],
+            ))
+            plots.append(Plot(name=plotname+'errorDz',
+                texX = 'errorDz', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_edz,
+                binning=[50,0,0.01] if leptonFlavour["Name"]=="Muon" else [100,0,0.02],
+            ))
+            plots.append(Plot(name=plotname+'d3DwrtPV',
+                texX = 'd3DwrtPV', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_ip3d,
+                binning=[100,0,0.02] if leptonFlavour["Name"]=="Muon" else [100,0,0.04],
+            ))
+            plots.append(Plot(name=plotname+'significanceD3DwrtPV',
+                texX = 'significanceD3DwrtPV', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_sip3d,
+                binning=[100,0,8],
+            ))
+            plots.append(Plot(name=plotname+'effectiveArea03',
+                texX = 'EffectiveArea03', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_EffectiveArea03,
+                binning=[100,0,0.1] if leptonFlavour["Name"]=="Muon" else [300,0,0.3],
+            ))
+            plots.append(Plot(name=plotname+'jetPtRatiov1',
+                texX = 'pt(lepton)/pt(nearestJet)', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetPtRatiov1,
+                binning=[50,0,1],
+            ))
+            plots.append(Plot(name=plotname+'jetPtRatiov2',
+                texX = 'pt(lepton)/[rawpt(jet-PU-lep)*L2L3Res+pt(lepton)]', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetPtRatiov2,
+                binning=[50,0,1.25],
+            ))
+            plots.append(Plot(name=plotname+'jetPtRelv1',
+                texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetPtRelv1,
+                binning=[100,0,7],
+            ))
+            plots.append(Plot(name=plotname+'jetPtRelv2',
+                texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetPtRelv2,
+                binning=[200,0,20],
+            ))
+            plots.append(Plot(name=plotname+'ptErrTk',
+                texX = 'ptErrorTrack', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_ptErrTk,
+                binning=[100,0,10] if leptonFlavour["Name"]=="Muon" else [100,0,50],
+            ))
  
-            #PF Candidates
-            pfCandDict = {
-                            'neutral'  : [ [21,0,20],[50,0,5]   ],
-                            'charged'  : [ [71,0,70],[200,0,20] ], 
-                            'photon'   : [ [41,0,40],[100,0,10] ], 
-                            'electron' : [ [21,0,20],[50,0,5]   ], 
-                            'muon'     : [ [21,0,20],[50,0,5]   ],
-                         }
-            for pfCand in pfCandDict:
-                name = lambda pfCand=pfCand : pfCand
-                plots.append(Plot(name=plotname+'pfCand_'+pfCand+'_n',
-                    texX = 'npfCand_'+pfCand, texY = 'Number of Events',
-                    attribute = lambda lepton, sample: getattr(lepton,'npfCand_'+pfCand),
-                    #binning=pfCandDict[pfCand][0],
-                    binning=[21,0,20],
-                ))
-                plots.append(Plot(name=plotname+'pfCand_'+pfCand+'_pt',
-                    texX = 'pfCand_'+pfCand+'_pt', texY = 'Number of Events',
-                    #attribute = lambda lepton, sample: sum([lepton.pfCand_neutral_pt_ptRelSorted[i] for i in xrange(lepton.npfCand_neutral)]),
-                    attribute = lambda lepton, sample: sum([getattr(lepton,'pfCand_'+pfCand+'_pt_ptRelSorted')[i] for i in xrange(getattr(lepton,'npfCand_'+pfCand))]),
-                    #binning=pfCandDict[pfCand][1],
-                    binning=[200,0,20],
-                ))
-            #plots.append(Plot(name=plotname+'pfCand_charged_pt',
-            #    texX = 'pfCand_charged_pt', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: sum([lepton.pfCand_charged_pt_ptRelSorted[i] for i in xrange(lepton.npfCand_charged)]),
-            #    binning=[200,0,20],
-            #))
-            #plots.append(Plot(name=plotname+'npfCand_charged',
-            #    texX = 'npfCand_charged', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.npfCand_charged,
-            #    binning=[71,0,70],
-            #))
-            #plots.append(Plot(name=plotname+'npfCand_photon',
-            #    texX = 'npfCand_photon', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.npfCand_photon,
-            #    binning=[41,0,40],
-            #))
-            #plots.append(Plot(name=plotname+'npfCand_electron',
-            #    texX = 'npfCand_electron', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.npfCand_electron,
-            #    binning=[21,0,20],
-            #))
-            #plots.append(Plot(name=plotname+'npfCand_muon',
-            #    texX = 'npfCand_muon', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.npfCand_muon,
-            #    binning=[21,0,20],
-            #))
-            #plots.append(Plot(name=plotname+'nTrueInt',
-            #    texX = 'nTrueInt', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.nTrueInt,
-            #    binning=[55,0,55],
-            #))
-            #plots.append(Plot(name=plotname+'MVA_TTH',
-            #    texX = 'mvaTTH', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_mvaTTH, 
-            #    binning=[30,-1,1],
-            #))
-            #plots.append(Plot(name=plotname+'MVA_TTV',
-            #    texX = 'mvaTTV', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_mvaTTV, 
-            #    binning=[30,-1,1],
-            #))
+            plots.append(Plot(name=plotname+'nTrueInt',
+                texX = 'nTrueInt', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.nTrueInt,
+                binning=[55,0,55],
+            ))
+            plots.append(Plot(name=plotname+'MVA_TTH',
+                texX = 'mvaTTH', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mvaTTH, 
+                binning=[30,-1,1],
+            ))
+            plots.append(Plot(name=plotname+'MVA_TTV',
+                texX = 'mvaTTV', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mvaTTV, 
+                binning=[30,-1,1],
+            ))
 
 
-            #plots.append(Plot(name=plotname+'jetBTagCSV',
-            #    texX = 'jetBTagCSV', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetBTagCSV, 
+            plots.append(Plot(name=plotname+'jetBTagCSV',
+                texX = 'jetBTagCSV', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetBTagCSV, 
+                binning=[30,0,1],
+            ))
+            plots.append(Plot(name=plotname+'jetBTagDeepCSV',
+                texX = 'jetBTagDeepCSV', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSV, 
+                binning=[30,0,1],
+            ))
+            #plots.append(Plot(name=plotname+'jetBTagDeepCSVCvsB',
+            #    texX = 'jetBTagDeepCSVCvsB', texY = 'Number of Events',
+            #    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSVCvsB, 
             #    binning=[30,0,1],
             #))
-            #plots.append(Plot(name=plotname+'jetBTagDeepCSV',
-            #    texX = 'jetBTagDeepCSV', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSV, 
+            #plots.append(Plot(name=plotname+'jetBTagDeepCSVCvsL',
+            #    texX = 'jetBTagDeepCSVCvsL', texY = 'Number of Events',
+            #    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSVCvsL, 
             #    binning=[30,0,1],
             #))
-            ##plots.append(Plot(name=plotname+'jetBTagDeepCSVCvsB',
-            ##    texX = 'jetBTagDeepCSVCvsB', texY = 'Number of Events',
-            ##    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSVCvsB, 
-            ##    binning=[30,0,1],
-            ##))
-            ##plots.append(Plot(name=plotname+'jetBTagDeepCSVCvsL',
-            ##    texX = 'jetBTagDeepCSVCvsL', texY = 'Number of Events',
-            ##    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSVCvsL, 
-            ##    binning=[30,0,1],
-            ##))
-            ##Electron specific
-            #if leptonFlavour["Name"]=="Electron":
 
-            #    plots.append(Plot(name=plotname+'etaSc',
-            #        texX = 'etaSc', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_etaSc,
-            #        binning=[60,-3,3],
-            #    ))
-            #    plots.append(Plot(name=plotname+'sigmaIetaIeta',
-            #        texX = 'sigmaIetaIeta', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_sigmaIEtaIEta,
-            #        binning=[30,0,0.06],
-            #    ))
-            #    plots.append(Plot(name=plotname+'full5x5SigmaIetaIeta',
-            #        texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta,
-            #        binning=[30,0,0.06],
-            #    ))
-            #    plots.append(Plot(name=plotname+'dEtaInSeed',
-            #        texX = 'dEtaInSeed', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_dEtaInSeed,
-            #        binning=[20,-0.04,0.04],
-            #    ))
-            #    plots.append(Plot(name=plotname+'dPhiScTrkIn',
-            #        texX = 'dPhiScTrkIn', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn,
-            #        binning=[30,-0.3,0.3],
-            #    ))
-            #    plots.append(Plot(name=plotname+'dEtaScTrkIn',
-            #        texX = 'dEtaScTrkIn', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_dEtaScTrkIn,
-            #        binning=[50,-1,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'eInvMinusPInv',
-            #        texX = '|1/E-1/p|', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
-            #        binning=[30,0,0.20],
-            #    ))
-            #    plots.append(Plot(name=plotname+'convVeto',
-            #        texX = 'convVeto', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_convVeto,
-            #        binning=[2,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'hadronicOverEm',
-            #        texX = 'hadronicOverEm', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
-            #        binning=[30,0,0.15],
-            #    ))
-            #    plots.append(Plot(name=plotname+'r9',
-            #        texX = 'r9', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_r9,
-            #        binning=[100,0,1],
-            #    ))
-            ##Muon specific
-            #if leptonFlavour["Name"]=="Muon":
-            #    
-            #    plots.append(Plot(name=plotname+'segmentCompatibility',
-            #        texX = 'segmentCompatibility', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_segmentCompatibility,
-            #        binning=[10,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'muonInnerTrkRelErr',
-            #        texX = 'muonInnerTrkRelErr', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_muonInnerTrkRelErr,
-            #        binning=[50,0,0.05],
-            #    ))
-            #    plots.append(Plot(name=plotname+'isGlobalMuon',
-            #        texX = 'isGlobalMuon', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_isGlobalMuon,
-            #        binning=[2,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'chi2LocalPosition',
-            #        texX = 'chi2LocalPosition', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_chi2LocalPosition,
-            #        binning=[100,0,10],
-            #    ))
-            #    plots.append(Plot(name=plotname+'chi2LocalMomentum',
-            #        texX = 'chi2LocalMomentum', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_chi2LocalMomentum,
-            #        binning=[100,0,30],
-            #    ))
-            #    plots.append(Plot(name=plotname+'gobalTrackChi2',
-            #        texX = 'gobalTrackChi2', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_globalTrackChi2,
-            #        binning=[50,0,3],
-            #    ))
-            #    plots.append(Plot(name=plotname+'gobalTrackProb',
-            #        texX = 'gobalTrackProb', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_glbTrackProbability,
-            #        binning=[50,0,8],
-            #    ))
-            #    plots.append(Plot(name=plotname+'caloCompatibility',
-            #        texX = 'caloCompatibility', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_caloCompatibility,
-            #        binning=[50,0,1],
-            #    ))
-            #    plots.append(Plot(name=plotname+'trkKink',
-            #        texX = 'trkKink', texY = 'Number of Events',
-            #        attribute = lambda lepton, sample: lepton.lep_trkKink,
-            #        binning=[100,0,200],
-            #    ))
-            ##other Variables
-            #plots.append(Plot(name=plotname+'mcMatchId',
-            #    texX = 'mcMatchId', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_mcMatchId,
-            #    binning=[61,-30,30],
-            #))
-            #plots.append(Plot(name=plotname+'mcMatchAny',
-            #    texX = 'mcMatchAny', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
-            #    binning=[61,-30,30],
-            #))
-            #plots.append(Plot(name=plotname+'pdgId',
-            #    texX = 'pdgId', texY = 'Number of Events',
-            #    attribute = lambda lepton, sample: lepton.lep_pdgId,
-            #    binning=[61,-30,30],
-            #))
+            #PF Cands
+            for flavor in pfCand_flavors:
+                plots.append(Plot(name='pfCands_mult_%s'%flavor,
+                    texX = 'mult_%s'%flavor, texY = 'Number of Events',
+                    attribute = "mult_%s"%flavor,
+                    binning=pfCand_plot_binning[flavor]['mult'],
+                ))
+                plots.append(Plot(name='pfCands_sumPt_%s'%flavor,
+                    texX = 'sumPt_%s'%flavor, texY = 'Number of Events',
+                    attribute = "sumPt_%s"%flavor,
+                    binning=pfCand_plot_binning[flavor]['sumPt'],
+                ))
+
+            #Electron specific
+            if leptonFlavour["Name"]=="Electron":
+
+                plots.append(Plot(name=plotname+'etaSc',
+                    texX = 'etaSc', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_etaSc,
+                    binning=[60,-3,3],
+                ))
+                plots.append(Plot(name=plotname+'sigmaIetaIeta',
+                    texX = 'sigmaIetaIeta', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_sigmaIEtaIEta,
+                    binning=[30,0,0.06],
+                ))
+                plots.append(Plot(name=plotname+'full5x5SigmaIetaIeta',
+                    texX = 'full5x5_sigmaIetaIeta', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_full5x5_sigmaIetaIeta,
+                    binning=[30,0,0.06],
+                ))
+                plots.append(Plot(name=plotname+'dEtaInSeed',
+                    texX = 'dEtaInSeed', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_dEtaInSeed,
+                    binning=[20,-0.04,0.04],
+                ))
+                plots.append(Plot(name=plotname+'dPhiScTrkIn',
+                    texX = 'dPhiScTrkIn', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_dPhiScTrkIn,
+                    binning=[30,-0.3,0.3],
+                ))
+                plots.append(Plot(name=plotname+'dEtaScTrkIn',
+                    texX = 'dEtaScTrkIn', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_dEtaScTrkIn,
+                    binning=[50,-1,1],
+                ))
+                plots.append(Plot(name=plotname+'eInvMinusPInv',
+                    texX = '|1/E-1/p|', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
+                    binning=[30,0,0.20],
+                ))
+                plots.append(Plot(name=plotname+'convVeto',
+                    texX = 'convVeto', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_convVeto,
+                    binning=[2,0,1],
+                ))
+                plots.append(Plot(name=plotname+'hadronicOverEm',
+                    texX = 'hadronicOverEm', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
+                    binning=[30,0,0.15],
+                ))
+                plots.append(Plot(name=plotname+'r9',
+                    texX = 'r9', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_r9,
+                    binning=[100,0,1],
+                ))
+            #Muon specific
+            if leptonFlavour["Name"]=="Muon":
+                
+                plots.append(Plot(name=plotname+'segmentCompatibility',
+                    texX = 'segmentCompatibility', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_segmentCompatibility,
+                    binning=[10,0,1],
+                ))
+                plots.append(Plot(name=plotname+'muonInnerTrkRelErr',
+                    texX = 'muonInnerTrkRelErr', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_muonInnerTrkRelErr,
+                    binning=[50,0,0.05],
+                ))
+                plots.append(Plot(name=plotname+'isGlobalMuon',
+                    texX = 'isGlobalMuon', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_isGlobalMuon,
+                    binning=[2,0,1],
+                ))
+                plots.append(Plot(name=plotname+'chi2LocalPosition',
+                    texX = 'chi2LocalPosition', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chi2LocalPosition,
+                    binning=[100,0,10],
+                ))
+                plots.append(Plot(name=plotname+'chi2LocalMomentum',
+                    texX = 'chi2LocalMomentum', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_chi2LocalMomentum,
+                    binning=[100,0,30],
+                ))
+                plots.append(Plot(name=plotname+'gobalTrackChi2',
+                    texX = 'gobalTrackChi2', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_globalTrackChi2,
+                    binning=[50,0,3],
+                ))
+                plots.append(Plot(name=plotname+'gobalTrackProb',
+                    texX = 'gobalTrackProb', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_glbTrackProbability,
+                    binning=[50,0,8],
+                ))
+                plots.append(Plot(name=plotname+'caloCompatibility',
+                    texX = 'caloCompatibility', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_caloCompatibility,
+                    binning=[50,0,1],
+                ))
+                plots.append(Plot(name=plotname+'trkKink',
+                    texX = 'trkKink', texY = 'Number of Events',
+                    attribute = lambda lepton, sample: lepton.lep_trkKink,
+                    binning=[100,0,200],
+                ))
+            #other Variables
+            plots.append(Plot(name=plotname+'mcMatchId',
+                texX = 'mcMatchId', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mcMatchId,
+                binning=[61,-30,30],
+            ))
+            plots.append(Plot(name=plotname+'mcMatchAny',
+                texX = 'mcMatchAny', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_mcMatchAny,
+                binning=[61,-30,30],
+            ))
+            plots.append(Plot(name=plotname+'pdgId',
+                texX = 'pdgId', texY = 'Number of Events',
+                attribute = lambda lepton, sample: lepton.lep_pdgId,
+                binning=[61,-30,30],
+            ))
             
 
             #plots.append(Plot( name = "fancy_variable",
