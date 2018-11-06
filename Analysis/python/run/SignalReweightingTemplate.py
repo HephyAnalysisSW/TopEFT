@@ -139,7 +139,7 @@ if __name__ == "__main__":
     #allTargets = allSamples_dim6top
     #allTargets = ewkDM_currents + [ ewkDM_central ]
     #allTargets = dim6top_all
-    allTargets = dim6top_dipoles
+    allTargets = dim6top_currents
     #allTargets = ewkDM_all
 
     print len(allTargets)
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     #for t in allTargets:
     #    print t.name
 
-    for target in [allTargets[325]]:
+    for target in allTargets:
         logger.info("Working on target samples %s", target.name)
         target_gen = target
 

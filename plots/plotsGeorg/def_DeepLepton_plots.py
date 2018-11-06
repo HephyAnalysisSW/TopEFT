@@ -24,7 +24,7 @@ def get_parser():
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                            required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
     argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                                   help="path to prediction files?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],     required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'TTJets_sorted'], required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_sorted_looseId', 'TTJets_sorted'], required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],                       required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],   required = True, help="small sample or full sample?")
 
@@ -422,13 +422,13 @@ def drawObjects(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-def drawObjectsSmall(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
+def drawObjectsSmall(preselection):
     tex = ROOT.TLatex()
     tex.SetNDC()
-    tex.SetTextSize(0.025)
-    tex.SetTextAlign(31) # align right
+    tex.SetTextSize(0.019)
+    tex.SetTextAlign(11) # align right
     lines = [
-      (0.99, 0.93, '#bf{eff(IP+ID)=  POG: (POG ID+IP+relIso)/relIso, LeptonMVA: (MVA ID+relIso)/relIso, DeepLepton: (DL ID)/relIso}')
+      (0.01, 0.93, '#bf{preselcetion: '+preselection+'}')
     ]
     return [tex.DrawLatex(*l) for l in lines]
 

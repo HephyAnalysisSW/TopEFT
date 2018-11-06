@@ -20,31 +20,7 @@ plot_directory=plot_directory_
 # plot samples definitions
 from def_DeepLepton_plots import *
 
-##parser
-#def get_parser():
-#    ''' Argument parser for post-processing module.
-#    '''
-#    import argparse
-#    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
-#
-#    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3'],                   required = True, help="Version for output directory")
-#    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
-#    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
-#    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-#    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                    required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
-#    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                           help="path to prediction files?")
-#    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-#    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted','DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
-#    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-#    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
-#    argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'],         required = True, help="Which variable for binning?")
-#    argParser.add_argument('--eBbins',          action='store', type=int, choices=[1,5,10,25,50],         required = True, help="Calculate eB for how many bins?")
-#
-#    #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
-#    #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
-#
-#    return argParser
-
+#parser
 options = get_parser().parse_args()
 
 ##############################
@@ -113,6 +89,8 @@ for leptonFlavour in leptonFlavourList:
                 colorList.append(plot["plotColor"])
                 lineWidthList.append(plot["lineWidth"])
 
+                #loose id preselection
+                leptonFlavour["sample"].setSelectionString(lep_preselection(options.flavour))
                 # reader class
                 readerData=[[] for i in xrange(binnedList[options.binned]["bins"])]
                 reader = leptonFlavour["sample"].treeReader(  map( TreeVariable.fromString, variables ) )
@@ -123,20 +101,14 @@ for leptonFlavour in leptonFlavourList:
                         if cut_val >= binnedList[options.binned]["cuts"][0] and cut_val <  binnedList[options.binned]["cuts"][1]:
                             
                             j=int(math.ceil(cut_val/(binnedList[options.binned]["cuts"][1]-binnedList[options.binned]["cuts"][0])*binnedList[options.binned]["bins"]))-1
+                            readerData[j].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
 
-
-                            #check if lepton passes relIso and Impact Parameter cuts
-                            passIsoId = passIso(relIsoCut, reader.event.lep_relIso03)
-                            passIPId  = passIP(reader.event.lep_pdgId, reader.event.lep_etaSc, reader.event.lep_dxy, reader.event.lep_dz)
-
-                            if passIsoId:
-                            
-                                #Lepton MVAs
-                                if plot["Type"]=="MVA_Id":
-                                    readerData[j].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
-                                #DeepLepton
-                                if plot["Type"]=="DL_Id":
-                                    readerData[j].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
+                           # #Lepton MVAs
+                           # if plot["Type"]=="MVA_Id":
+                           #     readerData[j].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
+                           # #DeepLepton
+                           # if plot["Type"]=="DL_Id":
+                           #     readerData[j].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
 
                 #Draw eS plots
                 j=0
@@ -239,7 +211,7 @@ for leptonFlavour in leptonFlavourList:
             yb = ya + 0.25
             c.BuildLegend(0.55,ya,0.9,yb)
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCut['Name'], relIsoCut )
-            #drawObjectsSmall(isTestData, options.flavour, 'SLDL_TTJets+QCD', 'pt10to250', relIsoCut ) 
+            drawObjectsSmall( lep_preselection(options.flavour) ) 
             if options.isTestData==99:
                 directory=(os.path.join(plot_directory, 'roc_testfiles',options.sampleSelection))
             else:

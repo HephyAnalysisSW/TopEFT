@@ -15,6 +15,7 @@ argParser.add_argument("--useShape",       action='store_true', help="Use the sh
 argParser.add_argument("--statOnly",       action='store_true', help="Use only statistical uncertainty?")
 argParser.add_argument("--controlRegion",  action='store',      default='', choices = ['', 'nbtag0-njet3p', 'nbtag1p-njet02', 'nbtag1p-njet2', 'nbtag0-njet02', 'nbtag0-njet0p', 'nbtag0-njet1p', 'nbtag0-njet2p'], help="Use any CRs cut?")
 argParser.add_argument("--includeCR",      action='store_true', help="Do simultaneous SR and CR fit")
+argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
 argParser.add_argument("--include4l",      action='store_true', help="Include 4l regions?")
@@ -54,7 +55,7 @@ from copy                               import deepcopy
 
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.SetupHelpers       import channel
-from TopEFT.Analysis.regions            import noRegions, regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB
+from TopEFT.Analysis.regions            import noRegions, regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB, regionsXSec, regions4lXSec, noRegionsC
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Analysis.FakeEstimate       import FakeEstimate
@@ -68,7 +69,11 @@ from TopEFT.Tools.cardFileWriter        import cardFileWriter
 
 year = int(args.year)
 
-cardDir = "regionsE_%s"%(year) if not args.merged else "noRegions_%s"%(year)
+if args.merged:             cardDir = "noRegions_%s"%(year)
+elif args.inclusiveRegions: cardDir = "inclusiveRegions_%s"%(year)
+else:                       cardDir = "regionsE_%s"%(year)
+#cardDir = "regionsE_%s"%(year) if not args.merged else "noRegions_%s"%(year)
+
 if args.useXSec:
     cardDir += "_xsec"
 if args.useShape:
@@ -88,13 +93,17 @@ estimators3l            = estimatorList(setup3l)
 setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
 setup3l.reweightRegions = regionsReweight
 setup3l.channels        = [channel(-1,-1)] # == 'all'
-setup3l.regions         = regionsE if not args.merged else noRegions
 setup3l.year            = year
+if args.inclusiveRegions:   setup3l.regions = noRegions
+elif args.merged:           setup3l.regions = regionsXSec
+else:                       setup3l.regions = regionsE
 
 ## 3l NP setup ##
 setup3l_NP              = Setup(year, nLeptons=3, nonprompt=True)
 setup3l_NP.channels     = [channel(-1,-1)] # == 'all'
-setup3l_NP.regions      = regionsE if not args.merged else noRegions
+if args.inclusiveRegions:   setup3l_NP.regions = noRegions
+elif args.merged:           setup3l_NP.regions = regionsXSec
+else:                       setup3l_NP.regions = regionsE
 
 ## 4l setup ##
 setup4l                 = Setup(year=year, nLeptons=4)
@@ -103,8 +112,11 @@ estimators4l            = estimatorList(setup4l)
 setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "rare","TTX"])
 setup4l.reweightRegions = regionsReweight4l
 setup4l.channels        = [channel(-1,-1)] # == 'all'
-setup4l.regions         = regions4lB if not args.merged else noRegions
 setup4l.year            = year
+if args.inclusiveRegions:   setup4l.regions = noRegions
+elif args.merged:           setup4l.regions = regionselXSec
+else:                       setup4l.regions = regions4lB
+
 
 ## CR setups ##
 setup3l_CR              = setup3l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
@@ -261,6 +273,7 @@ def wrapper(s):
         c.addUncertainty('btag_light'+postfix,  'lnN') # uncorrelated, wait for offical recommendation
         c.addUncertainty('trigger'+postfix,     'lnN') # uncorrelated, statistics dominated
         c.addUncertainty('leptonSFSyst',        'lnN') # correlated
+        c.addUncertainty('leptonTracking',      'lnN') # correlated
         c.addUncertainty('eleSFStat'+postfix,   'lnN') # uncorrelated
         c.addUncertainty('muSFStat'+postfix,    'lnN') # uncorrelated
         c.addUncertainty('scale',               'lnN') # correlated.
@@ -313,13 +326,16 @@ def wrapper(s):
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
                         if name.count('WZ'):
-                            logger.info("Using reweighting to powheg for WZ sample")
-                            wzReweighting = WZReweighting( cacheDir = reweightCacheWZ )
-                            f = wzReweighting.cachedReweightingFunc( setup.WZselection )
-                            powhegExpected = e.reweight1D(r, channel, setup, f)
-                            expected = e.cachedEstimate(r, channel, setup)
-                            print expected
-                            WZ_powheg_unc = (powhegExpected-expected)/expected
+                            if args.inclusiveRegions:
+                                expected        = e.cachedEstimate(r, channel, setup)
+                                WZ_powheg_unc   = u_float(0.01,0)
+                            else:
+                                logger.info("Using reweighting to powheg for WZ sample")
+                                wzReweighting   = WZReweighting( cacheDir = reweightCacheWZ )
+                                f = wzReweighting.cachedReweightingFunc( setup.WZselection )
+                                powhegExpected  = e.reweight1D(r, channel, setup, f)
+                                expected        = e.cachedEstimate(r, channel, setup)
+                                WZ_powheg_unc   = (powhegExpected-expected)/expected
                         else:
                             expected = e.cachedEstimate(r, channel, setup)
                         logger.info("Adding expectation %s for process %s", expected.val, name)
@@ -336,6 +352,7 @@ def wrapper(s):
                             btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val    if expected.val>0.01 else 1.1
                             trigger     = 1 + e.triggerSystematic(r, channel, setup).val        if expected.val>0.01 else 1.1
                             leptonSFSyst= 1 + e.leptonSFSystematic(r, channel, setup).val       if expected.val>0.01 else 1.1
+                            leptonReco  = 1 + e.leptonTrackingSystematic(r, channel, setup).val if expected.val>0.01 else 1.1
                             eleSFStat   = 1 + e.eleSFSystematic(r, channel, setup).val          if expected.val>0.01 else 1.1
                             muSFStat    = 1 + e.muSFSystematic(r, channel, setup).val           if expected.val>0.01 else 1.1
 
@@ -350,6 +367,7 @@ def wrapper(s):
                                 c.specifyUncertainty('btag_light'+postfix,  binname, name, btag_light)
                                 c.specifyUncertainty('trigger'+postfix,     binname, name, trigger)
                                 c.specifyUncertainty('leptonSFSyst',        binname, name, leptonSFSyst)
+                                c.specifyUncertainty('leptonTracking',      binname, name, leptonReco)
                                 c.specifyUncertainty('eleSFStat'+postfix,   binname, name, eleSFStat)
                                 c.specifyUncertainty('muSFStat'+postfix,    binname, name, muSFStat)
                                 c.specifyUncertainty('scale',               binname, name, 1.01) 
@@ -428,15 +446,16 @@ def wrapper(s):
                         c.specifyUncertainty('Lumi'+postfix, binname, 'signal', 1.025 )
                         if not args.statOnly:
                             # uncertainties
-                            pu          = 1 + e.PUSystematic( r, channel, setup).val
-                            jec         = 1 + e.JECSystematic( r, channel, setup).val
-                            jer         = 1 + e.JERSystematic( r, channel, setup).val
-                            btag_heavy  = 1 + e.btaggingSFbSystematic(r, channel, setup).val
-                            btag_light  = 1 + e.btaggingSFlSystematic(r, channel, setup).val
-                            trigger     = 1 + e.triggerSystematic(r, channel, setup).val
-                            leptonSFSyst= 1 + e.leptonSFSystematic(r, channel, setup).val
-                            eleSFStat   = 1 + e.eleSFSystematic(r, channel, setup).val
-                            muSFStat    = 1 + e.muSFSystematic(r, channel, setup).val 
+                            pu          = 1 + signal.PUSystematic( r, channel, setup).val
+                            jec         = 1 + signal.JECSystematic( r, channel, setup).val
+                            jer         = 1 + signal.JERSystematic( r, channel, setup).val
+                            btag_heavy  = 1 + signal.btaggingSFbSystematic(r, channel, setup).val
+                            btag_light  = 1 + signal.btaggingSFlSystematic(r, channel, setup).val
+                            trigger     = 1 + signal.triggerSystematic(r, channel, setup).val
+                            leptonSFSyst= 1 + signal.leptonSFSystematic(r, channel, setup).val
+                            leptonReco  = 1 + signal.leptonTrackingSystematic(r, channel, setup).val
+                            eleSFStat   = 1 + signal.eleSFSystematic(r, channel, setup).val
+                            muSFStat    = 1 + signal.muSFSystematic(r, channel, setup).val 
 
                             if sig.sigma/sig.val < 0.05:
                                 uncertainties['PU']         += [pu]
@@ -453,13 +472,19 @@ def wrapper(s):
                             c.specifyUncertainty('btag_light'+postfix,  binname, "signal", btag_light)
                             c.specifyUncertainty('trigger'+postfix,     binname, "signal", trigger)
                             c.specifyUncertainty('leptonSFSyst',        binname, "signal", leptonSFSyst)
+                            c.specifyUncertainty('leptonTracking',      binname, "signal", leptonReco)
                             c.specifyUncertainty('eleSFStat'+postfix,   binname, "signal", eleSFStat)
                             c.specifyUncertainty('muSFStat'+postfix,    binname, "signal", muSFStat)
                             # This doesn't get the right uncertainty in CRs. However, signal doesn't matter there anyway.
                             if setup in [setup3l, setup4l]:
-                                c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
-                                c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
-                                c.specifyUncertainty('PartonShower',binname, "signal", PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
+                                if args.inclusiveRegions:
+                                    c.specifyUncertainty('scale_sig',   binname, "signal", 1.02)
+                                    c.specifyUncertainty('PDF',         binname, "signal", 1.04)
+                                    c.specifyUncertainty('PartonShower',binname, "signal", 1.025)
+                                else:
+                                    c.specifyUncertainty('scale_sig',   binname, "signal", 1 + scale_cache.get({"region":r, "channel":channel.name, "PDFset":"scale"}).val)
+                                    c.specifyUncertainty('PDF',         binname, "signal", 1 + PDF_cache.get({"region":r, "channel":channel.name, "PDFset":PDFset}).val)
+                                    c.specifyUncertainty('PartonShower',binname, "signal", PS_cache.get({"region":r, "channel":channel.name, "PDFset":"PSscale"}).val) #something wrong here?
                             #c.specifyUncertainty('scale_sig',   binname, "signal", 1.05) #1.30
                             #c.specifyUncertainty('PDF',         binname, "signal", 1.04) #1.15
 

@@ -31,13 +31,19 @@ from TopEFT.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 if args.small:
     TTJets_DiLepton.reduceFiles( to = 1 )
     TTJets_SingleLepton.reduceFiles( to = 1 )
+    #DY.reduceFiles( to = 1 )
+    #QCD.reduceFiles( to = 1 )
 
 event_selection = "(1)"
 
+#signal and background sample
+sig_sample = TTJets_DiLepton
+bkg_sample = TTJets_SingleLepton
+
 # truth categories
-prompt_selection    = "(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37)"
-nonPrompt_selection = "(!(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37))&&(lep_mcMatchAny==4||lep_mcMatchAny==5)"
-fake_selection      = "(!(lep_mcMatchId==6||lep_mcMatchId==23||lep_mcMatchId==24||lep_mcMatchId==25||lep_mcMatchId==37))&&(!(lep_mcMatchAny==4||lep_mcMatchAny==5))"
+prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
+nonPrompt_selection = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5)"
+fake_selection      = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(!(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5))"
 
 # lepton preselection
 loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
@@ -62,15 +68,15 @@ for lepton_id in lepton_ids:
     logger.info( "At id %s", lepton_id["name"] )
     selectionString = "&&".join( [ kinematic_selection, loose_id,  prompt_selection ] )
     print selectionString
-    ref                  = TTJets_DiLepton.getYieldFromDraw( selectionString = selectionString ) 
-    lepton_id["sig_h_eff"] = TTJets_DiLepton.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
+    ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString ) 
+    lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
     lepton_id["sig_h_eff"].Scale( 1./ref['val'])
 
 
     selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))" ] )
     print selectionString
-    ref                  = TTJets_SingleLepton.getYieldFromDraw( selectionString = selectionString ) 
-    lepton_id["bkg_h_eff"] = TTJets_SingleLepton.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
+    ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString ) 
+    lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
     lepton_id["bkg_h_eff"].Scale( 1./ref['val'])
 
 #    e_S = 0.
@@ -97,4 +103,4 @@ for lepton_id in lepton_ids:
     same = "same"
 
 c.SetLogx()
-c.Print(os.path.join( plot_directory, "deep_lepton", "roc.png") )
+c.Print(os.path.join( plot_directory, "DeepLepton", "roc.png") )

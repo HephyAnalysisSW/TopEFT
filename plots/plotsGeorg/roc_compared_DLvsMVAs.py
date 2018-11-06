@@ -119,6 +119,9 @@ for leptonFlavour in leptonFlavours:
         samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath) 
         print samples["sample"]
 
+        #loose id preselection
+        samples["sample"].setSelectionString(lep_preselection(options.flavour))
+
         # reader class
         reader = samples["sample"].treeReader(  map( TreeVariable.fromString, variables ) )
         # loop
@@ -217,10 +220,10 @@ for leptonFlavour in leptonFlavours:
             mg.GetXaxis().SetLimits(0.597, 1.003)
             mg.GetYaxis().SetTitle('eB' if logY else '1-eB')
             mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
-            c.BuildLegend(0.12,0.7,0.5,0.9) if logY else c.BuildLegend()
+            c.BuildLegend(0.12,0.8,0.5,0.9) if logY else c.BuildLegend()
             #c.BuildLegend()
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
-            #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
+            drawObjectsSmall( lep_preselection(options.flavour) )
             if options.isTestData==99:
                 directory=(os.path.join(plot_directory,'roc_testfiles',options.sampleSelection))
             else:
