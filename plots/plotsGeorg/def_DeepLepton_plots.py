@@ -24,7 +24,7 @@ def get_parser():
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                            required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
     argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                                   help="path to prediction files?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],     required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'TTJets_sorted'], required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_sorted_looseId', 'TTJets_sorted'], required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],                       required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],   required = True, help="small sample or full sample?")
 
