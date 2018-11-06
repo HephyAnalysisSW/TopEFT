@@ -11,6 +11,8 @@ import math
 
 # RootTools
 from RootTools.core.standard import *
+# TopEFT
+from TopEFT.Tools.helpers import getObjDict, getCollection
 
 # User specific 
 from TopEFT.Tools.user import plot_directory
@@ -18,30 +20,9 @@ plot_directory_=os.path.join(plot_directory, 'DeepLepton')
 plot_directory=plot_directory_
 
 # plot samples definitions
-from def_plot_samples import *
+from def_DeepLepton_plots import *
 
 #parser
-def get_parser():
-    ''' Argument parser for post-processing module.
-    '''
-    import argparse
-    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
-
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1'],                   required = True, help="Version for output directory")
-    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
-    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
-    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD', 'DYVsQCD', 'DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
-    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
-
-    #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
-    #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
-
-    return argParser
-
 options = get_parser().parse_args()
 
 # adapted from RootTools (added fillstyle)
@@ -65,10 +46,10 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
 ##############################
 
 #define samples for electorns and muons
-samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize)
+samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath)
     
 # variables to read
-read_variables=histo_plot_variables(options.trainingDate)
+read_variables=histo_plot_variables(options.trainingDate, options.version)
 
 #########################
 # define plot structure #
@@ -99,22 +80,36 @@ else:
     pt_cuts.append({"Name":"pt15to25","lower_limit":15, "upper_limit":25, "selectionString": "lep_pt>=15.&&lep_pt<25."})
     
 
+#PF Candidates
+pfCand_plot_binning = {
+                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] }, 
+                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] }, 
+                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   }, 
+                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+             }
+pfCand_flavors = pfCand_plot_binning.keys()
+
 isTestData=samples["isTestData"]  #1=true, 0=false
+
 
 ####################################
 # loop over samples and draw plots #
 ####################################
 
 for leptonFlavour in leptonFlavours:
+        
+    preselectionString=lep_preselection(options.flavour) 
+    #preselectionString=leptonFlavour["selectionString"] 
 
     #define class samples
     samplePrompt    = deepcopy(leptonFlavour["sample"])
     sampleNonPrompt = deepcopy(leptonFlavour["sample"])
     sampleFake      = deepcopy(leptonFlavour["sample"])
 
-    samplePrompt.setSelectionString("(lep_isPromptId==1&&"+leptonFlavour["selectionString"]+")")
-    sampleNonPrompt.setSelectionString("(lep_isNonPromptId==1&&"+leptonFlavour["selectionString"]+")")
-    sampleFake.setSelectionString("(lep_isFakeId==1&&"+leptonFlavour["selectionString"]+")")
+    samplePrompt.setSelectionString("(lep_isPromptId"+('' if options.version=='v1' else '_Training')+"==1&&"+preselectionString+")")
+    sampleNonPrompt.setSelectionString("(lep_isNonPromptId"+('' if options.version=='v1' else '_Training')+"==1&&"+preselectionString+")")
+    sampleFake.setSelectionString("(lep_isFakeId"+('' if options.version=='v1' else '_Training')+"==1&&"+preselectionString+")")
 
     samplePrompt.name    = "Prompt"
     sampleNonPrompt.name = "NonPrompt"
@@ -143,10 +138,13 @@ for leptonFlavour in leptonFlavours:
             # Sequence
             sequence = []
 
-            # Add a new fancy variable
-            def make_absEInvMinusPInv( event, sample ):
-                event.absEInvMinusPInv = abs(event.lep_eInvMinusPInv)
-            sequence.append( make_absEInvMinusPInv)
+            def make_sumPt( event, sample ):
+                for flavor in pfCand_flavors:
+                    cands = getCollection( event, 'pfCand_%s'%flavor, ['pt_ptRelSorted'], 'npfCand_%s'%flavor )
+                    #print cands
+                    setattr( event, 'mult_%s'%flavor, len( cands ) )
+                    setattr( event, 'sumPt_%s'%flavor, sum( [ c['pt_ptRelSorted'] for c in cands ], 0. ) )
+            sequence.append( make_sumPt )
 
             #def print_mcmatchId( event, sample ):
             #    if isNonPrompt(event) and event.lep_mvaIdSpring16<0.3 and sample==sample:
@@ -167,34 +165,34 @@ for leptonFlavour in leptonFlavours:
             #Lepton Classes
             plots.append(Plot(name=plotname+'ClassPrompt',
                 texX = 'isPrompt', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isPromptId,
+                attribute = lambda lepton, sample: lepton.lep_isPromptId if options.version=='v1' else lepton.lep_isPromptId_Training,
                 binning=[2,0,1],
             ))
             plots.append(Plot(name=plotname+'ClassNonPrompt',
                 texX = 'isNonPrompt', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isNonPromptId,
+                attribute = lambda lepton, sample: lepton.lep_isNonPromptId if options.version=='v1' else lepton.lep_isNonPromptId_Training,
                 binning=[2,0,1],
             ))
             plots.append(Plot(name=plotname+'ClassFake',
                 texX = 'isFake', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.lep_isFakeId,
+                attribute = lambda lepton, sample: lepton.lep_isFakeId if options.version=='v1' else lepton.lep_isFakeId_Training,
                 binning=[2,0,1],
             ))
             
             if not plotDate==0:
                 plots.append(Plot(name=plotname+'DL_prob_isPrompt',
                     texX = 'DL_prob_isPrompt', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isPromptId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isPromptId if options.version=='v1' else lepton.prob_lep_isPromptId_Training,
                     binning=[33,0,1],
                 ))
                 plots.append(Plot(name=plotname+'DL_prob_isNonPrompt',
                     texX = 'DL_prob_isNonPrompt', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isNonPromptId if options.version=='v1' else lepton.prob_lep_isNonPromptId_Training,
                     binning=[33,0,1],
                 ))
                 plots.append(Plot(name=plotname+'DL_prob_isFake',
                     texX = 'DL_prob_isFake', texY = 'Number of Events',
-                    attribute = lambda lepton, sample: lepton.prob_lep_isFakeId,
+                    attribute = lambda lepton, sample: lepton.prob_lep_isFakeId if options.version=='v1' else lepton.prob_lep_isFakeId_Training,
                     binning=[33,0,1],
                 ))
 
@@ -335,31 +333,7 @@ for leptonFlavour in leptonFlavours:
                 attribute = lambda lepton, sample: lepton.lep_ptErrTk,
                 binning=[100,0,10] if leptonFlavour["Name"]=="Muon" else [100,0,50],
             ))
-            plots.append(Plot(name=plotname+'npfCand_neutral',
-                texX = 'npfCand_neutral', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_neutral,
-                binning=[21,0,20],
-            ))
-            plots.append(Plot(name=plotname+'npfCand_charged',
-                texX = 'npfCand_charged', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_charged,
-                binning=[71,0,70],
-            ))
-            plots.append(Plot(name=plotname+'npfCand_photon',
-                texX = 'npfCand_photon', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_photon,
-                binning=[41,0,40],
-            ))
-            plots.append(Plot(name=plotname+'npfCand_electron',
-                texX = 'npfCand_electron', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_electron,
-                binning=[21,0,20],
-            ))
-            plots.append(Plot(name=plotname+'npfCand_muon',
-                texX = 'npfCand_muon', texY = 'Number of Events',
-                attribute = lambda lepton, sample: lepton.npfCand_muon,
-                binning=[21,0,20],
-            ))
+ 
             plots.append(Plot(name=plotname+'nTrueInt',
                 texX = 'nTrueInt', texY = 'Number of Events',
                 attribute = lambda lepton, sample: lepton.nTrueInt,
@@ -397,6 +371,20 @@ for leptonFlavour in leptonFlavours:
             #    attribute = lambda lepton, sample: lepton.lep_jetBTagDeepCSVCvsL, 
             #    binning=[30,0,1],
             #))
+
+            #PF Cands
+            for flavor in pfCand_flavors:
+                plots.append(Plot(name='pfCands_mult_%s'%flavor,
+                    texX = 'mult_%s'%flavor, texY = 'Number of Events',
+                    attribute = "mult_%s"%flavor,
+                    binning=pfCand_plot_binning[flavor]['mult'],
+                ))
+                plots.append(Plot(name='pfCands_sumPt_%s'%flavor,
+                    texX = 'sumPt_%s'%flavor, texY = 'Number of Events',
+                    attribute = "sumPt_%s"%flavor,
+                    binning=pfCand_plot_binning[flavor]['sumPt'],
+                ))
+
             #Electron specific
             if leptonFlavour["Name"]=="Electron":
 
@@ -496,7 +484,7 @@ for leptonFlavour in leptonFlavours:
                 plots.append(Plot(name=plotname+'trkKink',
                     texX = 'trkKink', texY = 'Number of Events',
                     attribute = lambda lepton, sample: lepton.lep_trkKink,
-                    binning=[100,0,50],
+                    binning=[100,0,200],
                 ))
             #other Variables
             plots.append(Plot(name=plotname+'mcMatchId',
@@ -542,15 +530,23 @@ for leptonFlavour in leptonFlavours:
             # Draw a plot and make it look nice-ish
             def drawPlots(plots, dataMCScale):
               for log in [False, True]:
-                plot_directory_ = (os.path.join(
-                                                plot_directory,
-                                                str(options.year),
-                                                options.flavour,
-                                                options.sampleSelection,
-                                                str(options.trainingDate) if not options.trainingDate==0 else options.sampleSize+'_sample',                
-                                                'TestData' if isTestData else 'TrainData',
-                                                'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
-                                                ))
+                if options.isTestData==99:
+                    plot_directory_ = (os.path.join(
+                                                    plot_directory,
+                                                    'roc_testfiles',
+                                                    options.sampleSelection,
+                                                    'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
+                                                    ))
+                else:
+                    plot_directory_ = (os.path.join(
+                                                    plot_directory,
+                                                    str(options.year),
+                                                    options.flavour,
+                                                    options.sampleSelection,
+                                                    str(options.trainingDate) if not options.trainingDate==0 else options.sampleSize+'_sample',                
+                                                    'TestData' if isTestData else 'TrainData',
+                                                    'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
+                                                    ))
                 for plot in plots:
                   #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
                   

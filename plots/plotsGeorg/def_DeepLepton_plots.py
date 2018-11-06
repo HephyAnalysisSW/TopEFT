@@ -6,7 +6,49 @@ import os
 from RootTools.core.standard import *
 from TopEFT.Tools.user import trainingFiles_directory as base_directory
 
-def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
+####################################
+### definitions for plot scripts ###
+####################################
+
+#arg parser
+def get_parser():
+    ''' Argument parser for DeepLepton plot scripts.
+    '''
+    import argparse
+    argParser = argparse.ArgumentParser(description = "Argument parser for DeepLepton plot scripts")
+
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3', 'v3_small'],      required = True, help="Version for output directory")
+    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                         required = True, help="Which year?")
+    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                       required = True, help="Which Flavour?")
+    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                                    help="Which Training Date? 0 for no Training Date.")
+    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                            required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
+    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                                   help="path to prediction files?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],     required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_sorted_looseId', 'TTJets_sorted'], required = True, help="Which sample selection?")
+    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],                       required = True, help="Standard or Isolation Training?")
+    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],   required = True, help="small sample or full sample?")
+
+    argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'], default='pt',                 help="Which variable for binning?")
+    argParser.add_argument('--eBbins',          action='store', type=int, choices=[1,5,10,25,50], default=50,                            help="Calculate eB for how many bins?")
+
+
+    #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
+    #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
+
+    return argParser
+
+
+#preselection:
+def lep_preselection(leptonFlavour):
+    if leptonFlavour == 'muo':
+        loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
+    else:
+        loose_id = ""
+    return loose_id
+
+
+#get samples for plots and add prediction branches as friend tree
+def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize, predictionPath):
 
     #define paths and names
     #base_directory = trainingsFiles_directory
@@ -27,6 +69,10 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     predict_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
 
     #create FileList
+    if isTestData==99:
+        file_directory =    os.path.join(predictionPath,'rootFile')
+        predict_directory = os.path.join(predictionPath,'prediction')
+
     if trainingDate==0:
         with open(texfilePath,'r') as f:
             FileList = f.read().splitlines()
@@ -57,46 +103,8 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     
     return samples
 
-#old version
-#def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize):
-#
-#    #define paths and names
-#    base_directory = '/afs/hephy.at/data/gmoertl01/lepton/trainfiles/'
-#    file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
-#    sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
-#    texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
-#    texfilePath    = os.path.join(file_directory, texfileName)
-#    
-#    predict_directory = os.path.join('/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/', 'electron' if leptonFlavour=='ele' else 'muon', str(trainingDate), 'evaluation' if sampleSize=='full' else sampleSize+'_evaluation', 'testdata' if isTestData else 'traindata')
-#
-#    #create FileList
-#    if trainingDate==0:
-#        with open(texfilePath,'r') as f:
-#            FileList = f.read().splitlines()
-#    else:
-#        FileList = os.listdir(predict_directory)
-#        if 'tree_association.txt' in FileList:
-#            FileList.remove('tree_association.txt')
-#        FileList = [filepath.replace('_predict.root', '.root') for filepath in FileList]
-#
-#    FileList = [filepath.replace(filepath, os.path.join(file_directory, filepath)) for filepath in FileList]
-#    sample   = Sample.fromFiles( leptonFlavour, texName = sample_texName, files =FileList, treeName="tree")
-#
-#    if not trainingDate==0:
-#        FilePredictList = os.listdir(predict_directory)
-#        if 'tree_association.txt' in FilePredictList:
-#            FilePredictList.remove('tree_association.txt')
-#
-#        FilePredictList = [filepath.replace(filepath, os.path.join(predict_directory, filepath)) for filepath in FilePredictList]
-#
-#        samplePredict = Sample.fromFiles( leptonFlavour+"_friend", texName = sample_texName+"_predict", files = FilePredictList, treeName="tree")
-#        sample.addFriend(samplePredict, "tree")
-#
-#    samples={"leptonFlavour":leptonFlavour, "sample":sample, "trainingDate":trainingDate, "isTestData":isTestData}
-#    
-#    return samples
-
-def histo_plot_variables(trainingDate):
+#variables for histogram plots
+def histo_plot_variables(trainingDate, version):
 
     variables = [
     "run/I",
@@ -154,6 +162,12 @@ def histo_plot_variables(trainingDate):
     "npfCand_electron/I",
     "npfCand_muon/I",
 
+    "pfCand_neutral[pt_ptRelSorted/F]",
+    "pfCand_charged[pt_ptRelSorted/F]",
+    "pfCand_photon[pt_ptRelSorted/F]",
+    "pfCand_electron[pt_ptRelSorted/F]",
+    "pfCand_muon[pt_ptRelSorted/F]",
+
     #Electron specific
     "lep_etaSc/F",                
     "lep_sigmaIEtaIEta/F",
@@ -182,22 +196,25 @@ def histo_plot_variables(trainingDate):
     "lep_mcMatchPdgId/I",
     "lep_mcMatchId/I",
     "lep_mcMatchAny/I",
-    "lep_isPromptId/I",
-    "lep_isNonPromptId/I",
-    "lep_isFakeId/I",
+    "lep_mediumMuonId/I",
+    "lep_pfMuonId/I",
+    "lep_isPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isFakeId"+("" if version=='v1' else "_Training")+"/I",
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
     "nTrueInt/F",
     ]
 
-    if not trainingDate==0: 
-        variables.append("prob_lep_isPromptId/F")
-        variables.append("prob_lep_isNonPromptId/F")
-        variables.append("prob_lep_isFakeId/F")
+    if not trainingDate==0:
+        variables.append("prob_lep_isPromptId"+("" if version=='v1' else "_Training")+"/F")
+        variables.append("prob_lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/F")
+        variables.append("prob_lep_isFakeId"+("" if version=='v1' else "_Training")+"/F")
 
     return variables
 
-def roc_plot_variables():
+#variables for roc plots
+def roc_plot_variables(version):
 
     # variables to read
     variables = [
@@ -209,7 +226,7 @@ def roc_plot_variables():
     "lep_dEtaInSeed/F",             #electrons (barrel: | |<0.00353, endcap: | |<0.00567)                           #DeltaEta wrt ele SC seed for Leptons after the preselection : 0 at: 0x411e850
     "lep_dPhiScTrkIn/F",            #electrons (barrel: | |<0.0499,  endcap: | |<0.0165)                            #Electron deltaPhiSuperClusterTrackAtVtx (without absolute value!) for Leptons after the preselection : 0 at: 0x41083f0
     "lep_relIso03/F",               #electrons (barrel: <0.0361,     endcap: <0.094)       #muons <0.1              #PF Rel Iso, R=0.3, pile-up corrected for Leptons after the preselection : 0 at: 0x410f640
-    "lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) for Leptons after the preselection : 0 at: 0x4108f90   
+    "lep_eInvMinusPInv/F",          #electrons (barrel: | |<0.0278,  endcap: | |<0.0158)                            #Electron 1/E - 1/p  (without absolute value!) ff version='v1' else "_Training")+"or Leptons after the preselection : 0 at: 0x4108f90   
     "lep_lostHits/I",               #electrons (barrel: 1,           endcap: 1)                                     #Number of lost hits on inner track for Leptons after the preselection : 0 at: 0x4101ee0
     "lep_convVeto/I",               #electrons yes                                                                  #Conversion veto (always true for muons) for Leptons after the preselection : 0 at: 0x410e5c0
     "lep_hadronicOverEm/F",         #electrons                                                                      #Electron hadronicOverEm for Leptons after the preselection : 0 at: 0x4108990
@@ -218,12 +235,13 @@ def roc_plot_variables():
     "lep_dxy/F",                                                                           #mouns                   #d_{xy} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410c4b0
     "lep_dz/F",                                                                            #mouns                   #d_{z} with respect to PV, in cm (with sign) for Leptons after the preselection : 0 at: 0x410ca30
     "lep_isGlobalMuon/I",                                                                  #muons yes               #Muon is global for Leptons after the preselection : 0 at: 0x4106c30
-    "lep_isPromptId/I",
-    "lep_isNonPromptId/I",
-    "lep_isFakeId/I",
-    "prob_lep_isPromptId/F",
-    "prob_lep_isNonPromptId/F",
-    "prob_lep_isFakeId/F",
+    "lep_sip3d/F",
+    "lep_isPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/I",
+    "lep_isFakeId"+("" if version=='v1' else "_Training")+"/I",
+    "prob_lep_isPromptId"+("" if version=='v1' else "_Training")+"/F",
+    "prob_lep_isNonPromptId"+("" if version=='v1' else "_Training")+"/F",
+    "prob_lep_isFakeId"+("" if version=='v1' else "_Training")+"/F",
     "lep_tightId/I",
     "lep_mediumMuonId/I",
     "lep_pfMuonId/I",
@@ -236,7 +254,7 @@ def roc_plot_variables():
 
     return variables
 
-#define function to calculate eS and eB
+#functions to calculate eS and eB
 def eS(p, rocdataset):
     ntruth=0.
     ntruthid=0.
@@ -245,7 +263,7 @@ def eS(p, rocdataset):
             ntruth+=1.
             if data[1]>=p:
                 ntruthid+=1.
-    print ntruth, ntruthid
+    #print ntruth, ntruthid
     return 0. if ntruth==0. else  ntruthid/ntruth
 
 def eB(p, rocdataset):
@@ -404,151 +422,13 @@ def drawObjects(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-def drawObjectsSmall(isTestData, Flavour, Samples, ptSelection, RelIsoCut):
+def drawObjectsSmall(preselection):
     tex = ROOT.TLatex()
     tex.SetNDC()
-    tex.SetTextSize(0.025)
-    tex.SetTextAlign(31) # align right
+    tex.SetTextSize(0.019)
+    tex.SetTextAlign(11) # align right
     lines = [
-      (0.99, 0.93, '#bf{eff(IP+ID)=  POG: (POG ID+IP+relIso)/relIso, LeptonMVA: (MVA ID+relIso)/relIso, DeepLepton: (DL ID)/relIso}')
+      (0.01, 0.93, '#bf{preselcetion: '+preselection+'}')
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
-
-
-def plot_plotList():
-    plotList=[] #leptonType="Ele" or "Muo", plotDate="YYYYMMDD", isTraindata=1 or 0
-    plotList.append(["Muo","20180809_std_PfAndSv",0,"std"])
-    plotList.append(["Muo","20180809_std_PfAndSv",1,"std"])
-    plotList.append(["Ele","20180808_std_PfAndSv",0,"std"])
-    plotList.append(["Ele","20180808_std_PfAndSv",1,"std"])
-    #plotList.append(["Muo","20180809_iso",0,"iso"])
-    #plotList.append(["Muo","20180809_iso",1,"iso"])
-    #plotList.append(["Ele","20180809_iso",0,"iso"])
-    #plotList.append(["Ele","20180809_iso",1,"iso"])
-
-    return plotList
-
-def plot_samples(leptonType, plotDate, isTrainData):
- 
-    #define mixed QCD + TTJets samples for electorns and muons
-    
-    if leptonType=="Ele":
-
-        sample_texName="Electrons_from_TTJets_and_QCD"
-        
-        if isTrainData:
-            
-            #Electron Train Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","train_ele_50files.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+plotDate+"/evaluation/traindata/"
-            ]
-
-        else:
-
-            #Electron Test Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","test_ele_50files.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+plotDate+"/evaluation/testdata/"
-            ]
-    
-    if leptonType=="Muo":
-
-        sample_texName="Muons_from_TTJets_and_QCD"
-
-        if isTrainData:
-
-            #Muon Train Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","train_muo.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+plotDate+"/evaluation/traindata/"
-            ]
-
-        else:
-
-            #Muon Test Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_a90000/","test_muo.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+plotDate+"/evaluation/testdata/"
-            ]
-
-    #create FileList
-    with open(Files[0]+Files[1],'r') as f:
-        FileList = f.read().splitlines()
-    with open(Files[0]+Files[1],'r') as f:
-        FilePredictList = f.read().splitlines()
-    FileList=[filepath.replace(filepath, Files[0]+filepath) for filepath in FileList]
-    FilePredictList=[filepath.replace(filepath, Files[2]+filepath) for filepath in FilePredictList]
-    FilePredictList=[filepath.replace(".root", "_predict.root") for filepath in FilePredictList]
-
-    #Sample
-    sample = Sample.fromFiles( leptonType, texName = sample_texName, files =FileList, treeName="tree")
-    samplePredict = Sample.fromFiles( leptonType+"_friend", texName = sample_texName+"_predict", files = FilePredictList, treeName="tree")
-    sample.addFriend(samplePredict, "tree")
-    
-    samples={"leptonType":leptonType, "sample":sample, "plotDate":plotDate, "isTrainData":isTrainData}
-    print sample.files
-    return samples
-
-def plot_samples_iso(leptonType, plotDate, isTrainData):
- 
-    #define mixed QCD + TTJets samples for electorns and muons
-    
-    if leptonType=="Ele":
-
-        sample_texName="Electrons_from_TTJets_and_QCD"
-        
-        if isTrainData:
-            
-            #Electron Train Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_isolation_a90000/","train_iso_ele.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+plotDate+"/evaluation/traindata/"
-            ]
-
-        else:
-
-            #Electron Test Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_isolation_a90000/","test_iso_ele.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/electron/"+plotDate+"/evaluation/testdata/"
-            ]
-    
-    if leptonType=="Muo":
-
-        sample_texName="Muons_from_TTJets_and_QCD"
-
-        if isTrainData:
-
-            #Muon Train Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_isolation_a90000/","train_iso_muo.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+plotDate+"/evaluation/traindata/"
-            ]
-
-        else:
-
-            #Muon Test Files
-            Files=[
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/preprocessing/trainsamples_isolation_a90000/","test_iso_muo.txt",
-            "/afs/hephy.at/work/g/gmoertl/CMSSW_9_4_6_patch1/src/DeepLepton/muon/"+plotDate+"/evaluation/testdata/"
-            ]
-
-    #create FileList
-    with open(Files[0]+Files[1],'r') as f:
-        FileList = f.read().splitlines()
-    with open(Files[0]+Files[1],'r') as f:
-        FilePredictList = f.read().splitlines()
-    FileList=[filepath.replace(filepath, Files[0]+filepath) for filepath in FileList]
-    FilePredictList=[filepath.replace(filepath, Files[2]+filepath) for filepath in FilePredictList]
-    FilePredictList=[filepath.replace(".root", "_predict.root") for filepath in FilePredictList]
-
-    #Sample
-    sample = Sample.fromFiles( leptonType, texName = sample_texName, files =FileList, treeName="tree")
-    samplePredict = Sample.fromFiles( leptonType+"_friend", texName = sample_texName+"_predict", files = FilePredictList, treeName="tree")
-    sample.addFriend(samplePredict, "tree")
-    
-    samples={"leptonType":leptonType, "sample":sample, "plotDate":plotDate, "isTrainData":isTrainData}
-    print samples.files
-    return samples

@@ -1,5 +1,4 @@
 #Standard imports
-
 import pickle
 import ROOT
 import os
@@ -76,9 +75,9 @@ def deltaR(*args, **kwargs):
 
 class Evaluator:
 
-    flavors = [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-    lengths = [ 5, 20, 10, 3, 3, 4 ]                                       # this must be consistent with the training! 
-
+    flavors =       [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
+    lengths =       [     5,        20,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
+    max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
     def __init__( self ): 
 
         self.init_getters()
@@ -91,6 +90,8 @@ class Evaluator:
         self.verbosity = 0
 
         self._nevent = None
+
+        self.event = None
 
     # Setters to store means and branches
     def setMeans( self, means ):
@@ -229,16 +230,24 @@ class Evaluator:
     }
 
     # for a given lepton, read the pf candidate mask and return the PF indices
-    def get_pf_indices( self, pf_type, collection_name, n_lep):
-        n = self.pf_size_getters[pf_type](self.event) 
-        pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[pf_type], "selectedLeptons" if collection_name=="LepGood" else "otherLeptons" ) )
+    def get_pf_indices( self, flavor, collection_name, n_lep):
+        n = min( self.max_n_pf_cand[flavor], self.pf_size_getters[flavor](self.event) )
+        pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[flavor], "selectedLeptons" if collection_name=="LepGood" else "otherLeptons" ) )
         mask_ = (1<<n_lep)
-        return filter( lambda i: mask_&pf_mask[i], range(n))
+        try:
+            return filter( lambda i: mask_&pf_mask[i], range(n))
+        except IndexError as e:
+            print "n_lep", n_lep, n, flavor, self.event.evt, self.event.lumi, self.event.run
+            raise e
 
     def _get_all_pf_candidates( self, flavor):
-        n = self.pf_size_getters[flavor](self.event)
+        n = min( self.max_n_pf_cand[flavor], self.pf_size_getters[flavor](self.event) )
         att_getters = self.pf_getters[flavor]
-        return [ {name: getter(self.event)[i] for name, getter in self.pf_getters[flavor].iteritems()} for i in range(n) ]
+        try: 
+            return [ {name: getter(self.event)[i] for name, getter in self.pf_getters[flavor].iteritems()} for i in range(n) ]
+        except IndexError as e:
+            print n, flavor, self.event.evt, self.event.lumi, self.event.run
+            raise e
     
     # cached version of get_all_pf_candidates
     @property
@@ -347,7 +356,7 @@ class Evaluator:
 #    [ np.array( features_normalized[i_lep][i_feat], np=float32), 
 #      np.array( pf_norm[flavor][i_lep][i_cand][i_feat], np=float32) ]
 
-    def evaluate( self ):
+    def evaluate( self):
         features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ], dtype=np.float32 )
         # [i_lep][i_flavor][i_cand][i_feat]
         pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ] )
@@ -355,9 +364,8 @@ class Evaluator:
         pf_normalized = np.swapaxes(pf_normalized, 0,1)
         np_features = [ features_normalized ] + [ np.array(list(pf_normalized[i]), dtype=np.float32) for i in range(len(pf_normalized))] 
         prediction = deepLeptonModel.predict( np_features )
-        self.event.deepLepton_prediction = prediction
+        return prediction
 
-# Model
 from keras.models import load_model
 deepLeptonModel           =       load_model("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
 branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))

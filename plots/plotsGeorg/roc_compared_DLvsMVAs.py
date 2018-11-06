@@ -19,33 +19,11 @@ from TopEFT.Tools.user import plot_directory
 plot_directory_=os.path.join(plot_directory, 'DeepLepton')
 plot_directory=plot_directory_
 
-# plot samples definitions
-from def_plot_samples import *
+# DeepLepton plot script functions
+from def_DeepLepton_plots import *
 
-#parser
-def get_parser():
-    ''' Argument parser for post-processing module.
-    '''
-    import argparse
-    argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
-
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1'],                   required = True, help="Version for output directory")
-    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],              required = True, help="Which year?")
-    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],            required = True, help="Which Flavour?")
-    argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                         help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1],                    required = True, help="Which Training Date? 0 for no Training Date.")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],         required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['SlDlTTJetsVsQCD','DYVsQCD','DYVsQCD_ptRelSorted', 'DYVsQCD_PFandSVSorted'],      required = True, help="Which sample selection?")
-    argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],            required = True, help="Standard or Isolation Training?")
-    argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],         required = True, help="small sample or full sample?")
-
-    #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
-    #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
-
-    return argParser
-
+# get argument parser
 options = get_parser().parse_args()
-
 
 ###################
 # define plotlist #
@@ -67,14 +45,14 @@ leptonFlavours = [{'FullName':'Electron' if options.flavour=='ele' else 'Muon', 
 leptonFlavours[0]['TrainDates'].append({'Date': options.trainingDate, 'TrainType': options.trainingType, 'SampleSize': options.sampleSize, 'Plots': [
                                                                                                      {'Name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTV',          'Color':ROOT.kGray,    'lineWidth': 2},
                                                                                                      {'Name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'Var': 'lep_mvaTTH',          'Color':ROOT.kGray+1,  'lineWidth': 2},
-                                                                                                     {'Name': 'DeepLepton',          'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId', 'Color':ROOT.kGreen+2, 'lineWidth': 2},
+                                                                                                     {'Name': 'DeepLepton',          'MVAType': 'DL_Id',  'Var': 'prob_lep_isPromptId'+('' if options.version=='v1' else '_Training'), 'Color':ROOT.kGreen+2, 'lineWidth': 2},
                                                                                                      ]})
 ##################
 # load variables #
 ##################
 
 # variables to read
-variables=roc_plot_variables()
+variables=roc_plot_variables(options.version)
 
 ###############
 # define cuts #
@@ -137,9 +115,12 @@ for leptonFlavour in leptonFlavours:
 
     for trainDate in leptonFlavour['TrainDates']:
         #load sample
-        samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
-        #amples=plot_samples_v2(options.version, options.year, options.flavour, trainDate['Date'], options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        #samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath) 
         print samples["sample"]
+
+        #loose id preselection
+        samples["sample"].setSelectionString(lep_preselection(options.flavour))
 
         # reader class
         reader = samples["sample"].treeReader(  map( TreeVariable.fromString, variables ) )
@@ -153,7 +134,7 @@ for leptonFlavour in leptonFlavours:
 
                         if reader.event.lep_pt>=ptCut["lower_limit"] and reader.event.lep_pt<=ptCut["upper_limit"] and reader.event.lep_relIso03 <= relIsoCut:
                             #print i, j, k, reader.event.lep_pt, reader.event.lep_relIso03, reader.event.lep_isPromptId, getattr(reader.event, plot["Variable"])
-                            readerData[i][j][k].append([reader.event.lep_isPromptId, getattr(reader.event, plot["Var"])])
+                            readerData[i][j][k].append([getattr(reader.event, 'lep_isPromptId'+('' if options.version=='v1' else '_Training')), getattr(reader.event, plot["Var"])])
                     
                         j += 1
                     i += 1
@@ -239,18 +220,21 @@ for leptonFlavour in leptonFlavours:
             mg.GetXaxis().SetLimits(0.597, 1.003)
             mg.GetYaxis().SetTitle('eB' if logY else '1-eB')
             mg.GetYaxis().SetRangeUser(0.0009, 1.01) if logY else mg.GetYaxis().SetLimits(0.0, 1.0)
-            c.BuildLegend(0.12,0.7,0.5,0.9) if logY else c.BuildLegend()
+            c.BuildLegend(0.12,0.8,0.5,0.9) if logY else c.BuildLegend()
             #c.BuildLegend()
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
-            #drawObjectsSmall(isTestData, samples["leptonFlavour"], 'TTJets+QCD', ptCuts[i]["Name"], relIsoCuts[j] )
-            directory=(os.path.join(
-                                    plot_directory,
-                                    str(options.year),
-                                    options.flavour,
-                                    options.sampleSelection,
-                                    str(options.trainingDate),                
-                                    'TestData' if isTestData else 'TrainData'
-                                   ))
+            drawObjectsSmall( lep_preselection(options.flavour) )
+            if options.isTestData==99:
+                directory=(os.path.join(plot_directory,'roc_testfiles',options.sampleSelection))
+            else:
+                directory=(os.path.join(
+                                        plot_directory,
+                                        str(options.year),
+                                        options.flavour,
+                                        options.sampleSelection,
+                                        str(options.trainingDate),                
+                                        'TestData' if isTestData else 'TrainData'
+                                       ))
             if not os.path.exists(directory):
                 os.makedirs(directory)
             c.Print(os.path.join(directory, 'roc_compared_'+ptCuts[i]["Name"]+'_relIso<='+str(relIsoCuts[j])+'.png'))

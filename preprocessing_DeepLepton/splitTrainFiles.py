@@ -11,59 +11,68 @@ from RootTools.core.Sample import *
 # TopEFT
 from TopEFT.Tools.user import skim_output_directory as input_directory
 from TopEFT.Tools.user import trainingFiles_directory as output_directory
-from TopEFT.preprocessing_DeepLepton.deepLepton_trainingSamples_v3 import deepLeptonSignalSamples, deepLeptonBackgroundSamples
 
-def deepLeptonSignalSamples(year):
+def selectSamples(sampleSelection, year):
 
-    if year==2016:
-        SignalSamples = [
-        'DY1JetsToLL_M50_LO', 
-        'DY2JetsToLL_M50_LO', 
-        'DY3JetsToLL_M50_LO', 
-        'DY4JetsToLL_M50_LO', 
-        #'DYJetsToLL_M50', 
-        #'DYJetsToLL_M50_LO_ext', 
-        #'DYJetsToLL_M50_LO_ext2', 
-                        ]
+    DY_2016 = [
+    'DY1JetsToLL_M50_LO',
+    'DY2JetsToLL_M50_LO',
+    'DY3JetsToLL_M50_LO',
+    'DY4JetsToLL_M50_LO',
+    ]
 
-    return SignalSamples
+    TTJets_diLepton_2016 = [
+    'TTJets_DiLepton',
+    'TTJets_DiLepton_ext',
+    ]
 
-def deepLeptonBackgroundSamples(year):
+    TTJets_singleLepton_2016 = [
+    'TTJets_SingleLeptonFromTbar',
+    'TTJets_SingleLeptonFromTbar_ext',
+    'TTJets_SingleLeptonFromT',
+    'TTJets_SingleLeptonFromT_ext',
+    ]
 
-    if year==2016:
-        BackgroundSamples = [
-        'QCD_Pt15to20_Mu5', 
-        'QCD_Pt20to30_Mu5', 
-        'QCD_Pt30to50_Mu5', 
-        'QCD_Pt50to80_Mu5', 
-        'QCD_Pt80to120_Mu5', 
-        'QCD_Pt80to120_Mu5_ext', 
-        'QCD_Pt120to170_Mu5', 
-        'QCD_Pt170to300_Mu5', 
-        'QCD_Pt170to300_Mu5_ext', 
-        'QCD_Pt300to470_Mu5', 
-        'QCD_Pt300to470_Mu5_ext', 
-        'QCD_Pt300to470_Mu5_ext2', 
-        'QCD_Pt470to600_Mu5', 
-        'QCD_Pt470to600_Mu5_ext', 
-        'QCD_Pt470to600_Mu5_ext2', 
-        'QCD_Pt600to800_Mu5', 
-        'QCD_Pt600to800_Mu5_ext', 
-        'QCD_Pt800to1000_Mu5', 
-        'QCD_Pt800to1000_Mu5_ext', 
-        'QCD_Pt800to1000_Mu5_ext2', 
-        'QCD_Pt1000toInf_Mu5', 
-        'QCD_Pt1000toInf_Mu5_ext', 
-                            ]
-    return BackgroundSamples
+    TT_Lepton_2016 = ['TTLep_pow',]
+    TT_semiLepton_2016 = ['TTSemiLep_pow',]
 
+    QCD_2016 = [
+    'QCD_Pt15to20_Mu5',
+    'QCD_Pt20to30_Mu5',
+    'QCD_Pt30to50_Mu5',
+    'QCD_Pt50to80_Mu5',
+    'QCD_Pt80to120_Mu5',
+    'QCD_Pt80to120_Mu5_ext',
+    'QCD_Pt120to170_Mu5',
+    'QCD_Pt170to300_Mu5',
+    'QCD_Pt170to300_Mu5_ext',
+    'QCD_Pt300to470_Mu5',
+    'QCD_Pt300to470_Mu5_ext',
+    'QCD_Pt300to470_Mu5_ext2',
+    'QCD_Pt470to600_Mu5',
+    'QCD_Pt470to600_Mu5_ext',
+    'QCD_Pt470to600_Mu5_ext2',
+    'QCD_Pt600to800_Mu5',
+    'QCD_Pt600to800_Mu5_ext',
+    'QCD_Pt800to1000_Mu5',
+    'QCD_Pt800to1000_Mu5_ext',
+    'QCD_Pt800to1000_Mu5_ext2',
+    'QCD_Pt1000toInf_Mu5',
+    'QCD_Pt1000toInf_Mu5_ext',
+    ]
 
-#settings
-ptSelection     = 'pt_10_to_inf'
-ptSubSelection  = {'pt_25_to_inf': [25,'std::numeric_limits<double>::infinity()'], 'pt_10_to_25': [10,25], 'pt_10_to_inf': [10,'std::numeric_limits<double>::infinity()'], 'pt_15_to_inf': [15,'std::numeric_limits<double>::infinity()']}
-#sampleSelection = 'SlDlTTJetsVsQCD'
-#sampleSelection = 'TTJetsVsQCD'
-sampleSelection = 'DYvsQCD'
+    if year == 2016:
+        sampleSelectionDict = {
+        'DY_2016': { 'Prompt': DY_2016, 'NonPrompt': [], 'Fake': [] },
+        'QCD_2016': { 'Prompt': [], 'NonPrompt': QCD_2016, 'Fake': QCD_2016 },
+        'DYvsQCD_2016': { 'Prompt': DY_2016, 'NonPrompt': QCD_2016, 'Fake': QCD_2016 },
+        #'TTvsTTandQCD_2016': { 'Prompt': TTdile_2016, 'NonPrompt': TTsele_2016, 'Fake': QCD_2016 },
+        'TTbar_2016': { 'Prompt': TTJets_diLepton_2016+TT_Lepton_2016, 'NonPrompt': TTJets_diLepton_2016+TT_Lepton_2016+TT_semiLepton_2016, 'Fake': TTJets_diLepton_2016+TT_Lepton_2016 },
+        'TTJets_2016': { 'Prompt': TTJets_diLepton_2016+TTJets_singleLepton_2016, 'NonPrompt': TTJets_diLepton_2016+TTJets_singleLepton_2016, 'Fake': TTJets_diLepton_2016+TTJets_singleLepton_2016 },
+        }
+
+    return sampleSelectionDict[sampleSelection+'_'+str(year)]
+
 
 #parser
 def get_parser():
@@ -78,7 +87,8 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    argParser.add_argument('--ptSubSelection',              action='store',                     type=str,   choices=['pt_10_to_25','pt_25_to_inf','pt_10_to_inf', 'pt_15_to_inf'],    required = True,             help="Which flavour?")
+    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DY', 'QCD', 'DYvsQCD', 'TTJets', 'TTbar'],  required = True,             help="Which flavour?")
+    argParser.add_argument('--ptSubSelection',              action='store',                     type=str,   choices=['pt_10_to_inf', 'pt_15_to_inf'],              required = True,             help="Which flavour?")
 
     return argParser
 
@@ -90,18 +100,27 @@ options = get_parser().parse_args()
 #import RootTools.core.logger as logger_rt
 #logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
-#define signal and background samples
-samplesPrompt    = deepLeptonSignalSamples(options.year)
-samplesNonPrompt = deepLeptonBackgroundSamples(options.year)
-samplesFake      = samplesNonPrompt
+#settings
+ptSelection     = 'pt_10_to_inf'
+ptSubSelection  = {'pt_25_to_inf': [25,'std::numeric_limits<double>::infinity()'], 'pt_10_to_25': [10,25], 'pt_10_to_inf': [10,'std::numeric_limits<double>::infinity()'], 'pt_15_to_inf': [15,'std::numeric_limits<double>::infinity()']}
 
+#define signal and background samples
+samples = selectSamples(options.sampleSelection, options.year) 
+samplesPrompt    = samples['Prompt']
+samplesNonPrompt = samples['NonPrompt']
+samplesFake      = samples['Fake']
+
+print samplesPrompt
+print samplesNonPrompt
+print samplesFake
 
 #define structure
 leptonClasses  = [
-                    {'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 }, 
-                    {'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 }, 
+                    {'Name':'Prompt',    'Var':'lep_isPromptId',    'SampleList':samplesPrompt,    'TChain':ROOT.TChain('tree'), 'Entries':0 },
+                    {'Name':'NonPrompt', 'Var':'lep_isNonPromptId', 'SampleList':samplesNonPrompt, 'TChain':ROOT.TChain('tree'), 'Entries':0 },
                     {'Name':'Fake',      'Var':'lep_isFakeId',      'SampleList':samplesFake,      'TChain':ROOT.TChain('tree'), 'Entries':0 },
                  ]
+
 leptonFlavours = [
                     {'Name':options.flavour, 'pdgId': 11 if options.flavour=='ele' else 13},
                  ]
@@ -151,7 +170,7 @@ for leptonFlavour in leptonFlavours:
     nEntries = {'Prompt': n_Prompt, 'NonPrompt': n_NonPrompt, 'Fake': n_Fake}
     TChain   = {'Prompt': chPrompt, 'NonPrompt': chNonPrompt, 'Fake': chFake}
 
-    outputDir = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], options.ptSubSelection, sampleSelection)
+    outputDir = os.path.join( output_directory, options.version, str(options.year), leptonFlavour['Name'], options.ptSubSelection, options.sampleSelection)
     if not os.path.exists( outputDir ):
         os.makedirs( outputDir )
     outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
