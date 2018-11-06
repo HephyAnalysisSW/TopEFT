@@ -119,8 +119,8 @@ if args.useShape:
     cardDir += "_shape"
 exp = "_expected" if args.expected else ''
 
-cardDir += "_lowUnc%s"%exp
-#cardDir += "_lowUnc%s_SRandCR"%exp
+#cardDir += "_lowUnc%s"%exp
+cardDir += "_lowUnc%s_SRandCR"%exp
 
 #regionsE_COMBINED_xsec_shape_lowUnc_expected_SRandCR
 #regionsE_2017_xsec_shape_lowUnc_expected_SRandCR
@@ -272,7 +272,7 @@ for i,s in enumerate(signals):
             # Add results
             print "{:10.2f}{:10.2f}".format(s.var1+x_shift, nll_value)
 
-            if not (s.var1 + x_shift in x):
+            if not (s.var1 + x_shift in x) and not nll_value>100:
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
                 res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
@@ -346,7 +346,7 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    hist.Smooth(1,"k5b")
+    #hist.Smooth(1,"k5b")
     postFix += "_smooth"
 if args.inclusiveRegions:
     postFix += "inclusiveSR"

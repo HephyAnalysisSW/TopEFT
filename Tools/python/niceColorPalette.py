@@ -7,4 +7,8 @@ def niceColorPalette(n=255):
 def redColorPalette(n=255):
     ROOT.redColorPalette(n)
 
+def newColorPalette(n=255):
+    ROOT.newColorPalette(n)
+
+
 

@@ -22,7 +22,7 @@ from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
 
 
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
-from TopEFT.Tools.niceColorPalette  import niceColorPalette, redColorPalette
+from TopEFT.Tools.niceColorPalette  import niceColorPalette, redColorPalette, newColorPalette
 from TopEFT.Tools.helpers           import getCouplingFromName
 from TopEFT.Analysis.Setup          import Setup
 from TopEFT.Tools.resultsDB             import resultsDB
@@ -37,7 +37,7 @@ ROOT.setTDRStyle()
 #niceColorPalette()
 ROOT.gStyle.SetNumberContours(255)
 #ROOT.gStyle.SetPalette(ROOT.kCherry)#, ctypes.c_int(112), 0.3)#, *nullptr, 0.3)
-redColorPalette()
+newColorPalette()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
@@ -203,9 +203,10 @@ for i,s in enumerate(signals):
         #res = getResult(s)
         if type(res) == type({}):
             ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
-            if ttZ_NLL_abs_check < ttZ_NLL_abs:
+            if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0:
                 ttZ_NLL_abs = ttZ_NLL_abs_check
                 bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
+                print "Best NLL value", ttZ_NLL_abs_check
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
 if args.expected: bestFitPoint = SMPoint
@@ -243,6 +244,12 @@ for i,s in enumerate(signals):
             # Add results
             print "{:10.2f}{:10.2f}{:10.2f}".format(s.var1+x_shift, s.var2+y_shift, nll_value)
             #if s.var2 + y_shift > -0.9 and s.var1+x_shift<1.2:# and s.var1+x_shift>-0.9 and s.var1+x_shift<0.9:
+            if args.model == 'dim6top_LO' and args.plane == 'currents':
+                if  ( s.var1 + x_shift > 37): continue
+                if ( s.var1 + x_shift < -12): continue
+                if ( s.var2 + y_shift > 18): continue
+                if ( s.var2 + y_shift < -28): continue
+            
             if True:
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
@@ -426,7 +433,7 @@ BFpoint.SetPoint(0, bestFitPoint[1], bestFitPoint[2])
 
 SMpoint.SetMarkerStyle(23)
 SMpoint.SetMarkerSize(2)
-SMpoint.SetMarkerColor(ROOT.kGreen+2)
+SMpoint.SetMarkerColor(ROOT.kRed+2)
 BFpoint.SetMarkerStyle(22)
 BFpoint.SetMarkerSize(2)
 BFpoint.SetMarkerColor(ROOT.kBlue+2)

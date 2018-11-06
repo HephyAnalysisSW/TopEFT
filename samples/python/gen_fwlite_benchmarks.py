@@ -80,6 +80,27 @@ for s in allSampleNames:
     else:
         logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
 
+## extended scan
+
+gen_dir = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/gen/v3/"
+
+allSampleNames  = glob.glob(gen_dir+"dim6top_LO_ttZ_ll_c*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")]
+
+logger.info("Loading ewkDM signals from %s", gen_dir)
+for s in allSampleNames:
+    if len(s) > 50:
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
+        continue
+    if s.startswith('dim6top_LO_ttZ_ll_cp'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_currents_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p50','p500000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    elif s.startswith('dim6top_LO_ttZ_ll_ct'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_dipoles_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p20','p200000').replace('p40','p400000').replace('p60','p600000').replace('p80','p800000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    else:
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
+
 
 ## Robert GEN 0j benchmarks Jan30 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
