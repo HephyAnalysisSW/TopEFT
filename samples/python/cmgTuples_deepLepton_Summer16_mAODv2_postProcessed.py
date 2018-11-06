@@ -25,8 +25,18 @@ except:
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
+#TTJets
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton"]
 dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonFromTbar"]
+#DYvsQCD
+dirs['DY']                  = ["DY1JetsToLL_M50_LO", "DY2JetsToLL_M50_LO", "DY3JetsToLL_M50_LO", "DY4JetsToLL_M50_LO"]
+dirs['QCD']                 = ["QCD_Pt1000toInf_Mu5", "QCD_Pt1000toInf_Mu5_ext", "QCD_Pt120to170_Mu5", "QCD_Pt15to20_Mu5", 
+                               "QCD_Pt170to300_Mu5", "QCD_Pt170to300_Mu5_ext", "QCD_Pt20to30_Mu5", "QCD_Pt300to470_Mu5", 
+                               "QCD_Pt300to470_Mu5_ext", "QCD_Pt300to470_Mu5_ext2", "QCD_Pt30to50_Mu5", "QCD_Pt470to600_Mu5", 
+                               "QCD_Pt470to600_Mu5_ext", "QCD_Pt470to600_Mu5_ext2", "QCD_Pt50to80_Mu5", "QCD_Pt600to800_Mu5", 
+                               "QCD_Pt600to800_Mu5_ext", "QCD_Pt800to1000_Mu5", "QCD_Pt800to1000_Mu5_ext", "QCD_Pt800to1000_Mu5_ext2", 
+                               "QCD_Pt80to120_Mu5", "QCD_Pt80to120_Mu5_ext"]
+
 #dirs["WZ_amcatnlo"]     = ["WZTo3LNu_amcatnlo"]#, "WZTo2L2Q"]
 #dirs["WZ_powheg"]       = ["WZTo3LNu_comb"]#, "WZTo2L2Q"]
 #dirs["WZ_mllmin01"]     = ["WZTo3LNu_mllmin01", "WZTo2L2Q"]
@@ -45,7 +55,6 @@ dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonF
 
 #dirs['DY_HT_LO']        = ['DYJetsToLL_M50_LO_ext_comb_lheHT70','DYJetsToLL_M50_HT70to100', 'DYJetsToLL_M50_HT100to200_comb', 'DYJetsToLL_M50_HT200to400_comb', 'DYJetsToLL_M50_HT400to600_comb', 'DYJetsToLL_M50_HT600to800', 'DYJetsToLL_M50_HT800to1200', 'DYJetsToLL_M50_HT1200to2500', 'DYJetsToLL_M50_HT2500toInf']
 #dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to50_LO']
-#dirs['DY
 
 #dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 #
@@ -62,8 +71,10 @@ dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonF
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",        treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}(2l)",                          directory=directories['TTJets_DiLepton'])
-TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",        treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}(2l)",                          directory=directories['TTJets_SingleLepton'])
+TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
+TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_SingleLepton'])
+DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
+QCD                  = Sample.fromDirectory(name="QCD",                   treeName="Events", isData=False, color=color.DY,            texName="QCD",                       directory=directories['QCD'])
 
 #TTZtoLLNuNu     = Sample.fromDirectory(name="TTZtoLLNuNu",      treeName="Events", isData=False, color=color.TTZtoLLNuNu,       texName="t#bar{t}Z (l#bar{l}/#nu#bar{#nu})",     directory=directories['TTZtoLLNuNu'])
 #TTZ_LO          = Sample.fromDirectory(name="TTZ_LO",           treeName="Events", isData=False, color=color.TTZtoLLNuNu+1,     texName="t#bar{t}Z (LO)",                       directory=directories['TTZ_LO'])
