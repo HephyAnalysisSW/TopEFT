@@ -31,15 +31,14 @@ from TopEFT.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 if args.small:
     TTJets_DiLepton.reduceFiles( to = 1 )
     TTJets_SingleLepton.reduceFiles( to = 1 )
-    DY.reduceFiles( to = 1 )
-    QCD.reduceFiles( to = 1 )
+    #DY.reduceFiles( to = 1 )
+    #QCD.reduceFiles( to = 1 )
 
 event_selection = "(1)"
 
 #signal and background sample
-plot_DYvsQCD = False
-sig_sample = DY  if plot_DYvsQCD else TTJets_DiLepton
-bkg_sample = QCD if plot_DYvsQCD else TTJets_SingleLepton
+sig_sample = TTJets_DiLepton
+bkg_sample = TTJets_SingleLepton
 
 # truth categories
 prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
