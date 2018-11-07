@@ -14,12 +14,12 @@ import imp
 #RootTools
 from RootTools.core.standard             import *
 
-#TTXPheno
-from TTXPheno.Tools.user                   import skim_output_directory
-from TTXPheno.Tools.GenSearch              import GenSearch
-from TTXPheno.Tools.helpers                import deltaR2, cosThetaStar
-from TTXPheno.Tools.HyperPoly              import HyperPoly
-from TTXPheno.Tools.WeightInfo             import WeightInfo
+#TopEFT
+from TopEFT.Tools.user                   import skim_output_directory
+from TopEFT.Tools.GenSearch              import GenSearch
+from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
+from TopEFT.Tools.HyperPoly              import HyperPoly
+from TopEFT.Tools.WeightInfo             import WeightInfo
 #
 # Arguments
 # 
@@ -41,7 +41,7 @@ args = argParser.parse_args()
 #
 # Logger
 #
-import TTXPheno.Tools.logger as logger
+import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
@@ -51,9 +51,10 @@ if len(args.inputFiles)>0:
     logger.info( "Input files found. Ignoring 'sample' argument. Files: %r", args.inputFiles)
     sample = FWLiteSample( args.targetSampleName, args.inputFiles)
 else:
-    sample_file = "$CMSSW_BASE/python/TTXPheno/samples/fwlite_benchmarks.py"
+    sample_file = "$CMSSW_BASE/python/TopEFT/samples/fwlite_benchmarks.py"
     samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
     sample = getattr( samples, args.sample )
+    print sample.files
 
 maxEvents = -1
 if args.small: 
@@ -100,7 +101,7 @@ if args.nJobs>1:
     logger.info( "Running job %i/%i over %i files from a total of %i.", args.job, args.nJobs, n_files_after, n_files_before)
 
 products = {
-    'lhe':{'type':'LHEEventProduct', 'label':("externalLHEProducer")},
+    #'lhe':{'type':'LHEEventProduct', 'label':("externalLHEProducer")},
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
     'genJets':{'type':'vector<reco::GenJet>', 'label':("ak4GenJets")},
     'genMET':{'type':'vector<reco::GenMET>',  'label':("genMetTrue")},

@@ -141,6 +141,12 @@ class SystematicEstimator:
         down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFSystDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
+    def leptonTrackingSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonTrackingSFUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonTrackingSFDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
     def eleSFSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
         up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightEleSFStatUp_%s'%setup.leptonId]}))
@@ -161,26 +167,15 @@ class SystematicEstimator:
 
     def reweight2D(self, region, channel, setup, function):
         ref = 0
-        #print "Getting 2D reweighting"
-        print "Next region"
-        print region.cutString()
-        #print setup.reweightRegions
-        #print "Now going through the regions"
         for r in setup.reweightRegions:
-            print r.cutString()
             # super dirty way to get the correct pT(Z) and cos(Theta*) string
             Z_pt_var  = [ x for x in r.vals.keys() if 'pt' in x ][0]
             cosTS_var = [ x for x in r.vals.keys() if 'cos' in x ][0]
             if r.vals[Z_pt_var][0] >= region.vals[Z_pt_var][0] and (r.vals[Z_pt_var][1] <= region.vals[Z_pt_var][1] or region.vals[Z_pt_var][1] == -1) and r.vals[cosTS_var][0] >= region.vals[cosTS_var][0] and r.vals[cosTS_var][1] <= region.vals[cosTS_var][1]:
-                #print "inside"
                 # This only works if the reweightRegions are aligned!!
-                print "in"#, r.cutString()
                 val     = self.cachedEstimate(r, channel, setup)
                 weight  = function(r.vals[Z_pt_var][0], r.vals[cosTS_var][0])
-                print "weight", weight.val, weight.sigma
                 ref += val*weight
-            #else:
-            #    print "out", r
         return ref
 
     def reweight1D(self, region, channel, setup, function):

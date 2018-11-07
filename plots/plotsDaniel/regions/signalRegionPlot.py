@@ -57,8 +57,8 @@ processes = [
     ('ZZ', 'ZZ'),
     ('nonPromptDD', 'non-prompt'),
     ('TTX', 't(#bar{t})X'),
-    ('TTW', 't#bar{t}W'),
-    ('ZG', 'Z#gamma'),
+#    ('TTW', 't#bar{t}W'),
+    ('XG', 'X#gamma'),
     ('rare', 'rare'),
     ]
 
@@ -79,19 +79,21 @@ else:
 if options.combine:
     lumiStr = 35.9+41.9
 
-cardName = "ewkDM_ttZ_ll"
-#cardName = "dim6top_LO_ttZ_ll"
+#cardName = "ewkDM_ttZ_ll"
+cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
-cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
+#cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
+cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m1p000000_cpt_1p000000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
 WZreweight = "" if not options.WZreweight else "WZreweight_"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/ewkDM_dipoles/"%(options.year,WZreweight,subDir)
+#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/ewkDM_dipoles/"%(options.year,WZreweight,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/dim6top_LO_currents/"%(options.year,WZreweight,subDir)
 
 if options.combine:
     cardDir = cardDir.replace('2016', 'COMBINED')
@@ -427,7 +429,7 @@ plotting.draw(
                 plots,
                 texX = ""
             ),
-    plot_directory = os.path.join(plot_directory, "signalRegions"),
+    plot_directory = os.path.join(plot_directory, "signalRegions_v2"),
     logX = False, logY = True, sorting = False, 
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
     legend = (0.74,0.54, 0.95, 0.89),
