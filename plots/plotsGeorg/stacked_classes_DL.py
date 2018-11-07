@@ -531,7 +531,7 @@ for leptonFlavour in leptonFlavours:
             def drawPlots(plots, dataMCScale):
               for log in [False, True]:
                 if options.isTestData==99:
-                    directory=(os.path.join(
+                    plot_directory_=(os.path.join(
                                             plot_directory,
                                             'predictions',
                                             str(options.year),
