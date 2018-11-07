@@ -115,8 +115,9 @@ for leptonFlavour in leptonFlavours:
 
     for trainDate in leptonFlavour['TrainDates']:
         #load sample
-        #samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
-        samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath) 
+        #samples=plot_samples(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize) 
+        #samples=plot_samples(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath) 
+        samples=plot_samples(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath, options.testDataPath) 
         print samples["sample"]
 
         #loose id preselection
@@ -225,7 +226,14 @@ for leptonFlavour in leptonFlavours:
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCuts[i]["Name"], relIsoCuts[j] )
             drawObjectsSmall( lep_preselection(options.flavour) )
             if options.isTestData==99:
-                directory=(os.path.join(plot_directory,'roc_testfiles',options.sampleSelection))
+                directory=(os.path.join(
+                                        plot_directory,
+                                        'predictions',
+                                        str(options.year),
+                                        options.flavour,
+                                        options.sampleSelection,
+                                        str(options.trainingDate)
+                                        ))
             else:
                 directory=(os.path.join(
                                         plot_directory,
