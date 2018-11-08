@@ -34,6 +34,7 @@ color.WW             = ROOT.kOrange-7
 color.VV             = 30
 color.WG             = ROOT.kOrange-5
 color.ZG             = ROOT.kGreen
+color.XG             = ROOT.kGreen
 color.triBoson       = ROOT.kYellow
 color.rare           = 8
 color.rare_noZZ      = 8

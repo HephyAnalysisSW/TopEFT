@@ -210,7 +210,7 @@ elif year == 20167:
 TTZ_sample = "TTZ_NLO_17"
 PDFset = "PDF4LHC15_nlo_100"
 
-PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%PDFset
+PDF_cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_v2_%s/"%PDFset
 PDF_cache   = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PDF", ["region", "channel", "PDFset"])
 scale_cache = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "scale", ["region", "channel", "PDFset"])
 PS_cache = resultsDB(PDF_cacheDir+TTZ_sample+'_unc.sq', "PSscale", ["region", "channel", "PDFset"])

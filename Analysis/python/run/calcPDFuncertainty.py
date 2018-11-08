@@ -45,15 +45,15 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 from TopEFT.Analysis.Setup          import Setup
@@ -70,10 +70,10 @@ setup4l.parameters.update({'nJets':(1,-1), 'nBTags':(1,-1), 'zMassRange':20, 'zW
 
 ##Summer16 samples
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 dirs = {}
 dirs['TTZ_LO']          = ["TTZ_LO"]
-dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext']
+dirs['TTZToLLNuNu_ext'] = ['TTZToLLNuNu_ext_comb']
 dirs['WZTo3LNu_comb']   = ['WZTo3LNu_comb']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
@@ -85,7 +85,7 @@ WZ_pow_16   = Sample.fromDirectory(name="WZ_pow", treeName="Events", isData=Fals
 #data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 #postProcessing_directory = "TopEFT_PP_2017_Fall17_v3/trilep/"
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 dirs = {}
 dirs['TTZToLLNuNu'] = ['TTZToLLNuNu_amc_psw']
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
@@ -183,7 +183,7 @@ if not options.selectWeight:
     scale_variations= [ "abs(LHEweight_wgt[%i])"%(i) for i in scale_indices ]
     PDF_variations  = [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ] if not options.reducedPDF else [ "abs(LHEweight_wgt[%i])"%(i) for i in PDF_indices ][:5]
     aS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in aS_indices ]
-    variations      = scale_variations + PDF_variations + aS_variations
+    variations      = scale_variations + PDF_variations + aS_variations + [LHEweight_original, centralWeight]
     if PSweights:
         PS_variations   = [ "abs(LHEweight_wgt[%i])"%(i) for i in PS_indices ] + [PSweight_original]
         variations += PS_variations
@@ -194,7 +194,7 @@ results = {}
 
 scale_systematics = {}
 
-cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_%s/"%(PDFset)
+cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/PDF_v2_%s/"%(PDFset)
 
 estimate = MCBasedEstimate(name=sample.name, sample=sample )
 estimate.initCache(cacheDir)
@@ -274,7 +274,8 @@ PDF_unc     = []
 Scale_unc   = []
 PS_unc      = []
 
-regions = regionsE[1:13:3]
+#regions = regionsE[1:13:3]
+regions = regionsE + regions4lB
 
 if options.combine:
     for c in [channel(-1,-1)]:#allChannels:
