@@ -46,7 +46,7 @@ def fillStyle( color, style, lineColor = ROOT.kBlack, errors = False):
 ##############################
 
 #define samples for electorns and muons
-samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath)
+samples=plot_samples(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath, options.testDataPath)   
     
 # variables to read
 read_variables=histo_plot_variables(options.trainingDate, options.version)
@@ -531,12 +531,15 @@ for leptonFlavour in leptonFlavours:
             def drawPlots(plots, dataMCScale):
               for log in [False, True]:
                 if options.isTestData==99:
-                    plot_directory_ = (os.path.join(
-                                                    plot_directory,
-                                                    'roc_testfiles',
-                                                    options.sampleSelection,
-                                                    'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
-                                                    ))
+                    plot_directory_=(os.path.join(
+                                            plot_directory,
+                                            'predictions',
+                                            str(options.year),
+                                            options.flavour,
+                                            options.sampleSelection,
+                                            str(options.trainingDate),
+                                            'histograms', pt_cut["Name"]+"_"+ecalType["Name"], ("log" if log else "lin")
+                                            ))
                 else:
                     plot_directory_ = (os.path.join(
                                                     plot_directory,

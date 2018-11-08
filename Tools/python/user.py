@@ -32,10 +32,12 @@ if os.environ['USER'] in ['dspitzbart', 'dspitzba']:
     runOnGentT2 = False
 
 if os.environ['USER'] in ['gmoertl']:
-    plot_directory      = "/afs/hephy.at/user/g/gmoertl/www/"
+    #plot_directory      = "/afs/hephy.at/user/g/gmoertl/www/"
     plot_directory          = "/afs/hephy.at/user/g/gmoertl/www/"
     skim_output_directory   = "/afs/hephy.at/data/gmoertl01/DeepLepton/skims/"
     trainingFiles_directory = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/"
+    results_directory       = "/afs/hephy.at/data/gmoertl01/TopEFT/results/"
+    postprocessing_output_directory = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
 
 if os.environ['USER'] in ['llechner']:
     tmp_directory                   = "/afs/hephy.at/data/llechner01/Top_tmp/"

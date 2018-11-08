@@ -28,7 +28,7 @@ options = get_parser().parse_args()
 ##############################
 
 #define samples for electorns and muons
-samples=plot_samples_v2(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath)
+samples=plot_samples(options.version, options.year, options.flavour, options.trainingDate, options.isTestData, options.ptSelection, options.sampleSelection, options.sampleSize, options.predictionPath, options.testDataPath)   
 
 # variables to read
 variables=roc_plot_variables(options.version)
@@ -213,7 +213,14 @@ for leptonFlavour in leptonFlavourList:
             drawObjects(isTestData, options.flavour, options.sampleSelection, ptCut['Name'], relIsoCut )
             drawObjectsSmall( lep_preselection(options.flavour) ) 
             if options.isTestData==99:
-                directory=(os.path.join(plot_directory, 'roc_testfiles',options.sampleSelection))
+                directory=(os.path.join(
+                                        plot_directory,
+                                        'predictions',
+                                        str(options.year),
+                                        options.flavour,
+                                        options.sampleSelection,
+                                        str(options.trainingDate)
+                                        ))
             else:
                 directory=(os.path.join(
                                         plot_directory,

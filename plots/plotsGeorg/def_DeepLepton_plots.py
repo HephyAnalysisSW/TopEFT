@@ -22,7 +22,6 @@ def get_parser():
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                       required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                                    help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                            required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
-    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                                   help="path to prediction files?")
     argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],     required = True, help="Which pt selection?")
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_sorted_looseId', 'TTJets_sorted'], required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],                       required = True, help="Standard or Isolation Training?")
@@ -31,6 +30,8 @@ def get_parser():
     argParser.add_argument('--binned',          action='store', type=str, choices=['pt','eta','nTrueInt'], default='pt',                 help="Which variable for binning?")
     argParser.add_argument('--eBbins',          action='store', type=int, choices=[1,5,10,25,50], default=50,                            help="Calculate eB for how many bins?")
 
+    argParser.add_argument('--predictionPath',  action='store', type=str, default='',                                                   help="if isTestData 99, path to prediction files?")
+    argParser.add_argument('--testDataPath',    action='store', type=str, default='',                                                   help="if isTestData 99, path to test files?")
 
     #argParser.add_argument('--nJobs',        action='store', type=int,    nargs='?',         default=1,                   help="Maximum number of simultaneous jobs.")
     #argParser.add_argument('--job',          action='store', type=int,                       default=0,                   help="Run only job i")
@@ -48,11 +49,11 @@ def lep_preselection(leptonFlavour):
 
 
 #get samples for plots and add prediction branches as friend tree
-def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize, predictionPath):
+def plot_samples(version, year, leptonFlavour, trainingDate, isTestData, ptSelection, sampleSelection, sampleSize, predictionPath, testDataPath):
 
     #define paths and names
     #base_directory = trainingsFiles_directory
-    file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
+    file_directory = testDataPath if (isTestData==99 and testDataPath!='') else os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
     texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
     texfilePath    = os.path.join(file_directory, texfileName)
@@ -66,13 +67,9 @@ def plot_samples_v2(version, year, leptonFlavour, trainingDate, isTestData, ptSe
     elif sampleSize =='large':
         sizePattern = '_Large'
         
-    predict_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
+    predict_directory = predictionPath if isTestData==99 else os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
 
     #create FileList
-    if isTestData==99:
-        file_directory =    os.path.join(predictionPath,'rootFile')
-        predict_directory = os.path.join(predictionPath,'prediction')
-
     if trainingDate==0:
         with open(texfilePath,'r') as f:
             FileList = f.read().splitlines()
