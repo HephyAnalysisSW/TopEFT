@@ -135,15 +135,16 @@ for i, r in enumerate(regions):
             prefix   = 'dc_%s_'%year if options.combine else ''
             binName  = prefix+'Bin%s'%i
             logger.info("Working on bin %s, process %s, year %s.", binName, p, year)
-            res      = getEstimateFromCard(cardFile, p, binName, postfix=postfix)
+            proc = "%s_%s"%(p,year) if p in ["WZ","ZZ","TTX","rare","XG"] else p
+            res      = getEstimateFromCard(cardFile, proc, binName, postfix=postfix)
 
             if options.postFit:
                 tmpYield    = u_float(0,0)
                 # postfit: all uncertainties already taken care of
-                if p in postFitResults['results']['shapes_fit_s'][binName].keys():
-                    tmpYield    = postFitResults['results']['shapes_fit_s'][binName][p]
+                if proc in postFitResults['results']['shapes_fit_s'][binName].keys():
+                    tmpYield    = postFitResults['results']['shapes_fit_s'][binName][proc]
                     pYield     += tmpYield
-                    preYield   += postFitResults['results']['shapes_prefit'][binName][p]
+                    preYield   += postFitResults['results']['shapes_prefit'][binName][proc]
                     tmpError    = tmpYield.sigma
 
                     if tmpError/tmpYield.val > 10:
@@ -166,7 +167,7 @@ for i, r in enumerate(regions):
             if not options.postFit:
                 for u in uncertainties:
                     try:
-                        unc = getPreFitUncFromCard(cardFile, p, u, binName, )
+                        unc = getPreFitUncFromCard(cardFile, proc, u, binName, )
                     except:
                         logger.debug("No uncertainty %s for process %s"%(u, p))
                     if unc > 0:
@@ -186,7 +187,7 @@ for i, r in enumerate(regions):
         hists[p].SetBinError(i+1,0)
         hists[p].legendText = tex
         if not p == 'total':
-           hists[p].style = styles.fillStyle( getattr(color, p), lineColor=getattr(color,p), errors=False )
+           hists[p].style = styles.fillStyle( getattr(color, p.replace('_2016','')), lineColor=getattr(color,p.replace('_2016','')), errors=False )
 
         if options.postFit:
             if preYield.val > 0 and pYield.val > 0:
@@ -210,7 +211,7 @@ for i, r in enumerate(regions):
             pYield += res.val
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, 0.1)
-        hists['BSM'].legendText = "C_{2,A}=0.15, C_{2,V}=0.15 "
+        hists['BSM'].legendText = "EFT best-fit"
 
 
 ## data ##
