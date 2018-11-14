@@ -201,7 +201,7 @@ for i, r in enumerate(regions):
     hists['total'].SetBinError(i+1, totalUncertainty)
 
     ## signals ##
-    if options.signal and i>14:
+    if options.signal:# and i>14:
         pYield = 0
         for year in years:
             postfix  = '_%s'%year
@@ -437,7 +437,7 @@ plotting.draw(
     widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,1)] if options.signal else [(1,0)]} ,
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,1),(0,1)] if options.signal else [(1,0)]} ,
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )

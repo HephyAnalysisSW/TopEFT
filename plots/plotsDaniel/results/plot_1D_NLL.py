@@ -50,6 +50,7 @@ argParser.add_argument("--inclusiveRegions", action='store_true', help="Use incl
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
+argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
 
 args = argParser.parse_args()
 
@@ -299,20 +300,21 @@ delta = (x_max-x_min)/Nbins
 hist = ROOT.TH1F("NLL","", Nbins+1, x_min-delta/2, x_max+delta/2)
 hist.SetStats(0)
 
-for x_val in res_dic.keys():
-    if res_dic[x_val]>0:
-        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
-    else:
-        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
-
-#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
-fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", -50., 50.)
-fun.SetLineColor(ROOT.kBlack)
-fun.SetLineStyle(3)
-
-a = toGraph('NLL','NLL', len(x), x, z)
-
-a.Fit(fun)
+#for x_val in res_dic.keys():
+#    if res_dic[x_val]>0:
+#        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+#    else:
+#        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
+#
+##fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
+#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
+#fun.SetLineColor(ROOT.kBlack)
+#fun.SetLineStyle(1)
+#fun.SetLineWidth(2)
+#
+#a = toGraph('NLL','NLL', len(x), x, z)
+#
+#a.Fit(fun)
 
 print "Best fit found for signal %s, %s"%bestFitPoint
 
@@ -321,22 +323,45 @@ if x_var == "DC1V":
 elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
+#    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZ":
-    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+#    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "DC1A":
     hist.GetXaxis().SetTitle("C_{1,A}")
 elif x_var == "DC2A":
     hist.GetXaxis().SetTitle("C_{2,A}")
 elif x_var == "cpt":
-    hist.GetXaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
+#    hist.GetXaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
+    hist.GetXaxis().SetTitle("c_{#varphit}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZI":
-    hist.GetXaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+#    hist.GetXaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
+    hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
 
 #hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetYaxis().SetTitle("-2 #DeltalnL")
 hist.GetYaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
+
+#hist.Draw()
+
+for x_val in res_dic.keys():
+    if res_dic[x_val]>0:
+        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+    else:
+        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
+
+#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
+fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
+fun.SetLineColor(ROOT.kBlack)
+fun.SetLineStyle(1)
+fun.SetLineWidth(2)
+
+a = toGraph('NLL','NLL', len(x), x, z)
+
+a.Fit(fun)
+
 if args.prefit:
     postFix += "_prefit"
 if args.useXSec:
@@ -360,7 +385,13 @@ pads.SetTopMargin(0.15)
 pads.Draw()
 pads.cd()
 
-hist.Draw("p")
+
+hist.Draw("AXIS")
+
+fun.Draw("same")
+
+if args.showPoints:
+    hist.Draw("p same")
 
 one = ROOT.TF1("one","[0]",x_min,x_max)
 one.SetParameter(0,1)
@@ -410,8 +441,9 @@ BFpoint.SetMarkerColor(ROOT.kBlue+2)
 SMpoint.Draw("p same")
 BFpoint.Draw("p same")
 
-fun.Draw("same")
-hist.Draw("p same")
+#fun.Draw("same")
+if args.showPoints:
+    hist.Draw("p same")
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()

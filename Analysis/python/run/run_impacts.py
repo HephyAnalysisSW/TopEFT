@@ -31,7 +31,9 @@ def wrapper(s):
     #name = "ewkDM_ttZ_ll_DC2A_0p200000_DC2V_0p200000"
     #name = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
     #name = "dim6top_LO_ttZ_ll"
-    name = "newCard_2017"
+    #name = "newCard_2016"
+    #name = "ttZ_fix"
+    name = "shapesCard_2017_oldPattern"
     cardFile = name+".txt"
     #cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_COMBINED_xsec_shape_lowUnc_SRandCR/dim6top_LO_dipoles/"+cardFile
     #cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_COMBINED_xsec_shape_lowUnc_SRandCRnoZZ/dim6top_LO_dipoles/"+cardFile
@@ -62,7 +64,7 @@ def wrapper(s):
     if args.bkgOnly:
         shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s_bkgOnly.pdf"%(plotDir,"ewkDM"))
     else:
-        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"TOP-18-009_2017_v2"))
+        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"TOP-18-009_2017_oldPattern"))
     logger.info("Copied result to %s"%plotDir)
 
     if args.removeDir:

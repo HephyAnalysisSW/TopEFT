@@ -15,8 +15,8 @@ ewkDM_currents  = [ ewkDM_central ] + ewkDM_currents
 dim6top_dipoles  = [ dim6top_central ] + dim6top_dipoles
 dim6top_currents = [ dim6top_central ] + dim6top_currents
 
-#submitCMD = "submitBatch.py --title='Combine' "
-submitCMD = "echo "
+submitCMD = "submitBatch.py --title='Combine' "
+#submitCMD = "echo "
 
 signals = ewkDM_currents
 
@@ -44,52 +44,52 @@ Currents
 #    #    time.sleep(2)
 
 #for i, x in enumerate(dim6top_dipoles):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --expected --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
 #    time.sleep(2)
 #
 #for i, x in enumerate(dim6top_currents):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --expected --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
 #    time.sleep(2)
-
-#for i, x in enumerate(dim6top_dipoles):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal dipoles --useXSec --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
-#    time.sleep(2)
-
-#for i, x in enumerate(dim6top_currents):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --signal currents --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
-#    time.sleep(2)
-
-#for i, x in enumerate(dim6top_dipoles):
-#    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --signal dipoles --useShape --useXSec --includeCR --only=%s'"%str(i))
-#    time.sleep(3)
 #
+#for i, x in enumerate(dim6top_dipoles):
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --expected --signal dipoles --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
+#    time.sleep(2)
+#
+#for i, x in enumerate(dim6top_currents):
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model dim6top_LO --expected --signal currents --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
+#    time.sleep(2)
+
+for i, x in enumerate(dim6top_dipoles):
+    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --expected --signal dipoles --useShape --useXSec --includeCR --only=%s'"%str(i))
+    time.sleep(1)
+
 for i, x in enumerate(dim6top_currents):
-    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --signal currents --useShape --useXSec --includeCR --only=%s'"%str(i))
-#    time.sleep(1)
+    os.system(submitCMD+"'python run_combination.py --model dim6top_LO --expected --signal currents --useShape --useXSec --includeCR --only=%s'"%str(i))
+    time.sleep(1)
 
 #for i, x in enumerate(ewkDM_dipoles):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --expected --signal dipoles --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
 #    time.sleep(2)
 #
 #for i, x in enumerate(ewkDM_currents):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --expected --signal currents --useShape --useXSec --year 2017 --unblind --includeCR --only=%s'"%str(i))
 #    time.sleep(2)
-
+#
 #for i, x in enumerate(ewkDM_dipoles):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal dipoles --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --expected --signal dipoles --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
+#    time.sleep(2)
+#
+#for i, x in enumerate(ewkDM_currents):
+#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --expected --signal currents --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
 #    time.sleep(2)
 
-#for i, x in enumerate(ewkDM_currents):
-#    os.system(submitCMD+"'python run_limit_reweighting.py --model ewkDM --signal currents --useShape --useXSec --year 2016 --unblind --includeCR --only=%s'"%str(i))
-#    time.sleep(2)
+for i, x in enumerate(ewkDM_dipoles):
+    os.system(submitCMD+"'python run_combination.py --model ewkDM --expected --signal dipoles --useShape --useXSec --includeCR --only=%s'"%str(i))
+    time.sleep(1)
 
-#for i, x in enumerate(ewkDM_dipoles):
-#    os.system(submitCMD+"'python run_combination.py --model ewkDM --signal dipoles --useShape --useXSec --includeCR --only=%s'"%str(i))
-#    #time.sleep(2)
-
-#for i, x in enumerate(ewkDM_currents):
-#    os.system(submitCMD+"'python run_combination.py --model ewkDM --signal currents --useShape --useXSec --includeCR --only=%s'"%str(i))
-#    #time.sleep(2)
+for i, x in enumerate(ewkDM_currents):
+    os.system(submitCMD+"'python run_combination.py --model ewkDM --expected --signal currents --useShape --useXSec --includeCR --only=%s'"%str(i))
+    time.sleep(1)
 
 ## for resubmission of failed jobs:
 #from TopEFT.Analysis.run.getResults import getResult
