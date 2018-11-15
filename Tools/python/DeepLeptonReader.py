@@ -366,8 +366,35 @@ class Evaluator:
         prediction = deepLeptonModel.predict( np_features )
         return prediction
 
-from keras.models import load_model
-deepLeptonModel           =       load_model("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5")
+
+# Theano config
+import uuid, os
+theano_compile_dir = '/afs/hephy.at/data/%s01/theano_compile_tmp/%s'%( os.environ['USER'], str(uuid.uuid4()) )
+if not os.path.exists( theano_compile_dir ):
+    os.makedirs( theano_compile_dir )
+#os.environ['THEANO_FLAGS'] = 'cuda.root=/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/cuda/8.0.61/,device=cpu,base_compiledir=%s'%theano_compile_dir 
+os.environ['THEANO_FLAGS'] = 'cuda.enabled=False,base_compiledir=%s'%theano_compile_dir 
+os.environ['KERAS_BACKEND'] = 'theano'
+
+#import tensorflow as tf
+#from keras.backend.tensorflow_backend import set_session
+#config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.3
+#config.gpu_options.allow_growth = True
+#config.gpu_options.visible_device_list = "0"
+#set_session(tf.Session(config=config))
+
+model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
+pkl_model_file  = model_file.replace('.h5','pkl') 
+
+#from keras.models import load_model
+#deepLeptonModel = load_model(model_file)
+#pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(model_file.replace('.h5','pkl'),'w') )
+
+model_json, weights = pickle.load( file(pkl_model_file) )
+from keras.models import model_from_json
+deepLeptonModel = model_from_json( model_json )
+deepLeptonModel.set_weights( weights )
 branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
 
 # patch weights

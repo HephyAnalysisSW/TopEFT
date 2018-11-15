@@ -72,6 +72,7 @@ def get_parser():
     argParser.add_argument('--LHEHTCut',                    action='store',         nargs='?',  type=int,                           default=-1,                         help="LHE cut.")
     argParser.add_argument('--sync',                        action='store_true',                                                                                        help="Run syncing.")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
+    argParser.add_argument('--FEBug',                       action='store_true',                                                                                        help="Modify jets according to JME Formula Evaluator bug")
     argParser.add_argument('--theano',                      action='store_true',                                                                                        help="Use theano?")
     argParser.add_argument('--deepLepton',                  action='store_true',                                                                                        help="Add deep lepton MVA?")
     argParser.add_argument('--skipGenMatching',             action='store_true',                                                                                        help="skip matched genleps??")
@@ -171,6 +172,11 @@ leptonTrackingSF = leptonTrackingEfficiency(options.year)
 
 # Lepton SF
 from TopEFT.Tools.leptonSF import leptonSF as leptonSF_
+# get different lepton SF reader & store this extra Id information
+# extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_2l', 'FO_1l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_2l', 'tight_1l','tight_SS']
+extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
+tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
+leptonSF = {tight_id:leptonSF_(year=options.year, ID=tight_id) for tight_id in tight_lep_ids }
 
 #Samples: combine if more than one
 if len(samples)>1:
@@ -286,6 +292,14 @@ else:
     directory  = os.path.join(options.targetDir, options.processingEra) 
 
 postfix = '_small' if options.small else ''
+
+if options.FEBug:
+    from JetMET.JetCorrector.jetCorrectors_17Nov2017 import Fall17_17Nov17_V11_MC, Fall17_17Nov17_V24_MC
+    if not ( options.year == 2017 and isMC):
+        raise NotImplementedError( "Can do this only for 2017 MC" ) 
+
+    postfix += '_FEBug'
+
 output_directory = os.path.join( directory, options.skim+postfix, sample.name )
 
 if os.path.exists(output_directory) and options.overwrite:
@@ -414,7 +428,7 @@ jetVarNames = [x.split('/')[0] for x in jetVars]
 genLepVars      = ['pt/F', 'phi/F', 'eta/F', 'pdgId/I', 'index/I', 'lepGood2MatchIndex/I', 'n_t/I','n_W/I', 'n_B/I', 'n_D/I', 'n_tau/I']
 genLepVarNames  = [x.split('/')[0] for x in genLepVars]
 
-read_variables = map(TreeVariable.fromString, ['met_pt/F', 'met_phi/F', 'run/I', 'lumi/I', 'evt/l', 'nVert/I'] )
+read_variables = map(TreeVariable.fromString, ['met_pt/F', 'met_phi/F', 'run/I', 'lumi/I', 'evt/l', 'nVert/I', 'rho/F'] )
 if options.keepPhotons:
     read_variables += [ TreeVariable.fromString('ngamma/I'),
                         VectorTreeVariable.fromString('gamma[pt/F,eta/F,phi/F,mass/F,idCutBased/I,pdgId/I]') ]
@@ -437,10 +451,6 @@ if options.deepLepton:
 # For the moment store all the branches that we read
 lepton_branches_store = lepton_branches_read+',mvaTTV/F,cleanEle/I,ptCorr/F,isGenPrompt/I'
 
-# store this extra Id information
-#extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_2l', 'FO_1l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_2l', 'tight_1l','tight_SS']
-extra_lep_ids = ['FO_4l', 'FO_3l', 'FO_SS', 'tight_4l', 'tight_3l', 'tight_SS']
-tight_lep_ids = [ x for x in extra_lep_ids if 'tight' in x ]
 extra_mu_selector  = {lep_id:muonSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 extra_ele_selector = {lep_id:eleSelector(lep_id, year = options.year) for lep_id in extra_lep_ids}
 for lep_id in extra_lep_ids: lepton_branches_store+=',%s/I'%(lep_id)
@@ -754,6 +764,8 @@ def filler( event ):
     if isMC:
         for tight_id in tight_lep_ids:
 
+            _leptonSF = leptonSF[tight_id]
+
             # initialize the weights with 0 to not run into problems with nan handeling in root
             setattr(event, "reweightLeptonTrackingSF_%s"%tight_id,      0)
             setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    0)
@@ -786,26 +798,23 @@ def filler( event ):
                 setattr(event, "reweightLeptonTrackingSFUp_%s"%tight_id,    reduce(mul, [leptonTrackingSF.getSF( pdgId = l['pdgId'], pt  =   l['pt'], eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta']), sigma=1) for l in leptonCollections[tight_id]], 1) )
                 setattr(event, "reweightLeptonTrackingSFDown_%s"%tight_id,  reduce(mul, [leptonTrackingSF.getSF( pdgId = l['pdgId'], pt  =   l['pt'], eta =   (l['etaSc'] if abs(l['pdgId'])==11 else l['eta']), sigma=-1) for l in leptonCollections[tight_id]], 1) )
 
-                # get different lepton SF readers
-                leptonSF = leptonSF_(year=options.year, ID=tight_id)  ### problematic part!
-
                 # central value for all leptons
-                setattr(event, "reweightLeptonSF_%s"%tight_id,          reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSF_%s"%tight_id,          reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc']) for l in leptonCollections[tight_id]], 1) )
 
                 # variations split into syst/stat, stat split into ele/mu (uncorrelated)
                 electronsTmp    = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 11 ]
                 muonsTmp        = [ l for l in leptonCollections[tight_id] if abs(l['pdgId']) == 13 ]
 
                 for flavor, collection in [("Ele", electronsTmp), ("Mu", muonsTmp)]:
-                    centralValue = reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma =  0) for l in collection], 1)
+                    centralValue = reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma =  0) for l in collection], 1)
                     centralValue = centralValue if centralValue>0 else 1
                     setattr(event, "reweight%sSFStat_%s"%(flavor, tight_id),      1 )
-                    setattr(event, "reweight%sSFStatUp_%s"%(flavor, tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = +1) for l in collection], 1)/centralValue )
-                    setattr(event, "reweight%sSFStatDown_%s"%(flavor, tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = -1) for l in collection], 1)/centralValue )
+                    setattr(event, "reweight%sSFStatUp_%s"%(flavor, tight_id),    reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = +1) for l in collection], 1)/centralValue )
+                    setattr(event, "reweight%sSFStatDown_%s"%(flavor, tight_id),  reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Stat', sigma = -1) for l in collection], 1)/centralValue )
 
-                setattr(event, "reweightLeptonSFSyst_%s"%(tight_id),      reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma =  0) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFSystUp_%s"%(tight_id),    reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = +1) for l in leptonCollections[tight_id]], 1) )
-                setattr(event, "reweightLeptonSFSystDown_%s"%(tight_id),  reduce(mul, [leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = -1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSyst_%s"%(tight_id),      reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma =  0) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystUp_%s"%(tight_id),    reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = +1) for l in leptonCollections[tight_id]], 1) )
+                setattr(event, "reweightLeptonSFSystDown_%s"%(tight_id),  reduce(mul, [_leptonSF.getSF(pdgId=l['pdgId'], pt=l['pt'], eta=l['eta'] if abs(l['pdgId'])==13 else l['etaSc'], unc='Syst', sigma = -1) for l in leptonCollections[tight_id]], 1) )
 
 
     # get variables used in 4l analysis. Only 4l collection important.
@@ -925,8 +934,15 @@ def filler( event ):
     # Jets and lepton jet cross-cleaning.
     if options.year == 2016:
         allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"], idVar='id16')
-    else:
+
+    elif options.year == 2017:
         allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+        if options.FEBug:
+            for j in allJets:
+                corr_V11 = Fall17_17Nov17_V11_MC.correction(rawPt = j['rawPt'], eta = j['eta'], area = j['area'], rho = r.rho, run = r.run )
+                corr_V24 = Fall17_17Nov17_V24_MC.correction(rawPt = j['rawPt'], eta = j['eta'], area = j['area'], rho = r.rho, run = r.run )
+                j['pt'] *= corr_V24/corr_V11
+
     selected_jets, other_jets = [], []
     for j in allJets:
         idVar = 'id16' if options.year==2016 else 'id'
