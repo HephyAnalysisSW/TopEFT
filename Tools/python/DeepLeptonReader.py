@@ -6,6 +6,8 @@ import shutil
 import uuid
 import operator
 import copy
+#from guppy import hpy
+#h = hpy()
 
 from math import *
 import numpy as np
@@ -366,15 +368,14 @@ class Evaluator:
         prediction = deepLeptonModel.predict( np_features )
         return prediction
 
-
-# Theano config
-import uuid, os
-theano_compile_dir = '/afs/hephy.at/data/%s01/theano_compile_tmp/%s'%( os.environ['USER'], str(uuid.uuid4()) )
-if not os.path.exists( theano_compile_dir ):
-    os.makedirs( theano_compile_dir )
-#os.environ['THEANO_FLAGS'] = 'cuda.root=/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/cuda/8.0.61/,device=cpu,base_compiledir=%s'%theano_compile_dir 
-os.environ['THEANO_FLAGS'] = 'cuda.enabled=False,base_compiledir=%s'%theano_compile_dir 
-os.environ['KERAS_BACKEND'] = 'theano'
+## Theano config
+#import uuid, os
+#theano_compile_dir = '/afs/hephy.at/data/%s01/theano_compile_tmp/%s'%( os.environ['USER'], str(uuid.uuid4()) )
+#if not os.path.exists( theano_compile_dir ):
+#    os.makedirs( theano_compile_dir )
+##os.environ['THEANO_FLAGS'] = 'cuda.root=/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/cuda/8.0.61/,device=cpu,base_compiledir=%s'%theano_compile_dir 
+#os.environ['THEANO_FLAGS'] = 'cuda.enabled=False,base_compiledir=%s'%theano_compile_dir 
+#os.environ['KERAS_BACKEND'] = 'theano'
 
 #import tensorflow as tf
 #from keras.backend.tensorflow_backend import set_session
@@ -425,12 +426,19 @@ if __name__ == "__main__":
     inputData.getEntry(0)
 
     evaluator.setEvent( inputData.event )
-
+    evaluator.verbosity = 0
     # loop over file
     nevents = inputData.chain.GetEntries()
-    for nevent in range( nevents ): 
-        inputData.getEntry(nevent)
-        evaluator.evaluate()
+    c = 0
+    while True:
+        c+=1
+        for nevent in range( nevents ): 
+            inputData.getEntry(nevent)
+            evaluator.evaluate()
+        print c
+        ROOT.gObjectTable.Print()
+        #print h.heap()
+
         #for i_lep in range( inputData.event.nLepGood ):
         #    if abs(inputData.event.LepGood_pdgId[i_lep])!=13: continue
         #    print "LepGood %i/%i" % (i_lep, inputData.event.nLepGood)
