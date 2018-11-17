@@ -32,11 +32,13 @@ regionsXSec     = getRegions2D("nBTag", [1, 2, -1], "nJetSelected", [2,3,4,5,-1]
 regionsXSecB    = getRegions2D("nBTag", [1, 2, -1], "nJetSelected", [1,2,3,-1])
 regionsXSecC    = getRegions2D("nBTag", [1, -1], "nJetSelected", [3,4,5,-1])
 regionsXSecD    = getRegions2D("nBTag", [0, 1, 2, -1], "nJetSelected", [1,2,3,4,5,-1])
+regionsXSecE    = getRegions2D("nBTag", [0, 1], "nJetSelected", [1,2,3,-1]) + getRegions2D("nBTag", [1, 2, -1], "nJetSelected", [2,3,4,5,-1])
 
 ## 4l signal regions
 regions4l       = getRegions2D("Z1_pt_4l", [0,-1], "Z1_cosThetaStar_4l", [-1,-0.6, 0.6, 1])
 regions4lB      = getRegions2D("Z1_pt_4l", [0,100,200,-1], "Z1_cosThetaStar_4l", [-1, 1])
 regions4lXSec   = getRegions2D("nBTag", [1, -1], "nJetSelected", [1,-1])
+regions4lXSecE  = getRegions2D("nBTag", [0, 1, -1], "nJetSelected", [1,-1])
 
 ## Upgrade regions
 regionsUpgrade = getRegionsFromThresholds('Z_pt', [0,100,200,400,-1])

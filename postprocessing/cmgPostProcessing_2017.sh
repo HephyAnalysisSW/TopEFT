@@ -21,8 +21,8 @@
 #python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample TTWW #SPLIT10
 #python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample TTWZ #SPLIT10
 #python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample TTZZ #SPLIT10
-python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample THQ #SPLIT10
-python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample THW #SPLIT10
+#python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample THQ #SPLIT10
+#python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample THW #SPLIT10
 #python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample tWll #SPLIT10
 ##
 ### Rare
@@ -30,9 +30,9 @@ python cmgPostProcessing.py --forceProxy    --skim trilep --fileBasedSplitting  
 #python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample ZZTo4L #SPLIT20
 #python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample ZZZ  #SPLIT10
 #python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample WZZ  #SPLIT10
-#python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample WWZ_4F  #SPLIT10
+python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v22 --sample WWZ_4F  #SPLIT10
 #python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample WWW_4F  #SPLIT10
-python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample WZG #SPLIT10
+#python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample WZG #SPLIT10
 ###ZGTo2LG_ext
 ###WGToLNuG
 #python cmgPostProcessing.py --forceProxy   --skim trilep --fileBasedSplitting  --year 2017 --keepLHEWeights --processingEra TopEFT_PP_2017_mva_v21 --sample GluGluToZZTo2e2mu #SPLIT10

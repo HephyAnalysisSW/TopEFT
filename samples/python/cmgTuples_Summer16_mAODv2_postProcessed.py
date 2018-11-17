@@ -53,6 +53,9 @@ dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
 
 dirs['ZZ']              = ['ZZTo4L','GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu','GluGluToZZTo2mu2tau','GluGluToZZTo2e2tau','GGHZZ4L','QQHZZ4L','WmHZZ4L','WpHZZ4L','ZHZZ4LF'] 
 dirs['rare']            = ['WGToLNuG','WZG','WWW', 'WWZ', 'WZZ', 'ZZZ','WWDoubleTo2L']
+dirs['WWZ']             = ['WWZ']
+dirs['WZZ']             = ['WZZ']
+dirs['ZZZ']             = ['ZZZ']
 dirs['WGToLNuG']        = ['WGToLNuG']
 dirs['ZGTo2LG']         = ['ZGTo2LG_ext']
 dirs['Xgamma']          = ['ZGTo2LG_ext', 'TTGJets_comb', 'TGJets']
@@ -84,6 +87,9 @@ TTW             = Sample.fromDirectory(name="TTW",              treeName="Events
 TZQ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tZq",                                  directory=directories['TZQ'])
 ZZ              = Sample.fromDirectory(name="ZZ",               treeName="Events", isData=False, color=color.ZZ,                texName="ZZ",                                   directory=directories['ZZ'])
 rare            = Sample.fromDirectory(name="rare",             treeName="Events", isData=False, color=color.rare,              texName="rare",                                 directory=directories['rare'])
+WWZ             = Sample.fromDirectory(name="WWZ",              treeName="Events", isData=False, color=color.rare,              texName="WWZ",                                 directory=directories['WWZ'])
+WZZ             = Sample.fromDirectory(name="WZZ",              treeName="Events", isData=False, color=color.rare,              texName="WZZ",                                 directory=directories['WZZ'])
+ZZZ             = Sample.fromDirectory(name="ZZZ",              treeName="Events", isData=False, color=color.rare,              texName="ZZZ",                                 directory=directories['ZZZ'])
 WGToLNuG        = Sample.fromDirectory(name="WGToLNuG",         treeName="Events", isData=False, color=color.rare,              texName="W#gamma",                               directory=directories['WGToLNuG'])
 ZGTo2LG         = Sample.fromDirectory(name="ZGTo2LG",          treeName="Events", isData=False, color=color.ZG,                texName="Z#gamma",                               directory=directories['ZGTo2LG'])
 Xgamma          = Sample.fromDirectory(name="Xgamma",           treeName="Events", isData=False, color=color.ZG,                texName="X#gamma",                               directory=directories['Xgamma'])
