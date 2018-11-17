@@ -17,13 +17,13 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for DeepLepton plot scripts")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3', 'v3_small'],      required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3', 'v3_small', 'v4'],      required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                         required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                       required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                                    help="Which Training Date? 0 for no Training Date.")
     argParser.add_argument('--isTestData',      action='store', type=int, choices=[0,1,99],                            required = True, help="0 for testdata, 1 for traindata, 99 for selective list of trainfiles specified in trainfiles")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf','pt_15_to_inf'],     required = True, help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_sorted_looseId', 'TTJets_sorted'], required = True, help="Which sample selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_15_-1','pt_15_to_inf'],     required = True, help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD_sorted', 'DYvsQCD_balanced', 'DYvsQCD_balancedSimple', 'TTJets_sorted', 'TTJets_balanced', 'TTJets_balancedSimple',], required = True, help="Which sample selection?")
     argParser.add_argument('--trainingType',    action='store', type=str, choices=['std','iso'],                       required = True, help="Standard or Isolation Training?")
     argParser.add_argument('--sampleSize',      action='store', type=str, choices=['small','medium','large','full'],   required = True, help="small sample or full sample?")
 
@@ -53,13 +53,19 @@ def plot_samples(version, year, leptonFlavour, trainingDate, isTestData, ptSelec
 
     #define paths and names
     #base_directory = trainingsFiles_directory
-    file_directory = testDataPath if (isTestData==99 and testDataPath!='') else os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
+    if (isTestData==99 and testDataPath!=''):
+        file_directory = testDataPath 
+    if version=='v4':
+        file_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims', version, 'step3',str(year), leptonFlavour, ptSelection, sampleSelection.split('_')[0])
+    else:
+        file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
+
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
     texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
     texfilePath    = os.path.join(file_directory, texfileName)
     
     if sampleSize == 'full':
-        sizePattern = '_'
+        sizePattern = '' if version=='v4' else '_'
     elif sampleSize =='small':
         sizePattern = '_Small'
     elif sampleSize =='medium':
@@ -67,7 +73,10 @@ def plot_samples(version, year, leptonFlavour, trainingDate, isTestData, ptSelec
     elif sampleSize =='large':
         sizePattern = '_Large'
         
-    predict_directory = predictionPath if isTestData==99 else os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
+    if isTestData==99:
+        predict_directory = predictionPath
+    else:
+        predict_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/trainings', 'electrons' if leptonFlavour=='ele' else 'muons', str(trainingDate), sampleSelection+sizePattern+('Electron' if leptonFlavour=='ele' else 'Muon')+'Evaluation'+('TestData' if isTestData else 'TestDataIsTrainData'))
 
     #create FileList
     if trainingDate==0:
