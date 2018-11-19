@@ -18,7 +18,6 @@ argParser.add_argument("--includeCR",      action='store_true', help="Do simulta
 argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--calcNuisances",  action='store_true', help="Extract the nuisances and store them in text files?")
 argParser.add_argument("--unblind",        action='store_true', help="Unblind? Currently also correlated with controlRegion option for safety.")
-argParser.add_argument("--include4l",      action='store_true', help="Include 4l regions?")
 argParser.add_argument("--WZtoPowheg",     action='store_true', help="Use reweighting from WZ amc@NLO sample to powheg?")
 argParser.add_argument("--expected",       action='store_true', help="Run expected NLL (=blinded, no pseudo-data needed)?")
 argParser.add_argument("--merged",         action='store_true', help="Run expected NLL (=blinded, no pseudo-data needed)?")
@@ -55,7 +54,7 @@ from copy                               import deepcopy
 
 from TopEFT.Analysis.Setup              import Setup
 from TopEFT.Analysis.SetupHelpers       import channel
-from TopEFT.Analysis.regions            import noRegions, regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB, regionsXSec, regions4lXSec, noRegionsC
+from TopEFT.Analysis.regions            import noRegions, regionsA, regionsE, regionsReweight, regionsReweight4l, regions4l, regions4lB, regionsXSec, regions4lXSec, noRegionsC, regionsXSecE, regions4lXSecE
 from TopEFT.Analysis.estimators         import *
 from TopEFT.Analysis.DataObservation    import DataObservation
 from TopEFT.Analysis.FakeEstimate       import FakeEstimate
@@ -90,33 +89,37 @@ if args.expected:
 ## 3l setup ##
 setup3l                 = Setup(year, nLeptons=3)
 estimators3l            = estimatorList(setup3l)
-setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
+#setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "rare", "ZZ"])# if not args.WZamc else estimators3l.constructEstimatorList(["WZ_amc", "TTX", "TTW", "ZG", "rare", "ZZ"])
+setup3l.estimators      = estimators3l.constructEstimatorList(["WZ", "TTX", "XG", "WWZ","WZZ","ZZZ", "ZZ"])
 setup3l.reweightRegions = regionsReweight
 setup3l.channels        = [channel(-1,-1)] # == 'all'
 setup3l.year            = year
-if args.inclusiveRegions:   setup3l.regions = noRegions
+if args.inclusiveRegions:   setup3l.regions = regionsXSecE
 elif args.merged:           setup3l.regions = regionsXSec
 else:                       setup3l.regions = regionsE
+if args.inclusiveRegions: setup3l = setup3l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1)})
 
 ## 3l NP setup ##
 setup3l_NP              = Setup(year, nLeptons=3, nonprompt=True)
 setup3l_NP.channels     = [channel(-1,-1)] # == 'all'
-if args.inclusiveRegions:   setup3l_NP.regions = noRegions
+if args.inclusiveRegions:   setup3l_NP.regions = regionsXSecE
 elif args.merged:           setup3l_NP.regions = regionsXSec
 else:                       setup3l_NP.regions = regionsE
+if args.inclusiveRegions: setup3l_NP = setup3l_NP.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1)})
 
 ## 4l setup ##
 setup4l                 = Setup(year=year, nLeptons=4)
 setup4l.parameters.update({'nJets':(1,-1), 'nBTags':(1,-1), 'zMassRange':20, 'zWindow2':"offZ"})
 estimators4l            = estimatorList(setup4l)
-setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "rare","TTX"])
+#setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "rare","TTX"])
+setup4l.estimators      = estimators4l.constructEstimatorList(["ZZ", "WWZ","WZZ","ZZZ","TTX"])
 setup4l.reweightRegions = regionsReweight4l
 setup4l.channels        = [channel(-1,-1)] # == 'all'
 setup4l.year            = year
-if args.inclusiveRegions:   setup4l.regions = noRegions
-elif args.merged:           setup4l.regions = regionselXSec
+if args.inclusiveRegions:   setup4l.regions = regions4lXSecE
+elif args.merged:           setup4l.regions = regions4lXSec
 else:                       setup4l.regions = regions4lB
-
+if args.inclusiveRegions: setup4l = setup4l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,-1)})
 
 ## CR setups ##
 setup3l_CR              = setup3l.systematicClone(parameters={'nJets':(1,-1), 'nBTags':(0,0)})
@@ -287,6 +290,9 @@ def wrapper(s):
         c.addUncertainty('ZZ_xsec',             'lnN') # correlated.
         c.addUncertainty('ZG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
+        c.addUncertainty('WWZ',                 'lnN') # correlated.
+        c.addUncertainty('WZZ',                 'lnN') # correlated.
+        c.addUncertainty('ZZZ',                 'lnN') # correlated.
         c.addUncertainty('ttX',                 'lnN') # correlated.
         c.addUncertainty('Lumi'+postfix,        'lnN')
 
@@ -384,6 +390,9 @@ def wrapper(s):
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
+                            if name.count('WWZ'):    c.specifyUncertainty('WWZ',        binname, name, 1.50)
+                            if name.count('WZZ'):    c.specifyUncertainty('WZZ',        binname, name, 1.50)
+                            if name.count('ZZZ'):    c.specifyUncertainty('ZZZ',        binname, name, 1.50)
                             if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.11)
 
 

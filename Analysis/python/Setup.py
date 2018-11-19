@@ -162,6 +162,10 @@ class Setup:
             nonpromptSample     = nonpromptMC_17
             pseudoDataSample    = pseudoData_17
             ttbarSample         = TTLep_pow_17
+            WWZSample           = WWZ_17
+            WZZSample           = WZZ_17
+            ZZZSample           = ZZZ_17
+
         else:
             ## use 2016 samples as default (we do combine on card file level)
             TTZSample           = TTZtoLLNuNu
@@ -176,7 +180,9 @@ class Setup:
             nonpromptSample     = nonpromptMC
             pseudoDataSample    = pseudoData
             ttbarSample         = TTLep_pow
-
+            WWZSample           = WWZ
+            WZZSample           = WZZ
+            ZZZSample           = ZZZ
 
         # removed the channel dependence.
         self.samples = {
@@ -188,6 +194,9 @@ class Setup:
             'ZG' :          ZGSample,
             'XG' :          XGSample,
             'rare':         rareSample,
+            'WWZ':          WWZSample,
+            'WZZ':          WZZSample,
+            'ZZZ':          ZZZSample,
             'ZZ':           ZZSample,
             'nonprompt':    nonpromptSample,
             'ttbar':        ttbarSample,
