@@ -19,6 +19,7 @@ parser.add_option('--WZreweight',           action="store_true")
 parser.add_option('--overwrite',            dest="overwrite", default = False, action = "store_true", help="Overwrite existing output files, bool flag set to True  if used")
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
 parser.add_option('--bestFit',              dest="bestFit", default = False, action = "store_true", help="Apply pulls to signal?")
+parser.add_option('--expected',             action = "store_true", help="Run expected?")
 parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
 (options, args) = parser.parse_args()
 
@@ -68,7 +69,7 @@ uncertainties = ['PU'+postfix, 'JEC'+postfix, 'btag_heavy'+postfix, 'btag_light'
 
 Nbins = len(regions)
 
-isData = True
+isData = True if not options.expected else False
 if options.year == 2016:
     lumiStr = 35.9
 elif options.year == 2017:
@@ -85,15 +86,17 @@ cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
-cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m1p000000_cpt_1p000000"
+#cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m4p000000_cpt_m2p000000" ## best-fit right now
+cardName_signal = "dim6top_LO_ttZ_ll_cpQM_0p000000_cpt_m17p500000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
 WZreweight = "" if not options.WZreweight else "WZreweight_"
+expected = "" if not options.expected else "expected_"
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
 #cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/ewkDM_dipoles/"%(options.year,WZreweight,subDir)
-cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/dim6top_LO_currents/"%(options.year,WZreweight,subDir)
+cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%s%sSRandCR/%s/dim6top_LO_currents/"%(options.year,expected,WZreweight,subDir)
 
 if options.combine:
     cardDir = cardDir.replace('2016', 'COMBINED')
@@ -201,7 +204,7 @@ for i, r in enumerate(regions):
     hists['total'].SetBinError(i+1, totalUncertainty)
 
     ## signals ##
-    if options.signal and i>14:
+    if options.signal:# and i>14:
         pYield = 0
         for year in years:
             postfix  = '_%s'%year
@@ -211,7 +214,8 @@ for i, r in enumerate(regions):
             pYield += res.val
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, 0.1)
-        hists['BSM'].legendText = "EFT best-fit"
+        #hists['BSM'].legendText = "EFT best-fit"
+        hists['BSM'].legendText = "c_{#varphit}=-17.5"
 
 
 ## data ##
@@ -227,7 +231,7 @@ for i, r in enumerate(regions):
     if not (options.blinded and i>14):
         hists['observed'].SetBinContent(i+1, pYield)
         if not isData:
-            hists['observed'].legendText = 'pseudo-data'
+            hists['observed'].legendText = 'Total SM'
         else:
             hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data (2016+2017)'
     
@@ -411,13 +415,13 @@ for p,tex in allProcesses:
 
 #histos =  bkgHists  + [hists["total"]]
 if options.signal:
-    plots = [ [hists['BSM']], bkgHists, [hists['observed']] ]
+    plots = [ bkgHists, [hists['BSM']], [hists['observed']] ]
 else:
     plots = [ bkgHists, [hists['observed']]]
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4l_dataV2_%s%s"%(subDir,cardName,WZreweight,options.year if not options.combine else "COMBINED")
+plotName = "%s%s_signalRegions_incl4l_dataV2_%s%s%s"%(subDir,cardName,expected,WZreweight,options.year if not options.combine else "COMBINED")
 if options.postFit:
     plotName += "_postFit"
 if options.blinded:
@@ -437,7 +441,7 @@ plotting.draw(
     widths = {'x_width':1000, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,1)] if options.signal else [(1,0)]} ,
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,0),(1,0)] if options.signal else [(1,0)]} ,
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
