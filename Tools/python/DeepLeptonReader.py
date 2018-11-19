@@ -112,8 +112,6 @@ class Evaluator:
         self._feature_getters[collection_name] = {
                           "lep_pt":operator.attrgetter(collection_name+'_pt'),
                          "lep_eta":operator.attrgetter(collection_name+'_eta'),
-                         "lep_phi":operator.attrgetter(collection_name+'_phi'),
-                        "lep_pdgId":operator.attrgetter(collection_name+'_pdgId'),
                          "lep_dxy":operator.attrgetter(collection_name+'_dxy'),
                           "lep_dz":operator.attrgetter(collection_name+'_dz'),
                         "lep_edxy":operator.attrgetter(collection_name+'_edxy'),
@@ -135,6 +133,8 @@ class Evaluator:
            "lep_miniRelIsoNeutral":operator.attrgetter(collection_name+'_miniRelIsoNeutral'),
                 "lep_jetPtRatiov1":operator.attrgetter(collection_name+'_jetPtRatiov1'),
                   "lep_jetPtRelv1":operator.attrgetter(collection_name+'_jetPtRelv1'),
+                "lep_jetPtRatiov2":operator.attrgetter(collection_name+'_jetPtRatiov2'),
+                  "lep_jetPtRelv2":operator.attrgetter(collection_name+'_jetPtRelv2'),
         "lep_segmentCompatibility":operator.attrgetter(collection_name+'_segmentCompatibility'),
           "lep_muonInnerTrkRelErr":operator.attrgetter(collection_name+'_muonInnerTrkRelErr'),
           "lep_isGlobalMuon_float":operator.attrgetter(collection_name+'_isGlobalMuon'),
@@ -145,6 +145,8 @@ class Evaluator:
                      "lep_trkKink":operator.attrgetter(collection_name+'_trkKink'),
            "lep_caloCompatibility":operator.attrgetter(collection_name+'_caloCompatibility'),
              "lep_nStations_float":operator.attrgetter(collection_name+'_nStations'),
+                         #"lep_phi":operator.attrgetter(collection_name+'_phi'),
+                        #"lep_pdgId":operator.attrgetter(collection_name+'_pdgId'),
         }
         return self._feature_getters[collection_name] 
 
@@ -164,70 +166,72 @@ class Evaluator:
         self.pf_size_getters = { key:operator.attrgetter( "n"+name ) for key, name in self.pf_collection_names.iteritems() } 
 
         self.pf_getters = { 'neutral':{
+         "pfCand_neutral_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_ptRel"),
+        "pfCand_neutral_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_deltaR"),
             "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
-           "pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
-           "pfCand_neutral_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_phi"),
-        "pfCand_neutral_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dxy_pf"),
-         "pfCand_neutral_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_dz_pf"),
    "pfCand_neutral_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_puppiWeight"),
-  "pfCand_neutral_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_hcalFraction"),
         "pfCand_neutral_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_fromPV"),
+           #"pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
+           #"pfCand_neutral_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_phi"),
         },
                             'charged':{
+         "pfCand_charged_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_ptRel"),
+        "pfCand_charged_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_deltaR"),
             "pfCand_charged_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_pt"),
-           "pfCand_charged_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_eta"),
-           "pfCand_charged_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_phi"),
+   "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
+        "pfCand_charged_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_fromPV"),
         "pfCand_charged_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dxy_pf"),
          "pfCand_charged_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dz_pf"),
-   "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
-  "pfCand_charged_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_hcalFraction"),
-        "pfCand_charged_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_fromPV"),
+"pfCand_charged_dzAssociatedPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dzAssociatedPV"),
+           #"pfCand_charged_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_eta"),
+           #"pfCand_charged_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_phi"),
         },
                             'photon':{
+          "pfCand_photon_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_ptRel"),
+         "pfCand_photon_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_deltaR"),
              "pfCand_photon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_pt"),
-            "pfCand_photon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_eta"),
-            "pfCand_photon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_phi"),
-         "pfCand_photon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dxy_pf"),
-          "pfCand_photon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_dz_pf"),
     "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
-   "pfCand_photon_hcalFraction_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_hcalFraction"),
          "pfCand_photon_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_fromPV"),
+            #"pfCand_photon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_eta"),
+            #"pfCand_photon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_phi"),
         },
                             'electron':{
+        "pfCand_electron_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_ptRel"),
+       "pfCand_electron_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_deltaR"),
            "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
-          "pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
-          "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
        "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
         "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
-        "pfCand_electron_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pdgId"),
+        #"pfCand_electron_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pdgId"),
+          #"pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
+          #"pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
         },
                             'muon':{
+            "pfCand_muon_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_ptRel"),
+           "pfCand_muon_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_deltaR"),
                "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
-              "pfCand_muon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_eta"),
-              "pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
            "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
             "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
-            "pfCand_muon_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pdgId"),
+            #"pfCand_muon_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pdgId"),
+              #"pfCand_muon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_eta"),
+              #"pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
         },
                             'SV':{
-                                    "SV_pt":operator.attrgetter("DL_SV_pt"),
-                                   "SV_eta":operator.attrgetter("DL_SV_eta"),
-                                   "SV_phi":operator.attrgetter("DL_SV_phi"),
-                                  "SV_chi2":operator.attrgetter("DL_SV_chi2"),
-                                  "SV_ndof":operator.attrgetter("DL_SV_ndof"),
-                                   "SV_dxy":operator.attrgetter("DL_SV_dxy"),
-                                  "SV_edxy":operator.attrgetter("DL_SV_edxy"),
-                                  "SV_ip3d":operator.attrgetter("DL_SV_ip3d"),
-                                 "SV_eip3d":operator.attrgetter("DL_SV_eip3d"),
-                                 "SV_sip3d":operator.attrgetter("DL_SV_sip3d"),
-                              "SV_cosTheta":operator.attrgetter("DL_SV_cosTheta"),
-                                 "SV_jetPt":operator.attrgetter("DL_SV_jetPt"),
-                                "SV_jetEta":operator.attrgetter("DL_SV_jetEta"),
-                                 "SV_jetDR":operator.attrgetter("DL_SV_jetDR"),
-                          "SV_maxDxyTracks":operator.attrgetter("DL_SV_maxDxyTracks"),
-                          "SV_secDxyTracks":operator.attrgetter("DL_SV_secDxyTracks"),
-                          "SV_maxD3dTracks":operator.attrgetter("DL_SV_maxD3dTracks"),
-                          "SV_secD3dTracks":operator.attrgetter("DL_SV_secD3dTracks"),
+                          "SV_pt_ptSorted":operator.attrgetter("DL_SV_pt"),
+                        "SV_chi2_ptSorted":operator.attrgetter("DL_SV_chi2"),
+                        "SV_ndof_ptSorted":operator.attrgetter("DL_SV_ndof"),
+                         "SV_dxy_ptSorted":operator.attrgetter("DL_SV_dxy"),
+                        "SV_edxy_ptSorted":operator.attrgetter("DL_SV_edxy"),
+                        "SV_ip3d_ptSorted":operator.attrgetter("DL_SV_ip3d"),
+                       "SV_eip3d_ptSorted":operator.attrgetter("DL_SV_eip3d"),
+                       "SV_sip3d_ptSorted":operator.attrgetter("DL_SV_sip3d"),
+                    "SV_cosTheta_ptSorted":operator.attrgetter("DL_SV_cosTheta"),
+                      "SV_deltaR_ptSorted":operator.attrgetter("DL_SV_deltaR"),
+                "SV_maxDxyTracks_ptSorted":operator.attrgetter("DL_SV_maxDxyTracks"),
+                "SV_secDxyTracks_ptSorted":operator.attrgetter("DL_SV_secDxyTracks"),
+                "SV_maxD3dTracks_ptSorted":operator.attrgetter("DL_SV_maxD3dTracks"),
+                "SV_secD3dTracks_ptSorted":operator.attrgetter("DL_SV_secD3dTracks"),
+                         "SV_eta_ptSorted":operator.attrgetter("DL_SV_eta"),
+                         "SV_phi_ptSorted":operator.attrgetter("DL_SV_phi"),
         },
     }
 
@@ -385,7 +389,8 @@ class Evaluator:
 #config.gpu_options.visible_device_list = "0"
 #set_session(tf.Session(config=config))
 
-model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
+#model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
+model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','pkl') 
 
 #from keras.models import load_model
@@ -396,7 +401,8 @@ model_json, weights = pickle.load( file(pkl_model_file) )
 from keras.models import model_from_json
 deepLeptonModel = model_from_json( model_json )
 deepLeptonModel.set_weights( weights )
-branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
+#branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
+branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonTrainData/branches_means_vars.pkl"))
 
 # patch weights
 weights         = deepLeptonModel.get_weights()
