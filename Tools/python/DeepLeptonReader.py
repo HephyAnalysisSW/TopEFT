@@ -135,6 +135,7 @@ class Evaluator:
                   "lep_jetPtRelv1":operator.attrgetter(collection_name+'_jetPtRelv1'),
                 "lep_jetPtRatiov2":operator.attrgetter(collection_name+'_jetPtRatiov2'),
                   "lep_jetPtRelv2":operator.attrgetter(collection_name+'_jetPtRelv2'),
+              "lep_jetBTagDeepCSV":operator.attrgetter(collection_name+'_jetBTagDeepCSV'),
         "lep_segmentCompatibility":operator.attrgetter(collection_name+'_segmentCompatibility'),
           "lep_muonInnerTrkRelErr":operator.attrgetter(collection_name+'_muonInnerTrkRelErr'),
           "lep_isGlobalMuon_float":operator.attrgetter(collection_name+'_isGlobalMuon'),
@@ -393,9 +394,9 @@ class Evaluator:
 model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','pkl') 
 
-#from keras.models import load_model
-#deepLeptonModel = load_model(model_file)
-#pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(model_file.replace('.h5','pkl'),'w') )
+from keras.models import load_model
+deepLeptonModel = load_model(model_file)
+pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(model_file.replace('.h5','pkl'),'w') )
 
 model_json, weights = pickle.load( file(pkl_model_file) )
 from keras.models import model_from_json
