@@ -1,7 +1,76 @@
 #!/bin/sh
 
+##########################
+### DeepLepton Samples ###
+##########################
+
 ### Summer 16 MC ###
 
+#TTJets
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_SingleLeptonFromTbar,TTJets_SingleLeptonFromTbar_ext #SPLIT200  
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromT_ext #SPLIT200
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_DiLepton,TTJets_DiLepton_ext #SPLIT200
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTLep_pow #SPLIT50
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTSemiLep_pow #SPLIT50
+
+##DY
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DYJetsToLL_M50_LO_ext #SPLIT100
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY1JetsToLL_M50_LO #SPLIT50
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY2JetsToLL_M50_LO #SPLIT50
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY3JetsToLL_M50_LO #SPLIT50
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY4JetsToLL_M50_LO #SPLIT50
+
+##QCD
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt15to20_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt20to30_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt30to50_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt50to80_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt80to120_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt80to120_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt120to170_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt170to300_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt170to300_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5_ext2 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5_ext2 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt600to800_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt600to800_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5_ext #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt1000toInf_Mu5 #SPLIT10
+#python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt1000toInf_Mu5_ext #SPLIT10
+
+
+### Data 16 ###
+
+#Double Muon
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016B_07Aug17_v2 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016C_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016D_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016E_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016F_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016G_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  DoubleMuon_Run2016H_07Aug17 #SPLIT20
+
+#Single Muon
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016B_07Aug17_v2 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016C_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016D_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016E_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016F_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016G_07Aug17 #SPLIT20
+python cmgPostProcessing.py --deepLepton --skim singlelep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample  SingleMuon_Run2016H_07Aug17 #SPLIT20
+
+
+#####################
+### Other Samples ###
+#####################
+
+### Summer 16 MC ###
 ###
 ##
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample DYJetsToLL_M50_LO_ext DYJetsToLL_M50_LO_ext2 #SPLIT60
@@ -30,38 +99,6 @@
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --overwrite  --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample WpWpJJ #SPLIT10
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --overwrite  --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample WWTo2L2Nu #SPLIT10
 #python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --overwrite  --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample ZZTo2L2Nu #SPLIT10
-python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_SingleLeptonFromTbar,TTJets_SingleLeptonFromTbar_ext #SPLIT100  
-python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromT_ext #SPLIT100
-python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTJets_DiLepton,TTJets_DiLepton_ext #SPLIT100
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTLep_pow #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample TTSemiLep_pow #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DYJetsToLL_M50_LO_ext #SPLIT100
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY1JetsToLL_M50_LO #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY2JetsToLL_M50_LO #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY3JetsToLL_M50_LO #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample DY4JetsToLL_M50_LO #SPLIT50
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt15to20_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt20to30_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt30to50_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt50to80_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt80to120_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt80to120_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt120to170_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt170to300_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt170to300_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt300to470_Mu5_ext2 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt470to600_Mu5_ext2 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt600to800_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt600to800_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5_ext #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt1000toInf_Mu5 #SPLIT10
-#python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v4 --sample QCD_Pt1000toInf_Mu5_ext #SPLIT10
 
 ##python cmgPostProcessing.py --skim trilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample DYJetsToLL_M50 # SPLIT10
 ##python cmgPostProcessing.py --skim trilep --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v10 --sample DYJetsToLL_M10to50_LO # SPLIT10
@@ -120,13 +157,6 @@ python cmgPostProcessing.py --deepLepton --skim inclusive --forceProxy --fileBas
 ###python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleElectron_Run2016H_03Feb2017_v3 #SPLIT20
 ##
 ## legacy rereco
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016B_07Aug17_v2 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016C_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016D_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016E_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016F_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016G_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleMuon_Run2016H_07Aug17 #SPLIT20
 #
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleEG_Run2016B_07Aug17_v2 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  DoubleEG_Run2016C_07Aug17 #SPLIT20
@@ -144,14 +174,6 @@ python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMV
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  MuonEG_Run2016G_07Aug17 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  MuonEG_Run2016H_07Aug17 #SPLIT20
 #
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016B_07Aug17_v2 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016C_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016D_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016E_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016F_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016G_07Aug17 #SPLIT20
-python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleMuon_Run2016H_07Aug17 #SPLIT20
-
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleElectron_Run2016B_07Aug17_v2 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleElectron_Run2016C_07Aug17 #SPLIT20
 #python cmgPostProcessing.py  --triggerSelection --forceProxy --remakeTTVLeptonMVA --skim trilep --fileBasedSplitting --overwrite --year 2016 --processingEra TopEFT_PP_2016_mva_v21 --sample  SingleElectron_Run2016D_07Aug17 #SPLIT20
