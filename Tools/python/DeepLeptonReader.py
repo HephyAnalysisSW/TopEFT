@@ -78,7 +78,7 @@ def deltaR(*args, **kwargs):
 class Evaluator:
 
     flavors =       [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-    lengths =       [     5,        20,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
+    lengths =       [     5,        25,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
     max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
     def __init__( self ): 
 
@@ -146,8 +146,8 @@ class Evaluator:
                      "lep_trkKink":operator.attrgetter(collection_name+'_trkKink'),
            "lep_caloCompatibility":operator.attrgetter(collection_name+'_caloCompatibility'),
              "lep_nStations_float":operator.attrgetter(collection_name+'_nStations'),
-                         #"lep_phi":operator.attrgetter(collection_name+'_phi'),
-                        #"lep_pdgId":operator.attrgetter(collection_name+'_pdgId'),
+                         "lep_phi":operator.attrgetter(collection_name+'_phi'),
+                       "lep_pdgId":operator.attrgetter(collection_name+'_pdgId'),
         }
         return self._feature_getters[collection_name] 
 
@@ -167,54 +167,44 @@ class Evaluator:
         self.pf_size_getters = { key:operator.attrgetter( "n"+name ) for key, name in self.pf_collection_names.iteritems() } 
 
         self.pf_getters = { 'neutral':{
-         "pfCand_neutral_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_ptRel"),
-        "pfCand_neutral_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_deltaR"),
             "pfCand_neutral_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_pt"),
    "pfCand_neutral_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_puppiWeight"),
         "pfCand_neutral_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_fromPV"),
-           #"pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
-           #"pfCand_neutral_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_phi"),
+           "pfCand_neutral_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_eta"),
+           "pfCand_neutral_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_neutral_phi"),
         },
                             'charged':{
-         "pfCand_charged_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_ptRel"),
-        "pfCand_charged_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_deltaR"),
             "pfCand_charged_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_pt"),
    "pfCand_charged_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_puppiWeight"),
         "pfCand_charged_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_fromPV"),
         "pfCand_charged_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dxy_pf"),
          "pfCand_charged_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dz_pf"),
 "pfCand_charged_dzAssociatedPV_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_dzAssociatedPV"),
-           #"pfCand_charged_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_eta"),
-           #"pfCand_charged_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_phi"),
+           "pfCand_charged_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_eta"),
+           "pfCand_charged_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_charged_phi"),
         },
                             'photon':{
-          "pfCand_photon_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_ptRel"),
-         "pfCand_photon_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_deltaR"),
              "pfCand_photon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_pt"),
     "pfCand_photon_puppiWeight_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_puppiWeight"),
          "pfCand_photon_fromPV_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_fromPV"),
-            #"pfCand_photon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_eta"),
-            #"pfCand_photon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_phi"),
+            "pfCand_photon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_eta"),
+            "pfCand_photon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_photon_phi"),
         },
                             'electron':{
-        "pfCand_electron_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_ptRel"),
-       "pfCand_electron_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_deltaR"),
            "pfCand_electron_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pt"),
        "pfCand_electron_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dxy_pf"),
         "pfCand_electron_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_dz_pf"),
-        #"pfCand_electron_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pdgId"),
-          #"pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
-          #"pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
+        "pfCand_electron_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_pdgId"),
+          "pfCand_electron_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_eta"),
+          "pfCand_electron_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_electron_phi"),
         },
                             'muon':{
-            "pfCand_muon_ptRel_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_ptRel"),
-           "pfCand_muon_deltaR_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_deltaR"),
                "pfCand_muon_pt_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pt"),
            "pfCand_muon_dxy_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dxy_pf"),
             "pfCand_muon_dz_pf_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_dz_pf"),
-            #"pfCand_muon_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pdgId"),
-              #"pfCand_muon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_eta"),
-              #"pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
+            "pfCand_muon_pdgId_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_pdgId"),
+              "pfCand_muon_eta_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_eta"),
+              "pfCand_muon_phi_ptRelSorted":operator.attrgetter( "DL_pfCand_muon_phi"),
         },
                             'SV':{
                           "SV_pt_ptSorted":operator.attrgetter("DL_SV_pt"),
@@ -226,7 +216,6 @@ class Evaluator:
                        "SV_eip3d_ptSorted":operator.attrgetter("DL_SV_eip3d"),
                        "SV_sip3d_ptSorted":operator.attrgetter("DL_SV_sip3d"),
                     "SV_cosTheta_ptSorted":operator.attrgetter("DL_SV_cosTheta"),
-                      "SV_deltaR_ptSorted":operator.attrgetter("DL_SV_deltaR"),
                 "SV_maxDxyTracks_ptSorted":operator.attrgetter("DL_SV_maxDxyTracks"),
                 "SV_secDxyTracks_ptSorted":operator.attrgetter("DL_SV_secDxyTracks"),
                 "SV_maxD3dTracks_ptSorted":operator.attrgetter("DL_SV_maxD3dTracks"),
@@ -280,7 +269,7 @@ class Evaluator:
             lep_getters = self.feature_getters( collection_name )
             lep_p4.SetPtEtaPhiM( lep_getters["lep_pt"](self.event)[n_lep], lep_getters["lep_eta"](self.event)[n_lep], lep_getters["lep_phi"](self.event)[n_lep], 0. )
 
-            name = "pfCand_"+flavor+"_%s_ptRelSorted" if flavor!="SV" else "SV_%s"
+            name = "pfCand_"+flavor+"_%s_ptRelSorted" if flavor!="SV" else "SV_%s_ptSorted"
             ptRel_name = name%"ptRel"
             dR_name    = name%"deltaR"
             for cand in pf_candidates[flavor]:
