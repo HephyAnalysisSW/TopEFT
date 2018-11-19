@@ -26,7 +26,7 @@ import math
 
 # Analysis
 from TopEFT.Analysis.SetupHelpers   import channel, trilepChannels, allTrilepChannels, singlelepChannels, allSinglelepChannels
-from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB, regionsXSec
+from TopEFT.Analysis.regions        import regionsE, noRegions, btagRegions, regions4lB, regionsXSec, regionsXSecCR
 from TopEFT.Tools.u_float           import u_float
 from TopEFT.Tools.resultsDB         import resultsDB
 from TopEFT.Analysis.Region         import Region
@@ -45,15 +45,15 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
 
 ## 2016 ##
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
 ## 2017 ##
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v20/trilep/"
+postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
 
 from TopEFT.Analysis.Setup          import Setup
@@ -69,8 +69,8 @@ if options.btagWZ:
     setup17.parameters.update({"nBTags":(0,-1), "nJets":(1,-1)})
 
 elif options.regionsXSec:
-    setup16.parameters.update({"nBTags":(0,-1), "nJets":(2,-1), 'mllMin':0})
-    setup17.parameters.update({"nBTags":(0,-1), "nJets":(2,-1), 'mllMin':0})
+    setup16.parameters.update({"nBTags":(0,-1), "nJets":(1,-1), 'mllMin':0})
+    setup17.parameters.update({"nBTags":(0,-1), "nJets":(1,-1), 'mllMin':0})
 
 # no triggers and filters
 setup16.short = True
@@ -104,7 +104,7 @@ TTSemi_pow_17 = Sample.fromDirectory(name="TTSemi_pow_17", treeName="Events", is
 if options.btagWZ:
     allRegions = btagRegions + noRegions
 elif options.regionsXSec:
-    allRegions = regionsXSec
+    allRegions = regionsXSecCR
 else:
     allRegions = noRegions + regionsE + regions4lB
 regions = allRegions if options.selectRegion is None else  [allRegions[options.selectRegion]]
@@ -121,13 +121,18 @@ from TopEFT.Tools.user import analysis_results
 PS_indices = ['PSweight_nom_isrUp', 'PSweight_nom_fsrUp', 'PSweight_nom_isrDown', 'PSweight_nom_fsrDown']
 PSweight_original = "abs(LHEweight_wgt[1080])"
 
-cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/partonShowerStudy/"
+#cacheDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/partonShowerStudy/"
+cacheDir = "/afs/hephy.at/data/rschoefbeck01/TopEFT/results/partonShowerStudy/"
 
 samples16 = [TT_pow, TT_pow_isrup, TT_pow_fsrup, TT_pow_isrdown, TT_pow_fsrdown]
 samples17 = [TTSemi_pow_17]
 
 estimates16 = []
 estimates17 = []
+
+if options.small:
+    for s in samples16+samples17:
+        s.reduceFiles(to=1)
 
 for s in samples16:
     estimates16.append(MCBasedEstimate(name=s.name, sample=s ))
@@ -196,9 +201,9 @@ for i, r in enumerate(regions):
     print central
     for j,e in enumerate(estimates16[1:]):
         res = e.cachedEstimate(r, channel(-1,-1), setup16)
-        print (res-central)/central
-        
-        hists[2016][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
+        if central>0:
+            print (res-central)/central
+            hists[2016][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
         
         #logger.info("Result: %s", res.val)
     logger.info("Working on 2017 results")
@@ -208,8 +213,9 @@ for i, r in enumerate(regions):
         #logger.info("Result: %s", res.val)
         for j, weight in enumerate(PS_indices):
             res = e.cachedEstimate(r, channel(-1,-1), setup17.systematicClone(sys={'reweight':['(%s)'%weight]}))
-            print (res-central)/central
-            hists[2017][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
+            if central>0:
+                print (res-central)/central
+                hists[2017][variations[j]].SetBinContent(i+1, ((res-central)/central).val)
             #logger.info("Result: %s", res.val)
     
     
