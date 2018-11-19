@@ -17,7 +17,7 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for DeepLepton plot scripts")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3', 'v3_small', 'v4'],      required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store', type=str, choices=['v1', 'v2', 'v3', 'v3_small', 'v4', 'v5'],      required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                         required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                       required = True, help="Which Flavour?")
     argParser.add_argument('--trainingDate',    action='store', type=int, default=0,                                                    help="Which Training Date? 0 for no Training Date.")
@@ -55,17 +55,22 @@ def plot_samples(version, year, leptonFlavour, trainingDate, isTestData, ptSelec
     #base_directory = trainingsFiles_directory
     if (isTestData==99 and testDataPath!=''):
         file_directory = testDataPath 
-    if version=='v4':
+    if version in ['v4','v5']:
         file_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims', version, 'step3',str(year), leptonFlavour, ptSelection, sampleSelection.split('_')[0])
     else:
         file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
 
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
-    texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
+
+    if version in ['v4','v5']:
+        texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'.txt' 
+    else:
+        texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
+
     texfilePath    = os.path.join(file_directory, texfileName)
     
     if sampleSize == 'full':
-        sizePattern = '' if version=='v4' else '_'
+        sizePattern = '' if version in ['v4','v5'] else '_'
     elif sampleSize =='small':
         sizePattern = '_Small'
     elif sampleSize =='medium':

@@ -84,11 +84,11 @@ else:
 
 #PF Candidates
 pfCand_plot_binning = {
-                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
-                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] }, 
-                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] }, 
-                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   }, 
-                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'neutral'  : {'mult': [21,0,20],'sumPt': [60,0,20]   },
+                'charged'  : {'mult': [71,0,70],'sumPt': [240,0,80]  }, 
+                'photon'   : {'mult': [41,0,40],'sumPt': [120,0,40]  }, 
+                'electron' : {'mult': [21,0,20],'sumPt': [60,0,20]   }, 
+                'muon'     : {'mult': [21,0,20],'sumPt': [60,0,20]   },
              }
 pfCand_flavors = pfCand_plot_binning.keys()
 
