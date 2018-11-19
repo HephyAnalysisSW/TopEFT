@@ -383,9 +383,9 @@ class Evaluator:
 model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','pkl') 
 
-from keras.models import load_model
-deepLeptonModel = load_model(model_file)
-pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(model_file.replace('.h5','pkl'),'w') )
+#from keras.models import load_model
+#deepLeptonModel = load_model(model_file)
+#pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(model_file.replace('.h5','pkl'),'w') )
 
 model_json, weights = pickle.load( file(pkl_model_file) )
 from keras.models import model_from_json

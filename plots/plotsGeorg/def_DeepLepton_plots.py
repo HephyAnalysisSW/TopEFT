@@ -55,14 +55,14 @@ def plot_samples(version, year, leptonFlavour, trainingDate, isTestData, ptSelec
     #base_directory = trainingsFiles_directory
     if (isTestData==99 and testDataPath!=''):
         file_directory = testDataPath 
-    if version in ['v4','v5']:
+    if version in ['v4','v5','v6']:
         file_directory = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims', version, 'step3',str(year), leptonFlavour, ptSelection, sampleSelection.split('_')[0])
     else:
         file_directory = os.path.join(base_directory, version, str(year), leptonFlavour, ptSelection, sampleSelection)
 
     sample_texName = ('electrons_' if leptonFlavour=='ele' else 'muons_')+ptSelection+'_'+sampleSelection
 
-    if version in ['v4','v5']:
+    if version in ['v4','v5','v6']:
         texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'.txt' 
     else:
         texfileName    = ('' if sampleSize=='full' else sampleSize+'_')+('test_' if isTestData else 'train_')+leptonFlavour+'_std.txt' 
