@@ -470,6 +470,16 @@ if options.deepLepton:
         logger.info( "Using theano compile directory %s", theano_compile_dir )
         os.environ['THEANO_FLAGS'] = 'cuda.enabled=False,base_compiledir=%s'%theano_compile_dir 
         os.environ['KERAS_BACKEND'] = 'theano'
+    else:
+        import tensorflow as tf
+        from keras.backend.tensorflow_backend import set_session
+        config = tf.ConfigProto()
+        #config.gpu_options.per_process_gpu_memory_fraction = 0.3
+        #config.gpu_options.allow_growth = True
+        #config.gpu_options.visible_device_list = "0"
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
+        set_session(tf.Session(config=config))
 
     from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
     from TopEFT.Tools.DeepLeptonReader import evaluator

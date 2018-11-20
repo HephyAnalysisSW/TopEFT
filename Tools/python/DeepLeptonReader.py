@@ -377,11 +377,8 @@ config = tf.ConfigProto()
 #config.gpu_options.per_process_gpu_memory_fraction = 0.3
 #config.gpu_options.allow_growth = True
 #config.gpu_options.visible_device_list = "0"
-
-assert False, ""
 config.intra_op_parallelism_threads = 1
 config.inter_op_parallelism_threads = 1
-
 set_session(tf.Session(config=config))
 
 #model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
