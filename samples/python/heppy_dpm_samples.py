@@ -229,3 +229,10 @@ mc_dpm_directories =robert_2016_1l_full_events
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 lepton_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
 #lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
+
+# Data 2016, 07Aug17
+data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
+robert_2016_1l_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+data_dpm_directories = robert_2016_1l_v3
+from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+lepton_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
