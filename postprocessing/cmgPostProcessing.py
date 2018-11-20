@@ -136,7 +136,10 @@ if options.sync:
     from TopEFT.samples.sync import *
     samples = map( eval, options.samples ) 
 else:
-    force_sample_map = "lepton_2016_mc_heppy_mapper" if options.deepLepton else None
+    if options.deepLepton:
+        force_sample_map = "lepton_2016_data_heppy_mapper" if any( [ "Run" in s for s in options.samples] ) else "lepton_2016_mc_heppy_mapper"
+    else:
+        force_sample_map = None
     samples = [ fromHeppySample(s, data_path = options.dataDir, force_sample_map = force_sample_map, maxN = maxN, MCgeneration=MCgeneration, forceProxy=options.forceProxy) for s in options.samples ]
     logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
