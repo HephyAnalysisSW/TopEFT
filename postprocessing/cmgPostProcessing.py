@@ -377,7 +377,8 @@ if options.keepLHEWeights:
 
 if isSingleLep:
     branchKeepStrings_DATAMC += ['HLT_*']
-
+if options.deepLepton:
+    branchKeepStrings_DATAMC += ['nDL_*', 'DL_*']
 # Load reweight pickle file if supposed to keep weights. 
 extra_variables = []
 if options.addReweights and isMC:
