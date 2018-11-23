@@ -10,5 +10,6 @@ data_2017= Sample.fromCMGOutput('data_2017',base_dir, chunkString='MuonEG_Run201
 #ttbar_2017 = Sample.fromCMGOutput('ttbar_2017',base_dir, chunkString='TTLep_pow', isData = True) # fake data
 #DoubleMuon_Run2016G_07Aug17 = Sample.fromFiles('DoubleMuon_Run2016G', [base_dir+'DoubleMuon_Run2016G/tree_108.root'], treeName='tree', isData = True)
 
-moertel_sync = Sample.fromFiles('moertel_sync', ['/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root'], treeName='tree', isData = True)
-full_events = Sample.fromFiles('full_events', ['/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/check_flat_vs_full/TTJets/full/tree.root'], treeName='tree', isData = True)
+#moertl_sync = Sample.fromFiles('moertl_sync', ['/afs/hephy.at/data/rschoefbeck01/DeepLepton/data/full_events/WZTo3LNu_amcatnlo_2/treeProducerSusySingleLepton/tree.root'], treeName='tree', isData = True)
+moertl_sync = Sample.fromFiles('moertl_sync', ['/afs/hephy.at/data/gmoertl01/DeepLepton/testfile/full/tree.root'], treeName='tree', isData = False)
+full_events = Sample.fromFiles('full_events', ['/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/check_flat_vs_full/TTJets/full/tree.root'], treeName='tree', isData = False)
