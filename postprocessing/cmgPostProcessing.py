@@ -485,7 +485,7 @@ if options.deepLepton:
     from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
     from TopEFT.Tools.DeepLeptonReader import evaluator
     evaluator.verbosity = 0
-    lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F"
+    lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F,iLepGood/I,iLepOther/I"
 
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
 lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
@@ -716,6 +716,11 @@ def filler( event ):
     ele_selector = eleSelector( "loose", year = options.year )
     leptons      = getLeptons(r, collVars=lepton_vars_read, mu_selector = mu_selector, ele_selector = ele_selector)
     leptons.sort(key = lambda p:-p['pt'])
+
+    # add missing indices
+    for lep in leptons:
+        if not lep.has_key('iLepGood'):  lep['iLepGood']  = -1
+        if not lep.has_key('iLepOther'): lep['iLepOther'] = -1
 
     # remake lepton TTV MVA 
     if options.remakeTTVLeptonMVA:
