@@ -226,9 +226,9 @@ class Evaluator:
     }
 
     # for a given lepton, read the pf candidate mask and return the PF indices
-    def get_pf_indices( self, flavor, collection_name, n_lep):
+    def get_pf_indices( self, flavor, collection_name, n_lep, maskName):
         n = min( self.max_n_pf_cand[flavor], self.pf_size_getters[flavor](self.event) )
-        pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[flavor], "selectedLeptons" if collection_name=="LepGood" else "otherLeptons" ) )
+        pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[flavor], maskName ) )
         mask_ = (1<<n_lep)
         try:
             return filter( lambda i: mask_&pf_mask[i], range(n))
@@ -248,20 +248,20 @@ class Evaluator:
     # cached version of get_all_pf_candidates
     @property
     def pf_candidates( self ):
-        if self._nevent == self.event.evt:
+        if self._nevent == ( self.event.evt, self.event.run, self.event.lumi ):
             return self._pf_candidates
         else:
             self._pf_candidates = {flavor: self._get_all_pf_candidates(flavor) for flavor in self.flavors}
-            self._nevent = self.event.evt
+            self._nevent = ( self.event.evt, self.event.run, self.event.lumi )
             return self._pf_candidates
 
     # put all inputs together
-    def pf_candidates_for_lepton( self, collection_name, n_lep):
+    def pf_candidates_for_lepton( self, collection_name, n_lep, maskName):
 
         # read pf indices, then select the candidates
         pf_candidates = {}
         for flavor in self.flavors:
-            pf_indices            = self.get_pf_indices( flavor, collection_name, n_lep )
+            pf_indices            = self.get_pf_indices( flavor, collection_name, n_lep, maskName)
             pf_candidates[flavor] = [ self.pf_candidates[flavor][i] for i in pf_indices]
 
             # now calculate the pf_candidate features that depend on the lepton in question
@@ -331,9 +331,9 @@ class Evaluator:
         features_normalized = [ (features[i_b]-self.means[b][0])/self.means[b][1] for i_b, b in enumerate( self.feature_branches ) ]
         return features_normalized
 
-    def prepare_pf_normalized( self, collection_name, n_lep):
+    def prepare_pf_normalized( self, collection_name, n_lep, maskName):
         
-        pf_candidates = self.pf_candidates_for_lepton( collection_name, n_lep )
+        pf_candidates = self.pf_candidates_for_lepton( collection_name, n_lep, maskName)
 
         pf_norm_res = self.pf_norm_zero  
         #pf_res      = self.pf_zero  
@@ -352,10 +352,10 @@ class Evaluator:
 #    [ np.array( features_normalized[i_lep][i_feat], np=float32), 
 #      np.array( pf_norm[flavor][i_lep][i_cand][i_feat], np=float32) ]
 
-    def evaluate( self):
+    def evaluate( self ):
         features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ], dtype=np.float32 )
         # [i_lep][i_flavor][i_cand][i_feat]
-        pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) ] )
+        pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep, "selectedLeptons") for i_lep in range(self.event.nLepGood) ] )
         # make [i_flavor][i_lep][i_cand][i_feat]
         pf_normalized = np.swapaxes(pf_normalized, 0,1)
         np_features = [ features_normalized ] + [ np.array(list(pf_normalized[i]), dtype=np.float32) for i in range(len(pf_normalized))] 
