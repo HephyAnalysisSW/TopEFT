@@ -226,7 +226,7 @@ class Evaluator:
     }
 
     # for a given lepton, read the pf candidate mask and return the PF indices
-    def get_pf_indices( self, flavor, collection_name, n_lep, maskName):
+    def get_pf_indices( self, flavor, n_lep, maskName):
         n = min( self.max_n_pf_cand[flavor], self.pf_size_getters[flavor](self.event) )
         pf_mask = getattr(self.event, "%s_%s_mask" % (self.pf_collection_names[flavor], maskName ) )
         mask_ = (1<<n_lep)
@@ -261,7 +261,7 @@ class Evaluator:
         # read pf indices, then select the candidates
         pf_candidates = {}
         for flavor in self.flavors:
-            pf_indices            = self.get_pf_indices( flavor, collection_name, n_lep, maskName)
+            pf_indices            = self.get_pf_indices( flavor, n_lep, maskName)
             pf_candidates[flavor] = [ self.pf_candidates[flavor][i] for i in pf_indices]
 
             # now calculate the pf_candidate features that depend on the lepton in question
