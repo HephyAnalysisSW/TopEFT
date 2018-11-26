@@ -287,6 +287,7 @@ def wrapper(s):
         c.addUncertainty('WZ_xsec',             'lnN') # correlated.
         c.addUncertainty('WZ_bb',               'lnN') # correlated
         c.addUncertainty('WZ_powheg',           'lnN') # correlated
+        c.addUncertainty('WZ_njet',             'lnN') # correlated
         c.addUncertainty('ZZ_xsec',             'lnN') # correlated.
         c.addUncertainty('ZG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
@@ -331,7 +332,7 @@ def wrapper(s):
 
                     for e in setup.estimators:
                         name = e.name.split('-')[0]
-                        if name.count('WZ'):
+                        if name.count('WZ') and not name.count("WZZ") and not name.count("WWZ"):
                             if args.inclusiveRegions:
                                 expected        = e.cachedEstimate(r, channel, setup)
                                 WZ_powheg_unc   = u_float(0.01,0)
@@ -362,7 +363,7 @@ def wrapper(s):
                             eleSFStat   = 1 + e.eleSFSystematic(r, channel, setup).val          if expected.val>0.01 else 1.1
                             muSFStat    = 1 + e.muSFSystematic(r, channel, setup).val           if expected.val>0.01 else 1.1
 
-                            if name.count('WZ'):
+                            if name.count('WZ') and not name.count("WZZ") and not name.count("WWZ"):
                                 WZ_powheg   = 1 + WZ_powheg_unc.val                                 if expected.val>0.01 else 1.1
 
                             c.specifyUncertainty('PU',          binname, name, 1 + e.PUSystematic( r, channel, setup).val)
@@ -382,8 +383,11 @@ def wrapper(s):
 
                             if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.10)
                             if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
-                            if name.count('WZ'):
+                            if name.count('WZ') and not name.count("WZZ") and not name.count("WWZ"):
                                 c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
+                                njetUnc = e.highNJetSystematic(r, channel, setup).val
+                                if njetUnc>0:
+                                    c.specifyUncertainty('WZ_njet',     binname, name, 1+njetUnc)
                                 if setup == setup3l:
                                     c.specifyUncertainty('WZ_bb',     binname, name, 1.08)
                                 c.specifyUncertainty('WZ_powheg',     binname, name, WZ_powheg)

@@ -117,6 +117,12 @@ class SystematicEstimator:
     #    down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFDown']}))
     #    return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
+    def highNJetSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['((nJetSelected>=3)*1.2+(nJetSelected<3)*1.0)']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['((nJetSelected>=3)*0.8+(nJetSelected<3)*1.0)']}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
     def btaggingSFbSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
         up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_b_Up']}))

@@ -86,8 +86,8 @@ cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
-#cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m4p000000_cpt_m2p000000" ## best-fit right now
-cardName_signal = "dim6top_LO_ttZ_ll_cpQM_0p000000_cpt_m17p500000"
+cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m4p000000_cpt_m2p000000" ## best-fit right now
+#cardName_signal = "dim6top_LO_ttZ_ll_cpQM_0p000000_cpt_m17p500000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
 WZreweight = "" if not options.WZreweight else "WZreweight_"
@@ -214,8 +214,8 @@ for i, r in enumerate(regions):
             pYield += res.val
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, 0.1)
-        #hists['BSM'].legendText = "EFT best-fit"
-        hists['BSM'].legendText = "c_{#varphit}=-17.5"
+        hists['BSM'].legendText = "EFT best-fit"
+        #hists['BSM'].legendText = "c_{#varphit}=-17.5"
 
 
 ## data ##
