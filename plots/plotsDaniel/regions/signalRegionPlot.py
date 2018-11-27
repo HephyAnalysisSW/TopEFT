@@ -65,7 +65,7 @@ processes = [
 
 # uncertainties like in the card
 postfix = "_%s"%options.year
-uncertainties = ['PU'+postfix, 'JEC'+postfix, 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSF'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb','ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix] #tzq removed
+uncertainties = ['PU'+postfix, 'JEC'+postfix, 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSFSyst', 'leptonTracking', 'eleSFStat'+postfix, 'muSFStat'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb', 'WZ_powheg', 'WZ_njet', 'XG_xsec', 'ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix] #tzq removed
 
 Nbins = len(regions)
 
@@ -78,7 +78,7 @@ else:
     lumiStr = 0.
 
 if options.combine:
-    lumiStr = 35.9+41.9
+    lumiStr = 35.92+41.53
 
 #cardName = "ewkDM_ttZ_ll"
 cardName = "dim6top_LO_ttZ_ll"
@@ -121,6 +121,7 @@ for i, r in enumerate(regions):
     totalYield          = 0.
     backgroundYield     = 0.
     totalUncertainty    = 0.
+    backgroundUncertainty = 0.
 
     if options.postFit:
         suffix = '_bestfit' if options.bestFit else '_r1'
@@ -149,6 +150,8 @@ for i, r in enumerate(regions):
                     pYield     += tmpYield
                     preYield   += postFitResults['results']['shapes_prefit'][binName][proc]
                     tmpError    = tmpYield.sigma
+                    #print "Stat error"
+                    #print tmpError
 
                     if tmpError/tmpYield.val > 10:
                         tmpError = tmpYield.val
@@ -168,6 +171,8 @@ for i, r in enumerate(regions):
             #totalYield += pYield
 
             if not options.postFit:
+                postfix = "_%s"%year
+                uncertainties = ['PU'+postfix, 'JEC'+postfix, 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSFSyst', 'leptonTracking', 'eleSFStat'+postfix, 'muSFStat'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb', 'WZ_powheg', 'WZ_njet', 'XG_xsec', 'ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix]
                 for u in uncertainties:
                     try:
                         unc = getPreFitUncFromCard(cardFile, proc, u, binName, )
@@ -178,6 +183,9 @@ for i, r in enumerate(regions):
 
             
             totalUncertainty += pError
+            if not p == "signal":
+                backgroundUncertainty += pError
+            
         
         if not p == "signal":
             backgroundYield += pYield
@@ -212,8 +220,21 @@ for i, r in enumerate(regions):
             binName  = prefix+'Bin%s'%i
             res      = getEstimateFromCard(cardFile_signal, "signal", binName, postfix=postfix)
             pYield += res.val
+            pError = 0
+
+            # loop over all uncertainties
+            postfix = "_%s"%year
+            uncertainties = ['PU', 'JEC', 'JER', 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSFSyst', 'leptonTracking', 'eleSFStat'+postfix, 'muSFStat'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb', 'WZ_powheg', 'WZ_njet', 'XG_xsec', 'ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix]
+            for u in uncertainties:
+                try:
+                    unc = getPreFitUncFromCard(cardFile_signal, "signal", u, binName, )
+                except:
+                    logger.debug("No uncertainty %s for process %s"%(u, p))
+                print u, unc, pYield
+                if unc > 0:
+                    pError += (unc*pYield)**2
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
-        hists['BSM'].SetBinError(i+1, 0.1)
+        hists['BSM'].SetBinError(i+1, math.sqrt(pError + backgroundUncertainty))
         hists['BSM'].legendText = "EFT best-fit"
         #hists['BSM'].legendText = "c_{#varphit}=-17.5"
 
@@ -235,6 +256,45 @@ for i, r in enumerate(regions):
         else:
             hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data (2016+2017)'
     
+## manually calculate the chi2
+chi2SM  = 0
+chi2BSM = 0
+totalExp = 0
+totalObs = 0
+nDOF = 0
+for i, r in enumerate(regions):
+    print "Region %s"%(i+1)
+    print "SM"
+    print hists['total'].GetBinContent(i+1)
+    print (hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))
+    print hists['total'].GetBinError(i+1)
+    print hists['observed'].GetBinContent(i+1)/hists['total'].GetBinContent(i+1)
+    print "Chi2", ( ((hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))**2) / (hists['total'].GetBinError(i+1)**2) )
+    print "BSM"
+    print hists['BSM'].GetBinContent(i+1)
+    print hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1)
+    print hists['BSM'].GetBinError(i+1)
+    print hists['observed'].GetBinContent(i+1)/hists['BSM'].GetBinContent(i+1)
+    print "Chi2", (hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1))**2/hists['BSM'].GetBinError(i+1)**2
+    print
+    totalExp += hists['total'].GetBinContent(i+1)
+    totalObs += hists['observed'].GetBinContent(i+1)
+    if hists['total'].GetBinContent(i+1) > 10:# or True:
+        chi2SM += ( ((hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))**2) / (hists['total'].GetBinError(i+1)**2) )
+        nDOF +=1
+    if options.signal and hists['BSM'].GetBinContent(i+1) > 10:# or True:
+        chi2BSM += (hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1))**2/hists['BSM'].GetBinError(i+1)**2
+
+    if i == 14:
+        print "Intermediate Chi2 values:"
+        print chi2SM
+        print chi2BSM
+
+print "Chi-squared for SM:", chi2SM
+print "Chi-squared for BSM:", chi2BSM
+print "nDOF:", len(regions)
+print "nDOF (red):", nDOF
+print "Total Obs/Exp:", totalObs/totalExp
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
 hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1. )
@@ -397,13 +457,7 @@ def setBinLabels( hist ):
         else:
             hist.GetXaxis().SetBinLabel(i, "%s"%(i-15))
 
-#def optimizeLogZ(histo):
-#            histo.GetZaxis().SetMoreLogLabels()
-#            histo.GetZaxis().SetNoExponent()
-#            histo.Draw("colz")
-#            histo.GetYaxis().SetRangeUser(10,1000)
-
-drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,0)) + boxes + drawDivisions( regions )# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,1)) + boxes + drawDivisions( regions )# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
 for p,tex in processes:
@@ -445,25 +499,4 @@ plotting.draw(
     drawObjects = drawObjects,
     copyIndexPHP = True,
 )
-
-
-#region_plot = Plot.fromHisto(name = "signalRegions", histos = histos, texX = "Region", texY = "Events" )
-#plotting.draw( region_plot, \
-#    plot_directory = os.path.join(plot_directory, "signalRegions"),
-#    logX = False, logY = True,
-#    sorting = False,
-#    ratio = {},#ratio,
-#    extensions = ["pdf", "png", "root","C"],
-#    yRange = "auto",
-#    widths = {'x_width':1000, 'y_width':700},
-#    #drawObjects = drawObjects,
-#    #legend = legend,
-#    copyIndexPHP = True,
-#    #canvasModifications = canvasModifications,
-#    #histModifications = histModifications + ([lambda h: h.GetYaxis().SetNoExponent()] if (args.control and args.control=="TTZ") else []),
-#    #ratioModifications = histModifications + [lambda h: h.GetXaxis().SetTitleOffset(5), lambda h: h.GetXaxis().SetTitleSize(30), lambda h: h.GetXaxis().SetLabelSize(0)],
-#)
-
-
-
 
