@@ -230,7 +230,6 @@ for i, r in enumerate(regions):
                     unc = getPreFitUncFromCard(cardFile_signal, "signal", u, binName, )
                 except:
                     logger.debug("No uncertainty %s for process %s"%(u, p))
-                print u, unc, pYield
                 if unc > 0:
                     pError += (unc*pYield)**2
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
@@ -256,7 +255,7 @@ for i, r in enumerate(regions):
         else:
             hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data (2016+2017)'
     
-## manually calculate the chi2
+## manually calculate the chi2 (no correlations).
 chi2SM  = 0
 chi2BSM = 0
 totalExp = 0
@@ -295,6 +294,16 @@ print "Chi-squared for BSM:", chi2BSM
 print "nDOF:", len(regions)
 print "nDOF (red):", nDOF
 print "Total Obs/Exp:", totalObs/totalExp
+
+
+## get the covariance matrix
+# combineCards.py mycard.txt -S > myshapecard.txt
+# text2workspace.py myshapecard.txt
+# combine -M MaxLikelihoodFit --saveShapes --saveWithUnc --numToysForShape 5000 --saveOverall myshapecard.root
+
+## calculate the chi2 with R^T*Cov^(-1)*R where R is the residual vector
+
+
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
 hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1. )
@@ -446,7 +455,7 @@ def drawObjects( isData=False, lumi=36. ):
     tex.SetTextAlign(11) # align right
     lines = [
       (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS #bf{#it{Preliminary}}'),
-      (0.75, 0.95, '%sfb^{-1} (13 TeV)'%int(lumi) )
+      (0.75, 0.95, '%sfb^{-1} (13 TeV)'%lumi )
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
