@@ -71,9 +71,9 @@ Nbins = len(regions)
 
 isData = True if not options.expected else False
 if options.year == 2016:
-    lumiStr = 35.9
+    lumiStr = 35.92
 elif options.year == 2017:
-    lumiStr = 41.9
+    lumiStr = 41.53
 else:
     lumiStr = 0.
 
@@ -214,24 +214,32 @@ for i, r in enumerate(regions):
     ## signals ##
     if options.signal:# and i>14:
         pYield = 0
+        pError = 0
         for year in years:
             postfix  = '_%s'%year
             prefix   = 'dc_%s_'%year if options.combine else '' 
             binName  = prefix+'Bin%s'%i
-            res      = getEstimateFromCard(cardFile_signal, "signal", binName, postfix=postfix)
+            suffix = '_bestfit' if options.bestFit else '_r1'
+            postFitResults = getPrePostFitFromMLF(cardFile_signal.replace('.txt','_FD%s.root'%suffix))
+            if options.postFit:
+                res = postFitResults['results']['shapes_fit_s'][binName]['signal']
+                pError += res.sigma
+            else:
+                res      = getEstimateFromCard(cardFile_signal, "signal", binName, postfix=postfix)
             pYield += res.val
-            pError = 0
 
             # loop over all uncertainties
-            postfix = "_%s"%year
-            uncertainties = ['PU', 'JEC', 'JER', 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSFSyst', 'leptonTracking', 'eleSFStat'+postfix, 'muSFStat'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb', 'WZ_powheg', 'WZ_njet', 'XG_xsec', 'ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix]
-            for u in uncertainties:
-                try:
-                    unc = getPreFitUncFromCard(cardFile_signal, "signal", u, binName, )
-                except:
-                    logger.debug("No uncertainty %s for process %s"%(u, p))
-                if unc > 0:
-                    pError += (unc*pYield)**2
+            if not options.postFit:
+                postfix = "_%s"%year
+                uncertainties = ['PU', 'JEC', 'JER', 'btag_heavy'+postfix, 'btag_light'+postfix, 'trigger'+postfix, 'leptonSFSyst', 'leptonTracking', 'eleSFStat'+postfix, 'muSFStat'+postfix, 'scale', 'scale_sig', 'PDF', 'nonprompt', 'WZ_xsec', 'WZ_bb', 'WZ_powheg', 'WZ_njet', 'XG_xsec', 'ZZ_xsec', 'rare', 'ttX', 'Lumi'+postfix]
+                for u in uncertainties:
+                    try:
+                        #postFitResults = getPrePostFitFromMLF(cardFile_signal.replace('.txt','_FD%s.root'%suffix))
+                        unc = getPreFitUncFromCard(cardFile_signal, "signal", u, binName, )
+                    except:
+                        logger.debug("No uncertainty %s for process %s"%(u, p))
+                    if unc > 0:
+                        pError += (unc*pYield)**2
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, math.sqrt(pError + backgroundUncertainty))
         hists['BSM'].legendText = "EFT best-fit"
@@ -261,7 +269,11 @@ chi2BSM = 0
 totalExp = 0
 totalObs = 0
 nDOF = 0
+Exp = []
+Obs = []
 for i, r in enumerate(regions):
+    Exp.append(hists['total'].GetBinContent(i+1))
+    Obs.append(hists['observed'].GetBinContent(i+1))
     print "Region %s"%(i+1)
     print "SM"
     print hists['total'].GetBinContent(i+1)
@@ -302,7 +314,12 @@ print "Total Obs/Exp:", totalObs/totalExp
 # combine -M MaxLikelihoodFit --saveShapes --saveWithUnc --numToysForShape 5000 --saveOverall myshapecard.root
 
 ## calculate the chi2 with R^T*Cov^(-1)*R where R is the residual vector
-
+import numpy as np
+import pickle
+E = np.array(Exp)
+O = np.array(Obs)
+R = E - O
+RT = R.transpose()
 
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)

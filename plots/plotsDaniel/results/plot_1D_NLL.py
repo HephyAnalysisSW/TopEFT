@@ -39,6 +39,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',  action='store',      default='NLL_plots')
 argParser.add_argument('--useBestFit',      action='store_true', help="Use best fit value? Default is r=1")
+argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
 argParser.add_argument('--smooth',          action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
 argParser.add_argument('--model',           action='store', choices=["ewkDM", "dim6top_LO"], help="Which model?")
 argParser.add_argument('--parameter',       action='store', choices=["DC1A", "DC1V", "DC2A","DC2V", "ctZ","ctZI","cpt","cpQM"], default = None, help="Which parameter to scan?")
@@ -49,7 +50,7 @@ argParser.add_argument("--expected",        action='store_true', help="Use expec
 argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
+argParser.add_argument("--filtering",        action='store_true', help="Use combined results?")
 argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
 
 args = argParser.parse_args()
@@ -154,48 +155,60 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 
 if args.model == "ewkDM":
     if args.parameter == "DC1V":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1A == 0 and x.DC1V != 0 ]
+        #signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1A == 0 and x.DC1V != 0 ]
+        signals = [ x for x in ewkDM_currents if x.DC1A == -0.133 and x.DC1V != 0 ]
         x_var = 'DC1V'
         x_shift = 0.24
+        y_par = 'C_{1,A}=-0.73'
     
     elif args.parameter == "DC1A":
-        signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
+        #signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
+        signals = [ x for x in ewkDM_currents if x.DC1V == -0.05 and x.DC1A != 0 ]
         x_var = 'DC1A'
         x_shift = -0.60
+        y_par = 'C_{1,V}=0.19'
 
     elif args.parameter == "DC2V":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2A == 0 and x.DC2V != 0 ]
         x_var = 'DC2V'
         x_shift = 0.
+        y_par = ''
 
     elif args.parameter == "DC2A":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2V == 0 and x.DC2A != 0 ]
         x_var = 'DC2A'
         x_shift = 0.
+        y_par = ''
 
     else:
         raise NotImplementedError
 
 elif args.model == "dim6top_LO":
     if args.parameter == "cpQM":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpt == 0 and x.cpQM != 0 ]
+        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpt == 0.0 and x.cpQM != 0 ]
+        #signals = [ x for x in dim6top_currents if x.cpt == -3.5 and x.cpQM != 0 ]
         x_var = 'cpQM'
         x_shift = 0.
+        y_par = ''
     
     elif args.parameter == "cpt":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpQM == 0 and x.cpt != 0 ]
+        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpQM == 0.0 and x.cpt != 0 ]
+        #signals = [ x for x in dim6top_currents if x.cpQM == -4.0 and x.cpt != 0 ]
         x_var = 'cpt'
         x_shift = 0.
+        y_par = ''
     
     elif args.parameter == "ctZ":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZI == 0 and x.ctZ != 0 ]
         x_var = 'ctZ'
         x_shift = 0.
+        y_par = ''
     
     elif args.parameter == "ctZI":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZ == 0 and x.ctZI != 0 ]
         x_var = 'ctZI'
         x_shift = 0.
+        y_par = ''
     
     else:
         raise NotImplementedError
@@ -214,8 +227,9 @@ for s in signals:
 
 var1_values = sorted(var1_values)
 
-x = []
-z = []
+x           = []
+x_forRange  = []
+z           = []
 
 res_dic = {}
 
@@ -233,7 +247,7 @@ for i,s in enumerate(signals):
         #res = getResult(s)
         if type(res) == type({}):
             ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
-            if ttZ_NLL_abs_check < ttZ_NLL_abs:
+            if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0.1:
                 ttZ_NLL_abs = ttZ_NLL_abs_check
                 bestFitPoint = (s.name, s.var1 + x_shift)
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
@@ -255,7 +269,7 @@ for i,s in enumerate(signals):
             else:
                 limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
-            if limit >= 0:
+            if limit >= 0.0:
                 # good result
                 nll_value = 2*limit
             elif limit > -0.1 and limit < 0:
@@ -273,7 +287,12 @@ for i,s in enumerate(signals):
             # Add results
             print "{:10.2f}{:10.2f}".format(s.var1+x_shift, nll_value)
 
-            if not (s.var1 + x_shift in x) and not nll_value>100:
+            if not (s.var1 + x_shift in x) and not nll_value>50:
+                x_forRange.append(s.var1 + x_shift)
+                print "bli"
+
+            if not (s.var1 + x_shift in x) and not nll_value>50:
+                print "bla", nll_value
                 z.append(nll_value)
                 x.append(s.var1 + x_shift)
                 res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
@@ -282,11 +301,25 @@ for i,s in enumerate(signals):
             print "No results for %s found"%s.name
 
 
+## filter
+print "Filtering"
+z_sorted = sorted(z)
+minimum = z.index(z_sorted[0])
+#print z[minimum]
+#z[minimum] = -(z_sorted[1]+z_sorted[2])/3
+#print z[minimum]
+for i,l in enumerate(z):
+    if not i == minimum:
+        if args.filtering:
+            z[i] = z[i] - (z_sorted[1]+z_sorted[2])/3
+        else:
+            z[i] = z[i]
+
 proc = "ttZ"
 
-min_delta = findMinDelta(x)
-x_min = min(x)
-x_max = max(x)
+min_delta = findMinDelta(x_forRange)
+x_min = min(x_forRange)
+x_max = max(x_forRange)
 
 print x_min, x_max
 
@@ -299,22 +332,7 @@ delta = (x_max-x_min)/Nbins
 
 hist = ROOT.TH1F("NLL","", Nbins+1, x_min-delta/2, x_max+delta/2)
 hist.SetStats(0)
-
-#for x_val in res_dic.keys():
-#    if res_dic[x_val]>0:
-#        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
-#    else:
-#        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
-#
-##fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
-#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
-#fun.SetLineColor(ROOT.kBlack)
-#fun.SetLineStyle(1)
-#fun.SetLineWidth(2)
-#
-#a = toGraph('NLL','NLL', len(x), x, z)
-#
-#a.Fit(fun)
+hist.GetYaxis().SetRangeUser(0,26)
 
 print "Best fit found for signal %s, %s"%bestFitPoint
 
@@ -348,7 +366,10 @@ hist.SetStats(0)
 
 for x_val in res_dic.keys():
     if res_dic[x_val]>0:
-        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+        if args.filtering:
+            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val]-(z_sorted[1]+z_sorted[2])/3)
+        else:
+            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])#-(z_sorted[1]+z_sorted[2])/3)
     else:
         hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
 
@@ -356,11 +377,29 @@ for x_val in res_dic.keys():
 fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(1)
-fun.SetLineWidth(2)
+#fun.SetLineWidth(2)
 
 a = toGraph('NLL','NLL', len(x), x, z)
 
 a.Fit(fun)
+
+#fun.SetParameter(0,fun.GetParameter(0)-fun.GetMinimum())
+
+funClone = fun.Clone()
+parameters = [ funClone.GetParameter(x) for x in range(7) ]
+
+
+bestFitX = fun.GetX(fun.GetMinimum(),x_min-delta/2,x_max+delta/2)
+upper95 = fun.GetX(4,bestFitX,x_max)
+lower95 = fun.GetX(4,x_min,bestFitX)
+upper68 = fun.GetX(1,bestFitX,x_max)
+lower68 = fun.GetX(1,x_min,bestFitX)
+
+interval95 = ROOT.TF1("int_95", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", lower95, upper95)
+interval95.SetParameters(*parameters)
+
+interval68 = ROOT.TF1("int_68", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", lower68, upper68)
+interval68.SetParameters(*parameters)
 
 if args.prefit:
     postFix += "_prefit"
@@ -383,10 +422,26 @@ pads.SetRightMargin(0.05)
 pads.SetLeftMargin(0.14)
 pads.SetTopMargin(0.15)
 pads.Draw()
+#pads.SetLogy()
 pads.cd()
 
 
 hist.Draw("AXIS")
+
+#fun.SetFillColor(ROOT.kGreen)
+fun.SetLineWidth(1503)
+#fun.SetFillStyle(1111)
+#fun.Draw("fsame")
+
+interval95.SetFillColorAlpha(ROOT.kBlue-2,0.9)
+interval95.SetLineColor(ROOT.kBlue-2)
+interval95.SetFillStyle(1111)
+interval95.Draw("f1same")
+
+interval68.SetFillColorAlpha(ROOT.kGreen-2,0.9)
+interval68.SetLineColor(ROOT.kGreen-2)
+interval68.SetFillStyle(1111)
+interval68.Draw("f1same")
 
 fun.Draw("same")
 
@@ -395,11 +450,11 @@ if args.showPoints:
 
 one = ROOT.TF1("one","[0]",x_min,x_max)
 one.SetParameter(0,1)
-one.SetLineColor(ROOT.kOrange)
+one.SetLineColor(ROOT.kGray)
 
 four = ROOT.TF1("four","[0]",x_min,x_max)
 four.SetParameter(0,4)
-four.SetLineColor(ROOT.kRed)
+four.SetLineColor(ROOT.kGray)
 
 nine = ROOT.TF1("nine","[0]",-10,10)
 nine.SetParameter(0,9)
@@ -419,7 +474,7 @@ one.SetMarkerSize(0)
 four.SetMarkerSize(0)
 
 for l in [one, four]:#, plus1, plus2, minus1, minus2]:
-    #l.SetLineStyle(2)
+    l.SetLineStyle(2)
     l.SetLineWidth(2)
     l.Draw('same')
 
@@ -429,17 +484,18 @@ BFpoint = ROOT.TGraph(1)
 BFpoint.SetName("BFpoint")
 
 SMpoint.SetPoint(0, SMPoint[1], hist.GetMaximum()/100.)
-BFpoint.SetPoint(0, bestFitPoint[1], hist.GetMaximum()/100.)
+#BFpoint.SetPoint(0, bestFitPoint[1], hist.GetMaximum()/100.)
+BFpoint.SetPoint(0, bestFitX, hist.GetMaximum()/100.)
 
 SMpoint.SetMarkerStyle(23)
 SMpoint.SetMarkerSize(2)
-SMpoint.SetMarkerColor(ROOT.kGreen+2)
+SMpoint.SetMarkerColor(ROOT.kRed+2)
 BFpoint.SetMarkerStyle(22)
 BFpoint.SetMarkerSize(2)
 BFpoint.SetMarkerColor(ROOT.kBlue+2)
 
 SMpoint.Draw("p same")
-BFpoint.Draw("p same")
+#BFpoint.Draw("p same")
 
 #fun.Draw("same")
 if args.showPoints:
@@ -463,7 +519,7 @@ else:
     latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
-    setup.lumi = 35900+41900
+    setup.lumi = 35900+41600
 
 if not args.unblinded:
     latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
@@ -476,8 +532,8 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(four, '#bf{95% C.L.}', 'l')
-leg.AddEntry(one, '#bf{68% C.L.}', 'l')
+leg.AddEntry(interval95, '#bf{95% C.L.}', 'f')
+leg.AddEntry(interval68, '#bf{68% C.L.}', 'f')
 leg.Draw()
 
 leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
@@ -486,7 +542,7 @@ leg2.SetShadowColor(ROOT.kWhite)
 leg2.SetBorderSize(0)
 leg2.SetTextSize(0.035)
 leg2.AddEntry(SMpoint, '#bf{SM}', 'p')
-leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
+leg2.AddEntry(None, '#bf{%s}'%y_par, '')
 leg2.Draw()
 
 

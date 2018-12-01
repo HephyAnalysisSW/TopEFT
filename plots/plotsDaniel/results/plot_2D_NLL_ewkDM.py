@@ -196,6 +196,8 @@ bestNLL = 9999.
 SMPoint = ('SM', x_shift, y_shift)
 bestFitPoint = ('SM', x_shift, y_shift)
 
+missing = []
+
 # scan all results to find best fit
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
@@ -206,8 +208,12 @@ for i,s in enumerate(signals):
             if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0:
                 ttZ_NLL_abs = ttZ_NLL_abs_check
                 bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
+                #bestFitPoint_noShift = 
                 print "Best NLL value", ttZ_NLL_abs_check
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+
+    else:
+        missing.append(s.name)
 
 if args.expected: bestFitPoint = SMPoint
 
@@ -284,7 +290,7 @@ proc = "ttZ"
 
 #print res_dic
 
-multiplier = 3
+multiplier = 3 #5??
 
 a,debug = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
 nxbins = max(1, min(500, nbins_x*multiplier))
@@ -343,7 +349,8 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    hist.Smooth(1,"k5b")
+    for i in range(1):
+        hist.Smooth(1,"k5b")
     postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
@@ -419,7 +426,7 @@ else:
     latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
-    setup.lumi = 35900+41900
+    setup.lumi = 35900+41600
 
 if not args.unblinded:
     latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
@@ -479,6 +486,10 @@ args.year = "COMBINED" if args.combined else args.year
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
+
+print "Missing points:"
+for m in missing:
+    print m
 
 if True:
     debug.Draw("ap0")
