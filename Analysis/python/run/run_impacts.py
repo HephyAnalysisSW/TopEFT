@@ -38,7 +38,8 @@ def wrapper(s):
     #cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_2016_xsec_shape_lowUnc_SRandCR/dim6top_LO_dipoles/"+cardFile
     #cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_COMBINED_xsec_shape_lowUnc_SRandCRnoZZ/dim6top_LO_dipoles/"+cardFile
     #cardFilePath = "/afs/hephy.at/work/d/dspitzbart/top/devel/CMSSW_8_1_0/src/TOP-18-009/"+cardFile
-    cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/inclusiveRegions_2017_lowUnc/dim6top_LO_dipoles/dim6top_LO_ttZ_ll.txt"
+    #cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/inclusiveRegions_2017_lowUnc/dim6top_LO_dipoles/dim6top_LO_ttZ_ll.txt"
+    cardFilePath = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/inclusiveRegions_2016_lowUnc/dim6top_LO_currents/dim6top_LO_ttZ_ll.txt"
     combineDirname = os.path.join(releaseLocation, "ewkDM_dipoles")
     logger.info("Creating %s"%combineDirname)
     if not os.path.isdir(combineDirname): os.makedirs(combineDirname)
@@ -65,7 +66,7 @@ def wrapper(s):
     if args.bkgOnly:
         shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s_bkgOnly.pdf"%(plotDir,"ewkDM"))
     else:
-        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"test_2017"))
+        shutil.copyfile(combineDirname+'/impacts.pdf', "%s/%s.pdf"%(plotDir,"test_2016_njetUnc0p2"))
     logger.info("Copied result to %s"%plotDir)
 
     if args.removeDir:
