@@ -93,14 +93,16 @@ def getMatrix(h2, binNumbers):
     
     cov = np.zeros((nbins,nbins))
     diag = np.zeros((nbins,nbins))
+    diag_corr = np.zeros((nbins, nbins))
     
     for i,k in enumerate(binNumbers):
+        diag_corr[i,i] = math.sqrt(h2.GetBinContent(k,k))
         for j,l in enumerate(binNumbers):
             cov[i][j] = h2.GetBinContent(k,l)#matrix[k][l]
             if i==j:
                 diag[i][j] = h2.GetBinContent(k,l)
 
-    return cov,diag
+    return cov,diag, diag_corr
 
 def getSortedBinNumber(h1):
     binNames = []
@@ -116,7 +118,7 @@ def getSortedBinNumber(h1):
 
     for x in sortedBinNames:
         binNumber = binNames.index(x)+1
-        if h1.GetBinContent(binNumber)>5:
+        if h1.GetBinContent(binNumber)>0:
             indices.append(binNames.index(x)+1)
 
     return indices, sortedBinNames
@@ -143,8 +145,8 @@ cov = getCovariance("/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/re
 
 binNumbers,sortedBinNames = getSortedBinNumber(cov["yield_postfit"])
 
-cov_prefit, cov_prefit_diag     = getMatrix(cov["prefit"], binNumbers)
-cov_postfit, cov_postfit_diag   = getMatrix(cov["postfit"], binNumbers)
+cov_prefit, cov_prefit_diag, cov_prefit_diag_corr     = getMatrix(cov["prefit"], binNumbers)
+cov_postfit, cov_postfit_diag, cov_postfit_diag_corr   = getMatrix(cov["postfit"], binNumbers)
 
 obs = getVectorFromGraph(cov["data"], binNumbers)
 exp_postfit = getVectorFromHist(cov["yield_postfit"], binNumbers)
@@ -160,8 +162,50 @@ chi2_postfit = np.dot(cov_postfit_inv, R_postfit)
 chi2_postfit = np.dot(R_postfit,chi2_postfit)
 
 cov_postfit_diag_inv = np.linalg.inv(cov_postfit_diag)
+cov_postfit_diag_corr_inv = np.linalg.inv(cov_postfit_diag_corr)
 chi2_postfit_uncor = np.dot(cov_postfit_diag_inv, R_postfit)
 chi2_postfit_uncor = np.dot(R_postfit, chi2_postfit_uncor)
+
+
+## get the correlation matrix
+corr = np.dot(cov_postfit_diag_corr_inv, cov_postfit)
+corr = np.dot(corr, cov_postfit_diag_corr_inv)
+
+nbins = len(binNumbers)
+sorted_corr = ROOT.TH2D('corr','',nbins,0,nbins,nbins,0,nbins)
+for i,k in enumerate(sortedBinNames[:nbins]):
+    #if i < nSR:
+    sorted_corr.GetXaxis().SetBinLabel(i+1, str(i+1))#SRnames[i])
+    sorted_corr.GetYaxis().SetBinLabel(i+1, str(i+1))#SRnames[i])
+    for j,l in enumerate(sortedBinNames[:nbins]):
+        sorted_corr.SetBinContent(i+1, j+1, corr[i][j])
+
+sorted_corr.GetXaxis().LabelsOption("v")
+sorted_corr.GetZaxis().SetRangeUser(-1.0, 1.0)
+c3 = ROOT.TCanvas('c3','c3',700,700)
+
+pad2=ROOT.TPad("pad2","Main",0.,0.,1.,1.)
+pad2.SetRightMargin(0.15)
+pad2.SetTopMargin(0.06)
+pad2.SetBottomMargin(0.12)
+pad2.Draw()
+pad2.cd()
+
+sorted_corr.Draw("colz")
+
+latex1 = ROOT.TLatex()
+latex1.SetNDC()
+latex1.SetTextSize(0.04)
+latex1.SetTextAlign(11) # align right
+
+latex1.DrawLatex(0.10,0.95,'CMS #bf{#it{Private Work}}')
+
+outname = 'correlation'
+filetypes = ['.png','.pdf','.root']
+plot_dir = '/afs/hephy.at/user/d/dspitzbart/www/TopEFT/correlation/'
+for f in filetypes:
+    c3.Print(plot_dir+outname+f)
+
 
 chi2_primitive = 0
 for i,r in enumerate(R_postfit):

@@ -52,6 +52,7 @@ argParser.add_argument("--unblinded",       action='store_true', help="Use unbli
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--filtering",        action='store_true', help="Use combined results?")
 argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
+argParser.add_argument("--profiling",        action='store_true', help="Show the points?")
 
 args = argParser.parse_args()
 
@@ -101,6 +102,42 @@ def setCouplingValues(samples):
         if len(couplings)>0:
             for c,val in couplings:
                 setattr(x, c, val)
+
+def profiling(samples, coupling, couplingZ):
+    # get the list of samples, filter and return profiled list of NLL
+
+    print "Profiling"
+    # get coupling values
+    couplingValues = []
+    for s in samples:
+        val = getattr(s, coupling)
+        if val not in couplingValues and abs(val) != 3.5 and abs(val) != 7.0:# and abs(val) != 10.5 :
+            couplingValues.append(val)
+    
+    totalMin = 9999
+    points = []
+    for c in sorted(couplingValues):
+        tmp = []
+        for s in samples:
+            print s.name
+            print c, getattr(s, couplingZ)
+            if getattr(s, coupling) == c:
+                if resDB.contains({"signal":s.name}):
+                    print "Adding a point"
+                    res = resDB.getDicts({"signal":s.name})[-1]
+                    res = float(res["NLL_prefit"]) + float(res["dNLL_postfit_r1"])
+                    if res > 0:
+                        tmp.append(res)
+        min_tmp = min(tmp)
+        points.append((c, min_tmp))
+        if min_tmp < totalMin: totalMin = min_tmp
+    
+    newPoints = []
+    for p in points:
+        newPoints.append((p[0], p[1] - totalMin))
+        #p[1] = p[1] - totalMin
+
+    return newPoints
 
 setCouplingValues(dim6top_dipoles + dim6top_currents + ewkDM_dipoles + ewkDM_currents)
 ###### need to remove doubles
@@ -156,17 +193,33 @@ print "{:10.2f}".format(ttZ_NLL_abs)
 if args.model == "ewkDM":
     if args.parameter == "DC1V":
         #signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1A == 0 and x.DC1V != 0 ]
-        signals = [ x for x in ewkDM_currents if x.DC1A == -0.133 and x.DC1V != 0 ]
+        if args.profiling:
+            signals = [ ewkDM_central ] + ewkDM_currents
+        else:
+            if args.expected or True:
+                signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1A == 0 and x.DC1V != 0 ]
+            else:
+                signals = [ x for x in ewkDM_currents if x.DC1A == -0.133 and x.DC1V != 0 ]
         x_var = 'DC1V'
+        z_var = 'DC1A'
         x_shift = 0.24
-        y_par = 'C_{1,A}=-0.73'
+        if args.expected or True:
+            y_par = 'C_{1,A}=-0.60'
+        else:
+            y_par = 'C_{1,A}=-0.73'
     
     elif args.parameter == "DC1A":
         #signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
-        signals = [ x for x in ewkDM_currents if x.DC1V == -0.05 and x.DC1A != 0 ]
+        if args.expected or True:
+            signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
+        else:
+            signals = [ x for x in ewkDM_currents if x.DC1V == -0.05 and x.DC1A != 0 ]
         x_var = 'DC1A'
         x_shift = -0.60
-        y_par = 'C_{1,V}=0.19'
+        if args.expected or True:
+            y_par = 'C_{1,V}=0.24'
+        else:
+            y_par = 'C_{1,V}=0.19'
 
     elif args.parameter == "DC2V":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2A == 0 and x.DC2V != 0 ]
@@ -185,16 +238,22 @@ if args.model == "ewkDM":
 
 elif args.model == "dim6top_LO":
     if args.parameter == "cpQM":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpt == 0.0 and x.cpQM != 0 ]
-        #signals = [ x for x in dim6top_currents if x.cpt == -3.5 and x.cpQM != 0 ]
+        if args.profiling:
+            signals = dim6top_currents
+        else:
+            signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpt == 0.0 and x.cpQM != 0 ]
         x_var = 'cpQM'
+        z_var = 'cpt'
         x_shift = 0.
         y_par = ''
     
     elif args.parameter == "cpt":
-        signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpQM == 0.0 and x.cpt != 0 ]
-        #signals = [ x for x in dim6top_currents if x.cpQM == -4.0 and x.cpt != 0 ]
+        if args.profiling:
+            signals = dim6top_currents
+        else:
+            signals = [ dim6top_central ] + [ x for x in dim6top_currents if x.cpQM == 0.0 and x.cpt != 0 ]
         x_var = 'cpt'
+        z_var = 'cpQM'
         x_shift = 0.
         y_par = ''
     
@@ -244,7 +303,6 @@ bestFitPoint = ('SM', x_shift)
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
         res = resDB.getDicts({"signal":s.name})[-1]
-        #res = getResult(s)
         if type(res) == type({}):
             ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
             if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0.1:
@@ -258,48 +316,67 @@ print "Best fit found for signal %s, %s"%bestFitPoint
 print
 print "{:>10}{:>10}".format(x_var, "2*dNLL")
 
-for i,s in enumerate(signals):
-    if resDB.contains({"signal":s.name}):
-        res = resDB.getDicts({"signal":s.name})[-1]
-        #res = getResult(s)
-        print s.name
-        if type(res) == type({}):
-            if args.prefit:
-                limit = float(res["NLL_prefit"]) - ttZ_NLL_abs
+
+if args.profiling:
+    points = profiling(signals, x_var, z_var)
+
+    for p, c in points:
+        print p, c
+        nll_value = 2*c
+        if not nll_value > 20:
+            z.append(nll_value)
+            x.append(p + x_shift)
+            res_dic[round(p + x_shift,2)] = round(nll_value,3)
+        if not (p + x_shift in x_forRange) and not nll_value>20:
+            x_forRange.append(p + x_shift)
+
+else:
+    for i,s in enumerate(signals):
+        if resDB.contains({"signal":s.name}):
+            res = resDB.getDicts({"signal":s.name})[-1]
+            print s.name
+            if type(res) == type({}):
+                if args.prefit:
+                    limit = float(res["NLL_prefit"]) - ttZ_NLL_abs
+                else:
+                    limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+    
+                if limit >= 0.0:
+                    # good result
+                    nll_value = 2*limit
+                elif limit > -0.1 and limit < 0:
+                    # catch rounding errors
+                    print limit
+                    nll_value = 0
+                elif limit < -900:
+                    # if the fit failed, add a dummy value (these points should easily be excluded)
+                    nll_value = 100
+                else:
+                    print limit
+                    print "No good result found for %s, results is %s"%(s.name, limit)
+                    continue
+                
+                # Add results
+                print "{:10.2f}{:10.2f}".format(s.var1+x_shift, nll_value)
+    
+                if not (s.var1 + x_shift in x) and not nll_value>50:
+                    x_forRange.append(s.var1 + x_shift)
+                    print "bli"
+    
+                if not (s.var1 + x_shift in x) and not nll_value>50:
+                    print "bla", nll_value
+                    z.append(nll_value)
+                    x.append(s.var1 + x_shift)
+                    res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
+    
             else:
-                limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+                print "No results for %s found"%s.name
 
-            if limit >= 0.0:
-                # good result
-                nll_value = 2*limit
-            elif limit > -0.1 and limit < 0:
-                # catch rounding errors
-                print limit
-                nll_value = 0
-            elif limit < -900:
-                # if the fit failed, add a dummy value (these points should easily be excluded)
-                nll_value = 100
-            else:
-                print limit
-                print "No good result found for %s, results is %s"%(s.name, limit)
-                continue
-            
-            # Add results
-            print "{:10.2f}{:10.2f}".format(s.var1+x_shift, nll_value)
 
-            if not (s.var1 + x_shift in x) and not nll_value>50:
-                x_forRange.append(s.var1 + x_shift)
-                print "bli"
-
-            if not (s.var1 + x_shift in x) and not nll_value>50:
-                print "bla", nll_value
-                z.append(nll_value)
-                x.append(s.var1 + x_shift)
-                res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
-
-        else:
-            print "No results for %s found"%s.name
-
+print x
+print x_forRange
+print z
+#print res
 
 ## filter
 print "Filtering"
@@ -318,6 +395,7 @@ for i,l in enumerate(z):
 proc = "ttZ"
 
 min_delta = findMinDelta(x_forRange)
+print min_delta
 x_min = min(x_forRange)
 x_max = max(x_forRange)
 
@@ -329,8 +407,9 @@ print Nbins
 
 delta = (x_max-x_min)/Nbins
 
+print x_min-delta/2., x_max+delta/2., Nbins+1
 
-hist = ROOT.TH1F("NLL","", Nbins+1, x_min-delta/2, x_max+delta/2)
+hist = ROOT.TH1F("NLL","", (Nbins+1)*10, x_min-delta/2., x_max+delta/2.)
 hist.SetStats(0)
 hist.GetYaxis().SetRangeUser(0,26)
 
@@ -373,33 +452,60 @@ for x_val in res_dic.keys():
     else:
         hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
 
-#fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 +[4]*x**4", -50., 50.)
 fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(1)
-#fun.SetLineWidth(2)
 
 a = toGraph('NLL','NLL', len(x), x, z)
 
 a.Fit(fun)
-
-#fun.SetParameter(0,fun.GetParameter(0)-fun.GetMinimum())
 
 funClone = fun.Clone()
 parameters = [ funClone.GetParameter(x) for x in range(7) ]
 
 
 bestFitX = fun.GetX(fun.GetMinimum(),x_min-delta/2,x_max+delta/2)
-upper95 = fun.GetX(4,bestFitX,x_max)
-lower95 = fun.GetX(4,x_min,bestFitX)
-upper68 = fun.GetX(1,bestFitX,x_max)
-lower68 = fun.GetX(1,x_min,bestFitX)
 
-interval95 = ROOT.TF1("int_95", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", lower95, upper95)
-interval95.SetParameters(*parameters)
+# Get the intervals. Curve sketch not straight forward in ROOT, but could look nicer.
 
-interval68 = ROOT.TF1("int_68", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", lower68, upper68)
-interval68.SetParameters(*parameters)
+def getIntersections(func, level, x_min, x_max, stepsize):
+    intersections = []
+    x_val = x_min
+    while x_val < x_max:
+        x_val += stepsize
+        intersection = func.GetX(level, x_val-stepsize, x_val)
+        if (x_val-stepsize+stepsize/1000.) < intersection < (x_val-stepsize/1000.):
+            intersections.append(intersection)
+
+    return intersections
+
+
+
+intervals68 = []
+intersections = getIntersections(fun, 1, x_min, x_max, delta/20.)
+for i,v in enumerate(intersections):
+    if i > len(intersections)-2: break
+    if fun.GetMinimum(intersections[i], intersections[i+1]) < 0.99:
+        intervals68.append((intersections[i], intersections[i+1]))
+
+intervals95 = []
+intersections = getIntersections(fun, 4, x_min, x_max, delta/20.)
+for i,v in enumerate(intersections):
+    if i > len(intersections)-2: break
+    if fun.GetMinimum(intersections[i], intersections[i+1]) < 3.99:
+        intervals95.append((intersections[i], intersections[i+1]))
+
+
+intervals95_f = []
+for interval in intervals95:
+    intervals95_f.append(ROOT.TF1('', "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", interval[0], interval[1]))
+    intervals95_f[-1].SetParameters(*parameters)
+
+intervals68_f = []
+for interval in intervals68:
+    intervals68_f.append(ROOT.TF1('', "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", interval[0], interval[1]))
+    intervals68_f[-1].SetParameters(*parameters)
+
 
 if args.prefit:
     postFix += "_prefit"
@@ -414,6 +520,8 @@ if args.smooth:
     postFix += "_smooth"
 if args.inclusiveRegions:
     postFix += "inclusiveSR"
+if args.profiling:
+    postFix += "_profiled"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
@@ -422,26 +530,23 @@ pads.SetRightMargin(0.05)
 pads.SetLeftMargin(0.14)
 pads.SetTopMargin(0.15)
 pads.Draw()
-#pads.SetLogy()
 pads.cd()
 
 
 hist.Draw("AXIS")
-
-#fun.SetFillColor(ROOT.kGreen)
 fun.SetLineWidth(1503)
-#fun.SetFillStyle(1111)
-#fun.Draw("fsame")
 
-interval95.SetFillColorAlpha(ROOT.kBlue-2,0.9)
-interval95.SetLineColor(ROOT.kBlue-2)
-interval95.SetFillStyle(1111)
-interval95.Draw("f1same")
+for interval in intervals95_f:
+    interval.SetFillColorAlpha(ROOT.kBlue-2,0.9)
+    interval.SetLineColor(ROOT.kBlue-2)
+    interval.SetFillStyle(1111)
+    interval.Draw("f1same")
 
-interval68.SetFillColorAlpha(ROOT.kGreen-2,0.9)
-interval68.SetLineColor(ROOT.kGreen-2)
-interval68.SetFillStyle(1111)
-interval68.Draw("f1same")
+for interval in intervals68_f:
+    interval.SetFillColorAlpha(ROOT.kGreen-2,0.9)
+    interval.SetLineColor(ROOT.kGreen-2)
+    interval.SetFillStyle(1111)
+    interval.Draw("f1same")
 
 fun.Draw("same")
 
@@ -532,8 +637,8 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(interval95, '#bf{95% C.L.}', 'f')
-leg.AddEntry(interval68, '#bf{68% C.L.}', 'f')
+leg.AddEntry(intervals95_f[0], '#bf{95% C.L.}', 'f')
+leg.AddEntry(intervals68_f[0], '#bf{68% C.L.}', 'f')
 leg.Draw()
 
 leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
