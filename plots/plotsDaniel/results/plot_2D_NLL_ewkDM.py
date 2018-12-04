@@ -385,6 +385,7 @@ hist.SetMaximum(19.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
+
 hist.Draw("colz")
 alpha = 0.5
 
@@ -407,6 +408,45 @@ if drawContours:
             #cont.SetLineStyle(7)
             #cont.Draw("CFL same")
             cont.Draw("L same")
+
+
+if args.model == "ewkDM" and args.plane == "currents":
+
+    inner = ROOT.TEllipse(0,0, 3*0.24, 0.8*0.6)
+    
+
+    outer_upper = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", hist.GetXaxis().GetXmin(), hist.GetXaxis().GetXmax())
+    inner_upper = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", -3*0.24, 3*0.24 )
+
+    outer_lower = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", hist.GetXaxis().GetXmin(), hist.GetXaxis().GetXmax() )
+    inner_lower = ROOT.TF1("inner_lower", "[0]*(1-x**2/[1]**2)**(0.5)", -3*0.24, 3*0.24 )
+    
+    outer_upper.SetParameters(1.5*0.6, 5*0.24)
+    inner_upper.SetParameters(0.8*0.6, 3*0.24)
+    outer_lower.SetParameters(-1.5*0.6, 5*0.24)
+    inner_lower.SetParameters(-0.8*0.6, 3*0.24)
+
+    for l in [outer_upper,outer_lower]:
+        l.SetLineStyle(1)
+        l.SetLineWidth(2)
+        l.SetLineColor(ROOT.kGray+1)
+        l.Draw("same")
+
+    for ell in [inner]:
+        ell.SetFillColorAlpha(0,0)
+        ell.SetFillStyle(1001)
+        ell.SetLineColor(ROOT.kGray+1)
+        ell.SetLineWidth(2)
+        ell.Draw("same")
+
+    #latex0 = ROOT.TLatex()
+    #latex0.SetNDC()
+    #latex0.SetTextSize(0.030)
+    #latex0.SetTextAlign(11)
+    #latex0.SetTextColor(ROOT.kGray+1)
+    #latex0.DrawLatex(0.41, 0.640, "#bf{68% C.L.}")
+    #latex0.DrawLatex(0.36, 0.605, "#bf{CMS-TOP-14-021}")
+    
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()

@@ -246,6 +246,8 @@ elif args.model == "dim6top_LO":
         z_var = 'cpt'
         x_shift = 0.
         y_par = ''
+        allowedIntervals = []
+        indirectConstraints = [(-3.4, 7.5)]
     
     elif args.parameter == "cpt":
         if args.profiling:
@@ -256,18 +258,28 @@ elif args.model == "dim6top_LO":
         z_var = 'cpQM'
         x_shift = 0.
         y_par = ''
+        if args.expected:
+            allowedIntervals = [(-20.2, 4.0)]
+        else:
+            allowedIntervals = [(-22.2, -13.0), (-3.2, 6.0)]
+        indirectConstraints = [(-2.5, 7.0)]
     
     elif args.parameter == "ctZ":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZI == 0 and x.ctZ != 0 ]
         x_var = 'ctZ'
         x_shift = 0.
         y_par = ''
+        allowedIntervals = []
+        indirectConstraints = []
     
     elif args.parameter == "ctZI":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZ == 0 and x.ctZI != 0 ]
         x_var = 'ctZI'
         x_shift = 0.
         y_par = ''
+        allowedIntervals = []
+        indirectConstraints = []
+
     
     else:
         raise NotImplementedError
@@ -321,7 +333,6 @@ if args.profiling:
     points = profiling(signals, x_var, z_var)
 
     for p, c in points:
-        print p, c
         nll_value = 2*c
         if not nll_value > 20:
             z.append(nll_value)
@@ -361,10 +372,8 @@ else:
     
                 if not (s.var1 + x_shift in x) and not nll_value>50:
                     x_forRange.append(s.var1 + x_shift)
-                    print "bli"
     
                 if not (s.var1 + x_shift in x) and not nll_value>50:
-                    print "bla", nll_value
                     z.append(nll_value)
                     x.append(s.var1 + x_shift)
                     res_dic[round(s.var1 + x_shift,2)] = round(nll_value,3)
@@ -373,18 +382,11 @@ else:
                 print "No results for %s found"%s.name
 
 
-print x
-print x_forRange
-print z
-#print res
 
 ## filter
 print "Filtering"
 z_sorted = sorted(z)
 minimum = z.index(z_sorted[0])
-#print z[minimum]
-#z[minimum] = -(z_sorted[1]+z_sorted[2])/3
-#print z[minimum]
 for i,l in enumerate(z):
     if not i == minimum:
         if args.filtering:
@@ -394,24 +396,19 @@ for i,l in enumerate(z):
 
 proc = "ttZ"
 
+y_max = 26
+
 min_delta = findMinDelta(x_forRange)
-print min_delta
 x_min = min(x_forRange)
 x_max = max(x_forRange)
 
-print x_min, x_max
-
 Nbins = int((x_max-x_min)/min_delta)
-
-print Nbins
 
 delta = (x_max-x_min)/Nbins
 
-print x_min-delta/2., x_max+delta/2., Nbins+1
-
 hist = ROOT.TH1F("NLL","", (Nbins+1)*10, x_min-delta/2., x_max+delta/2.)
 hist.SetStats(0)
-hist.GetYaxis().SetRangeUser(0,26)
+hist.GetYaxis().SetRangeUser(0,y_max)
 
 print "Best fit found for signal %s, %s"%bestFitPoint
 
@@ -420,35 +417,28 @@ if x_var == "DC1V":
 elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
-#    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
     hist.GetXaxis().SetTitle("c_{#varphiQ}^{-}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZ":
-#    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
     hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "DC1A":
     hist.GetXaxis().SetTitle("C_{1,A}")
 elif x_var == "DC2A":
     hist.GetXaxis().SetTitle("C_{2,A}")
 elif x_var == "cpt":
-#    hist.GetXaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
     hist.GetXaxis().SetTitle("c_{#varphit}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZI":
-#    hist.GetXaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
     hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
 
-#hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetYaxis().SetTitle("-2 #DeltalnL")
 hist.GetYaxis().SetTitleOffset(1.2)
 hist.SetStats(0)
-
-#hist.Draw()
 
 for x_val in res_dic.keys():
     if res_dic[x_val]>0:
         if args.filtering:
             hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val]-(z_sorted[1]+z_sorted[2])/3)
         else:
-            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])#-(z_sorted[1]+z_sorted[2])/3)
+            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
     else:
         hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
 
@@ -466,7 +456,7 @@ parameters = [ funClone.GetParameter(x) for x in range(7) ]
 
 bestFitX = fun.GetX(fun.GetMinimum(),x_min-delta/2,x_max+delta/2)
 
-# Get the intervals. Curve sketch not straight forward in ROOT, but could look nicer.
+# Get the intervals. Curve sketch not straight forward in ROOT.
 
 def getIntersections(func, level, x_min, x_max, stepsize):
     intersections = []
@@ -474,7 +464,7 @@ def getIntersections(func, level, x_min, x_max, stepsize):
     while x_val < x_max:
         x_val += stepsize
         intersection = func.GetX(level, x_val-stepsize, x_val)
-        if (x_val-stepsize+stepsize/1000.) < intersection < (x_val-stepsize/1000.):
+        if (x_val-stepsize+stepsize/10000.) < intersection < (x_val-stepsize/10000.):
             intersections.append(intersection)
 
     return intersections
@@ -506,6 +496,44 @@ for interval in intervals68:
     intervals68_f.append(ROOT.TF1('', "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", interval[0], interval[1]))
     intervals68_f[-1].SetParameters(*parameters)
 
+boxes = []
+lines = []
+if args.model == 'dim6top_LO':
+    for interval in allowedIntervals:
+        lines.append(ROOT.TLine(interval[0], 0, interval[0], y_max))
+        lines.append(ROOT.TLine(interval[1], 0, interval[1], y_max))
+        boxes.append(ROOT.TBox(interval[0]-2*min_delta, 0, interval[0], y_max))
+        boxes.append(ROOT.TBox(interval[1], 0, interval[1]+2*min_delta, y_max))
+
+for box in boxes:
+    box.SetLineColor(ROOT.kGray+1)
+    box.SetFillColor(ROOT.kGray+1)
+    box.SetFillStyle(3005)
+    box.SetLineWidth(2)
+for line in lines:
+    line.SetLineColor(ROOT.kGray+1)
+    line.SetLineWidth(2)
+
+
+boxesIndirect = []
+linesIndirect = []
+if args.model == 'dim6top_LO':
+    for interval in indirectConstraints:
+        linesIndirect.append(ROOT.TLine(interval[0], 0, interval[0], y_max))
+        linesIndirect.append(ROOT.TLine(interval[1], 0, interval[1], y_max))
+        boxesIndirect.append(ROOT.TBox(interval[0]-2*min_delta, 0, interval[0], y_max))
+        boxesIndirect.append(ROOT.TBox(interval[1], 0, interval[1]+2*min_delta, y_max))
+
+for box in boxesIndirect:
+    box.SetLineColor(ROOT.kRed-9)
+    box.SetFillColor(ROOT.kRed-9)
+    box.SetFillStyle(3004)
+    box.SetLineWidth(2)
+for line in linesIndirect:
+    line.SetLineColor(ROOT.kRed-9)
+    line.SetLineWidth(2)
+
+
 
 if args.prefit:
     postFix += "_prefit"
@@ -516,7 +544,6 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    #hist.Smooth(1,"k5b")
     postFix += "_smooth"
 if args.inclusiveRegions:
     postFix += "inclusiveSR"
@@ -549,6 +576,16 @@ for interval in intervals68_f:
     interval.Draw("f1same")
 
 fun.Draw("same")
+
+for box in boxes:
+    box.Draw("same")
+for line in lines:
+    line.Draw("same")
+for box in boxesIndirect:
+    box.Draw("same")
+for line in linesIndirect:
+    line.Draw("same")
+
 
 if args.showPoints:
     hist.Draw("p same")
@@ -632,7 +669,7 @@ else:
     latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
 
 
-leg = ROOT.TLegend(0.45,0.86,0.70,0.95)
+leg = ROOT.TLegend(0.60,0.86,0.80,0.95)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
@@ -641,7 +678,7 @@ leg.AddEntry(intervals95_f[0], '#bf{95% C.L.}', 'f')
 leg.AddEntry(intervals68_f[0], '#bf{68% C.L.}', 'f')
 leg.Draw()
 
-leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
+leg2 = ROOT.TLegend(0.80,0.86,0.90,0.95)
 leg2.SetFillColor(ROOT.kWhite)
 leg2.SetShadowColor(ROOT.kWhite)
 leg2.SetBorderSize(0)
@@ -650,6 +687,22 @@ leg2.AddEntry(SMpoint, '#bf{SM}', 'p')
 leg2.AddEntry(None, '#bf{%s}'%y_par, '')
 leg2.Draw()
 
+leg3 = ROOT.TLegend(0.35,0.86,0.60,0.95)
+leg3.SetFillColor(ROOT.kWhite)
+leg3.SetShadowColor(ROOT.kWhite)
+leg3.SetBorderSize(0)
+leg3.SetTextSize(0.035)
+if indirectConstraints:
+    leg3.AddEntry(boxesIndirect[0], '#bf{Indirect}', 'f')
+if allowedIntervals:
+    leg3.AddEntry(boxes[0], '#bf{Prev. CMS}', 'f')
+else:
+    leg3.AddEntry(None, '', '')
+#leg3.AddEntry(None, '#bf{%s}'%y_par, '')
+leg3.Draw()
+
+
+hist.Draw("AXIS same")
 
 plotDir = os.path.join( plot_directory,"NLL_plots_1D_%s/"%args.year )
 if not os.path.isdir(plotDir):
@@ -659,4 +712,11 @@ args.year = "COMBINED" if args.combined else args.year
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.parameter, setup.name, args.year, postFix)+e)
+
+
+print "68% interval"
+print intervals68
+
+print "95% interval";
+print intervals95
 
