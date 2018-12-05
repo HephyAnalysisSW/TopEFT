@@ -50,9 +50,9 @@ argParser.add_argument("--expected",        action='store_true', help="Use expec
 argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-argParser.add_argument("--filtering",        action='store_true', help="Use combined results?")
 argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
 argParser.add_argument("--profiling",        action='store_true', help="Show the points?")
+argParser.add_argument("--subdir",        action='store', default="NLL_plots_1D_2016", help="Show the points?")
 
 args = argParser.parse_args()
 
@@ -207,6 +207,8 @@ if args.model == "ewkDM":
             y_par = 'C_{1,A}=-0.60'
         else:
             y_par = 'C_{1,A}=-0.73'
+        allowedIntervals = []
+        indirectConstraints = []
     
     elif args.parameter == "DC1A":
         #signals = [ ewkDM_central ] + [ x for x in ewkDM_currents if x.DC1V == 0 and x.DC1A != 0 ]
@@ -220,18 +222,24 @@ if args.model == "ewkDM":
             y_par = 'C_{1,V}=0.24'
         else:
             y_par = 'C_{1,V}=0.19'
+        allowedIntervals = []
+        indirectConstraints = []
 
     elif args.parameter == "DC2V":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2A == 0 and x.DC2V != 0 ]
         x_var = 'DC2V'
         x_shift = 0.
         y_par = ''
+        allowedIntervals = []
+        indirectConstraints = []
 
     elif args.parameter == "DC2A":
         signals = [ ewkDM_central ] + [ x for x in ewkDM_dipoles if x.DC2V == 0 and x.DC2A != 0 ]
         x_var = 'DC2A'
         x_shift = 0.
         y_par = ''
+        allowedIntervals = []
+        indirectConstraints = []
 
     else:
         raise NotImplementedError
@@ -381,21 +389,7 @@ else:
             else:
                 print "No results for %s found"%s.name
 
-
-
-## filter
-print "Filtering"
-z_sorted = sorted(z)
-minimum = z.index(z_sorted[0])
-for i,l in enumerate(z):
-    if not i == minimum:
-        if args.filtering:
-            z[i] = z[i] - (z_sorted[1]+z_sorted[2])/3
-        else:
-            z[i] = z[i]
-
 proc = "ttZ"
-
 y_max = 26
 
 min_delta = findMinDelta(x_forRange)
@@ -435,14 +429,14 @@ hist.SetStats(0)
 
 for x_val in res_dic.keys():
     if res_dic[x_val]>0:
-        if args.filtering:
-            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val]-(z_sorted[1]+z_sorted[2])/3)
-        else:
-            hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
+        hist.SetBinContent(hist.GetXaxis().FindBin(x_val), res_dic[x_val])
     else:
         hist.SetBinContent(hist.GetXaxis().FindBin(x_val), 0.001)
 
-fun = ROOT.TF1("f_1", "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", x_min-delta/2, x_max+delta/2)
+bfb = [bestFitPoint[1]]*5
+funStr = "[0]*(x-{})**2 + [1]*(x-{})**3 + [2]*(x-{})**4 + [3]*(x-{})**5 + [4]*(x-{})**6".format(*bfb)
+
+fun = ROOT.TF1("f_1", funStr, x_min-delta/2, x_max+delta/2)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(1)
 
@@ -451,7 +445,7 @@ a = toGraph('NLL','NLL', len(x), x, z)
 a.Fit(fun)
 
 funClone = fun.Clone()
-parameters = [ funClone.GetParameter(x) for x in range(7) ]
+parameters = [ funClone.GetParameter(x) for x in range(5) ]
 
 
 bestFitX = fun.GetX(fun.GetMinimum(),x_min-delta/2,x_max+delta/2)
@@ -488,12 +482,12 @@ for i,v in enumerate(intersections):
 
 intervals95_f = []
 for interval in intervals95:
-    intervals95_f.append(ROOT.TF1('', "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", interval[0], interval[1]))
+    intervals95_f.append(ROOT.TF1('', funStr, interval[0], interval[1]))
     intervals95_f[-1].SetParameters(*parameters)
 
 intervals68_f = []
 for interval in intervals68:
-    intervals68_f.append(ROOT.TF1('', "[0] + [1]*x + [2]*x**2 + [3]*x**3 + [4]*x**4 +[5]*x**5 + [6]*x**6", interval[0], interval[1]))
+    intervals68_f.append(ROOT.TF1('', funStr, interval[0], interval[1]))
     intervals68_f[-1].SetParameters(*parameters)
 
 boxes = []
@@ -704,7 +698,7 @@ leg3.Draw()
 
 hist.Draw("AXIS same")
 
-plotDir = os.path.join( plot_directory,"NLL_plots_1D_%s/"%args.year )
+plotDir = os.path.join( plot_directory, args.subdir+'/' )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

@@ -43,8 +43,10 @@ def getCovariance(fname):
     #set workspace
     workspaceCommand = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py myshapecard.txt"
 
-    #Run fit
-    fitCommand = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M FitDiagnostics --freezeParameters r --saveShapes --saveWithUnc --numToysForShape 100 --saveOverall myshapecard.root"
+    ##Run fit
+    #fitCommand = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M FitDiagnostics --freezeParameters r --saveShapes --saveWithUnc --numToysForShape 100 --saveOverall myshapecard.root"
+    fitCommand = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M FitDiagnostics --saveShapes --saveWithUnc --numToysForShape 100 --saveOverall myshapecard.root"
+
     print fitCommand
 
     os.system(combineCommand)
@@ -64,12 +66,9 @@ def getCovariance(fname):
     total_prefit    = copy.deepcopy(prefit.Get("total_overall"))
 
     data            = copy.deepcopy(postfit.Get("total_data"))
-
-    del postfit, prefit
-
     f1.Close()
 
-    del f1
+    del postfit, prefit, f1
 
     shutil.rmtree(uniqueDirname)
 
@@ -145,8 +144,8 @@ cov = getCovariance("/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/re
 
 binNumbers,sortedBinNames = getSortedBinNumber(cov["yield_postfit"])
 
-cov_prefit, cov_prefit_diag, cov_prefit_diag_corr     = getMatrix(cov["prefit"], binNumbers)
-cov_postfit, cov_postfit_diag, cov_postfit_diag_corr   = getMatrix(cov["postfit"], binNumbers)
+cov_prefit, cov_prefit_diag, cov_prefit_diag_corr       = getMatrix(cov["prefit"], binNumbers)
+cov_postfit, cov_postfit_diag, cov_postfit_diag_corr    = getMatrix(cov["postfit"], binNumbers)
 
 obs = getVectorFromGraph(cov["data"], binNumbers)
 exp_postfit = getVectorFromHist(cov["yield_postfit"], binNumbers)
@@ -156,6 +155,7 @@ exp_prefit  = getVectorFromHist(cov["yield_prefit"], binNumbers)
 
 R_postfit = obs - exp_postfit
 
+cov_postfit_BU = copy.deepcopy(cov_postfit)
 cov_postfit_inv = np.linalg.inv(cov_postfit)
 
 chi2_postfit = np.dot(cov_postfit_inv, R_postfit)
@@ -208,13 +208,20 @@ for f in filetypes:
 
 
 chi2_primitive = 0
+chi2_primitives_postfit = [0,0,0,0]
+chi2_primitives_prefit = [0,0,0,0]
+
 for i,r in enumerate(R_postfit):
     #if i >= 30 and i<45:
+    chi2_primitives_postfit[i/15] += (r**2 / cov_postfit_BU[i][i])
+    chi2_primitives_prefit[i/15] += (r**2 / cov_prefit[i][i])
     chi2_primitive += (r**2 / cov_postfit[i][i])
 
 print "Results"
 print chi2_postfit
 print chi2_primitive
+print "postfit", chi2_primitives_postfit
+print "prefit", chi2_primitives_prefit
 
 # Chi2 for prefit
 
