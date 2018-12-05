@@ -288,14 +288,16 @@ class cardFileWriter:
           filename = fname if fname else os.path.join(uniqueDirname, ustr+".txt")
           self.writeToFile(filename)
         filePostfixes  = [ 'nuisances_r1.txt', 'nuisances_r1_full.txt', 'nuisances_r1.tex', 'nuisances_r1_full.tex' ]
-        filePostfixes += [ 'nuisances_bestfit.txt', 'nuisances_bestfit_full.txt', 'nuisances_bestfit.tex', 'nuisances_bestfit_full.tex' ]
+        #filePostfixes += [ 'nuisances_bestfit.txt', 'nuisances_bestfit_full.txt', 'nuisances_bestfit.tex', 'nuisances_bestfit_full.tex' ]
 
         assert os.path.exists(filename), "File not found: %s"%filename
 
         # create the workspace
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%(filename)
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root --channel-masks --X-allow-no-signal -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%(filename)
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%(filename)
         # get the nuisances for r = 1
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.95,1.05 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%masks
+        #combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.95,1.05 --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties --setParameters %s"%masks
+        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --saveShapes --saveNormalizations --saveOverall --freezeParameters r --setParameterRanges r=0.99,1.01 --saveWithUncertainties"
         combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_r1.txt"
         combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_r1_full.txt"
         combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_r1.tex"
@@ -305,17 +307,17 @@ class cardFileWriter:
         
         shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD_r1.root'))
         
-        #get the nuisances for bestfit
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root  -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
-        combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.,5. --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties "
-        combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_bestfit.txt"
-        combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_bestfit_full.txt"
-        combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_bestfit.tex"
-        combineCommand +=";python diffNuisances.py -af latex fitDiagnostics.root &> nuisances_bestfit_full.tex"
+        ##get the nuisances for bestfit
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combineCards.py %s -S > shapeCard.txt; text2workspace.py shapeCard.txt -o myWorkspace.root  -P HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel"%filename
+        #combineCommand += ";combine -M FitDiagnostics myWorkspace.root --setParameterRanges r=0.,5. --saveShapes --saveNormalizations --saveOverall --saveWithUncertainties "
+        #combineCommand +=";python diffNuisances.py  fitDiagnostics.root &> nuisances_bestfit.txt"
+        #combineCommand +=";python diffNuisances.py -a fitDiagnostics.root &> nuisances_bestfit_full.txt"
+        #combineCommand +=";python diffNuisances.py -f latex fitDiagnostics.root &> nuisances_bestfit.tex"
+        #combineCommand +=";python diffNuisances.py -af latex fitDiagnostics.root &> nuisances_bestfit_full.tex"
 
-        os.system(combineCommand)
+        #os.system(combineCommand)
 
-        shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD_bestfit.root'))
+        #shutil.copyfile(uniqueDirname+'/fitDiagnostics.root', fname.replace('.txt','_FD_bestfit.root'))
 
         for files in filePostfixes:
             tempResFile = "%s/%s"%(uniqueDirname, files)
@@ -366,7 +368,7 @@ class cardFileWriter:
           self.writeToFile(filename)
 
         # too tight constraints lead to failing fits
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 1 --rMin 1.000 --rMax 1.001 -n Nominal --saveNLL --forceRecreateNLL "+filename
+        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit -n Nominal --saveNLL --forceRecreateNLL --freezeParameters r "+filename
         #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;text2workspace.py -o myWorkspace.root --channel-masks --X-allow-no-signal %s"%filename
         os.system(combineCommand)
         #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit myWorkspace.root -v 3 --algo grid --points 1 --rMin 0.99 --rMax 1.01 -n Nominal --saveNLL --saveSpecifiedNuis=all %s --setParameters %s"%(normOption,masks)
@@ -375,13 +377,11 @@ class cardFileWriter:
         #print combineCommand
         #os.system(combineCommand)
         nll = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
-        print nll
-        combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 100 --rMin 0. --rMax 2.0 -n Nominal %s --saveNLL --forceRecreateNLL %s > log.txt"%(options, filename)
-        os.system(combineCommand)
-        nll2 = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
-        print nll2
+        #combineCommand  = "cd "+uniqueDirname+";eval `scramv1 runtime -sh`;combine -M MultiDimFit --algo grid --points 100 --rMin 0. --rMax 2.0 -n Nominal %s --saveNLL --forceRecreateNLL %s > log.txt"%(options, filename)
+        #os.system(combineCommand)
+        #nll2 = self.readNLLFile(uniqueDirname+"/higgsCombineNominal.MultiDimFit.mH120.root")
 
-        nll["bestfit"] = nll2["nll"]
+        nll["bestfit"] = nll["nll"]
         #print "Comparing the two fits"
         #print nll["nll0"], nll2["nll0"]
 
