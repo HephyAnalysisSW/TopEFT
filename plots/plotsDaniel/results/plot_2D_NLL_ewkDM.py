@@ -456,7 +456,7 @@ latex1.SetTextAlign(11)
 if not args.unblinded:
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 else:
-    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+    latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
     latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')
@@ -518,7 +518,7 @@ leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
 leg2.Draw()
 
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_2016_data/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_final/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

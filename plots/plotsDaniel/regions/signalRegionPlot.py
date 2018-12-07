@@ -471,7 +471,7 @@ def drawObjects( isData=False, lumi=36. ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS #bf{#it{Preliminary}}'),
+      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS'),# #bf{#it{Preliminary}}'),
       (0.75, 0.95, '%sfb^{-1} (13 TeV)'%lumi )
     ]
     return [tex.DrawLatex(*l) for l in lines]
@@ -501,7 +501,7 @@ else:
 if subDir:
     subDir = "%s_"%subDir
 
-plotName = "%s%s_signalRegions_incl4l_dataV2_%s%s%s"%(subDir,cardName,expected,WZreweight,options.year if not options.combine else "COMBINED")
+plotName = "%s%s_signalRegions_incl4l_final_%s%s%s"%(subDir,cardName,expected,WZreweight,options.year if not options.combine else "COMBINED")
 if options.postFit:
     plotName += "_postFit"
 if options.blinded:

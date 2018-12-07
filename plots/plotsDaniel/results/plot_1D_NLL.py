@@ -52,7 +52,7 @@ argParser.add_argument("--unblinded",       action='store_true', help="Use unbli
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
 argParser.add_argument("--profiling",        action='store_true', help="Show the points?")
-argParser.add_argument("--subdir",        action='store', default="NLL_plots_1D_2016", help="Show the points?")
+argParser.add_argument("--subdir",        action='store', default="NLL_plots_1D_final", help="Show the points?")
 
 args = argParser.parse_args()
 
@@ -439,7 +439,7 @@ funStr = "[0]*(x-{})**2 + [1]*(x-{})**3 + [2]*(x-{})**4 + [3]*(x-{})**5 + [4]*(x
 fun = ROOT.TF1("f_1", funStr, x_min-delta/2, x_max+delta/2)
 fun.SetLineColor(ROOT.kBlack)
 fun.SetLineStyle(1)
-
+fun.SetNpx(1000)
 a = toGraph('NLL','NLL', len(x), x, z)
 
 a.Fit(fun)
@@ -645,7 +645,7 @@ latex1.SetTextAlign(11)
 if not args.unblinded:
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 else:
-    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+    latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
     latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')

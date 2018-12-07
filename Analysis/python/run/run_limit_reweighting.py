@@ -289,11 +289,8 @@ def wrapper(s):
         c.addUncertainty('WZ_powheg',           'lnN') # correlated
         c.addUncertainty('WZ_njet',             'lnN') # correlated
         c.addUncertainty('ZZ_xsec',             'lnN') # correlated.
-        c.addUncertainty('ZG_xsec',             'lnN') # correlated.
+        c.addUncertainty('XG_xsec',             'lnN') # correlated.
         c.addUncertainty('rare',                'lnN') # correlated.
-        c.addUncertainty('WWZ',                 'lnN') # correlated.
-        c.addUncertainty('WZZ',                 'lnN') # correlated.
-        c.addUncertainty('ZZZ',                 'lnN') # correlated.
         c.addUncertainty('ttX',                 'lnN') # correlated.
         c.addUncertainty('Lumi'+postfix,        'lnN')
 
@@ -385,7 +382,7 @@ def wrapper(s):
                                     c.specifyUncertainty('Lumi'+postfix,        binname, name, 1.023 )
 
                             if name.count('ZZ'):    c.specifyUncertainty('ZZ_xsec',     binname, name, 1.10)
-                            if name.count('ZG'):    c.specifyUncertainty('ZG_xsec',     binname, name, 1.20)
+                            if name.count('XG'):    c.specifyUncertainty('XG_xsec',     binname, name, 1.20)
                             if name.count('WZ') and not name.count("WZZ") and not name.count("WWZ"):
                                 c.specifyUncertainty('WZ_xsec',     binname, name, 1.10)
                                 njetUnc = e.highNJetSystematic(r, channel, setup).val
@@ -397,9 +394,6 @@ def wrapper(s):
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
                             if name.count('rare'):    c.specifyUncertainty('rare',        binname, name, 1.50)
-                            if name.count('WWZ'):    c.specifyUncertainty('WWZ',        binname, name, 1.50)
-                            if name.count('WZZ'):    c.specifyUncertainty('WZZ',        binname, name, 1.50)
-                            if name.count('ZZZ'):    c.specifyUncertainty('ZZZ',        binname, name, 1.50)
                             if name.count('TTX'):     c.specifyUncertainty('ttX',         binname, name, 1.11)
 
 
