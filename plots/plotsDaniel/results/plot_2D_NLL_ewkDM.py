@@ -41,19 +41,19 @@ newColorPalette()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--plot_directory',     action='store',      default='NLL_plots')
-argParser.add_argument('--useBestFit', action='store_true', help="Use best fit value? Default is r=1")
-argParser.add_argument('--smooth', action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
-argParser.add_argument('--model', action='store', choices=["ewkDM", "dim6top_LO"], help="Which model?")
-argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
-argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
-argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
-argParser.add_argument("--prefit",         action='store_true', help="Use pre-fit NLL?")
-argParser.add_argument("--expected",       action='store_true', help="Use expected results?")
-argParser.add_argument("--unblinded",      action='store_true', help="Use unblinded results?")
-argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-argParser.add_argument("--combined",       action='store_true', help="Use combined results?")
-
+argParser.add_argument('--plot_directory',  action='store',         default='NLL_plots')
+argParser.add_argument('--useBestFit',      action='store_true',    help="Use best fit value? Default is r=1")
+argParser.add_argument('--smooth',          action='store_true',    help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
+argParser.add_argument('--model',           action='store',         choices=["ewkDM", "dim6top_LO"], help="Which model?")
+argParser.add_argument('--plane',           action='store',         choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
+argParser.add_argument("--useXSec",         action='store_true',    help="Use the x-sec information?")
+argParser.add_argument("--useShape",        action='store_true',    help="Use the shape information?")
+argParser.add_argument("--prefit",          action='store_true',    help="Use pre-fit NLL?")
+argParser.add_argument("--expected",        action='store_true',    help="Use expected results?")
+argParser.add_argument("--unblinded",       action='store_true',    help="Use unblinded results?")
+argParser.add_argument("--year",            action='store',         default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+argParser.add_argument("--combined",        action='store_true',    help="Use combined results?")
+argParser.add_argument("--sigma",           action='store_true',    help="Use sigma levels?")
 args = argParser.parse_args()
 
 year = int(args.year)
@@ -266,21 +266,6 @@ for i,s in enumerate(signals):
                 res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
             #else:
             #    print "Omitting..."
-            #x.append(-1.06)
-            #y.append(-0.9)
-            #z.append(100)
-            #
-            #x.append(1.14)
-            #y.append(-0.9)
-            #z.append(100)
-            #
-            #x.append(-1.06)
-            #y.append(0.9)
-            #z.append(100)
-
-            #x.append(1.14)
-            #y.append(0.9)
-            #z.append(100)
 
         else:
             print "No results for %s found"%s.name
@@ -355,10 +340,14 @@ if args.smooth:
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
-#contours = {'ttZ': [-0.1,0.,1.,4.]}
-#contours = {'ttZ': [1.,4.]}
-contours = {'ttZ': [1.515**2,2.486**2]}
-#contours = {'ttZ': [1.515**2, 3.5]}
+
+## contours, either 1/2 sigma or 68/95% CL (2 d.o.f)
+# https://stattrek.com/online-calculator/chi-square.aspx
+
+if args.sigma == 'sigma':
+    contours = {'ttZ': [1.515**2,2.486**2]} # 1/2 sigma levels
+else:
+    contours = {'ttZ': [2.28, 5.99]} # 68/95 % CL
 
 drawContours = True
 if drawContours:
@@ -393,20 +382,12 @@ if drawContours:
     for conts in [cont_p2]:
         for cont in conts:
             cont.SetLineColor(ROOT.kRed)
-            #cont.SetFillColor(ROOT.kRed)
-            #cont.SetFillColorAlpha(ROOT.kRed, alpha)
-            #cont.SetFillStyle()
             cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
             cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
             cont.SetLineColor(ROOT.kOrange)
-            #cont.SetFillColorAlpha(ROOT.kOrange, alpha)
             cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
             cont.Draw("L same")
 
 
@@ -439,15 +420,6 @@ if args.model == "ewkDM" and args.plane == "currents":
         ell.SetLineWidth(2)
         ell.Draw("same")
 
-    #latex0 = ROOT.TLatex()
-    #latex0.SetNDC()
-    #latex0.SetTextSize(0.030)
-    #latex0.SetTextAlign(11)
-    #latex0.SetTextColor(ROOT.kGray+1)
-    #latex0.DrawLatex(0.41, 0.640, "#bf{68% C.L.}")
-    #latex0.DrawLatex(0.36, 0.605, "#bf{CMS-TOP-14-021}")
-    
-
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
 latex1.SetTextSize(0.035)
@@ -472,9 +444,6 @@ if not args.unblinded:
     latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
 else:
     latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
-
-#latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
-#latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 SMpoint = ROOT.TGraph(1)
 SMpoint.SetName("SMpoint")
@@ -501,10 +470,17 @@ leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
 try:
-    leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+    if args.sigma:
+        leg.AddEntry(cont_p2[0], '#bf{2#sigma}', 'l')
+    else:
+        leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
 except:
     pass
-leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
+
+if args.sigma:
+    leg.AddEntry(cont_p1[0], '#bf{1#sigma}', 'l')
+else:
+    leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
 leg.Draw()
 
 

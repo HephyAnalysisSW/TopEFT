@@ -50,10 +50,10 @@ argParser.add_argument("--expected",        action='store_true', help="Use expec
 argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-argParser.add_argument("--showPoints",        action='store_true', help="Show the points?")
-argParser.add_argument("--profiling",        action='store_true', help="Show the points?")
-argParser.add_argument("--subdir",        action='store', default="NLL_plots_1D_final", help="Show the points?")
-
+argParser.add_argument("--showPoints",      action='store_true', help="Show the points?")
+argParser.add_argument("--profiling",       action='store_true', help="Show the points?")
+argParser.add_argument("--subdir",          action='store', default="NLL_plots_1D_final", help="Show the points?")
+argParser.add_argument("--sigma",           action='store_true', help="Use sigma levels?")
 args = argParser.parse_args()
 
 year = int(args.year)
@@ -585,11 +585,18 @@ if args.showPoints:
     hist.Draw("p same")
 
 one = ROOT.TF1("one","[0]",x_min,x_max)
-one.SetParameter(0,1)
+if args.sigma:
+    one.SetParameter(0,1)
+else:
+    one.SetParameter(0,0.989)
+
 one.SetLineColor(ROOT.kGray)
 
 four = ROOT.TF1("four","[0]",x_min,x_max)
-four.SetParameter(0,4)
+if args.sigma:
+    four.SetParameter(0,4)
+else:
+    four.SetParameter(0, 3.84)
 four.SetLineColor(ROOT.kGray)
 
 nine = ROOT.TF1("nine","[0]",-10,10)
@@ -668,8 +675,13 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(intervals95_f[0], '#bf{95% C.L.}', 'f')
-leg.AddEntry(intervals68_f[0], '#bf{68% C.L.}', 'f')
+if args.sigma:
+    leg.AddEntry(intervals95_f[0], '#bf{2#sigma}', 'f')
+    leg.AddEntry(intervals68_f[0], '#bf{1#sigma}', 'f')
+else:
+    leg.AddEntry(intervals95_f[0], '#bf{95% C.L.}', 'f')
+    leg.AddEntry(intervals68_f[0], '#bf{68% C.L.}', 'f')
+
 leg.Draw()
 
 leg2 = ROOT.TLegend(0.80,0.86,0.90,0.95)
