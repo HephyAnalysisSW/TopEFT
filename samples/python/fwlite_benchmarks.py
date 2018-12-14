@@ -629,6 +629,11 @@ dim6top_LO_ttZ_ll_cpQM_26p00_cpt_m3p50  = FWLiteSample.fromFiles("dim6top_LO_ttZ
 dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m19p25 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m19p25" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_16p000000_cpt_m19p250000/events.root"])
 dim6top_LO_ttZ_ll_cpQM_10p00_cpt_m22p75 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_10p00_cpt_m22p75" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_10p000000_cpt_m22p750000/events.root"])
 
+dim6top_LO_ttZ_ll_cpQM_19p00_cpt_m19p25 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_19p00_cpt_m19p25" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_19p000000_cpt_m19p250000/events.root"])
+dim6top_LO_ttZ_ll_cpQM_19p00_cpt_m17p50 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_19p00_cpt_m17p50" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_19p000000_cpt_m17p500000/events.root"])
+dim6top_LO_ttZ_ll_cpQM_17p00_cpt_m19p25 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_17p00_cpt_m19p25" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_17p000000_cpt_m19p250000/events.root"])
+dim6top_LO_ttZ_ll_cpQM_18p00_cpt_m17p50 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_18p00_cpt_m17p50" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_18p000000_cpt_m17p500000/events.root"])
+dim6top_LO_ttZ_ll_cpQM_17p00_cpt_m17p50 = FWLiteSample.fromFiles("dim6top_LO_ttZ_ll_cpQM_17p00_cpt_m17p50" , texName="", files = ["/afs/hephy.at/data/dspitzbart03/TopEFT/genSamples//dim6top_LO_ttZ_ll_cpQM_17p000000_cpt_m17p500000/events.root"])
 
 
 #ewkDM_ttZ_ll_DC1A_0p000000_DC1V_m1p000000 = FWLiteSample.fromFiles("ewkDM_ttZ_ll_DC1A_0p000000_DC1V_m1p000000", texName="", files = ["/afs/hephy.at/data/rschoefbeck01/TopEFT/genSamples/ewkDM_ttZ_ll_DC1A_0p000000_DC1V_m1p000000/events.root"])

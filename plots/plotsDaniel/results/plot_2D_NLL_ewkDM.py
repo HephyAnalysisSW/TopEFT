@@ -334,7 +334,7 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    for i in range(1):
+    for i in range(2):
         hist.Smooth(1,"k5b")
     postFix += "_smooth"
 
