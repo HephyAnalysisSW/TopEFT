@@ -518,7 +518,7 @@ plotting.draw(
     logX = False, logY = True, sorting = False, 
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
     legend = (0.74,0.54, 0.95, 0.89),
-    widths = {'x_width':1000, 'y_width':600},
+    widths = {'x_width':1400, 'y_width':600},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
     ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,0),(1,0)] if options.signal else [(1,0)]} ,

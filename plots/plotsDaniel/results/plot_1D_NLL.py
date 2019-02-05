@@ -558,14 +558,14 @@ hist.Draw("AXIS")
 fun.SetLineWidth(1503)
 
 for interval in intervals95_f:
-    interval.SetFillColorAlpha(ROOT.kBlue-2,0.9)
-    interval.SetLineColor(ROOT.kBlue-2)
+    interval.SetFillColorAlpha(ROOT.kCyan-6,0.9)
+    interval.SetLineColor(ROOT.kCyan-6)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 
 for interval in intervals68_f:
-    interval.SetFillColorAlpha(ROOT.kGreen-2,0.9)
-    interval.SetLineColor(ROOT.kGreen-2)
+    interval.SetFillColorAlpha(ROOT.kGreen-5,0.9)
+    interval.SetLineColor(ROOT.kGreen-5)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 
