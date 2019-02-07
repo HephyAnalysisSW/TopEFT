@@ -322,8 +322,9 @@ elif y_var == "ctZI":
 
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
-hist.GetZaxis().SetTitle("-2 #DeltalnL")
-hist.GetZaxis().SetTitleOffset(1.2)
+#hist.GetZaxis().SetTitle("-2 #DeltalnL")
+hist.GetZaxis().SetTitle("q")
+hist.GetZaxis().SetTitleOffset(1.0)
 hist.SetStats(0)
 if args.prefit:
     postFix += "_prefit"
@@ -344,7 +345,7 @@ cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 ## contours, either 1/2 sigma or 68/95% CL (2 d.o.f)
 # https://stattrek.com/online-calculator/chi-square.aspx
 
-if args.sigma == 'sigma':
+if args.sigma:
     contours = {'ttZ': [1.515**2,2.486**2]} # 1/2 sigma levels
 else:
     contours = {'ttZ': [2.28, 5.99]} # 68/95 % CL

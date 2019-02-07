@@ -390,7 +390,7 @@ else:
                 print "No results for %s found"%s.name
 
 proc = "ttZ"
-y_max = 26
+y_max = 21
 
 min_delta = findMinDelta(x_forRange)
 x_min = min(x_forRange)
@@ -423,8 +423,10 @@ elif x_var == "cpt":
 elif x_var == "ctZI":
     hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
 
-hist.GetYaxis().SetTitle("-2 #DeltalnL")
-hist.GetYaxis().SetTitleOffset(1.2)
+hist.GetXaxis().SetTitleOffset(0.93)
+#hist.GetYaxis().SetTitle("-2 #DeltalnL")
+hist.GetYaxis().SetTitle("q")
+hist.GetYaxis().SetTitleOffset(1.0)
 hist.SetStats(0)
 
 for x_val in res_dic.keys():
@@ -558,14 +560,14 @@ hist.Draw("AXIS")
 fun.SetLineWidth(1503)
 
 for interval in intervals95_f:
-    interval.SetFillColorAlpha(ROOT.kCyan-6,0.9)
-    interval.SetLineColor(ROOT.kCyan-6)
+    interval.SetFillColorAlpha(ROOT.kOrange-2,0.9)
+    interval.SetLineColor(ROOT.kOrange-2)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 
 for interval in intervals68_f:
-    interval.SetFillColorAlpha(ROOT.kGreen-5,0.9)
-    interval.SetLineColor(ROOT.kGreen-5)
+    interval.SetFillColorAlpha(ROOT.kCyan-3,0.9)
+    interval.SetLineColor(ROOT.kCyan-3)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 
