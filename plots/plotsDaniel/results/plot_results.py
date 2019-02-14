@@ -37,7 +37,8 @@ ROOT.setTDRStyle()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument("--model",           action='store', default='EFT', help="Use sigma levels?")
+argParser.add_argument("--testGrayscale",   action='store_true',            help="Because of  reasons...")
+argParser.add_argument("--model",           action='store', default='EFT',  help="Use sigma levels?")
 args = argParser.parse_args()
 
 ## define all the results. EFT
@@ -60,7 +61,7 @@ results_EFT = [\
     },
 ]
 
-ordering_EFT = ['new', 'CMS', 'ATLAS', 'indirect', 'direct']
+ordering_EFT = ['new', 'CMS', 'ATLAS', 'direct', 'indirect']
 
 ## define all the results. BSM
 results_BSM = [\
@@ -91,16 +92,19 @@ else:
     res = results_BSM
     ordering = ordering_BSM
 
-colors = {
-    'new': ROOT.kOrange+1,
-    'CMS': ROOT.kRed+1,
-    'ATLAS': ROOT.kBlue-2,
-    'direct': ROOT.kGreen+2,
-    'indirect': ROOT.kMagenta+1
+styles = {
+    'new': {'color':ROOT.kBlack, 'style':1, 'width':4},
+    'CMS': {'color': ROOT.kRed+1,   'style':1, 'width':3},
+    'ATLAS': {'color': ROOT.kBlue-8, 'style':1, 'width':3},
+    'direct': {'color': ROOT.kSpring+1, 'style':1, 'width':3},
+    'indirect': {'color': ROOT.kOrange+1, 'style':2, 'width':2}
     }
 
 cans = ROOT.TCanvas("cans","",10,10,700,700)
 cans.Range(-10,-1,10,1)
+
+if args.testGrayscale:
+    cans.SetGrayscale()
 
 # draw the axis
 if args.model == 'EFT':
@@ -157,9 +161,11 @@ for p in range(len(res)):
             newLines += [   ROOT.TLine(l[0], start-0.5*i,       l[1], start-0.5*i),
                             ROOT.TLine(l[0], start-0.5*i+0.15,  l[0], start-0.5*i-0.15),
                             ROOT.TLine(l[1], start-0.5*i+0.15,  l[1], start-0.5*i-0.15)]
-            for line in newLines:
-                line.SetLineColor(colors[o])
-                line.SetLineWidth(2)
+            for k,line in enumerate(newLines):
+                line.SetLineColor(styles[o]['color'])
+                line.SetLineWidth(styles[o]['width'])
+                if k == 0:
+                    line.SetLineStyle(styles[o]['style'])
             
             res[p]['lines'] += copy.deepcopy(newLines)
     
@@ -176,7 +182,7 @@ box3.Draw()
 
 
 ## need a legend
-leg = ROOT.TLegend(0.08,0.85-0.04*len(ordering),0.30,0.85)
+leg = ROOT.TLegend(0.05,0.85-0.04*len(ordering),0.40,0.85)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
@@ -185,8 +191,8 @@ leg.AddEntry(res[0]['lines'][0],  "#bf{95% C.L. observed}", 'l')
 if args.model == 'EFT':
     leg.AddEntry(res[0]['lines'][3],  "#bf{prev. CMS (95% C.L.)}", 'l')
     leg.AddEntry(res[0]['lines'][6],  "#bf{ATLAS (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][9],  "#bf{indirect (68% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][12], "#bf{direct (95% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][9],  "#bf{direct (95% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][12], "#bf{indirect (68% C.L.)}", 'l')
 else:
     leg.AddEntry(res[2]['lines'][3],  "#bf{~prev. CMS (68% C.L.)}", 'l')
 
@@ -215,6 +221,9 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 postFix = '_BSM' if args.model == 'BSM' else '_EFT'
+
+if args.testGrayscale:
+    postFix += '_gray'
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"summaryResult"+postFix+e)
