@@ -256,6 +256,7 @@ elif args.model == "dim6top_LO":
         y_par = ''
         allowedIntervals = []
         indirectConstraints = [(-3.4, 7.5)]
+        #indirectConstraints = [(-4.7, 0.7)]
     
     elif args.parameter == "cpt":
         if args.profiling:
@@ -271,6 +272,7 @@ elif args.model == "dim6top_LO":
         else:
             allowedIntervals = [(-22.2, -13.0), (-3.2, 6.0)]
         indirectConstraints = [(-2.5, 7.0)]
+        #indirectConstraints = [(-0.1, 3.7)]
     
     elif args.parameter == "ctZ":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZI == 0 and x.ctZ != 0 ]
@@ -279,6 +281,7 @@ elif args.model == "dim6top_LO":
         y_par = ''
         allowedIntervals = []
         indirectConstraints = []
+        #indirectConstraints = [(-4.7, 0.2)]
     
     elif args.parameter == "ctZI":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZ == 0 and x.ctZI != 0 ]
