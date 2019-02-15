@@ -45,7 +45,7 @@ args = argParser.parse_args()
 results_EFT = [\
     {   'name': 'ctZ',
         'tex': 'C_{tZ}/#Lambda^{2}',
-        'limits': {'new': [(-1.2, 1.2)], 'CMS': [(-2.6,2.6)], 'ATLAS': [(-2.4, 2.4)], 'indirect': [(-4.7, 0.2)], 'direct': [(-1.6, 1.9)]} #direct still needs confirmation. careful with +/- signs
+        'limits': {'new': [(-1.2, 1.2)], 'CMS': [(-2.6,2.6)], 'ATLAS': [(-2.4, 2.4)], 'indirect': [(-4.7, 0.2)], 'direct': [(-2.2, 3.3)]}
     },
     {   'name': 'ctZI',
         'tex': 'C_{tZ}^{[I]}/#Lambda^{2}',
@@ -57,7 +57,7 @@ results_EFT = [\
     },
     {   'name': 'cpQM',
         'tex': 'C_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2}',
-        'limits': {'new': [(-4.9, -1.0)], 'CMS': [], 'ATLAS': [(-3.3, 4.2)], 'indirect': [(-0.7, 4.7)], 'direct': [(-2.5, 1.5)]}
+        'limits': {'new': [(-4.9, -1.0)], 'CMS': [], 'ATLAS': [(-3.3, 4.2)], 'indirect': [(-4.7, 0.7)], 'direct': [(-2.5, 1.5)]}
     },
 ]
 
