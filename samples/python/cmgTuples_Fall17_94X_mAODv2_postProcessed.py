@@ -35,7 +35,9 @@ dirs['TTW']             = ["TTWToLNu_fxfx"]
 dirs['TTX']             = ["TZQToLL","TTHnobb_pow","THQ","THW","TTWToLNu_fxfx","TTZToLLNuNu_m1to10","TTTT","TTWW","TTWZ","TTZZ" ] # TTG in XGamma, tWZ invalid
 dirs['TZQ']             = ["TZQToLL"]
 dirs['TTH']             = ["TTHnobb_pow"]
-
+dirs['TTXX']            = ['TTTT', 'TTWW','TTWZ','TTZZ']                     
+dirs['TWZ']             = ['tWll']
+dirs['TTXrest']         = ['THW','THQ',"TTZToLLNuNu_m1to10"]    
 
 dirs['TTLep_pow']       = ['TTLep_pow']
 #dirs['DY']              = ['DYJetsToLL_M50_comb'] #amc@NLO

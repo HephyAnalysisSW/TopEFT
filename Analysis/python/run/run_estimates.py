@@ -5,7 +5,7 @@ parser.add_option("--noMultiThreading",     dest="noMultiThreading",      defaul
 parser.add_option('--logLevel',             dest="logLevel",              default='INFO',              action='store',      help="log level?", choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'])
 parser.add_option("--controlRegion",        action='store', default='', choices = ['', 'nbtag0-njet1p-3l', 'nbtag0p-njet1p-4l'], help="Use any CRs cut?")
 parser.add_option("--inclusiveRegions",     action='store_true', help="Use any CRs cut?")
-parser.add_option("--sample",               action='store', default='WZ', choices = ["WZ", "TTX", "XG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ", "WWZ","WZZ","ZZZ"], help="Choose which sample to run the estimates for")
+parser.add_option("--sample",               action='store', default='WZ', choices = ["WZ", "TTX", "XG", "rare", "nonprompt", "pseudoData", "TTZ", "Data", "ZZ", "WWZ","WZZ","ZZZ","TTW","TZQ","TTH","TWZ","TTXrest"], help="Choose which sample to run the estimates for")
 parser.add_option("--year",                 action='store',      default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 parser.add_option("--skipSystematics",      action='store_true', help="Don't run the systematic variations")
 parser.add_option("--overwrite",            action='store_true', help="Overwrite?")

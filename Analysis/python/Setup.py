@@ -156,6 +156,10 @@ class Setup:
             WZSample            = WZ_amcatnlo_17
             TTXSample           = TTX_17
             TTWSample           = TTW_17
+            TTHSample           = TTH_17
+            TTXXSample          = TTXX_17
+            TWZSample           = TWZ_17
+            TTXrestSample       = TTX_rest_17
             TZQSample           = TZQ_17
             ZGSample            = ZGTo2LG
             XGSample            = Xgamma
@@ -174,6 +178,10 @@ class Setup:
             WZSample            = WZ_amcatnlo
             TTXSample           = TTX
             TTWSample           = TTW
+            TTHSample           = TTH
+            TTXXSample          = TTXX
+            TWZSample           = TWZ
+            TTXrestSample       = TTX_rest
             TZQSample           = TZQ
             ZGSample            = ZGTo2LG
             XGSample            = Xgamma
