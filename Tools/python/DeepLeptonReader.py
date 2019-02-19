@@ -382,7 +382,8 @@ config.inter_op_parallelism_threads = 1
 set_session(tf.Session(config=config))
 
 #model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
-model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
+#model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
+model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-03/TTs_Muon_biLSTM_splitDense_selu_Training/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','.pkl') 
 
 #from keras.models import load_model
@@ -394,7 +395,7 @@ from keras.models import model_from_json
 deepLeptonModel = model_from_json( model_json )
 deepLeptonModel.set_weights( weights )
 #branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
-branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTrainData/branches_means_vars.pkl"))
+branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-03/TTs_Muon_biLSTM_splitDense_selu_TrainData/branches_means_vars.pkl"))
 
 # patch weights
 weights         = deepLeptonModel.get_weights()
