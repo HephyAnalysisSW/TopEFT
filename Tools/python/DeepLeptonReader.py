@@ -382,7 +382,6 @@ config.inter_op_parallelism_threads = 1
 set_session(tf.Session(config=config))
 
 #model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
-#model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTraining/KERAS_model.h5"
 model_file = "/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-03/TTs_Muon_biLSTM_splitDense_selu_Training/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','.pkl') 
 
