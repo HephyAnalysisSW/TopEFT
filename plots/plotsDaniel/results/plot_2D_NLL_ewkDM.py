@@ -41,19 +41,19 @@ newColorPalette()
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--plot_directory',     action='store',      default='NLL_plots')
-argParser.add_argument('--useBestFit', action='store_true', help="Use best fit value? Default is r=1")
-argParser.add_argument('--smooth', action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
-argParser.add_argument('--model', action='store', choices=["ewkDM", "dim6top_LO"], help="Which model?")
-argParser.add_argument('--plane', action='store', choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
-argParser.add_argument("--useXSec",        action='store_true', help="Use the x-sec information?")
-argParser.add_argument("--useShape",       action='store_true', help="Use the shape information?")
-argParser.add_argument("--prefit",         action='store_true', help="Use pre-fit NLL?")
-argParser.add_argument("--expected",       action='store_true', help="Use expected results?")
-argParser.add_argument("--unblinded",      action='store_true', help="Use unblinded results?")
-argParser.add_argument("--year",           action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
-argParser.add_argument("--combined",       action='store_true', help="Use combined results?")
-
+argParser.add_argument('--plot_directory',  action='store',         default='NLL_plots')
+argParser.add_argument('--useBestFit',      action='store_true',    help="Use best fit value? Default is r=1")
+argParser.add_argument('--smooth',          action='store_true',    help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
+argParser.add_argument('--model',           action='store',         choices=["ewkDM", "dim6top_LO"], help="Which model?")
+argParser.add_argument('--plane',           action='store',         choices=["currents", "dipoles"], default = "current", help="Current of dipole plane?")
+argParser.add_argument("--useXSec",         action='store_true',    help="Use the x-sec information?")
+argParser.add_argument("--useShape",        action='store_true',    help="Use the shape information?")
+argParser.add_argument("--prefit",          action='store_true',    help="Use pre-fit NLL?")
+argParser.add_argument("--expected",        action='store_true',    help="Use expected results?")
+argParser.add_argument("--unblinded",       action='store_true',    help="Use unblinded results?")
+argParser.add_argument("--year",            action='store',         default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
+argParser.add_argument("--combined",        action='store_true',    help="Use combined results?")
+argParser.add_argument("--sigma",           action='store_true',    help="Use sigma levels?")
 args = argParser.parse_args()
 
 year = int(args.year)
@@ -196,6 +196,8 @@ bestNLL = 9999.
 SMPoint = ('SM', x_shift, y_shift)
 bestFitPoint = ('SM', x_shift, y_shift)
 
+missing = []
+
 # scan all results to find best fit
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
@@ -206,8 +208,12 @@ for i,s in enumerate(signals):
             if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0:
                 ttZ_NLL_abs = ttZ_NLL_abs_check
                 bestFitPoint = (s.name, s.var1 + x_shift, s.var2 + y_shift)
+                #bestFitPoint_noShift = 
                 print "Best NLL value", ttZ_NLL_abs_check
             #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+
+    else:
+        missing.append(s.name)
 
 if args.expected: bestFitPoint = SMPoint
 
@@ -260,21 +266,6 @@ for i,s in enumerate(signals):
                 res_dic[(round(s.var1 + x_shift,2), round(s.var2 + y_shift,2))] = round(nll_value,3)
             #else:
             #    print "Omitting..."
-            #x.append(-1.06)
-            #y.append(-0.9)
-            #z.append(100)
-            #
-            #x.append(1.14)
-            #y.append(-0.9)
-            #z.append(100)
-            #
-            #x.append(-1.06)
-            #y.append(0.9)
-            #z.append(100)
-
-            #x.append(1.14)
-            #y.append(0.9)
-            #z.append(100)
 
         else:
             print "No results for %s found"%s.name
@@ -284,7 +275,7 @@ proc = "ttZ"
 
 #print res_dic
 
-multiplier = 3
+multiplier = 3 #5??
 
 a,debug = toGraph2D(proc, proc, len(x), x,y,z)#res_dic)
 nxbins = max(1, min(500, nbins_x*multiplier))
@@ -343,15 +334,20 @@ if args.useShape:
 if args.expected:
     postFix += "_expected"
 if args.smooth:
-    hist.Smooth(1,"k5b")
+    for i in range(2):
+        hist.Smooth(1,"k5b")
     postFix += "_smooth"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
-#contours = {'ttZ': [-0.1,0.,1.,4.]}
-#contours = {'ttZ': [1.,4.]}
-contours = {'ttZ': [1.515**2,2.486**2]}
-#contours = {'ttZ': [1.515**2, 3.5]}
+
+## contours, either 1/2 sigma or 68/95% CL (2 d.o.f)
+# https://stattrek.com/online-calculator/chi-square.aspx
+
+if args.sigma == 'sigma':
+    contours = {'ttZ': [1.515**2,2.486**2]} # 1/2 sigma levels
+else:
+    contours = {'ttZ': [2.28, 5.99]} # 68/95 % CL
 
 drawContours = True
 if drawContours:
@@ -378,6 +374,7 @@ hist.SetMaximum(19.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
+
 hist.Draw("colz")
 alpha = 0.5
 
@@ -385,21 +382,43 @@ if drawContours:
     for conts in [cont_p2]:
         for cont in conts:
             cont.SetLineColor(ROOT.kRed)
-            #cont.SetFillColor(ROOT.kRed)
-            #cont.SetFillColorAlpha(ROOT.kRed, alpha)
-            #cont.SetFillStyle()
             cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
             cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
             cont.SetLineColor(ROOT.kOrange)
-            #cont.SetFillColorAlpha(ROOT.kOrange, alpha)
             cont.SetLineWidth(3)
-            #cont.SetLineStyle(7)
-            #cont.Draw("CFL same")
             cont.Draw("L same")
+
+
+if args.model == "ewkDM" and args.plane == "currents":
+
+    inner = ROOT.TEllipse(0,0, 3*0.24, 0.8*0.6)
+    
+
+    outer_upper = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", hist.GetXaxis().GetXmin(), hist.GetXaxis().GetXmax())
+    inner_upper = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", -3*0.24, 3*0.24 )
+
+    outer_lower = ROOT.TF1("inner_upper", "[0]*(1-x**2/[1]**2)**(0.5)", hist.GetXaxis().GetXmin(), hist.GetXaxis().GetXmax() )
+    inner_lower = ROOT.TF1("inner_lower", "[0]*(1-x**2/[1]**2)**(0.5)", -3*0.24, 3*0.24 )
+    
+    outer_upper.SetParameters(1.5*0.6, 5*0.24)
+    inner_upper.SetParameters(0.8*0.6, 3*0.24)
+    outer_lower.SetParameters(-1.5*0.6, 5*0.24)
+    inner_lower.SetParameters(-0.8*0.6, 3*0.24)
+
+    for l in [outer_upper,outer_lower]:
+        l.SetLineStyle(1)
+        l.SetLineWidth(2)
+        l.SetLineColor(ROOT.kGray+1)
+        l.Draw("same")
+
+    for ell in [inner]:
+        ell.SetFillColorAlpha(0,0)
+        ell.SetFillStyle(1001)
+        ell.SetLineColor(ROOT.kGray+1)
+        ell.SetLineWidth(2)
+        ell.Draw("same")
 
 latex1 = ROOT.TLatex()
 latex1.SetNDC()
@@ -409,7 +428,7 @@ latex1.SetTextAlign(11)
 if not args.unblinded:
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 else:
-    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+    latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
     latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')
@@ -419,15 +438,12 @@ else:
     latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
-    setup.lumi = 35900+41900
+    setup.lumi = 35900+41600
 
 if not args.unblinded:
     latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
 else:
     latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
-
-#latex1.DrawLatex(0.14,0.94,'#bf{anomalous coupling model}')
-#latex1.DrawLatex(0.6,0.94,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 SMpoint = ROOT.TGraph(1)
 SMpoint.SetName("SMpoint")
@@ -454,10 +470,17 @@ leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
 try:
-    leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+    if args.sigma:
+        leg.AddEntry(cont_p2[0], '#bf{2#sigma}', 'l')
+    else:
+        leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
 except:
     pass
-leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
+
+if args.sigma:
+    leg.AddEntry(cont_p1[0], '#bf{1#sigma}', 'l')
+else:
+    leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
 leg.Draw()
 
 
@@ -471,7 +494,7 @@ leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
 leg2.Draw()
 
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_2016_data/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_final/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
@@ -479,6 +502,10 @@ args.year = "COMBINED" if args.combined else args.year
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.plane, setup.name, args.year, postFix)+e)
+
+print "Missing points:"
+for m in missing:
+    print m
 
 if True:
     debug.Draw("ap0")

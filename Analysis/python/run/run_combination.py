@@ -124,7 +124,8 @@ def wrapper(s):
         if args.calcNuisances:
             c.calcNuisances(combinedCard, masks=masks)
 
-        nll = c.physicsModel(combinedCard, options="", normList=["WZ_norm","ZZ_norm"], masks=masks) # fastScan turns of profiling
+        #nll = c.physicsModel(combinedCard, options="", normList=["WZ_norm","ZZ_norm"], masks=masks) # fastScan turns of profiling
+        nll = c.calcNLL(combinedCard)
 
         if nll["nll0"] > 0:
             res.update({"dNLL_postfit_r1":nll["nll"], "dNLL_bestfit":nll["bestfit"], "NLL_prefit":nll["nll0"]})

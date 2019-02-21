@@ -390,6 +390,7 @@ pkl_model_file  =  model_file.replace('.h5','.pkl')
 #print "Written pkl", pkl_model_file
  
 model_json, weights = pickle.load(file( pkl_model_file ))
+
 from keras.models import model_from_json
 deepLeptonModel = model_from_json( model_json )
 deepLeptonModel.set_weights( weights )

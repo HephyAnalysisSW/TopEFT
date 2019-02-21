@@ -37,8 +37,10 @@ from TopEFT.Analysis.regions import *
 from TopEFT.Tools.cutInterpreter import *
 
 #to run on data
-dataLumi2016        = 35900
-dataLumi2017        = 41900
+dataLumi2016        = 35922
+dataLumi2017        = 41530
+#dataLumi2016        = 35900
+#dataLumi2017        = 41900
 dataLumi201617      = dataLumi2016 + dataLumi2017
 dataLumi20161718    = 150000
 dataHighLumi        = 3e6
