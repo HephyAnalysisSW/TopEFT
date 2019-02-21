@@ -39,6 +39,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',  action='store',      default='NLL_plots')
 argParser.add_argument('--useBestFit',      action='store_true', help="Use best fit value? Default is r=1")
+argParser.add_argument('--secondBestFit',   action='store_true', help="Don't use the best fit point as baseline because it might be an outlier.")
 argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
 argParser.add_argument('--smooth',          action='store_true', help="Use histogram smoothing? Potentially dangerous (oversmoothing)!")
 argParser.add_argument('--model',           action='store', choices=["ewkDM", "dim6top_LO"], help="Which model?")
@@ -52,7 +53,7 @@ argParser.add_argument("--unblinded",       action='store_true', help="Use unbli
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--showPoints",      action='store_true', help="Show the points?")
 argParser.add_argument("--profiling",       action='store_true', help="Show the points?")
-argParser.add_argument("--subdir",          action='store', default="NLL_plots_1D_final", help="Show the points?")
+argParser.add_argument("--subdir",          action='store', default="NLL_plots_1D_finalV2", help="Show the points?")
 argParser.add_argument("--sigma",           action='store_true', help="Use sigma levels?")
 args = argParser.parse_args()
 
@@ -255,7 +256,8 @@ elif args.model == "dim6top_LO":
         x_shift = 0.
         y_par = ''
         allowedIntervals = []
-        indirectConstraints = [(-3.4, 7.5)]
+        #indirectConstraints = [(-3.4, 7.5)]
+        indirectConstraints = [(-4.7, 0.7)]
     
     elif args.parameter == "cpt":
         if args.profiling:
@@ -270,7 +272,8 @@ elif args.model == "dim6top_LO":
             allowedIntervals = [(-20.2, 4.0)]
         else:
             allowedIntervals = [(-22.2, -13.0), (-3.2, 6.0)]
-        indirectConstraints = [(-2.5, 7.0)]
+        #indirectConstraints = [(-2.5, 7.0)]
+        indirectConstraints = [(-0.1, 3.7)]
     
     elif args.parameter == "ctZ":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZI == 0 and x.ctZ != 0 ]
@@ -278,7 +281,8 @@ elif args.model == "dim6top_LO":
         x_shift = 0.
         y_par = ''
         allowedIntervals = []
-        indirectConstraints = []
+        #indirectConstraints = []
+        indirectConstraints = [(-4.7, 0.2)]
     
     elif args.parameter == "ctZI":
         signals = [ dim6top_central ] + [ x for x in dim6top_dipoles if x.ctZ == 0 and x.ctZI != 0 ]
@@ -316,8 +320,10 @@ print "Searching for bestfit point"
 
 bestNLL = 9999.
 
-SMPoint = ('SM', x_shift)
-bestFitPoint = ('SM', x_shift)
+SMPoint         = ('SM', x_shift)
+bestFitPoint    = ('SM', x_shift)
+
+allResults      = []
 
 # scan all results to find best fit
 for i,s in enumerate(signals):
@@ -325,12 +331,20 @@ for i,s in enumerate(signals):
         res = resDB.getDicts({"signal":s.name})[-1]
         if type(res) == type({}):
             ttZ_NLL_abs_check = float(res["NLL_prefit"]) + float(res[fitKey])
-            if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0.1:
-                ttZ_NLL_abs = ttZ_NLL_abs_check
-                bestFitPoint = (s.name, s.var1 + x_shift)
-            #limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
+            if ttZ_NLL_abs_check>0.1:
+                allResults.append((s.name, s.var1 + x_shift, ttZ_NLL_abs_check))
+            #if ttZ_NLL_abs_check < ttZ_NLL_abs and ttZ_NLL_abs_check>0.1:
+            #    ttZ_NLL_abs = ttZ_NLL_abs_check
+            #    bestFitPoint = (s.name, s.var1 + x_shift)
+            ##limit = float(res["NLL_prefit"]) + float(res[fitKey]) - ttZ_NLL_abs
 
 if args.expected: bestFitPoint = SMPoint
+
+allResults = sorted(allResults, key=lambda x:x[2])
+print allResults
+bestFitIndex = 1 if args.secondBestFit else 0
+bestFitPoint = (allResults[bestFitIndex][0],allResults[bestFitIndex][1])
+ttZ_NLL_abs  = allResults[bestFitIndex][2]
 
 print "Best fit found for signal %s, %s"%bestFitPoint
 print
@@ -390,7 +404,7 @@ else:
                 print "No results for %s found"%s.name
 
 proc = "ttZ"
-y_max = 26
+y_max = 21
 
 min_delta = findMinDelta(x_forRange)
 x_min = min(x_forRange)
@@ -411,7 +425,7 @@ if x_var == "DC1V":
 elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZ":
     hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "DC1A":
@@ -423,8 +437,10 @@ elif x_var == "cpt":
 elif x_var == "ctZI":
     hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
 
-hist.GetYaxis().SetTitle("-2 #DeltalnL")
-hist.GetYaxis().SetTitleOffset(1.2)
+hist.GetXaxis().SetTitleOffset(0.93)
+#hist.GetYaxis().SetTitle("-2 #DeltalnL")
+hist.GetYaxis().SetTitle("q")
+hist.GetYaxis().SetTitleOffset(1.0)
 hist.SetStats(0)
 
 for x_val in res_dic.keys():
@@ -558,14 +574,14 @@ hist.Draw("AXIS")
 fun.SetLineWidth(1503)
 
 for interval in intervals95_f:
-    interval.SetFillColorAlpha(ROOT.kCyan-6,0.9)
-    interval.SetLineColor(ROOT.kCyan-6)
+    interval.SetFillColorAlpha(ROOT.kOrange-2,0.9)
+    interval.SetLineColor(ROOT.kOrange-2)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 
 for interval in intervals68_f:
-    interval.SetFillColorAlpha(ROOT.kGreen-5,0.9)
-    interval.SetLineColor(ROOT.kGreen-5)
+    interval.SetFillColorAlpha(ROOT.kCyan-3,0.9)
+    interval.SetLineColor(ROOT.kCyan-3)
     interval.SetFillStyle(1111)
     interval.Draw("f1same")
 

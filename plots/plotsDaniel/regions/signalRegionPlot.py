@@ -86,7 +86,7 @@ cardName = "dim6top_LO_ttZ_ll"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
 #cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
-cardName_signal = "dim6top_LO_ttZ_ll_cpQM_m4p000000_cpt_m2p000000" ## best-fit right now
+cardName_signal = "dim6top_LO_ttZ_ll_cpQM_4p000000_cpt_7p000000" ## best-fit right now
 #cardName_signal = "dim6top_LO_ttZ_ll_cpQM_0p000000_cpt_m17p500000"
 #subDir = "nbtag0-njet1p"
 subDir = ""
@@ -271,23 +271,25 @@ totalObs = 0
 nDOF = 0
 Exp = []
 Obs = []
+printChi2 = False
 for i, r in enumerate(regions):
     Exp.append(hists['total'].GetBinContent(i+1))
     Obs.append(hists['observed'].GetBinContent(i+1))
-    print "Region %s"%(i+1)
-    print "SM"
-    print hists['total'].GetBinContent(i+1)
-    print (hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))
-    print hists['total'].GetBinError(i+1)
-    print hists['observed'].GetBinContent(i+1)/hists['total'].GetBinContent(i+1)
-    print "Chi2", ( ((hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))**2) / (hists['total'].GetBinError(i+1)**2) )
-    print "BSM"
-    print hists['BSM'].GetBinContent(i+1)
-    print hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1)
-    print hists['BSM'].GetBinError(i+1)
-    print hists['observed'].GetBinContent(i+1)/hists['BSM'].GetBinContent(i+1)
-    print "Chi2", (hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1))**2/hists['BSM'].GetBinError(i+1)**2
-    print
+    if printChi2:
+        print "Region %s"%(i+1)
+        print "SM"
+        print hists['total'].GetBinContent(i+1)
+        print (hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))
+        print hists['total'].GetBinError(i+1)
+        print hists['observed'].GetBinContent(i+1)/hists['total'].GetBinContent(i+1)
+        print "Chi2", ( ((hists['observed'].GetBinContent(i+1) - hists['total'].GetBinContent(i+1))**2) / (hists['total'].GetBinError(i+1)**2) )
+        print "BSM"
+        print hists['BSM'].GetBinContent(i+1)
+        print hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1)
+        print hists['BSM'].GetBinError(i+1)
+        print hists['observed'].GetBinContent(i+1)/hists['BSM'].GetBinContent(i+1)
+        print "Chi2", (hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1))**2/hists['BSM'].GetBinError(i+1)**2
+        print
     totalExp += hists['total'].GetBinContent(i+1)
     totalObs += hists['observed'].GetBinContent(i+1)
     if hists['total'].GetBinContent(i+1) > 10:# or True:
@@ -296,16 +298,17 @@ for i, r in enumerate(regions):
     if options.signal and hists['BSM'].GetBinContent(i+1) > 10:# or True:
         chi2BSM += (hists['observed'].GetBinContent(i+1) - hists['BSM'].GetBinContent(i+1))**2/hists['BSM'].GetBinError(i+1)**2
 
-    if i == 14:
+    if i == 14 and printChi2:
         print "Intermediate Chi2 values:"
         print chi2SM
         print chi2BSM
 
-print "Chi-squared for SM:", chi2SM
-print "Chi-squared for BSM:", chi2BSM
-print "nDOF:", len(regions)
-print "nDOF (red):", nDOF
-print "Total Obs/Exp:", totalObs/totalExp
+if printChi2:
+    print "Chi-squared for SM:", chi2SM
+    print "Chi-squared for BSM:", chi2BSM
+    print "nDOF:", len(regions)
+    print "nDOF (red):", nDOF
+    print "Total Obs/Exp:", totalObs/totalExp
 
 
 ## get the covariance matrix
@@ -514,7 +517,7 @@ plotting.draw(
                 plots,
                 texX = ""
             ),
-    plot_directory = os.path.join(plot_directory, "signalRegions_v2"),
+    plot_directory = os.path.join(plot_directory, "signalRegions_v3"),
     logX = False, logY = True, sorting = False, 
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
     legend = (0.74,0.54, 0.95, 0.89),

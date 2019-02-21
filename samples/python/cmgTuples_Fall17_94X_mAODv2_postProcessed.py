@@ -32,10 +32,12 @@ dirs['TTZtoLLNuNu']     = ["TTZToLLNuNu_amc_psw"]
 dirs["WZ_amcatnlo"]     = ["WZTo3LNu_fxfx"]
 
 dirs['TTW']             = ["TTWToLNu_fxfx"]
-dirs['TTX']             = ["TZQToLL","TTHnobb_pow","THQ","THW","TTWToLNu_fxfx","TTZToLLNuNu_m1to10","TTTT","TTWW","TTWZ","TTZZ" ] # TTG in XGamma, tWZ invalid
+dirs['TTX']             = ["TZQToLL","TTHnobb_pow","THQ","THW","TTWToLNu_fxfx","TTZToLLNuNu_m1to10","TTTT","TTWW","TTWZ","TTZZ", 'tWll_ext' ] # TTG in XGamma
 dirs['TZQ']             = ["TZQToLL"]
 dirs['TTH']             = ["TTHnobb_pow"]
-
+dirs['TTXX']            = ['TTTT', 'TTWW','TTWZ','TTZZ']                     
+dirs['TWZ']             = ['tWll_ext']
+dirs['TTXrest']         = ['THW','THQ',"TTZToLLNuNu_m1to10"]    
 
 dirs['TTLep_pow']       = ['TTLep_pow']
 #dirs['DY']              = ['DYJetsToLL_M50_comb'] #amc@NLO
@@ -64,6 +66,7 @@ TTZtoLLNuNu_17      = Sample.fromDirectory(name="TTZtoLLNuNu_17",   treeName="Ev
 TTX_17              = Sample.fromDirectory(name="TTX_17",           treeName="Events", isData=False, color=color.TTX,               texName="t(t)X",                                directory=directories['TTX'])
 TTH_17              = Sample.fromDirectory(name="TTH_17",           treeName="Events", isData=False, color=color.TTH,               texName="t#bar{t}H",                            directory=directories['TTH'])
 TTW_17              = Sample.fromDirectory(name="TTW_17",           treeName="Events", isData=False, color=color.TTW,               texName="t#bar{t}W",                            directory=directories['TTW'])
+TWZ_17              = Sample.fromDirectory(name="TWZ_17",           treeName="Events", isData=False, color=color.TTW,               texName="tWZ",                                  directory=directories['TWZ'])
 TZQ_17              = Sample.fromDirectory(name="TZQ_17",           treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tZq",                                  directory=directories['TZQ'])
 TTLep_pow_17        = Sample.fromDirectory(name="TTLep_pow_17",     treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}",                             directory=directories['TTLep_pow'])
 nonpromptMC_17      = Sample.fromDirectory(name="nonprompt_17",     treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt (MC)",                            directory=directories['nonprompt'])

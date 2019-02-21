@@ -303,7 +303,7 @@ elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
 #    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} (1/TeV^{2})")
 elif x_var == "ctZ":
 #    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
     hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
@@ -322,8 +322,9 @@ elif y_var == "ctZI":
 
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
-hist.GetZaxis().SetTitle("-2 #DeltalnL")
-hist.GetZaxis().SetTitleOffset(1.2)
+#hist.GetZaxis().SetTitle("-2 #DeltalnL")
+hist.GetZaxis().SetTitle("q")
+hist.GetZaxis().SetTitleOffset(1.0)
 hist.SetStats(0)
 if args.prefit:
     postFix += "_prefit"
@@ -344,7 +345,7 @@ cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 ## contours, either 1/2 sigma or 68/95% CL (2 d.o.f)
 # https://stattrek.com/online-calculator/chi-square.aspx
 
-if args.sigma == 'sigma':
+if args.sigma:
     contours = {'ttZ': [1.515**2,2.486**2]} # 1/2 sigma levels
 else:
     contours = {'ttZ': [2.28, 5.99]} # 68/95 % CL
@@ -494,7 +495,7 @@ leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
 leg2.Draw()
 
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_final/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_finalV2/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
