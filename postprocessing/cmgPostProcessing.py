@@ -1306,10 +1306,3 @@ if writeToDPM:
 
     # Clean up.
     subprocess.call( [ 'rm', '-rf', directory ] ) # Let's risk it.
-
-#if options.deepLepton and options.theano:
-#    del deepLeptonModel
-#    del evaluator
-#    if os.path.exists( theano_compile_dir ):
-#        logger.info( "Removing theano compile directory %s", theano_compile_dir )
-#        shutil.rmtree( theano_compile_dir )

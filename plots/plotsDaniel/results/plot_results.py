@@ -4,32 +4,12 @@ import ctypes
 import copy
 import shutil
 from functools                      import partial
+from array                          import array
 
 from RootTools.core.standard        import *
 
-## 2016
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-
-## 2017
-data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_94X_Run2017_postProcessed import *
-postProcessing_directory = "TopEFT_PP_2017_mva_v21/trilep/"
-from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
-
-
 from TopEFT.Tools.user              import combineReleaseLocation, analysis_results, plot_directory
-from TopEFT.Tools.niceColorPalette  import niceColorPalette, redColorPalette
-from TopEFT.Tools.helpers           import getCouplingFromName
-from TopEFT.Analysis.Setup          import Setup
-from TopEFT.Tools.resultsDB             import resultsDB
-from TopEFT.Tools.u_float               import u_float
 
-from array import array
 
 # Plot style
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
@@ -45,23 +25,23 @@ args = argParser.parse_args()
 results_EFT = [\
     {   'name': 'ctZ',
         'tex': 'C_{tZ}/#Lambda^{2}',
-        'limits': {'new': [(-1.2, 1.2)], 'CMS': [(-2.6,2.6)], 'ATLAS': [(-2.4, 2.4)], 'indirect': [(-4.7, 0.2)], 'direct': [(-2.2, 3.3)]}
+        'limits': {'new': [(-1.1, 1.1)], 'CMS': [(-2.6,2.6)], 'ATLAS': [(-2.4, 2.4)], 'indirect': [(-4.7, 0.2)], 'direct': [(-2.2, 3.3)], 'maltoni':[(-7.2, 7.7)]}
     },
     {   'name': 'ctZI',
         'tex': 'C_{tZ}^{[I]}/#Lambda^{2}',
-        'limits': {'new': [(-1.3, 1.3)], 'CMS': [], 'ATLAS': [], 'indirect': [], 'direct': []} #nothing else?!
+        'limits': {'new': [(-1.2, 1.2)], 'CMS': [], 'ATLAS': [], 'indirect': [], 'direct': [], 'maltoni':[]} #nothing else?!
     },
     {   'name': 'cpt',
         'tex': 'C_{#varphit}/#Lambda^{2}',
-        'limits': {'new': [(1.0, 5.8)], 'CMS': [(-22.2, -13.0), (-3.2, 6.0)], 'ATLAS': [(-25.0, 5.5)], 'indirect': [(-0.1, 3.7)], 'direct': [(-9.7, 8.3)]}
+        'limits': {'new': [(0.3, 5.4)], 'CMS': [(-22.2, -13.0), (-3.2, 6.0)], 'ATLAS': [(-25.0, 5.5)], 'indirect': [(-0.1, 3.7)], 'direct': [(-9.7, 8.3)], 'maltoni':[(-6.4, 7.3)]}
     },
     {   'name': 'cpQM',
         'tex': 'C_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2}',
-        'limits': {'new': [(-4.9, -1.0)], 'CMS': [], 'ATLAS': [(-3.3, 4.2)], 'indirect': [(-4.7, 0.7)], 'direct': [(-2.5, 1.5)]}
+        'limits': {'new': [(-4.0, 0.05)], 'CMS': [], 'ATLAS': [(-3.3, 4.2)], 'indirect': [(-4.7, 0.7)], 'direct': [(-6.1, 6.2)], 'maltoni':[(-4.2, 3.9)]}
     },
 ]
 
-ordering_EFT = ['new', 'CMS', 'ATLAS', 'direct', 'indirect']
+ordering_EFT = ['new', 'CMS', 'ATLAS', 'maltoni', 'direct', 'indirect']
 
 ## define all the results. BSM
 results_BSM = [\
@@ -94,10 +74,11 @@ else:
 
 styles = {
     'new': {'color':ROOT.kBlack, 'style':1, 'width':4},
-    'CMS': {'color': ROOT.kRed+1,   'style':1, 'width':3},
-    'ATLAS': {'color': ROOT.kBlue-8, 'style':1, 'width':3},
+    'CMS': {'color': ROOT.kRed+2,   'style':1, 'width':3},
+    'ATLAS': {'color': ROOT.kBlue-6, 'style':1, 'width':3},
+    'maltoni': {'color': ROOT.kOrange-2, 'style':1, 'width':3},
     'direct': {'color': ROOT.kSpring+1, 'style':1, 'width':3},
-    'indirect': {'color': ROOT.kOrange+1, 'style':2, 'width':2}
+    'indirect': {'color': ROOT.kBlack, 'style':2, 'width':2}
     }
 
 cans = ROOT.TCanvas("cans","",10,10,700,700)
@@ -191,8 +172,9 @@ leg.AddEntry(res[0]['lines'][0],  "#bf{95% C.L. observed}", 'l')
 if args.model == 'EFT':
     leg.AddEntry(res[0]['lines'][3],  "#bf{prev. CMS (95% C.L.)}", 'l')
     leg.AddEntry(res[0]['lines'][6],  "#bf{ATLAS (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][9],  "#bf{direct (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][12], "#bf{indirect (68% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][9],  "#bf{SMEFiT (95% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][12],  "#bf{TopFitter (95% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][15], "#bf{indirect (68% C.L.)}", 'l')
 else:
     leg.AddEntry(res[2]['lines'][3],  "#bf{~prev. CMS (68% C.L.)}", 'l')
 

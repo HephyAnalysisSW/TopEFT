@@ -495,7 +495,7 @@ leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
 leg2.Draw()
 
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_final/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_finalV2/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

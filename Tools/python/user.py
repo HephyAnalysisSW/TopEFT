@@ -11,7 +11,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     data_directory      = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
     #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     #postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
-    postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
     analysis_results    = results_directory
 
     runOnGentT2 = False
