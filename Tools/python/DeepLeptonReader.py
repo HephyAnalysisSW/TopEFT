@@ -114,8 +114,8 @@ class Evaluator:
                          "lep_eta":operator.attrgetter(collection_name+'_eta'),
                          "lep_dxy":operator.attrgetter(collection_name+'_dxy'),
                           "lep_dz":operator.attrgetter(collection_name+'_dz'),
-                        "lep_edxy":operator.attrgetter(collection_name+'_edxy'),
-                         "lep_edz":operator.attrgetter(collection_name+'_edz'),
+                        #"lep_edxy":operator.attrgetter(collection_name+'_edxy'),
+                         #"lep_edz":operator.attrgetter(collection_name+'_edz'),
                         "lep_ip3d":operator.attrgetter(collection_name+'_ip3d'),
                        "lep_sip3d":operator.attrgetter(collection_name+'_sip3d'),
               "lep_innerTrackChi2":operator.attrgetter(collection_name+'_innerTrackChi2'),
@@ -131,8 +131,8 @@ class Evaluator:
                     "lep_relIso03":operator.attrgetter(collection_name+'_relIso03'),
            "lep_miniRelIsoCharged":operator.attrgetter(collection_name+'_miniRelIsoCharged'),
            "lep_miniRelIsoNeutral":operator.attrgetter(collection_name+'_miniRelIsoNeutral'),
-                "lep_jetPtRatiov1":operator.attrgetter(collection_name+'_jetPtRatiov1'),
-                  "lep_jetPtRelv1":operator.attrgetter(collection_name+'_jetPtRelv1'),
+                #"lep_jetPtRatiov1":operator.attrgetter(collection_name+'_jetPtRatiov1'),
+                  #"lep_jetPtRelv1":operator.attrgetter(collection_name+'_jetPtRelv1'),
                 "lep_jetPtRatiov2":operator.attrgetter(collection_name+'_jetPtRatiov2'),
                   "lep_jetPtRelv2":operator.attrgetter(collection_name+'_jetPtRelv2'),
               "lep_jetBTagDeepCSV":operator.attrgetter(collection_name+'_jetBTagDeepCSV'),
@@ -211,7 +211,7 @@ class Evaluator:
                         "SV_chi2_ptSorted":operator.attrgetter("DL_SV_chi2"),
                         "SV_ndof_ptSorted":operator.attrgetter("DL_SV_ndof"),
                          "SV_dxy_ptSorted":operator.attrgetter("DL_SV_dxy"),
-                        "SV_edxy_ptSorted":operator.attrgetter("DL_SV_edxy"),
+                        #"SV_edxy_ptSorted":operator.attrgetter("DL_SV_edxy"),
                         "SV_ip3d_ptSorted":operator.attrgetter("DL_SV_ip3d"),
                        "SV_eip3d_ptSorted":operator.attrgetter("DL_SV_eip3d"),
                        "SV_sip3d_ptSorted":operator.attrgetter("DL_SV_sip3d"),
@@ -373,6 +373,9 @@ class Evaluator:
 
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
+#from keras.backend import clear_session
+#clear_session()
+
 config = tf.ConfigProto()
 #config.gpu_options.per_process_gpu_memory_fraction = 0.3
 #config.gpu_options.allow_growth = True
@@ -383,6 +386,13 @@ set_session(tf.Session(config=config))
 
 #model_file = "/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTraining/KERAS_model.h5"
 model_file = "/afs/hephy.at/data/cms02/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_Training/KERAS_model.h5"
+
+import h5py
+f = h5py.File(model_file, 'r+')
+if 'optimizer_weights' in f.keys():
+    del f['optimizer_weights']
+f.close()
+
 pkl_model_file  = model_file.replace('.h5','.pkl') 
 
 from keras.models import load_model
