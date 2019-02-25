@@ -385,10 +385,10 @@ set_session(tf.Session(config=config))
 model_file = "/afs/hephy.at/data/cms02/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_Training/KERAS_model.h5"
 pkl_model_file  = model_file.replace('.h5','.pkl') 
 
-#from keras.models import load_model
-#deepLeptonModel = load_model(model_file)
-#pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(pkl_model_file,'w'))
-#print "Written pkl", pkl_model_file
+from keras.models import load_model
+deepLeptonModel = load_model(model_file)
+pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(pkl_model_file,'w'))
+print "Written pkl", pkl_model_file
  
 model_json, weights = pickle.load(file( pkl_model_file ))
 
