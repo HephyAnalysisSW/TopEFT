@@ -161,7 +161,8 @@ modification_dict = {"process":"ttZ_ll"}
 
 if args.model == "dim6top_LO":
     # This is for the fine scan (should be merged)
-    xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    #xsecDB = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/xsec_DBv2.db"
+    xsecDB = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DB_robert.db"
     # This is for the coarse scan
     xsecDB_Backup = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/xsec_DBv2.db"
     if args.signal == "dipoles":

@@ -51,6 +51,7 @@ argParser.add_argument("--useShape",        action='store_true',    help="Use th
 argParser.add_argument("--prefit",          action='store_true',    help="Use pre-fit NLL?")
 argParser.add_argument("--expected",        action='store_true',    help="Use expected results?")
 argParser.add_argument("--unblinded",       action='store_true',    help="Use unblinded results?")
+argParser.add_argument("--preliminary",     action='store_true',    help="Use unblinded results?")
 argParser.add_argument("--year",            action='store',         default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--combined",        action='store_true',    help="Use combined results?")
 argParser.add_argument("--sigma",           action='store_true',    help="Use sigma levels?")
@@ -303,10 +304,10 @@ elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
 #    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZ":
 #    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
-    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} [1/TeV^{2}]")
 
 hist.GetXaxis().SetNdivisions(505)
 if y_var == "DC1A":
@@ -315,10 +316,10 @@ elif y_var == "DC2A":
     hist.GetYaxis().SetTitle("C_{2,A}")
 elif y_var == "cpt":
 #    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
-    hist.GetYaxis().SetTitle("c_{#varphit}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetYaxis().SetTitle("c_{#varphit}/#Lambda^{2} [1/TeV^{2}]")
 elif y_var == "ctZI":
 #    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
-    hist.GetYaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetYaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} [1/TeV^{2}]")
 
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
@@ -338,6 +339,8 @@ if args.smooth:
     for i in range(2):
         hist.Smooth(1,"k5b")
     postFix += "_smooth"
+if args.preliminary:
+    postFix += "_preliminary"
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
@@ -382,12 +385,12 @@ alpha = 0.5
 if drawContours:
     for conts in [cont_p2]:
         for cont in conts:
-            cont.SetLineColor(ROOT.kRed)
+            cont.SetLineColor(ROOT.kBlack)
             cont.SetLineWidth(3)
             cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
-            cont.SetLineColor(ROOT.kOrange)
+            cont.SetLineColor(ROOT.kBlue-6)
             cont.SetLineWidth(3)
             cont.Draw("L same")
 
@@ -429,14 +432,17 @@ latex1.SetTextAlign(11)
 if not args.unblinded:
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 else:
-    latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
+    if args.preliminary:
+        latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+    else:
+        latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
-    latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')
+    latex1.DrawLatex(0.14,0.91,'#bf{Anomalous}')
     latex1.DrawLatex(0.14,0.87,'#bf{coupling model}')
 else:
-    latex1.DrawLatex(0.14,0.91,'#bf{top EFT}')
-    latex1.DrawLatex(0.14,0.87,'#bf{model}')
+    latex1.DrawLatex(0.14,0.91,'#bf{SMEFT}')
+#    latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
     setup.lumi = 35900+41600
@@ -455,12 +461,12 @@ print SMPoint[1], SMPoint[2], 1
 SMpoint.SetPoint(0, SMPoint[1], SMPoint[2])
 BFpoint.SetPoint(0, bestFitPoint[1], bestFitPoint[2])
 
-SMpoint.SetMarkerStyle(23)
+SMpoint.SetMarkerStyle(34)
 SMpoint.SetMarkerSize(2)
 SMpoint.SetMarkerColor(ROOT.kRed+2)
-BFpoint.SetMarkerStyle(22)
+BFpoint.SetMarkerStyle(33)
 BFpoint.SetMarkerSize(2)
-BFpoint.SetMarkerColor(ROOT.kBlue+2)
+BFpoint.SetMarkerColor(ROOT.kBlue-6)
 
 SMpoint.Draw("p same")
 BFpoint.Draw("p same")
@@ -474,14 +480,14 @@ try:
     if args.sigma:
         leg.AddEntry(cont_p2[0], '#bf{2#sigma}', 'l')
     else:
-        leg.AddEntry(cont_p2[0], '#bf{95% C.L.}', 'l')
+        leg.AddEntry(cont_p2[0], '#bf{95% CL}', 'l')
 except:
     pass
 
 if args.sigma:
     leg.AddEntry(cont_p1[0], '#bf{1#sigma}', 'l')
 else:
-    leg.AddEntry(cont_p1[0], '#bf{68% C.L.}', 'l')
+    leg.AddEntry(cont_p1[0], '#bf{68% CL}', 'l')
 leg.Draw()
 
 

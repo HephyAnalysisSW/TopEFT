@@ -50,6 +50,7 @@ argParser.add_argument("--prefit",          action='store_true', help="Use pre-f
 argParser.add_argument("--expected",        action='store_true', help="Use expected results?")
 argParser.add_argument("--inclusiveRegions", action='store_true', help="Use inclusive signal regions?")
 argParser.add_argument("--unblinded",       action='store_true', help="Use unblinded results?")
+argParser.add_argument("--preliminary",     action='store_true', help="Add preliminary label")
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--showPoints",      action='store_true', help="Show the points?")
 argParser.add_argument("--profiling",       action='store_true', help="Show the points?")
@@ -425,17 +426,17 @@ if x_var == "DC1V":
 elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZ":
-    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "DC1A":
     hist.GetXaxis().SetTitle("C_{1,A}")
 elif x_var == "DC2A":
     hist.GetXaxis().SetTitle("C_{2,A}")
 elif x_var == "cpt":
-    hist.GetXaxis().SetTitle("c_{#varphit}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{#varphit}/#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZI":
-    hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} (1/TeV^{2})")
+    hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} [1/TeV^{2}]")
 
 hist.GetXaxis().SetTitleOffset(0.93)
 #hist.GetYaxis().SetTitle("-2 #DeltalnL")
@@ -559,6 +560,9 @@ if args.inclusiveRegions:
     postFix += "inclusiveSR"
 if args.profiling:
     postFix += "_profiled"
+if args.preliminary:
+    postFix += "_preliminary"
+
 
 cans = ROOT.TCanvas("can_%s"%proc,"",700,700)
 
@@ -649,7 +653,7 @@ BFpoint.SetPoint(0, bestFitX, hist.GetMaximum()/100.)
 SMpoint.SetMarkerStyle(23)
 SMpoint.SetMarkerSize(2)
 SMpoint.SetMarkerColor(ROOT.kRed+2)
-BFpoint.SetMarkerStyle(22)
+BFpoint.SetMarkerStyle(34)
 BFpoint.SetMarkerSize(2)
 BFpoint.SetMarkerColor(ROOT.kBlue+2)
 
@@ -668,14 +672,17 @@ latex1.SetTextAlign(11)
 if not args.unblinded:
     latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 else:
-    latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
+    if args.preliminary:
+        latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+    else:
+        latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
-    latex1.DrawLatex(0.14,0.91,'#bf{anomalous}')
+    latex1.DrawLatex(0.14,0.91,'#bf{Anomalous}')
     latex1.DrawLatex(0.14,0.87,'#bf{coupling model}')
 else:
-    latex1.DrawLatex(0.14,0.91,'#bf{top EFT}')
-    latex1.DrawLatex(0.14,0.87,'#bf{model}')
+    latex1.DrawLatex(0.14,0.91,'#bf{SMEFT}')
+#    latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
     setup.lumi = 35900+41600
@@ -695,8 +702,8 @@ if args.sigma:
     leg.AddEntry(intervals95_f[0], '#bf{2#sigma}', 'f')
     leg.AddEntry(intervals68_f[0], '#bf{1#sigma}', 'f')
 else:
-    leg.AddEntry(intervals95_f[0], '#bf{95% C.L.}', 'f')
-    leg.AddEntry(intervals68_f[0], '#bf{68% C.L.}', 'f')
+    leg.AddEntry(intervals95_f[0], '#bf{95% CL}', 'f')
+    leg.AddEntry(intervals68_f[0], '#bf{68% CL}', 'f')
 
 leg.Draw()
 
@@ -717,7 +724,7 @@ leg3.SetTextSize(0.035)
 if indirectConstraints:
     leg3.AddEntry(boxesIndirect[0], '#bf{Indirect}', 'f')
 if allowedIntervals:
-    leg3.AddEntry(boxes[0], '#bf{Prev. CMS}', 'f')
+    leg3.AddEntry(boxes[0], '#bf{CMS 35.9 fb^{-1}}', 'f')
 else:
     leg3.AddEntry(None, '', '')
 #leg3.AddEntry(None, '#bf{%s}'%y_par, '')

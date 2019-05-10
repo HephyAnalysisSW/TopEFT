@@ -18,6 +18,7 @@ ROOT.setTDRStyle()
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument("--testGrayscale",   action='store_true',            help="Because of  reasons...")
+argParser.add_argument("--preliminary",     action='store_true',            help="Because of  reasons...")
 argParser.add_argument("--model",           action='store', default='EFT',  help="Use sigma levels?")
 args = argParser.parse_args()
 
@@ -74,7 +75,7 @@ else:
 
 styles = {
     'new': {'color':ROOT.kBlack, 'style':1, 'width':4},
-    'CMS': {'color': ROOT.kRed+2,   'style':1, 'width':3},
+    'CMS': {'color': ROOT.kRed+1,   'style':1, 'width':3},
     'ATLAS': {'color': ROOT.kBlue-6, 'style':1, 'width':3},
     'maltoni': {'color': ROOT.kOrange-2, 'style':1, 'width':3},
     'direct': {'color': ROOT.kSpring+1, 'style':1, 'width':3},
@@ -113,12 +114,9 @@ box3 = ROOT.TLine(-9.5, 0.85, 9.5, 0.85)
 pads = []
 
 ### Get all the pads ###
-print len(res)
 for p in range(len(res)):
     y_lo = 0.9-0.8*((p+1.)/len(res))
     y_hi = 0.9-0.8*(float(p)/len(res))
-
-    print y_lo, y_hi
 
     pads.append(ROOT.TPad("pad_%s"%p,"pad_%s"%p, 0.5/20, y_lo, 19.5/20, y_hi ))
     pads[-1].Range(lower,0,upper,5)
@@ -168,15 +166,15 @@ leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(res[0]['lines'][0],  "#bf{95% C.L. observed}", 'l')
+leg.AddEntry(res[0]['lines'][0],  "#bf{CMS 77.5 fb^{-1} (95% CL)}", 'l')
 if args.model == 'EFT':
-    leg.AddEntry(res[0]['lines'][3],  "#bf{prev. CMS (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][6],  "#bf{ATLAS (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][9],  "#bf{SMEFiT (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][12],  "#bf{TopFitter (95% C.L.)}", 'l')
-    leg.AddEntry(res[0]['lines'][15], "#bf{indirect (68% C.L.)}", 'l')
+    leg.AddEntry(res[0]['lines'][3],  "#bf{CMS 35.9 fb^{-1} (95% CL)}", 'l')
+    leg.AddEntry(res[0]['lines'][6],  "#bf{ATLAS 36.1 fb^{-1} (95% CL)}", 'l')
+    leg.AddEntry(res[0]['lines'][9],  "#bf{SMEFiT (95% CL)}", 'l')
+    leg.AddEntry(res[0]['lines'][12], "#bf{TopFitter (95% CL)}", 'l')
+    leg.AddEntry(res[0]['lines'][15], "#bf{Indirect (68% CL)}", 'l')
 else:
-    leg.AddEntry(res[2]['lines'][3],  "#bf{~prev. CMS (68% C.L.)}", 'l')
+    leg.AddEntry(res[2]['lines'][3],  "#bf{~prev. CMS (68% CL)}", 'l')
 
 leg.Draw()
 
@@ -188,7 +186,10 @@ latex1.SetNDC()
 latex1.SetTextSize(0.06)
 latex1.SetTextAlign(11)
 
-latex1.DrawLatex(0.03,0.94,'CMS')
+if args.preliminary:
+    latex1.DrawLatex(0.03,0.94,'CMS #bf{#it{Preliminary}}')
+else:
+    latex1.DrawLatex(0.03,0.94,'CMS')
 
 latex2 = ROOT.TLatex()
 latex2.SetNDC()
@@ -203,6 +204,7 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 postFix = '_BSM' if args.model == 'BSM' else '_EFT'
+if args.preliminary: postFix += '_preliminary'
 
 if args.testGrayscale:
     postFix += '_gray'

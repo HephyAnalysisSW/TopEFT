@@ -20,6 +20,7 @@ parser.add_option('--overwrite',            dest="overwrite", default = False, a
 parser.add_option('--postFit',              dest="postFit", default = False, action = "store_true", help="Apply pulls?")
 parser.add_option('--bestFit',              dest="bestFit", default = False, action = "store_true", help="Apply pulls to signal?")
 parser.add_option('--expected',             action = "store_true", help="Run expected?")
+parser.add_option('--preliminary',          action = "store_true", help="Run expected?")
 parser.add_option("--year",                 action='store',      default=2016, type="int", help='Which year?')
 (options, args) = parser.parse_args()
 
@@ -49,18 +50,16 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None)
 # regions like in the cards
 regions = regionsE + regions4lB
 regions += regions
-#regions = regionsE
 
 # processes (and names) like in the card
 processes = [
     ('signal', 't#bar{t}Z'),
     ('WZ', 'WZ'),
     ('ZZ', 'ZZ'),
-    ('nonPromptDD', 'non-prompt'),
+    ('nonPromptDD', 'Nonprompt'),
     ('TTX', 't(#bar{t})X'),
-#    ('TTW', 't#bar{t}W'),
     ('XG', 'X#gamma'),
-    ('rare', 'rare'),
+    ('rare', 'Rare'),
     ]
 
 # uncertainties like in the card
@@ -80,29 +79,16 @@ else:
 if options.combine:
     lumiStr = 35.92+41.53
 
-#cardName = "ewkDM_ttZ_ll"
 cardName = "dim6top_LO_ttZ_ll"
-#cardName_signal = "ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m1p200000"
-#cardName_signal = "ewkDM_ttZ_ll_DC2A_0p150000_DC2V_m0p150000"
-#cardName_signal = "ewkDM_ttZ_ll_DC2A_0p250000_DC2V_m0p150000"
-#cardName_signal = "ewkDM_ttZ_ll_DC1V_m1p000000"
 cardName_signal = "dim6top_LO_ttZ_ll_cpQM_4p000000_cpt_7p000000" ## best-fit right now
-#cardName_signal = "dim6top_LO_ttZ_ll_cpQM_0p000000_cpt_m17p500000"
-#subDir = "nbtag0-njet1p"
 subDir = ""
 WZreweight = "" if not options.WZreweight else "WZreweight_"
 expected = "" if not options.expected else "expected_"
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc/%s/ewkDM_dipoles/"%(options.year,subDir)
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_20167_xsec_shape_lowUnc/%s/ewkDM_currents/"%subDir
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_allChannelsV8/%s/ewkDM_dipoles/"%(options.year,subDir)
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%sSRandCR/%s/ewkDM_dipoles/"%(options.year,WZreweight,subDir)
 cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_%s_xsec_shape_lowUnc_%s%sSRandCR/%s/dim6top_LO_currents/"%(options.year,expected,WZreweight,subDir)
 
 if options.combine:
     cardDir = cardDir.replace('2016', 'COMBINED')
 
-#cardName = "ewkDM_ttZ_ll_DC1A_0p900000_DC1V_0p900000"
-#cardDir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/cardFiles/regionsE_shape_lowUnc/ewkDM_currents/"
 cardFile = "%s/%s.txt"%(cardDir, cardName)
 cardFile_signal = "%s/%s.txt"%(cardDir, cardName_signal)
 
@@ -150,8 +136,6 @@ for i, r in enumerate(regions):
                     pYield     += tmpYield
                     preYield   += postFitResults['results']['shapes_prefit'][binName][proc]
                     tmpError    = tmpYield.sigma
-                    #print "Stat error"
-                    #print tmpError
 
                     if tmpError/tmpYield.val > 10:
                         tmpError = tmpYield.val
@@ -197,6 +181,7 @@ for i, r in enumerate(regions):
         hists[p].SetBinContent(i+1, pYield.val)
         hists[p].SetBinError(i+1,0)
         hists[p].legendText = tex
+        hists[p].legendOption = 'f'
         if not p == 'total':
            hists[p].style = styles.fillStyle( getattr(color, p.replace('_2016','')), lineColor=getattr(color,p.replace('_2016','')), errors=False )
 
@@ -243,7 +228,6 @@ for i, r in enumerate(regions):
         hists['BSM'].SetBinContent(i+1, pYield + backgroundYield.val)
         hists['BSM'].SetBinError(i+1, math.sqrt(pError + backgroundUncertainty))
         hists['BSM'].legendText = "EFT best-fit"
-        #hists['BSM'].legendText = "c_{#varphit}=-17.5"
 
 
 ## data ##
@@ -261,8 +245,10 @@ for i, r in enumerate(regions):
         if not isData:
             hists['observed'].legendText = 'Total SM'
         else:
-            hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data (2016+2017)'
+            hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data'
     
+hists['observed'].legendOption = 'p'
+hists['BSM'].legendOption = 'l'
 ## manually calculate the chi2 (no correlations).
 chi2SM  = 0
 chi2BSM = 0
@@ -402,13 +388,13 @@ def drawLabelsLower( regions ):
     tex.SetTextFont(42)
     tex.SetTextAngle(0)
     tex.SetTextAlign(23) # align right
-    min = 0.15
-    max = 0.95
+    min = 0.08
+    max = 0.97
     diff = (max-min) / len(regions)
     
-    lines  = [(min+6*diff, 0.10, "N_{b}=0"),        (min+13.5*diff, 0.10, "N_{b}#geq0"),      (min+21*diff, 0.10, "N_{b}#geq1"),      (min+28.5*diff, 0.10, "N_{b}#geq1")]
-    lines += [(min+6*diff, 0.21, "N_{jet}#geq1"),   (min+13.5*diff, 0.21, "N_{jet}#geq0"),    (min+21*diff, 0.21, "N_{jet}#geq3"),    (min+28.5*diff, 0.21, "N_{jet}#geq1")]
-    lines += [(min+6*diff, 0.32, "N_{lep}=3"),      (min+13.5*diff, 0.32, "N_{lep}=4"),       (min+21*diff, 0.32, "N_{lep}=3"),       (min+28.5*diff, 0.32, "N_{lep}=4")]
+    lines  = [(min+6*diff, 0.11, "N_{b} = 0"),      (min+13.5*diff, 0.11, "N_{b} #geq 0"),    (min+21*diff, 0.11, "N_{b} #geq 1"),    (min+28.5*diff, 0.11, "N_{b} #geq 1")]
+    lines += [(min+6*diff, 0.22, "N_{j} #geq 1"),   (min+13.5*diff, 0.22, "N_{j} #geq 0"),    (min+21*diff, 0.22, "N_{j} #geq 3"),    (min+28.5*diff, 0.22, "N_{j} #geq 1")]
+    lines += [(min+6*diff, 0.33, "N_{l} = 3"),      (min+13.5*diff, 0.33, "N_{l} = 4"),       (min+21*diff, 0.33, "N_{l} = 3"),       (min+28.5*diff, 0.33, "N_{l} = 4")]
 
     return [tex.DrawLatex(*l) for l in lines]
 
@@ -419,18 +405,18 @@ def drawHeadlineLower( regions ):
     tex.SetTextFont(42)
     tex.SetTextAngle(0)
     tex.SetTextAlign(23) # align right
-    min = 0.15
-    max = 0.95
+    min = 0.10
+    max = 0.97
     diff = (max-min) / len(regions)
 
-    lines  = [(min+8*diff, 0.415, "Control Region"),        (min+23*diff, 0.415, "Signal Region")]
+    lines  = [(min+8*diff, 0.45, "Control Region"),        (min+23*diff, 0.45, "Signal Region")]
 
     return [tex.DrawLatex(*l) for l in lines]
 
 
 def drawDivisionsLower(regions):
-    min = 0.15
-    max = 0.95
+    min = 0.08
+    max = 0.97
     diff = (max-min) / len(regions)
     lines = []
     lines2 = []
@@ -439,13 +425,13 @@ def drawDivisionsLower(regions):
     line.SetLineWidth(1)
     line.SetLineStyle(2)
     #lines = [ (min+3*i*diff,  0.01, min+3*i*diff, 0.45) for i in range(1,10) ]
-    lines = [ (min +0*diff, 0.01, min +0*diff, 0.50), (min +12*diff, 0.01, min +12*diff, 0.32), (min +15*diff, 0.01, min +15*diff, 1.0), (min +27*diff, 0.01, min +27*diff, 0.32), (min +30*diff, 0.01, min +30*diff, 0.50)]
+    lines = [ (min +0*diff, 0.01, min +0*diff, 0.60), (min +12*diff, 0.01, min +12*diff, 0.32), (min +15*diff, 0.01, min +15*diff, 1.0), (min +27*diff, 0.01, min +27*diff, 0.32), (min +30*diff, 0.01, min +30*diff, 0.60)]
     return [line.DrawLineNDC(*l) for l in lines] + [tex.DrawLatex(*l) for l in []] + [tex2.DrawLatex(*l) for l in lines2]
 
 
 def drawDivisions(regions):
-    min = 0.15
-    max = 0.95
+    min = 0.08
+    max = 0.97
     diff = (max-min) / len(regions)
     lines = []
     lines2 = []
@@ -463,7 +449,7 @@ def drawBinNumbers(numberOfBins):
     tex.SetTextSize(0.13 )
     tex.SetTextAlign(23) # align right
     min = 0.15
-    max = 0.95
+    max = 0.97
     diff = (max-min) / numberOfBins
     lines = [(min+(i+0.5)*diff, 0.35 ,  str(i)) for i in range(numberOfBins)]
     return [tex.DrawLatex(*l) for l in lines]
@@ -471,11 +457,11 @@ def drawBinNumbers(numberOfBins):
 def drawObjects( isData=False, lumi=36. ):
     tex = ROOT.TLatex()
     tex.SetNDC()
-    tex.SetTextSize(0.04)
+    tex.SetTextSize(0.05)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Simulation') if not isData else (0.15, 0.95, 'CMS'),# #bf{#it{Preliminary}}'),
-      (0.75, 0.95, '%sfb^{-1} (13 TeV)'%lumi )
+      (0.08, 0.945, 'CMS Simulation') if not isData else ( (0.08, 0.945, 'CMS') if not options.preliminary else (0.08, 0.945, 'CMS #bf{#it{Preliminary}}')),
+      (0.78, 0.945, '#bf{%s fb^{-1} (13 TeV)}'%lumi )
     ]
     return [tex.DrawLatex(*l) for l in lines]
 
@@ -511,21 +497,27 @@ if options.blinded:
     plotName += "_blinded"
 if options.bestFit:
     plotName += "_bestFit"
+if options.preliminary:
+    plotName += "_preliminary"
 
 plotting.draw(
     Plot.fromHisto(plotName,
                 plots,
-                texX = ""
+                texX = "",
+                texY = 'Number of events',
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions_v3"),
     logX = False, logY = True, sorting = False, 
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
     legend = (0.74,0.54, 0.95, 0.89),
-    widths = {'x_width':1400, 'y_width':600},
+    widths = {'x_width':1300, 'y_width':700, 'y_ratio_width':300},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'histModifications':[], 'texY':'Data/Pred', 'histos':[(2,0),(1,0)] if options.signal else [(1,0)]} ,
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'texY':'Data/pred', 'histos':[(2,0),(1,0)] if options.signal else [(1,0)],
+            'histModifications': [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2), lambda h: h.GetXaxis().SetTitleSize(32), lambda h: h.GetXaxis().SetLabelSize(27), lambda h: h.GetXaxis().SetLabelOffset(0.035)]} ,
     drawObjects = drawObjects,
+    histModifications = [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2)],
+    canvasModifications = [ lambda c : c.SetLeftMargin(0.08), lambda c : c.GetPad(2).SetLeftMargin(0.08), lambda c : c.GetPad(1).SetLeftMargin(0.08), lambda c: c.GetPad(2).SetBottomMargin(0.60), lambda c : c.GetPad(1).SetRightMargin(0.03), lambda c: c.GetPad(2).SetRightMargin(0.03) ],
     copyIndexPHP = True,
 )
 

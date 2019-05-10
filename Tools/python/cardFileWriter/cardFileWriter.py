@@ -350,6 +350,8 @@ class cardFileWriter:
         logger.info("Putting combined card into dir %s", resPath)
         shutil.copyfile(uniqueDirname+"/combinedCard.txt", resFile)
 
+        shutil.rmtree(uniqueDirname)
+
         return resFile
 
     def calcNLL(self, fname=None, options=""):
