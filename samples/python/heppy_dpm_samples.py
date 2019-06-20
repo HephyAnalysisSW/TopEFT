@@ -223,16 +223,82 @@ lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_direct
 #lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
 
 # Summer16 MC fullevents for Deeplepton
-lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
-robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
-mc_dpm_directories =robert_2016_1l_full_events 
+lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v6.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+tim_2016_full_events = [ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/'] 
+mc_dpm_directories = tim_2016_full_events 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-lepton_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
+full_events_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v6"])
+#lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
+
+# Summer17 MC fullevents for Deeplepton
+lepton_2017_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_Fall17_2017_full_events_v1.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+tim_2017_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-4to50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-4to50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-4to50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-4to50_HT-600toInf_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ST_s-channel_4f_leptonDecays_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1_fullEvents_v1/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/TTZToLL_M-1to10_TuneCP5_13TeV-amcatnlo-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/VVTo2L2Nu_13TeV_amcatnloFXFX_madspin_pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8/',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/WZZ_TuneCP5_13TeV-amcatnlo-pythia8',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ZZTo4L_13TeV_powheg_pythia8',
+ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8']
+mc_dpm_directories = tim_2017_full_events 
+from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_mc_Moriond_samples
+full_events_2017_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
 #lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
 
 # Data 2016, 07Aug17
-data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
-robert_2016_1l_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
-data_dpm_directories = robert_2016_1l_v3
+data16_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
+tim_2016_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/MET/']  #['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+data_dpm_directories = tim_2016_v3
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-lepton_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
+full_events_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data16_cache_file, multithreading=multithreading)
+
+# Data 2017, 31Mar18
+data17_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2017_data_2017_full_events_v1.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
+tim_2017_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/']  #['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+data_dpm_directories = tim_2017_v1
+from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples
+full_events_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data17_cache_file, multithreading=multithreading)
+
+# Signal 2016, SMS
+signal_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/signal_SMS_T2tt_dM_10to80_2016_v6.pkl'
+tim_2016_signal = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/']
+signal_dpm_directories = tim_2016_signal
+from CMGTools.RootTools.samples.samples_13TeV_signals import signalSamples as heppy_signal_samples
+signal_SMS_T2tt_dM_10to80_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v6"])
+
+
+#test
+test_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/test.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+test_2016_full_events = [ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_full_events_2016_v6/']
+test_dpm_directories = test_2016_full_events
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+test_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, test_dpm_directories, test_cache_file, multithreading=multithreading)

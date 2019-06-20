@@ -17,6 +17,7 @@ special_cuts = {
     "dilepOFOS":         "nGoodElectrons==1&&nGoodMuons==1&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "dilepOS":           "nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "dilepSFOS":         "(nGoodElectrons==2||nGoodMuons==2)&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
+#    "dilepSFOS":         "(nGoodElectrons+nGoodMuons==2)&&nlep==2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "trilep":            "nLeptons_tight_3l==3&&!(nLeptons_tight_4l>=4)",
     "trilepFO":          "nLeptons_FO_3l>=3&&!(nLeptons_tight_3l==3)&&!(nLeptons_tight_4l>=4)",
     "looseVetoDL":       "nlep==2",

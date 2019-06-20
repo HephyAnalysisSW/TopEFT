@@ -45,6 +45,8 @@ def fromHeppySample(sample, data_path, module = None, force_sample_map = None, m
         module_ = 'CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2'
     elif "ewkDM" in sample:
         module_ = 'CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2'
+    elif "SMS_T2tt_dM_10to80" in sample:
+        module_ = 'CMGTools.RootTools.samples.samples_13TeV_signals'
     else: 
         if MCgeneration == "Summer17":
             module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2'
@@ -63,7 +65,7 @@ def fromHeppySample(sample, data_path, module = None, force_sample_map = None, m
         raise ValueError( "Not a good dataset name: '%s'"%heppy_sample.dataset )
 
     path = os.path.join( data_path, subDir )
-
+    print("_____________", path)
     from RootTools.core.helpers import renew_proxy
     user = os.environ['USER']
     # Make proxy in afs to allow batch jobs to run
@@ -75,6 +77,7 @@ def fromHeppySample(sample, data_path, module = None, force_sample_map = None, m
         logger.info("Not checking your proxy. Asuming you know it's still valid.")
     logger.info( "Using proxy %s"%proxy )
     if force_sample_map is not None:
+        print('force sample map:  ', force_sample_map)
         mapper = getattr(importlib.import_module( 'TopEFT.samples.heppy_dpm_samples' ), force_sample_map )
         return mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
     if "07Aug17" in sample:
@@ -100,7 +103,10 @@ def fromHeppySample(sample, data_path, module = None, force_sample_map = None, m
         return signal_madspin_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
     elif "ewkDM" in sample:
         from TopEFT.samples.heppy_dpm_samples import signal_heppy_mapper
-        return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
+        return signal_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN) 
+    elif "SMS_T2tt_dM_10to80_genHT160_genMET80" in sample: 
+        from TopEFT.samples.heppy_dpm_samples import signal_SMS_T2tt_dM_10to80_heppy_mapper
+        return signal_SMS_T2tt_dM_10to80_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
     else: 
         from TopEFT.samples.heppy_dpm_samples import mc_heppy_mapper
         return mc_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)

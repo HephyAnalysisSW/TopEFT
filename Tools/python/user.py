@@ -39,6 +39,14 @@ if os.environ['USER'] in ['gmoertl']:
     results_directory       = "/afs/hephy.at/data/gmoertl01/TopEFT/results/"
     postprocessing_output_directory = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
 
+if os.environ['USER'] in ['tbrueckler']:
+    #plot_directory      = "/afs/hephy.at/user/g/gmoertl/www/"
+    plot_directory                  = "/afs/hephy.at/user/g/tbrueckler/www/"
+    skim_output_directory           = "/afs/hephy.at/data/cms03/DeepLepton/skims/"
+    trainingFiles_directory         = "/afs/hephy.at/data/cms03/DeepLepton/trainfiles/"
+    results_directory               = "/afs/hephy.at/data/cms03/DeepLepton/results/"
+    postprocessing_output_directory = "/afs/hephy.at/data/cms03/DeepLepton/results/"
+
 if os.environ['USER'] in ['llechner']:
     tmp_directory                   = "/afs/hephy.at/data/llechner01/Top_tmp/"
     results_directory               = "/afs/hephy.at/data/llechner01/TopEFT/results/"
