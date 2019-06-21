@@ -91,7 +91,10 @@ class Evaluator:
             self.lengths =       [     5,        25,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
             self.max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
         elif lepton_flavor == 'ele':
-            raise NotImplementedError
+            self.flavors =       [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
+            #FIXME
+            self.lengths =       [     5,        25,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
+            self.max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
 
         self.init_getters()
 
@@ -164,7 +167,18 @@ class Evaluator:
                      "lep_nStations_float":operator.attrgetter(collection_name+'_nStations'),
             })
         elif self.lepton_flavor == 'ele':
-            raise NotImplementedError
+            self._feature_getters[collection_name].update( {
+                               "lep_etaSc":operator.attrgetter(collection_name+'_etaSc'),
+               "lep_full5x5_sigmaIetaIeta":operator.attrgetter(collection_name+'_full5x5_sigmaIetaIeta'),
+                          "lep_dEtaInSeed":operator.attrgetter(collection_name+'_dEtaInSeed'),
+                         "lep_dPhiScTrkIn":operator.attrgetter(collection_name+'_dPhiScTrkIn'),
+                         "lep_dEtaScTrkIn":operator.attrgetter(collection_name+'_dEtaScTrkIn'),
+                       "lep_eInvMinusPInv":operator.attrgetter(collection_name+'_eInvMinusPInv'),
+                      "lep_convVeto_float":operator.attrgetter(collection_name+'_convVeto'),
+                      "lep_hadronicOverEm":operator.attrgetter(collection_name+'_hadronicOverEm'),
+                                  "lep_r9":operator.attrgetter(collection_name+'_r9'),
+                       "lep_mvaIdSpring16":operator.attrgetter(collection_name+'_mvaIdSpring16'),  
+            })
 
         return self._feature_getters[collection_name] 
 
@@ -390,39 +404,52 @@ class Evaluator:
     def evaluate( self ):
         
         # FIXME only run over muons
-        if self.lepton_flavor == 'mu': pdgId = 13
+        if self.lepton_flavor   == 'mu':  pdgId = 13
         elif self.lepton_flavor == 'ele': pdgId = 11
-         
-        lep_getters = self.feature_getters( "LepGood" ) 
-        lepId_mask = []
-        for i in range(self.event.nLepGood):
-            lepId_mask.append(lep_getters["lep_pdgId"](self.event)[i]) 
-        lepId_mask = np.array(lepId_mask)
-        lepId_mask = np.equal(np.abs(lepId_mask), np.ones(self.event.nLepGood)*pdgId)
+
+        lepId_mask = [ abs(self.event.LepGood_pdgId[i]) == (13 if self.lepton_flavor=='mu' else 11) for i in range(self.event.nLepGood) ]
+        #print('lepId_mask: ', lepId_mask)
+        #features_normalized_new = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) if abs(lep_getters["lep_pdgId"](self.event)[i_lep]) == pdgId ], dtype=np.float32 ) 
+
+        features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) if lepId_mask[i_lep]], dtype=np.float32 )
+        pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep, "selectedLeptons") for i_lep in range(self.event.nLepGood) if lepId_mask[i_lep] ] )
+       # print('pf_normalized: ', pf_normalized)
         
-        features_normalized_new = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) if abs(lep_getters["lep_pdgId"](self.event)[i_lep]) == pdgId ], dtype=np.float32 ) 
-        features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood)], dtype=np.float32 )
-        pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep, "selectedLeptons") for i_lep in range(self.event.nLepGood) ] )
-        pf_normalized = np.swapaxes(pf_normalized, 0,1)
-        np_features = [ features_normalized ] + [ np.array(list(pf_normalized[i]), dtype=np.float32) for i in range(len(pf_normalized))] 
-        
-        prediction = []
+        result = {}
         if np.sum(lepId_mask) > 0:
-            pre_prediction = deepLeptonModel.predict( np_features )
-            for i in range(len(lepId_mask)):
-                if lepId_mask[i]:
-                    prediction.append(pre_prediction[0, :])
-                    pre_prediction = np.delete(pre_prediction, 0, 0)
-                elif lepId_mask[i] == False:
-                    prediction.append([0., 0., 0.])
-                else: 
-                    raise ValueError 
-        else:
-            prediction = np.zeros((self.event.nLepGood, 3))
-        # FIXME vorher [0.99,0.99,0.78(ele),...] nachher [ 0.99, 0.99, 0 , ]        
-        prediction = np.array(prediction)
-        print('prediction: ', prediction)
-        return prediction 
+            pf_normalized = np.swapaxes(pf_normalized, 0,1)
+            np_features = [ features_normalized ] + [ np.array(list(pf_normalized[i]), dtype=np.float32) for i in range(len(pf_normalized))] 
+            
+            if self.lepton_flavor   == 'mu':
+                predictions = mu_deepLeptonModel.predict( np_features )
+            elif self.lepton_flavor   == 'ele':
+                predictions = ele_deepLeptonModel.predict( np_features )
+            #result = {}
+            counter = 0
+            for i_lep in range(self.event.nLepGood):
+                if lepId_mask[i_lep]:
+                    result[i_lep] = predictions[counter]
+                    counter+=1
+#        print('result: ', result)
+        return result 
+
+#        prediction = []
+#        if np.sum(lepId_mask) > 0:
+#            pre_prediction = deepLeptonModel.predict( np_features )
+#            for i in range(len(lepId_mask)):
+#                if lepId_mask[i]:
+#                    prediction.append(pre_prediction[0, :])
+#                    pre_prediction = np.delete(pre_prediction, 0, 0)
+#                elif lepId_mask[i] == False:
+#                    prediction.append([0., 0., 0.])
+#                else: 
+#                    raise ValueError 
+#        else:
+#            prediction = np.zeros((self.event.nLepGood, 3))
+#        # FIXME vorher [0.99,0.99,0.78(ele),...] nachher [ 0.99, 0.99, 0 , ]        
+#        prediction = np.array(prediction)
+#        print('prediction: ', prediction)
+#        return prediction 
 
 
 ## Theano config
@@ -461,25 +488,46 @@ set_session(tf.Session(config=config))
 
 #________________________________________________________________________________________________________________________
 
-model_file = "/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_Training/KERAS_model.h5"
 import h5py
-f = h5py.File(model_file, 'r+')
-if 'optimizer_weights' in f.keys():
-    del f['optimizer_weights']
-f.close()
+from keras.models import load_model, model_from_json
 
-pkl_model_file  = model_file.replace('.h5','.pkl') 
+def load_deepLeptonModel(model_file):
+    f = h5py.File(model_file, 'r+')
+    if 'optimizer_weights' in f.keys():
+        del f['optimizer_weights']
+    f.close()    
+    
+    pkl_model_file  = model_file.replace('.h5','.pkl')
+    deepLeptonModel = load_model(model_file)
+    model_json, weights = pickle.load(file( pkl_model_file ))
+    deepLeptonModel = model_from_json( model_json )
+    deepLeptonModel.set_weights( weights )
+    return deepLeptonModel
 
-from keras.models import load_model
-deepLeptonModel = load_model(model_file)
-#pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(pkl_model_file,'w'))
-#print "Written pkl", pkl_model_file
- 
-model_json, weights = pickle.load(file( pkl_model_file ))
+mu_deepLeptonModel = load_deepLeptonModel("/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_Training/KERAS_model.h5")
+ele_deepLeptonModel = load_deepLeptonModel("/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2016/TTJets_Electron_biLSTM_split_Training/KERAS_model.h5")
 
-from keras.models import model_from_json
-deepLeptonModel = model_from_json( model_json )
-deepLeptonModel.set_weights( weights )
+#model_file = "/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_Training/KERAS_model.h5"
+##model_file = "/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2016/TTJets_Electron_biLSTM_split_Training/KERAS_model.h5"
+#
+#import h5py
+#f = h5py.File(model_file, 'r+')
+#if 'optimizer_weights' in f.keys():
+#    del f['optimizer_weights']
+#f.close()
+#
+#pkl_model_file  = model_file.replace('.h5','.pkl') 
+#
+#from keras.models import load_model
+#deepLeptonModel = load_model(model_file)
+##pickle.dump( (deepLeptonModel.to_json(), deepLeptonModel.get_weights()), file(pkl_model_file,'w'))
+##print "Written pkl", pkl_model_file
+# 
+#model_json, weights = pickle.load(file( pkl_model_file ))
+#
+#from keras.models import model_from_json
+#deepLeptonModel = model_from_json( model_json )
+#deepLeptonModel.set_weights( weights )
 
 #________________________________________________________________________________________________________________________________________________________________
 
@@ -503,39 +551,55 @@ deepLeptonModel.set_weights( weights )
 
 
 #________________________________________________________________________________________________________________________________________________________________
-#branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
-#branches, means = pickle.load(file("/afs/hephy.at/data/cms02/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
-#branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTrainData/branches_means_vars.pkl"))
-branches, means   = pickle.load(file("/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
-#print(branches)
-
-# patch weights
-weights         = deepLeptonModel.get_weights()
-weights_patched = map( np.nan_to_num, weights )
-deepLeptonModel.set_weights( weights_patched )
-if not np.array_equal(weights, weights_patched):
-    print "Warning! Had to remove NaNs/Infs!"
-
-evaluator = Evaluator()
-# specify means, features and branches
-evaluator.setMeans( means )
-evaluator.setFeatureBranches( branches[0] )
-evaluator.setPFBranches(      branches[1:] )
-evaluator.verbosity = 5
-
-#mu_evaluator = Evaluator('mu')
-## specify means, features and branches
-#mu_evaluator.setMeans( means )
-#mu_evaluator.setFeatureBranches( branches[0] )
-#mu_evaluator.setPFBranches(      branches[1:] )
-#mu_evaluator.verbosity = 5
+##branches, means   = pickle.load(file("/afs/hephy.at/data/rschoefbeck01/DeepLepton/trainings/DYVsQCD_ptRelSorted_MuonTrainData/branches_means_vars.pkl"))
+##branches, means = pickle.load(file("/afs/hephy.at/data/cms02/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
+##branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTrainData/branches_means_vars.pkl"))
+#branches, means   = pickle.load(file("/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
+##print(branches)
 #
+## patch weights
+#weights         = deepLeptonModel.get_weights()
+#weights_patched = map( np.nan_to_num, weights )
+#deepLeptonModel.set_weights( weights_patched )
+#if not np.array_equal(weights, weights_patched):
+#    print "Warning! Had to remove NaNs/Infs!"
+#
+#mu_evaluator = Evaluator('mu')
 #ele_evaluator = Evaluator('ele')
-#ele_# specify means, features and branches
-#ele_evaluator.setMeans( means )
-#ele_evaluator.setFeatureBranches( branches[0] )
-#ele_evaluator.setPFBranches(      branches[1:] )
-#ele_evaluator.verbosity = 5
+#
+## specify means, features and branches
+#evaluator.setMeans( means )
+#evaluator.setFeatureBranches( branches[0] )
+#evaluator.setPFBranches(      branches[1:] )
+#evaluator.verbosity = 5
+
+
+def patch_weights(deepLeptonModel):
+    weights         = deepLeptonModel.get_weights()
+    weights_patched = map( np.nan_to_num, weights )
+    deepLeptonModel.set_weights( weights_patched )
+    if not np.array_equal(weights, weights_patched):
+        print "Warning! Had to remove NaNs/Infs!"
+    return deepLeptonModel
+    
+def set_meansFeaturesBranches(evaluator, filename):
+    branches, means = pickle.load(file(filename)) 
+    evaluator.setMeans( means )
+    evaluator.setFeatureBranches( branches[0] )
+    evaluator.setPFBranches(      branches[1:] )
+    evaluator.verbosity = 5
+    return evaluator
+    
+mu_deepLeptonModel = patch_weights(mu_deepLeptonModel)
+ele_deepLeptonModel = patch_weights(ele_deepLeptonModel)
+    
+mu_evaluator = Evaluator("mu")
+ele_evaluator = Evaluator("ele")    
+
+mu_evaluator = set_meansFeaturesBranches(mu_evaluator, "/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl")
+ele_evaluator = set_meansFeaturesBranches(ele_evaluator, "/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2016/TTJets_Electron_biLSTM_split_TrainData/branches_means_vars.pkl")
+
+
 
 if __name__ == "__main__": 
     # Information on the training (works only in DL)

@@ -492,9 +492,10 @@ if options.deepLepton:
         config.inter_op_parallelism_threads = 1
         set_session(tf.Session(config=config))
 
-    from TopEFT.Tools.DeepLeptonReader import deepLeptonModel
-    from TopEFT.Tools.DeepLeptonReader import evaluator
-    evaluator.verbosity = 0
+    from TopEFT.Tools.DeepLeptonReader import mu_deepLeptonModel, ele_deepLeptonModel
+    from TopEFT.Tools.DeepLeptonReader import mu_evaluator, ele_evaluator
+    mu_evaluator.verbosity = 0
+    ele_evaluator.verbosity = 0
     lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F,iLepGood/I,iLepOther/I"
 
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
@@ -757,8 +758,10 @@ def filler( event ):
     if options.deepLepton:
         
         # Make deepLepton prediction for all LepGood
-        evaluator.setEvent( r )
-        deepLepton_prediction = evaluator.evaluate( )
+        mu_evaluator.setEvent( r )
+        ele_evaluator.setEvent( r )
+        deepLepton_mu_prediction = mu_evaluator.evaluate( )
+        deepLepton_ele_prediction = ele_evaluator.evaluate( )
 
     for iLep, lep in enumerate(leptons):
         lep['index']  = iLep     # Index wrt to the output collection!
@@ -773,10 +776,12 @@ def filler( event ):
             lep['isGenPrompt'] = prompt
 
         if options.deepLepton:
+            lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = float('nan'), float('nan'), float('nan')
             if lep.has_key("iLepGood" ):
-                lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_prediction[lep["iLepGood"]]
-            else:
-                lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = float('nan'), float('nan'), float('nan')
+                if deepLepton_mu_prediction.has_key(lep["iLepGood"]):
+                    lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_mu_prediction[lep["iLepGood"]]
+                if deepLepton_ele_prediction.has_key(lep["iLepGood"]):
+                    lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_ele_prediction[lep["iLepGood"]]
 
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
