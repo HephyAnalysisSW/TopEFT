@@ -149,7 +149,7 @@ else:
     else:
         force_sample_map = None
     samples = [ fromHeppySample(s, data_path = options.dataDir, force_sample_map = force_sample_map, maxN = maxN, MCgeneration=MCgeneration, forceProxy=options.forceProxy) for s in options.samples ]
-    print(options.samples)
+    #print(options.samples)
     #print(samples[0].files)
     logger.debug("Reading from CMG tuples: %s", ",".join(",".join(s.files) for s in samples) )
     
@@ -454,7 +454,7 @@ lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
 if sync or options.remakeTTVLeptonMVA: 
     lepton_branches_read  += ',trackMult/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,jetPtRelv2/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRatiov1/F,relIso03/F,jetBTagDeepCSV/F,segmentCompatibility/F,mvaIdSpring16/F,eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz/I,mvaIdFall17noIso/F'
 if options.deepLepton:                 
-    lepton_branches_read  += ',edxy/F,edz/F,ip3d/F,sip3d/F,innerTrackChi2/F,innerTrackValidHitFraction/F,ptErrTk/F,rho/F,jetDR/F,trackerLayers/I,pixelLayers/I,trackerHits/I,lostHits/I,lostOuterHits/I,glbTrackProbability/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,trkKink/F,caloCompatibility/F,nStations/F'
+    lepton_branches_read  += ',r9/F,dEtaInSeed/F,edxy/F,edz/F,ip3d/F,sip3d/F,innerTrackChi2/F,innerTrackValidHitFraction/F,ptErrTk/F,rho/F,jetDR/F,trackerLayers/I,pixelLayers/I,trackerHits/I,lostHits/I,lostOuterHits/I,glbTrackProbability/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,trkKink/F,caloCompatibility/F,nStations/F'
     read_variables.append( VectorTreeVariable.fromString('DL_pfCand_neutral[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
     read_variables.append( VectorTreeVariable.fromString('DL_pfCand_charged[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,dzAssociatedPV/F,fromPV/F,selectedLeptons_mask/I]', nMax=500 )) # default nMax is 100
     read_variables.append( VectorTreeVariable.fromString('DL_pfCand_photon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
@@ -492,8 +492,8 @@ if options.deepLepton:
         config.inter_op_parallelism_threads = 1
         set_session(tf.Session(config=config))
 
-    from TopEFT.Tools.DeepLeptonReader import mu_deepLeptonModel, ele_deepLeptonModel
-    from TopEFT.Tools.DeepLeptonReader import mu_evaluator, ele_evaluator
+    from TopEFT.Tools.DeepLeptonReader import ele_deepLeptonModel, mu_deepLeptonModel
+    from TopEFT.Tools.DeepLeptonReader import ele_evaluator,  mu_evaluator
     mu_evaluator.verbosity = 0
     ele_evaluator.verbosity = 0
     lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F,iLepGood/I,iLepOther/I"
@@ -970,10 +970,10 @@ def filler( event ):
 
     # Jets and lepton jet cross-cleaning.
     if options.year == 2016:
-        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=30, jetVars = jetVarNames, absEtaCut=2.4, jetCollections=[ "JetAll"], idVar='id16')
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "JetAll"], idVar='id16')
 
     elif options.year == 2017:
-        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=30, jetVars = jetVarNames, absEtaCut=2.4, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
+        allJets      = getAllJets(r, leptonCollections[cleaningCollection], ptCut=0, jetVars = jetVarNames, absEtaCut=99, jetCollections=[ "Jet", "DiscJet"]) #JetId is required
         if options.FEBug:
             for j in allJets:
                 corr_V11 = Fall17_17Nov17_V11_MC.correction(rawPt = j['rawPt'], eta = j['eta'], area = j['area'], rho = r.rho, run = r.run )
@@ -1018,61 +1018,61 @@ def filler( event ):
 
 
     # Analysis Tim
-    if event.nlep == 2:
-     
-        #if leptons[0]["pdgId"]*leptons[1]["pdgId"] >= 0.: 
-        #    event.Qll = 1.0 
-        #else: 
-        #    event.Qll = -1.0  
-
-        l1 = ROOT.TLorentzVector()
-        l1.SetPtEtaPhiM(leptons[0]['pt'], leptons[0]['eta'], leptons[0]['phi'], 0 )
-        l2 = ROOT.TLorentzVector()
-        l2.SetPtEtaPhiM(leptons[1]['pt'], leptons[1]['eta'], leptons[1]['phi'], 0 )
-        ll = l1 + l2
- 
-        event.ptll = ll.Pt() 
-        event.mll = ll.M()    
-        
-        mt1 = sqrt( 2*leptons[0]["pt"]*event.met_pt*( 1 - cos( leptons[0]['phi'] - event.met_phi ) )) 
-        mt2 = sqrt( 2*leptons[1]["pt"]*event.met_pt*( 1 - cos( leptons[1]['phi'] - event.met_phi ) )) 
-        event.mt_min = min(mt1, mt2) 
-        
-        tau1 = ROOT.TLorentzVector() 
-        tau1.SetPtEtaPhiM(leptons[0]['pt']*(1+cos(event.met_phi-leptons[0]['phi'])/(leptons[0]['pt'])), leptons[0]['eta'], leptons[0]['phi'], 1.77682 )    
-        tau2 = ROOT.TLorentzVector() 
-        tau2.SetPtEtaPhiM(leptons[1]['pt']*(1+cos(event.met_phi-leptons[1]['phi'])/(leptons[1]['pt'])), leptons[1]['eta'], leptons[1]['phi'], 1.77682 )  
-        tautau = tau1 + tau2
-        event.mtautau = tautau.M() 
-
-        #event.mtautau = 2 * leptons[0]['pt'] * leptons[1]['pt'] * \
-        #                ( cosh(leptons[0]['eta']-leptons[1]['eta']) - cos(leptons[0]['phi']-leptons[1]['phi'])  ) * \
-        #                ( 1 + event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt']) * \
-        #                ( 1 + event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt']) + \
-        #                ( leptons[0]['mass'] * event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt'] )**2 + \
-        #                ( leptons[1]['mass'] * event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt'] )**2 + \
-        #                ( 2 * leptons[0]['mass']**2 * event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt'] ) + \
-        #                ( 2 * leptons[1]['mass']**2 * event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt'] )
-        #if event.mtautau > 0.: 
-        #    event.mtautau = sqrt(event.mtautau)
-        #else: event.mtautau = float('nan')
-        
-        met_2D = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
-        for lep in leptons:
-            if abs(lep['pdgId']) == 13:
-                lep_2D = ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
-                met_2D += lep_2D 
-        event.met_mu_pt = met_2D.Mod()
-         
-        #event.mll2 = sqrt( 2*leptons[0]["pt"]*leptons[1]["pt"]*( cosh(leptons[0]["eta"] - leptons[1]["eta"] ) -  cos( leptons[0]['phi'] - leptons[1]['phi'] ) )) 
-        #event.ptll2 = sqrt( (leptons[0]['pt'])**2 + (leptons[1]['pt'])**2 + 2 * leptons[0]['pt']  * leptons[1]['pt']  * cos( leptons[0]["phi"] - leptons[1]["phi"] ) )
-    else: 
-        event.Qll = float('nan')
-        event.mll = float('nan') 
-        event.ptll = float('nan')
-        event.mtautau = float('nan')
-        event.mt_min = float('nan')
-        event.met_mu_pt = float('nan')
+#    if event.nlep == 2:
+#     
+#        #if leptons[0]["pdgId"]*leptons[1]["pdgId"] >= 0.: 
+#        #    event.Qll = 1.0 
+#        #else: 
+#        #    event.Qll = -1.0  
+#
+#        l1 = ROOT.TLorentzVector()
+#        l1.SetPtEtaPhiM(leptons[0]['pt'], leptons[0]['eta'], leptons[0]['phi'], 0 )
+#        l2 = ROOT.TLorentzVector()
+#        l2.SetPtEtaPhiM(leptons[1]['pt'], leptons[1]['eta'], leptons[1]['phi'], 0 )
+#        ll = l1 + l2
+# 
+#        event.ptll = ll.Pt() 
+#        event.mll = ll.M()    
+#        
+#        mt1 = sqrt( 2*leptons[0]["pt"]*event.met_pt*( 1 - cos( leptons[0]['phi'] - event.met_phi ) )) 
+#        mt2 = sqrt( 2*leptons[1]["pt"]*event.met_pt*( 1 - cos( leptons[1]['phi'] - event.met_phi ) )) 
+#        event.mt_min = min(mt1, mt2) 
+#        
+#        tau1 = ROOT.TLorentzVector() 
+#        tau1.SetPtEtaPhiM(leptons[0]['pt']*(1+cos(event.met_phi-leptons[0]['phi'])/(leptons[0]['pt'])), leptons[0]['eta'], leptons[0]['phi'], 1.77682 )    
+#        tau2 = ROOT.TLorentzVector() 
+#        tau2.SetPtEtaPhiM(leptons[1]['pt']*(1+cos(event.met_phi-leptons[1]['phi'])/(leptons[1]['pt'])), leptons[1]['eta'], leptons[1]['phi'], 1.77682 )  
+#        tautau = tau1 + tau2
+#        event.mtautau = tautau.M() 
+#
+#        #event.mtautau = 2 * leptons[0]['pt'] * leptons[1]['pt'] * \
+#        #                ( cosh(leptons[0]['eta']-leptons[1]['eta']) - cos(leptons[0]['phi']-leptons[1]['phi'])  ) * \
+#        #                ( 1 + event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt']) * \
+#        #                ( 1 + event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt']) + \
+#        #                ( leptons[0]['mass'] * event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt'] )**2 + \
+#        #                ( leptons[1]['mass'] * event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt'] )**2 + \
+#        #                ( 2 * leptons[0]['mass']**2 * event.met_pt * cos(leptons[0]['phi']-event.met_phi) / leptons[0]['pt'] ) + \
+#        #                ( 2 * leptons[1]['mass']**2 * event.met_pt * cos(leptons[1]['phi']-event.met_phi) / leptons[1]['pt'] )
+#        #if event.mtautau > 0.: 
+#        #    event.mtautau = sqrt(event.mtautau)
+#        #else: event.mtautau = float('nan')
+#        
+#        met_2D = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
+#        for lep in leptons:
+#            if abs(lep['pdgId']) == 13:
+#                lep_2D = ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
+#                met_2D += lep_2D 
+#        event.met_mu_pt = met_2D.Mod()
+#         
+#        #event.mll2 = sqrt( 2*leptons[0]["pt"]*leptons[1]["pt"]*( cosh(leptons[0]["eta"] - leptons[1]["eta"] ) -  cos( leptons[0]['phi'] - leptons[1]['phi'] ) )) 
+#        #event.ptll2 = sqrt( (leptons[0]['pt'])**2 + (leptons[1]['pt'])**2 + 2 * leptons[0]['pt']  * leptons[1]['pt']  * cos( leptons[0]["phi"] - leptons[1]["phi"] ) )
+#    else: 
+#        event.Qll = float('nan')
+#        event.mll = float('nan') 
+#        event.ptll = float('nan')
+#        event.mtautau = float('nan')
+#        event.mt_min = float('nan')
+#        event.met_mu_pt = float('nan')
 
 
     #  sync info

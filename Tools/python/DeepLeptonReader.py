@@ -43,7 +43,8 @@ class InputData:
         self.chain.GetEntries()
 
         self.nevent = None
-
+        
+        
     def getEntry( self, nevent ):
         self.chain.GetEntry( nevent )
         self.nevent = nevent
@@ -77,7 +78,7 @@ def deltaR(*args, **kwargs):
 
 class Evaluator:
 
-    def __init__( self, lepton_flavor = "mu" ): 
+    def __init__( self, lepton_flavor): #= "mu" ): 
 
         # check lepton flavor
         if lepton_flavor not in ["mu", "ele"]:
@@ -87,12 +88,10 @@ class Evaluator:
 
         if lepton_flavor == 'mu':
             self.flavors =       [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-            #FIXME
             self.lengths =       [     5,        25,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
             self.max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
         elif lepton_flavor == 'ele':
             self.flavors =       [ 'neutral', 'charged', 'photon',  'electron', 'muon', 'SV'] # don't change the sequence!
-            #FIXME
             self.lengths =       [     5,        25,       10,         3,          3,     4 ] # input lengths in the RNN. This must be consistent with the training! 
             self.max_n_pf_cand = { 'neutral':200, 'charged':500, 'photon': 200, 'electron': 50, 'muon': 50, 'SV': 200 } # max lengths in the event. avoid buffer errors. 
 
@@ -170,7 +169,6 @@ class Evaluator:
             self._feature_getters[collection_name].update( {
                                "lep_etaSc":operator.attrgetter(collection_name+'_etaSc'),
                "lep_full5x5_sigmaIetaIeta":operator.attrgetter(collection_name+'_full5x5_sigmaIetaIeta'),
-                          "lep_dEtaInSeed":operator.attrgetter(collection_name+'_dEtaInSeed'),
                          "lep_dPhiScTrkIn":operator.attrgetter(collection_name+'_dPhiScTrkIn'),
                          "lep_dEtaScTrkIn":operator.attrgetter(collection_name+'_dEtaScTrkIn'),
                        "lep_eInvMinusPInv":operator.attrgetter(collection_name+'_eInvMinusPInv'),
@@ -178,8 +176,8 @@ class Evaluator:
                       "lep_hadronicOverEm":operator.attrgetter(collection_name+'_hadronicOverEm'),
                                   "lep_r9":operator.attrgetter(collection_name+'_r9'),
                        "lep_mvaIdSpring16":operator.attrgetter(collection_name+'_mvaIdSpring16'),  
+                          "lep_dEtaInSeed":operator.attrgetter(collection_name+'_dEtaInSeed'),
             })
-
         return self._feature_getters[collection_name] 
 
     # Store a list of functors that retrieve the correct branch from the event
@@ -326,6 +324,7 @@ class Evaluator:
 
     def features_for_lepton( self, collection_name, n_lep):
         # read the lepton features
+        #print('features: ', [b for b in self.feature_branches]  ,[ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in self.feature_branches ])    
         return [ self.feature_getters( collection_name )[b](self.event)[n_lep] for b in self.feature_branches ]
 
     @property 
@@ -402,18 +401,13 @@ class Evaluator:
 #        return prediction
 
     def evaluate( self ):
-        
-        # FIXME only run over muons
         if self.lepton_flavor   == 'mu':  pdgId = 13
         elif self.lepton_flavor == 'ele': pdgId = 11
 
         lepId_mask = [ abs(self.event.LepGood_pdgId[i]) == (13 if self.lepton_flavor=='mu' else 11) for i in range(self.event.nLepGood) ]
-        #print('lepId_mask: ', lepId_mask)
-        #features_normalized_new = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) if abs(lep_getters["lep_pdgId"](self.event)[i_lep]) == pdgId ], dtype=np.float32 ) 
 
         features_normalized = np.array( [ self.prepare_features_normalized( "LepGood", i_lep ) for i_lep in range(self.event.nLepGood) if lepId_mask[i_lep]], dtype=np.float32 )
         pf_normalized       = np.array( [ self.prepare_pf_normalized( "LepGood", i_lep, "selectedLeptons") for i_lep in range(self.event.nLepGood) if lepId_mask[i_lep] ] )
-       # print('pf_normalized: ', pf_normalized)
         
         result = {}
         if np.sum(lepId_mask) > 0:
@@ -433,23 +427,6 @@ class Evaluator:
 #        print('result: ', result)
         return result 
 
-#        prediction = []
-#        if np.sum(lepId_mask) > 0:
-#            pre_prediction = deepLeptonModel.predict( np_features )
-#            for i in range(len(lepId_mask)):
-#                if lepId_mask[i]:
-#                    prediction.append(pre_prediction[0, :])
-#                    pre_prediction = np.delete(pre_prediction, 0, 0)
-#                elif lepId_mask[i] == False:
-#                    prediction.append([0., 0., 0.])
-#                else: 
-#                    raise ValueError 
-#        else:
-#            prediction = np.zeros((self.event.nLepGood, 3))
-#        # FIXME vorher [0.99,0.99,0.78(ele),...] nachher [ 0.99, 0.99, 0 , ]        
-#        prediction = np.array(prediction)
-#        print('prediction: ', prediction)
-#        return prediction 
 
 
 ## Theano config
@@ -555,23 +532,6 @@ ele_deepLeptonModel = load_deepLeptonModel("/afs/hephy.at/data/cms03/tbrueckler/
 ##branches, means = pickle.load(file("/afs/hephy.at/data/cms02/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
 ##branches, means   = pickle.load(file("/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonTrainData/branches_means_vars.pkl"))
 #branches, means   = pickle.load(file("/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_TrainData/branches_means_vars.pkl"))
-##print(branches)
-#
-## patch weights
-#weights         = deepLeptonModel.get_weights()
-#weights_patched = map( np.nan_to_num, weights )
-#deepLeptonModel.set_weights( weights_patched )
-#if not np.array_equal(weights, weights_patched):
-#    print "Warning! Had to remove NaNs/Infs!"
-#
-#mu_evaluator = Evaluator('mu')
-#ele_evaluator = Evaluator('ele')
-#
-## specify means, features and branches
-#evaluator.setMeans( means )
-#evaluator.setFeatureBranches( branches[0] )
-#evaluator.setPFBranches(      branches[1:] )
-#evaluator.verbosity = 5
 
 
 def patch_weights(deepLeptonModel):

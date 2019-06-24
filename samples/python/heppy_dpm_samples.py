@@ -223,7 +223,7 @@ lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_direct
 #lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
 
 # Summer16 MC fullevents for Deeplepton
-lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v6.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v6_2.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
 tim_2016_full_events = [ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/'] 
 mc_dpm_directories = tim_2016_full_events 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
@@ -286,7 +286,7 @@ data17_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2017_d
 tim_2017_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/']  #['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
 data_dpm_directories = tim_2017_v1
 from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples
-full_events_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data17_cache_file, multithreading=multithreading)
+full_events_2017_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data17_cache_file, multithreading=multithreading)
 
 # Signal 2016, SMS
 signal_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/signal_SMS_T2tt_dM_10to80_2016_v6.pkl'
