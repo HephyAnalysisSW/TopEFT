@@ -38,6 +38,7 @@ ROOT.setTDRStyle()
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',  action='store',      default='NLL_plots')
+argParser.add_argument("--testGrayscale",   action='store_true',            help="Because of  reasons...")
 argParser.add_argument('--useBestFit',      action='store_true', help="Use best fit value? Default is r=1")
 argParser.add_argument('--secondBestFit',   action='store_true', help="Don't use the best fit point as baseline because it might be an outlier.")
 argParser.add_argument("--combined",        action='store_true', help="Use combined results?")
@@ -54,7 +55,7 @@ argParser.add_argument("--preliminary",     action='store_true', help="Add preli
 argParser.add_argument("--year",            action='store', default=2016, choices = [ '2016', '2017', '20167' ], help='Which year?')
 argParser.add_argument("--showPoints",      action='store_true', help="Show the points?")
 argParser.add_argument("--profiling",       action='store_true', help="Show the points?")
-argParser.add_argument("--subdir",          action='store', default="NLL_plots_1D_finalV2", help="Show the points?")
+argParser.add_argument("--subdir",          action='store', default="NLL_plots_1D_finalV3", help="Show the points?")
 argParser.add_argument("--sigma",           action='store_true', help="Use sigma levels?")
 args = argParser.parse_args()
 
@@ -412,6 +413,7 @@ x_min = min(x_forRange)
 x_max = max(x_forRange)
 
 Nbins = int((x_max-x_min)/min_delta)
+boxWidth = 2.5*(x_max-x_min)/100
 
 delta = (x_max-x_min)/Nbins
 
@@ -426,17 +428,17 @@ if x_var == "DC1V":
 elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}} /#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZ":
-    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{tZ} /#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "DC1A":
     hist.GetXaxis().SetTitle("C_{1,A}")
 elif x_var == "DC2A":
     hist.GetXaxis().SetTitle("C_{2,A}")
 elif x_var == "cpt":
-    hist.GetXaxis().SetTitle("c_{#varphit}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{#varphit} /#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZI":
-    hist.GetXaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{tZ}^{[I]} /#Lambda^{2} [1/TeV^{2}]")
 
 hist.GetXaxis().SetTitleOffset(0.93)
 #hist.GetYaxis().SetTitle("-2 #DeltalnL")
@@ -513,12 +515,12 @@ if args.model == 'dim6top_LO':
     for interval in allowedIntervals:
         lines.append(ROOT.TLine(interval[0], 0, interval[0], y_max))
         lines.append(ROOT.TLine(interval[1], 0, interval[1], y_max))
-        boxes.append(ROOT.TBox(interval[0]-2*min_delta, 0, interval[0], y_max))
-        boxes.append(ROOT.TBox(interval[1], 0, interval[1]+2*min_delta, y_max))
+        boxes.append(ROOT.TBox(interval[0]-boxWidth, 0, interval[0], y_max))
+        boxes.append(ROOT.TBox(interval[1], 0, interval[1]+boxWidth, y_max))
 
 for box in boxes:
-    box.SetLineColor(ROOT.kGray+1)
-    box.SetFillColor(ROOT.kGray+1)
+    box.SetLineColor(ROOT.kGray+2)
+    box.SetFillColor(ROOT.kGray+2)
     box.SetFillStyle(3005)
     box.SetLineWidth(2)
 for line in lines:
@@ -532,13 +534,13 @@ if args.model == 'dim6top_LO':
     for interval in indirectConstraints:
         linesIndirect.append(ROOT.TLine(interval[0], 0, interval[0], y_max))
         linesIndirect.append(ROOT.TLine(interval[1], 0, interval[1], y_max))
-        boxesIndirect.append(ROOT.TBox(interval[0]-2*min_delta, 0, interval[0], y_max))
-        boxesIndirect.append(ROOT.TBox(interval[1], 0, interval[1]+2*min_delta, y_max))
+        boxesIndirect.append(ROOT.TBox(interval[0]-boxWidth, 0, interval[0], y_max))
+        boxesIndirect.append(ROOT.TBox(interval[1], 0, interval[1]+boxWidth, y_max))
 
 for box in boxesIndirect:
     box.SetLineColor(ROOT.kRed-9)
     box.SetFillColor(ROOT.kRed-9)
-    box.SetFillStyle(3004)
+    box.SetFillStyle(3344)#3004
     box.SetLineWidth(2)
 for line in linesIndirect:
     line.SetLineColor(ROOT.kRed-9)
@@ -570,26 +572,16 @@ pads = ROOT.TPad("pad_%s"%proc,"",0.,0.,1.,1.)
 pads.SetRightMargin(0.05)
 pads.SetLeftMargin(0.14)
 pads.SetTopMargin(0.15)
+pads.SetBottomMargin(0.15)
 pads.Draw()
 pads.cd()
 
-
+hist.GetYaxis().SetNdivisions(505)
+if args.parameter == 'DC1A':
+    hist.GetXaxis().SetNdivisions(809)
+hist.GetXaxis().SetTitleOffset(1.08)
 hist.Draw("AXIS")
 fun.SetLineWidth(1503)
-
-for interval in intervals95_f:
-    interval.SetFillColorAlpha(ROOT.kOrange-2,0.9)
-    interval.SetLineColor(ROOT.kOrange-2)
-    interval.SetFillStyle(1111)
-    interval.Draw("f1same")
-
-for interval in intervals68_f:
-    interval.SetFillColorAlpha(ROOT.kCyan-3,0.9)
-    interval.SetLineColor(ROOT.kCyan-3)
-    interval.SetFillStyle(1111)
-    interval.Draw("f1same")
-
-fun.Draw("same")
 
 for box in boxes:
     box.Draw("same")
@@ -599,6 +591,21 @@ for box in boxesIndirect:
     box.Draw("same")
 for line in linesIndirect:
     line.Draw("same")
+
+for interval in intervals95_f:
+    interval.SetFillColorAlpha(ROOT.kYellow,0.9)
+    interval.SetLineColor(ROOT.kOrange-2)
+    interval.SetFillStyle(1111)
+    interval.Draw("f1same")
+
+for interval in intervals68_f:
+    interval.SetFillColorAlpha(ROOT.kGreen+1,0.9)
+    interval.SetLineColor(ROOT.kCyan-3)
+    interval.SetFillStyle(1111)
+    interval.Draw("f1same")
+
+fun.Draw("same")
+
 
 
 if args.showPoints:
@@ -678,10 +685,11 @@ else:
         latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
-    latex1.DrawLatex(0.14,0.91,'#bf{Anomalous}')
-    latex1.DrawLatex(0.14,0.87,'#bf{coupling model}')
+    latex1.DrawLatex(0.155,0.91,'#bf{Anomalous}')
+    latex1.DrawLatex(0.155,0.87,'#bf{coupling model}')
+    latex1.DrawLatex(0.42, 0.91, '#bf{%s}'%y_par)
 else:
-    latex1.DrawLatex(0.14,0.91,'#bf{SMEFT}')
+    latex1.DrawLatex(0.155,0.91,'#bf{SMEFT}')
 #    latex1.DrawLatex(0.14,0.87,'#bf{model}')
 
 if args.combined:
@@ -690,10 +698,17 @@ if args.combined:
 if not args.unblinded:
     latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
 else:
-    latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
+    latex1.DrawLatex(0.72,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
+
+l1 = ROOT.TLine()
+l1.SetLineColor(ROOT.kBlack)
+l1.SetLineWidth(1)
+l1.DrawLineNDC(0.14,0.80,0.14,0.95)
+l1.DrawLineNDC(0.95,0.80,0.95,0.95)
+l1.DrawLineNDC(0.14,0.95,0.95,0.95)
 
 
-leg = ROOT.TLegend(0.60,0.86,0.80,0.95)
+leg = ROOT.TLegend(0.62,0.86,0.80,0.94)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
@@ -707,16 +722,17 @@ else:
 
 leg.Draw()
 
-leg2 = ROOT.TLegend(0.80,0.86,0.90,0.95)
+leg2 = ROOT.TLegend(0.80,0.86,0.90,0.94)
 leg2.SetFillColor(ROOT.kWhite)
 leg2.SetShadowColor(ROOT.kWhite)
 leg2.SetBorderSize(0)
 leg2.SetTextSize(0.035)
 leg2.AddEntry(SMpoint, '#bf{SM}', 'p')
-leg2.AddEntry(None, '#bf{%s}'%y_par, '')
+#leg2.AddEntry(None, '#bf{%s}'%y_par, '')
+leg2.AddEntry(None, '', '')
 leg2.Draw()
 
-leg3 = ROOT.TLegend(0.35,0.86,0.60,0.95)
+leg3 = ROOT.TLegend(0.35,0.86,0.60,0.94)
 leg3.SetFillColor(ROOT.kWhite)
 leg3.SetShadowColor(ROOT.kWhite)
 leg3.SetBorderSize(0)
@@ -728,7 +744,8 @@ if allowedIntervals:
 else:
     leg3.AddEntry(None, '', '')
 #leg3.AddEntry(None, '#bf{%s}'%y_par, '')
-leg3.Draw()
+if indirectConstraints or allowedIntervals:
+    leg3.Draw()
 
 
 hist.Draw("AXIS same")
@@ -738,6 +755,10 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 args.year = "COMBINED" if args.combined else args.year
+
+if args.testGrayscale:
+    cans.SetGrayscale()
+    postFix += '_gray'
 
 for e in [".png",".pdf",".root"]:
     cans.Print(plotDir+"%s_%s_%s_%s%s"%(args.model, args.parameter, setup.name, args.year, postFix)+e)

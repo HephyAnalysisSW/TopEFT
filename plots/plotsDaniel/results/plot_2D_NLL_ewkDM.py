@@ -222,6 +222,8 @@ print "Best fit found for signal %s, %s, %s"%bestFitPoint
 print
 print "{:>10}{:>10}{:>10}".format(x_var, y_var, "2*dNLL")
 
+zoom = False
+
 for i,s in enumerate(signals):
     if resDB.contains({"signal":s.name}):
         res = resDB.getDicts({"signal":s.name})[-1]
@@ -256,6 +258,8 @@ for i,s in enumerate(signals):
                 if ( s.var1 + x_shift < -12): continue
                 if ( s.var2 + y_shift > 18): continue
                 if ( s.var2 + y_shift < -28): continue
+            if args.model == 'dim6top_LO' and args.plane == 'dipoles' and zoom:
+                if abs(s.var1)>1 or abs(s.var2)>1: continue
             
             if args.model == "ewkDM" and args.plane == 'currents':
                 if (s.var2 + y_shift < -1.) : continue
@@ -304,10 +308,10 @@ elif x_var == "DC2V":
     hist.GetXaxis().SetTitle("C_{2,V}")
 elif x_var == "cpQM":
 #    hist.GetXaxis().SetTitle("c_{#varphiQ}^{-} #equiv C_{#varphiq}^{1(33)}-C_{#varphiq}^{3(33)}")
-    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{#varphiQ}^{#font[122]{\55}} /#Lambda^{2} [1/TeV^{2}]")
 elif x_var == "ctZ":
 #    hist.GetXaxis().SetTitle("c_{tZ} #equiv Re{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
-    hist.GetXaxis().SetTitle("c_{tZ}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetXaxis().SetTitle("c_{tZ} /#Lambda^{2} [1/TeV^{2}]")
 
 hist.GetXaxis().SetNdivisions(505)
 if y_var == "DC1A":
@@ -316,15 +320,16 @@ elif y_var == "DC2A":
     hist.GetYaxis().SetTitle("C_{2,A}")
 elif y_var == "cpt":
 #    hist.GetYaxis().SetTitle("c_{#varphit} #equiv C_{#varphiu}^{(33)}")
-    hist.GetYaxis().SetTitle("c_{#varphit}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetYaxis().SetTitle("c_{#varphit} /#Lambda^{2} [1/TeV^{2}]")
 elif y_var == "ctZI":
 #    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} #equiv Im{-s_{W}C_{uB}^{(33)}+c_{W}C_{uW}^{(33)}}")
-    hist.GetYaxis().SetTitle("c_{tZ}^{[I]}/#Lambda^{2} [1/TeV^{2}]")
+    hist.GetYaxis().SetTitle("c_{tZ}^{[I]} /#Lambda^{2} [1/TeV^{2}]")
 
+hist.GetXaxis().SetTitleOffset(1.10)
 hist.GetYaxis().SetNdivisions(505)
-hist.GetYaxis().SetTitleOffset(1.0)
+hist.GetYaxis().SetTitleOffset(1.15)
 #hist.GetZaxis().SetTitle("-2 #DeltalnL")
-hist.GetZaxis().SetTitle("q")
+#hist.GetZaxis().SetTitle("q")
 hist.GetZaxis().SetTitleOffset(1.0)
 hist.SetStats(0)
 if args.prefit:
@@ -368,13 +373,19 @@ if drawContours:
 
 pads = ROOT.TPad("pad_%s"%proc,"",0.,0.,1.,1.)
 pads.SetRightMargin(0.20)
-pads.SetLeftMargin(0.14)
+pads.SetLeftMargin(0.16)
 pads.SetTopMargin(0.15)
+if args.model == "ewkDM" and args.plane == "currents":
+    pads.SetTopMargin(0.19)
+pads.SetBottomMargin(0.15)
 pads.Draw()
 pads.cd()
 
 hist.GetZaxis().SetRangeUser(0,4.95)
-hist.SetMaximum(19.95) #19.95
+if zoom:
+    hist.SetMaximum(1.95)
+else:
+    hist.SetMaximum(19.95) #19.95
 hist.SetMinimum(0.)
 #hist.GetZaxis().SetRangeUser(0,4.95)
 
@@ -382,15 +393,17 @@ hist.SetMinimum(0.)
 hist.Draw("colz")
 alpha = 0.5
 
-if drawContours:
+if drawContours and not zoom:
     for conts in [cont_p2]:
         for cont in conts:
             cont.SetLineColor(ROOT.kBlack)
             cont.SetLineWidth(3)
+            cont.SetLineStyle(2)
             cont.Draw("L same")
     for conts in [cont_p1]:
         for cont in conts:
-            cont.SetLineColor(ROOT.kBlue-6)
+            #cont.SetLineColor(ROOT.kBlue-6)
+            cont.SetLineColor(ROOT.kBlack)
             cont.SetLineWidth(3)
             cont.Draw("L same")
 
@@ -412,7 +425,7 @@ if args.model == "ewkDM" and args.plane == "currents":
     inner_lower.SetParameters(-0.8*0.6, 3*0.24)
 
     for l in [outer_upper,outer_lower]:
-        l.SetLineStyle(1)
+        l.SetLineStyle(5)
         l.SetLineWidth(2)
         l.SetLineColor(ROOT.kGray+1)
         l.Draw("same")
@@ -422,6 +435,7 @@ if args.model == "ewkDM" and args.plane == "currents":
         ell.SetFillStyle(1001)
         ell.SetLineColor(ROOT.kGray+1)
         ell.SetLineWidth(2)
+        ell.SetLineStyle(5)
         ell.Draw("same")
 
 latex1 = ROOT.TLatex()
@@ -430,27 +444,33 @@ latex1.SetTextSize(0.035)
 latex1.SetTextAlign(11)
 
 if not args.unblinded:
-    latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
+    latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Simulation}}')
 else:
     if args.preliminary:
-        latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Preliminary}}')
+        latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{Preliminary}}')
     else:
-        latex1.DrawLatex(0.14,0.96,'CMS')# #bf{#it{Preliminary}}')
+        latex1.DrawLatex(0.16,0.96,'CMS')# #bf{#it{Preliminary}}')
 
 if args.model == "ewkDM":
-    latex1.DrawLatex(0.14,0.91,'#bf{Anomalous}')
-    latex1.DrawLatex(0.14,0.87,'#bf{coupling model}')
+    latex1.DrawLatex(0.18,0.91,'#bf{Anomalous}')
+    latex1.DrawLatex(0.18,0.87,'#bf{coupling model}')
 else:
-    latex1.DrawLatex(0.14,0.91,'#bf{SMEFT}')
+    latex1.DrawLatex(0.18,0.91,'#bf{SMEFT}')
 #    latex1.DrawLatex(0.14,0.87,'#bf{model}')
+
+latex2 = ROOT.TLatex()
+latex2.SetNDC()
+latex2.SetTextSize(0.05)
+latex2.SetTextAlign(11)
+latex2.DrawLatex(0.87, 0.87, '#bf{q}')
 
 if args.combined:
     setup.lumi = 35900+41600
 
 if not args.unblinded:
-    latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13TeV)}'%(setup.lumi/1e3))
+    latex1.DrawLatex(0.6,0.96,'#bf{%.1f fb^{-1} MC (13 TeV)}'%(setup.lumi/1e3))
 else:
-    latex1.DrawLatex(0.7,0.96,'#bf{%.1f fb^{-1} (13TeV)}'%(setup.lumi/1e3))
+    latex1.DrawLatex(0.56,0.96,'#bf{%.1f fb^{-1} (13 TeV)}'%(setup.lumi/1e3))
 
 SMpoint = ROOT.TGraph(1)
 SMpoint.SetName("SMpoint")
@@ -471,7 +491,17 @@ BFpoint.SetMarkerColor(ROOT.kBlue-6)
 SMpoint.Draw("p same")
 BFpoint.Draw("p same")
 
-leg = ROOT.TLegend(0.45,0.86,0.70,0.95)
+l1 = ROOT.TLine()
+l1.SetLineColor(ROOT.kBlack)
+l1.SetLineWidth(1)
+l1.DrawLineNDC(0.16,0.80,0.16,0.95)
+l1.DrawLineNDC(0.80,0.80,0.80,0.95)
+l1.DrawLineNDC(0.16,0.95,0.80,0.95)
+
+#if args.model == 'ewkDM' and args.plane == 'currents':
+#    leg = ROOT.TLegend(0.44,0.82,0.60,0.94)
+#else:
+leg = ROOT.TLegend(0.44,0.86,0.60,0.94)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
@@ -488,10 +518,21 @@ if args.sigma:
     leg.AddEntry(cont_p1[0], '#bf{1#sigma}', 'l')
 else:
     leg.AddEntry(cont_p1[0], '#bf{68% CL}', 'l')
+
 leg.Draw()
 
+if args.model == 'ewkDM' and args.plane == 'currents':
+    leg3 = ROOT.TLegend(0.18,0.82,0.60,0.86)
+    leg3.SetFillColor(ROOT.kWhite)
+    leg3.SetShadowColor(ROOT.kWhite)
+    leg3.SetBorderSize(0)
+    leg3.SetTextSize(0.035)
+    leg3.AddEntry(inner, '#bf{CMS 19.5 fb^{-1} (8 TeV) 68% CL}', 'l')
+    leg3.Draw()
 
-leg2 = ROOT.TLegend(0.70,0.86,0.90,0.95)
+
+
+leg2 = ROOT.TLegend(0.62,0.86,0.79,0.94)
 leg2.SetFillColor(ROOT.kWhite)
 leg2.SetShadowColor(ROOT.kWhite)
 leg2.SetBorderSize(0)
@@ -501,7 +542,7 @@ leg2.AddEntry(BFpoint, '#bf{best fit}', 'p')
 leg2.Draw()
 
 
-plotDir = os.path.join( plot_directory,"NLL_plots_2D_finalV2/" )
+plotDir = os.path.join( plot_directory,"NLL_plots_2D_finalV3/" )
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 

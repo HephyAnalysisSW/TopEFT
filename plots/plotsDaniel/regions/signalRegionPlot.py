@@ -247,7 +247,14 @@ for i, r in enumerate(regions):
         else:
             hists['observed'].legendText = 'Data (%s)'%options.year if not options.combine else 'Data'
     
-hists['observed'].legendOption = 'p'
+hists['ratio'] = hists['observed'].Clone()
+hists['ratio'].Divide(hists['total'])
+hists['ratio'].drawOption = 'p same'
+for i, r in enumerate(regions):
+    hists['ratio'].SetBinError(i+1, 0)
+
+hists['observed'].legendOption = 'e1p'
+hists['observed'].drawOption = 'e1p'
 hists['BSM'].legendOption = 'l'
 ## manually calculate the chi2 (no correlations).
 chi2SM  = 0
@@ -312,10 +319,10 @@ RT = R.transpose()
 
 
 #hists['observed'].SetBinErrorOption(ROOT.TH1.kPoisson)
-hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1. )
+hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1.2 )
 
 if options.signal:
-    hists['BSM'].style = styles.lineStyle( ROOT.kRed+1, width=3, dashed=True)
+    hists['BSM'].style = styles.lineStyle( ROOT.kRed+1, width=1, dashed=False)
 
 boxes = []
 ratio_boxes = []
@@ -330,15 +337,15 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     
     # uncertainty box in main histogram
     box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max([0.006, val-sys]), hists['total'].GetXaxis().GetBinUpEdge(ib), max([0.006, val+sys]) )
-    box.SetLineColor(ROOT.kGray+1)
-    box.SetFillStyle(3244)
-    box.SetFillColor(ROOT.kGray+1)
+    box.SetLineColor(ROOT.kGray+2)
+    box.SetFillStyle(3005)
+    box.SetFillColorAlpha(ROOT.kGray+2, 1.0)
     
     # uncertainty box in ratio histogram
     r_box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max(0.1, 1-sys_rel), hists['total'].GetXaxis().GetBinUpEdge(ib), min(1.9, 1+sys_rel) )
-    r_box.SetLineColor(ROOT.kGray+1)
-    r_box.SetFillStyle(3244)
-    r_box.SetFillColor(ROOT.kGray+1)
+    r_box.SetLineColor(ROOT.kOrange-4)
+    r_box.SetFillStyle(1001)
+    r_box.SetFillColorAlpha(ROOT.kOrange-4, 0.7)
 
     boxes.append( box )
     hists['total'].SetBinError(ib, 0)
@@ -472,7 +479,35 @@ def setBinLabels( hist ):
         else:
             hist.GetXaxis().SetBinLabel(i, "%s"%(i-15))
 
-drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,1)) + boxes + drawDivisions( regions )# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+def getLegend():
+    #dummy = ROOT.TH1F('asdf','',1,0,1)
+    #dummy.SetFillStyle(3005)
+    #dummy.SetLineColor(ROOT.kBlack)
+    #dummy.SetBinContent(1,0.0001)
+    #dummy.Draw()
+    #box = ROOT.TBox( 0,  0, 1, 1 )
+    #box.SetFillStyle(3005)
+    #box.SetFillColorAlpha(ROOT.kGray+2, 1.0)
+    #box.Draw()
+    
+    leg = ROOT.TLegend(0.74,0.50,0.95,0.54)
+    leg.SetFillColor(ROOT.kWhite)
+    leg.SetShadowColor(ROOT.kWhite)
+    leg.SetBorderSize(0)
+    leg.SetTextSize(0.035)
+    leg.AddEntry(boxes[0], 'Uncertainty', 'f')
+    return [leg]
+
+def getRatioLegend():
+    leg = ROOT.TLegend(0.145,0.86,0.27,0.96)
+    leg.SetFillColor(ROOT.kWhite)
+    leg.SetShadowColor(ROOT.kWhite)
+    leg.SetBorderSize(0)
+    leg.SetTextSize(0.075)
+    leg.AddEntry(ratio_boxes[0], 'Uncertainty', 'f')
+    return [leg]
+
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,1)) + boxes + drawDivisions( regions ) + getLegend()# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
 for p,tex in processes:
@@ -513,9 +548,9 @@ plotting.draw(
     widths = {'x_width':1300, 'y_width':700, 'y_ratio_width':300},
     #yRange = (0.3,3000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'texY':'Data/pred', 'histos':[(2,0),(1,0)] if options.signal else [(1,0)],
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions) + getRatioLegend(), 'texY':'Data / Pred.', 'histos':[(1,0),(2,0)] if options.signal else [(1,0)],
             'histModifications': [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2), lambda h: h.GetXaxis().SetTitleSize(32), lambda h: h.GetXaxis().SetLabelSize(27), lambda h: h.GetXaxis().SetLabelOffset(0.035)]} ,
-    drawObjects = drawObjects,
+    drawObjects = drawObjects + [hists['observed']],
     histModifications = [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2)],
     canvasModifications = [ lambda c : c.SetLeftMargin(0.08), lambda c : c.GetPad(2).SetLeftMargin(0.08), lambda c : c.GetPad(1).SetLeftMargin(0.08), lambda c: c.GetPad(2).SetBottomMargin(0.60), lambda c : c.GetPad(1).SetRightMargin(0.03), lambda c: c.GetPad(2).SetRightMargin(0.03) ],
     copyIndexPHP = True,

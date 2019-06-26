@@ -25,19 +25,19 @@ args = argParser.parse_args()
 ## define all the results. EFT
 results_EFT = [\
     {   'name': 'ctZ',
-        'tex': 'C_{tZ}/#Lambda^{2}',
+        'tex': 'C_{tZ} /#Lambda^{2}',
         'limits': {'new': [(-1.1, 1.1)], 'CMS': [(-2.6,2.6)], 'ATLAS': [(-2.4, 2.4)], 'indirect': [(-4.7, 0.2)], 'direct': [(-2.2, 3.3)], 'maltoni':[(-7.2, 7.7)]}
     },
     {   'name': 'ctZI',
-        'tex': 'C_{tZ}^{[I]}/#Lambda^{2}',
+        'tex': 'C_{tZ}^{[I]} /#Lambda^{2}',
         'limits': {'new': [(-1.2, 1.2)], 'CMS': [], 'ATLAS': [], 'indirect': [], 'direct': [], 'maltoni':[]} #nothing else?!
     },
     {   'name': 'cpt',
-        'tex': 'C_{#varphit}/#Lambda^{2}',
+        'tex': 'C_{#varphit} /#Lambda^{2}',
         'limits': {'new': [(0.3, 5.4)], 'CMS': [(-22.2, -13.0), (-3.2, 6.0)], 'ATLAS': [(-25.0, 5.5)], 'indirect': [(-0.1, 3.7)], 'direct': [(-9.7, 8.3)], 'maltoni':[(-6.4, 7.3)]}
     },
     {   'name': 'cpQM',
-        'tex': 'C_{#varphiQ}^{#font[122]{\55}}/#Lambda^{2}',
+        'tex': 'C_{#varphiQ}^{#font[122]{\55}} /#Lambda^{2}',
         'limits': {'new': [(-4.0, 0.05)], 'CMS': [], 'ATLAS': [(-3.3, 4.2)], 'indirect': [(-4.7, 0.7)], 'direct': [(-6.1, 6.2)], 'maltoni':[(-4.2, 3.9)]}
     },
 ]
@@ -78,7 +78,7 @@ styles = {
     'CMS': {'color': ROOT.kRed+1,   'style':1, 'width':3},
     'ATLAS': {'color': ROOT.kBlue-6, 'style':1, 'width':3},
     'maltoni': {'color': ROOT.kOrange-2, 'style':1, 'width':3},
-    'direct': {'color': ROOT.kSpring+1, 'style':1, 'width':3},
+    'direct': {'color': ROOT.kSpring+6, 'style':1, 'width':3},
     'indirect': {'color': ROOT.kBlack, 'style':2, 'width':2}
     }
 
@@ -100,12 +100,13 @@ axis = ROOT.TGaxis(-9.5,-0.85,9.5,-0.85,lower,upper,505,"")
 axisUpper = ROOT.TGaxis(-9.5,0.85,9.5,0.85,lower,upper,505,"-")
 axisUpper.SetLabelOffset(10)
 axis.SetName("axis")
+axis.SetLabelSize(0.05)
 axis.Draw()
 axisUpper.Draw()
 
 zero_point = 3.5 if args.model == 'EFT' else 1.9
 zero = ROOT.TLine(zero_point,-0.85,zero_point,0.85)
-zero.SetLineStyle(2)
+zero.SetLineStyle(1)
 
 box1 = ROOT.TLine(-9.5, -0.85, -9.5, 0.85)
 box2 = ROOT.TLine(9.5, -0.85, 9.5, 0.85)
@@ -161,7 +162,7 @@ box3.Draw()
 
 
 ## need a legend
-leg = ROOT.TLegend(0.05,0.85-0.04*len(ordering),0.40,0.85)
+leg = ROOT.TLegend(0.05,0.85-0.04*(len(ordering)+1),0.40,0.85)
 leg.SetFillColor(ROOT.kWhite)
 leg.SetShadowColor(ROOT.kWhite)
 leg.SetBorderSize(0)
@@ -175,9 +176,46 @@ if args.model == 'EFT':
     leg.AddEntry(res[0]['lines'][15], "#bf{Indirect (68% CL)}", 'l')
 else:
     leg.AddEntry(res[2]['lines'][3],  "#bf{~prev. CMS (68% CL)}", 'l')
+leg.AddEntry(zero, '#bf{SM}', 'l')
 
 leg.Draw()
 
+
+l1 = ROOT.TLine()
+l1.SetLineColor(ROOT.kBlack)
+l1.SetLineWidth(3)
+l1.DrawLineNDC(0.063,0.823,0.063,0.837)
+l1.DrawLineNDC(0.125,0.823,0.125,0.837)
+
+l2 = ROOT.TLine()
+l2.SetLineColor(ROOT.kRed+1)
+l2.SetLineWidth(2)
+l2.DrawLineNDC(0.063,0.783,0.063,0.797)
+l2.DrawLineNDC(0.125,0.783,0.125,0.797)
+
+l3 = ROOT.TLine()
+l3.SetLineColor(ROOT.kBlue-6)
+l3.SetLineWidth(2)
+l3.DrawLineNDC(0.063,0.743,0.063,0.757)
+l3.DrawLineNDC(0.125,0.743,0.125,0.757)
+
+l4 = ROOT.TLine()
+l4.SetLineColor(ROOT.kOrange-2)
+l4.SetLineWidth(2)
+l4.DrawLineNDC(0.063,0.703,0.063,0.717)
+l4.DrawLineNDC(0.125,0.703,0.125,0.717)
+
+l5 = ROOT.TLine()
+l5.SetLineColor(ROOT.kSpring+6)
+l5.SetLineWidth(2)
+l5.DrawLineNDC(0.063,0.663,0.063,0.677)
+l5.DrawLineNDC(0.125,0.663,0.125,0.677)
+
+l6 = ROOT.TLine()
+l6.SetLineColor(ROOT.kBlack)
+l6.SetLineWidth(2)
+l6.DrawLineNDC(0.063,0.623,0.063,0.637)
+l6.DrawLineNDC(0.125,0.623,0.125,0.637)
 
 ## finish it off
 
@@ -196,7 +234,7 @@ latex2.SetNDC()
 latex2.SetTextSize(0.045)
 latex2.SetTextAlign(11)
 for i,r in enumerate(res):
-    latex2.DrawLatex(0.84, 0.84-0.4*(i/2.), '#bf{%s}'%r['tex'])
+    latex2.DrawLatex(0.83, 0.86-0.4*(i/2.), '#bf{%s}'%r['tex'])
 
 plotDir = plot_directory + "summary/"
 
