@@ -532,9 +532,9 @@ for index, mode in enumerate(allModes):
         mc = [ TTZ_mc ]
     else:
         if args.WZpowheg:
-            mc             = [ TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
+            mc             = [ TWZ, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
         else:
-            mc             = [ TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
+            mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

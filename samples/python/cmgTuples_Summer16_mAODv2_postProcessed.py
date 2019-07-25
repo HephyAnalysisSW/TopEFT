@@ -88,7 +88,7 @@ TTX_all         = Sample.fromDirectory(name="TTX_all",          treeName="Events
 TTX_noTTG       = Sample.fromDirectory(name="TTX_noTTG",        treeName="Events", isData=False, color=ROOT.kRed-10,            texName="t(t)X",                                directory=directories['TTX_noTTG'])
 TTW             = Sample.fromDirectory(name="TTW",              treeName="Events", isData=False, color=color.TTW,               texName="t#bar{t}W",                             directory=directories['TTW'])
 TZQ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tZq",                                  directory=directories['TZQ'])
-TWZ             = Sample.fromDirectory(name="TZQ",              treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tZq",                                  directory=directories['TWZ'])
+TWZ             = Sample.fromDirectory(name="TWZ",              treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="tWZ",                                  directory=directories['TWZ'])
 TTXX            = Sample.fromDirectory(name="TTXX",             treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="ttXX",                                 directory=directories['TTXX'])
 TTX_rest        = Sample.fromDirectory(name="TTX_rest",         treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="ttX rest",                             directory=directories['TTXrest'])
 ZZ              = Sample.fromDirectory(name="ZZ",               treeName="Events", isData=False, color=color.ZZ,                texName="ZZ",                                   directory=directories['ZZ'])
