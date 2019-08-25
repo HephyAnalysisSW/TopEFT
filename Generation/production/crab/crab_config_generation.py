@@ -30,14 +30,14 @@ config.section_("User")
 
 
 if __name__ == '__main__':
-    gridpack_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/results/gridpacks/"
-    #gridpack_dir = "/afs/hephy.at/data/dspitzbart01/TopEFT/results/gridpacks/"
+    gridpack_dir = "/afs/hephy.at/data/rschoefbeck01/gridpacks/"
 
     import os
 
     from CRABAPI.RawCommand import crabCommand
 
     for outputDatasetTag, nJetMax, gridpack in [
+        ( 'dim6Top_19_08_25', 1, 'ttW01j_rwgt_slc6_amd64_gcc630_CMSSW_9_3_8_tarball.tar.xz')
         #'ewkDM_ttZ_ll_noH.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_-0.150000.tar.xz',
         #'ewkDM_ttZ_ll_noH_DC2V_-0.250000.tar.xz',
@@ -75,19 +75,19 @@ if __name__ == '__main__':
         #('HEL_09Nov17', 0, 'HEL_UFO_ttZ_ll_cuW_-0.300000.tar.xz'),
         #('HEL_09Nov17', 0, 'HEL_UFO_ttZ_ll_cuW_0.300000.tar.xz'),
 
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.176700_DVG_-0.176700.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.176700_DVG_0.176700.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.176700_DVG_-0.176700.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.176700_DVG_0.176700.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.250000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.250000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.500000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.500000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_-0.250000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_0.250000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_-0.500000.tar.xz'),
-        ('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_0.500000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.176700_DVG_-0.176700.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.176700_DVG_0.176700.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.176700_DVG_-0.176700.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.176700_DVG_0.176700.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.250000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.250000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_-0.500000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DAG_0.500000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_-0.250000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_0.250000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_-0.500000.tar.xz'),
+        #('ewkDMGZ_13Jan18',0,'ewkDMGZ_ttgamma_ll_DVG_0.500000.tar.xz'),
     ]:
         config.Data.outputDatasetTag = outputDatasetTag
         config.JobType.inputFiles = [os.path.join(gridpack_dir, gridpack)]

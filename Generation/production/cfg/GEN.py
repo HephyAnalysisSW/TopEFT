@@ -4,7 +4,7 @@ options.register('gridpack','nofile',       VarParsing.VarParsing.multiplicity.s
 options.register('GT','MCRUN2_71_V1::All',  VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Global Tag")
 options.register('nJetMax',1,               VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,     "JetMatching:nJetMax")
 options.register('outputDir','./',          VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,  "Where to store the output root file?")
-options.maxEvents=100 # maxEvents is a registered option. 
+options.maxEvents=1000 # maxEvents is a registered option. 
 
 if not 'ipython' in VarParsing.sys.argv[0]:
   options.parseArguments()

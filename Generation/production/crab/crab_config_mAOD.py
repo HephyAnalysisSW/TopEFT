@@ -3,7 +3,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 
-tag = '09Nov17-GS-4'
+tag = '15Jan17'
 
 config.section_("General")
 config.General.requestName = "tmp"
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p250000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_0p176700/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_0p176700_DC2V_m0p176700/schoef-09Nov17-GS-4-19898e58c9c00509372f15bcc801ecbe/USER',
-        '/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-09Nov17-GS-4-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_0p250000/schoef-09Nov17-GS-4-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p176700_DC2V_m0p176700/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2A_m0p250000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/ewkDM_ttZ_ll_DC1A_0p600000_DC1V_m0p240000_DC2V_m0p250000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
@@ -60,6 +60,19 @@ if __name__ == '__main__':
         #'/HEL_UFO_ttZ_ll_cuW_0p200000/schoef-09Nov17-GS-3-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/HEL_UFO_ttZ_ll_cuW_0p300000/schoef-09Nov17-GS-4-19898e58c9c00509372f15bcc801ecbe/USER',
         #'/HEL_UFO_ttZ_ll_cuW_m0p300000/schoef-09Nov17-GS-4-19898e58c9c00509372f15bcc801ecbe/USER',
+        '/ewkDMGZ_ttgamma_ll/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_0p176700_DVG_m0p176700/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_0p176700_DVG_0p176700/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_0p500000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_0p250000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_m0p176700_DVG_m0p176700/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_m0p176700_DVG_0p176700/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_m0p500000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DAG_m0p250000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DVG_0p500000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DVG_0p250000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DVG_m0p500000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
+        #'/ewkDMGZ_ttgamma_ll_DVG_m0p250000/schoef-15Jan17-19898e58c9c00509372f15bcc801ecbe/USER',
 
     #'/ewkDM_TTZToLL_LO_DC2A0p2_DC2V0p2_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
     #'/ewkDM_TTZToLL_LO_slc6_amd64_gcc481_CMSSW_7_1_30_tarball/dspitzba-ewkDM_GENSIMRAW-19898e58c9c00509372f15bcc801ecbe/USER',
