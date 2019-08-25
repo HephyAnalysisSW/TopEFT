@@ -51,15 +51,15 @@ fitKey = "dNLL_postfit_r1" if not args.useBestFit else "dNLL_bestfit"
 
 # get the absolute post fit NLL value of pure ttZ
 #ttZ_res = getResult(ewkDM_ttZ_ll_noH)
-ttZ_res = getResult(dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00)
+ttZ_res = getResult(dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00)
 ttZ_NLL_abs = float(ttZ_res["NLL_prefit"]) + float(ttZ_res[fitKey])
 
 print "Max Likelihood ttZ SM"
 print ttZ_NLL_abs
 
 # load all samples, omit the 1/1 point
-signals = [ x for x in dim6top_dipoles if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
-#signals = [ x for x in dim6top_currents ]
+#signals = [ x for x in allSamples_dim6top if not x.name.startswith('dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00') ]
+signals = [ x for x in dim6top_currents ]
 
 
 ctZ_values = []
@@ -101,6 +101,11 @@ for i,s in enumerate(signals):
             z.append(2*limit)
             x.append(s.ctZ)
             y.append(s.ctZi)
+        elif limit > -0.01 and limit < 0:
+            print s.name, 0
+            z.append(0)
+            x.append(s.ctZ)
+            y.append(s.ctZi)
         else:
             print "No good result found for %s, results is %s"%(s.name, limit)
     else:
@@ -115,9 +120,9 @@ nybins = max(1, min(500, nbins_y*3))
 a.SetNpx(nxbins)
 a.SetNpy(nybins)
 hist = a.GetHistogram().Clone()
-hist.GetXaxis().SetTitle("C_{tZ}")
+hist.GetXaxis().SetTitle("C_{pQM}")
 hist.GetXaxis().SetNdivisions(505)
-hist.GetYaxis().SetTitle("C_{tZi}")
+hist.GetYaxis().SetTitle("C_{pt}")
 hist.GetYaxis().SetNdivisions(505)
 hist.GetYaxis().SetTitleOffset(1.0)
 hist.GetZaxis().SetTitle("-2 #DeltalnL")
@@ -148,7 +153,7 @@ pads.SetTopMargin(0.11)
 pads.Draw()
 pads.cd()
 
-hist.SetMaximum(69.95) #1.95
+hist.SetMaximum(99.95) #1.95
 hist.SetMinimum(0.)
 
 
@@ -175,7 +180,8 @@ latex1.SetTextAlign(11)
 
 latex1.DrawLatex(0.14,0.96,'CMS #bf{#it{Simulation}}')
 latex1.DrawLatex(0.14,0.92,'#bf{dim6top_LO model}')
-latex1.DrawLatex(0.79,0.96,'#bf{MC (13TeV)}')
+print setup.lumi['3mu']/1e3
+latex1.DrawLatex(0.6,0.96,'#bf{%s fb^{-1} MC (13TeV)}'%(setup.lumi['3mu']/1e3))
 
 
 plotDir = os.path.join( plot_directory,"NLL_plots_2D/" )
@@ -183,7 +189,5 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 for e in [".png",".pdf",".root"]:
-    cans.Print(plotDir+"dim6top_LO_%s"%setup.name+e)
-
-
+    cans.Print(plotDir+"dim6top_LO_current_%s"%setup.name+e)
 

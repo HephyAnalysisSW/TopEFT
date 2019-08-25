@@ -21,8 +21,14 @@ from array import array
 from TopEFT.Tools.user            import plot_directory
 
 postProcessing_directory = "TopEFT_PP_v14/trilep/"
-from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import TTZ_LO
 
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_2017_Fall17_v1/trilep/"
+from TopEFT.samples.cmgTuples_Fall17_94X_mAODv2_postProcessed import *
+
+#postProcessing_directory = "TopEFT_PP_2017_v19/trilep/"
+#from TopEFT.samples.cmgTuples_Summer17_92X_mAODv2_postProcessed import *
 
 ROOT.gROOT.LoadMacro('$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C')
 ROOT.setTDRStyle()
@@ -38,7 +44,7 @@ channels = {'eee':'nGoodElectrons==3','eemu':'nGoodElectrons==2&&nGoodMuons==1',
 trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_eta2p1_WPLoose_Gsf"]
 trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
 
-trigger_singleEle_2017 = ["HLT_ele", "HLT_ele_pre"]
+trigger_singleEle_2017 = ["HLT_ele"]#, "HLT_ele_pre"]
 trigger_singleMu_2017  = ["HLT_mu"]#["HLT_IsoMu27"]#, "HLT_IsoMu30"]
 
 #channels = {'eee':'nGoodElectrons==3'}
@@ -95,7 +101,7 @@ for trigger in triggers:
     print "Working on trigger %s"%trigger
     for c in channels:
         print "... on channel %s"%c
-        for sample in [TTZ_LO]:##toLLNuNu]:
+        for sample in [WZ]:#[TTZ_LO]:##toLLNuNu]:
             print "... on sample %s"%sample.name
             incl_cut    = '&&'.join([presel,channels[c]])
             
@@ -114,6 +120,7 @@ for trigger in triggers:
             for i in range(3):
                 sample.hists[i] = { m:ROOT.TH1F("%s_%s_%s_%s_%s"%(sample.name, trigger, c, m, i),"", *binning) for m in ["SL_Run2017", "tt_Summer17"] }#["MET_Run2017", "MET_Run2016", "WJets"] }
                 sample.hist_ref[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "ref", c, i),"", *binning)
+                sample.hist_shape[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "shape", c, i),"", *binning)
                 sample.hist_direct[i] = ROOT.TH1F("%s_%s_%s_%s"%(sample.name, "direct", c, i),"", *binning)
 
             print "Gonna loop over %s events"%number_events
@@ -125,7 +132,7 @@ for trigger in triggers:
                     print "Done with",i
                 s.GetEntry(elist.GetEntry(i))
                 w = s.weight
-                sl_triggers = trigger_singleEle + trigger_singleMu
+                sl_triggers = trigger_singleEle_2017 + trigger_singleMu_2017
                 triggered = False
                 for x in sl_triggers:
                     triggered = getattr(s, x)
@@ -144,9 +151,13 @@ for trigger in triggers:
                 for j in range(3):
                     pt = s.lep_pt[j] if s.lep_pt[j]<500 else 499.
                     sample.hist_ref[j].Fill(pt, w)
+                    #sample.hist_shape[j].Fill(pt, w)
                     if triggered:
                         sample.hist_direct[j].Fill(pt, w)
-            
+                
+            for j in range(3):
+                TTZ_LO.chain.Draw("lep_pt[%s]>>%s_%s_%s_%s"%(j,sample.name, "shape", c, j),incl_cut)
+                
             for j in range(3):
                 sample.teffs = {}
 
@@ -168,7 +179,7 @@ for trigger in triggers:
 
                 # plot the shape
 
-                sample.hist_shape[j] = sample.hist_ref[j].Clone()
+                #sample.hist_shape[j] = sample.hist_ref[j].Clone()
                 sample.hist_shape[j].SetLineColor(ROOT.kBlack)
                 sample.hist_shape[j].SetLineWidth(1)
                 sample.hist_shape[j].Scale(4/sample.hist_shape[j].Integral(), "width")
@@ -213,9 +224,9 @@ for trigger in triggers:
                 leg2.SetTextFont(42)
                 
                 leg2.AddEntry(sample.hist_ref[j], '3l efficiency based on:')
-                leg2.AddEntry(sample.teffs['tt_Summer17'], '1l meas. in t#bar{t} MC(2017)')
+                leg2.AddEntry(sample.teffs['tt_Summer17'], '1l meas. in t#bar{t} Summer17')
                 leg2.AddEntry(sample.teffs['SL_Run2017'], '1l meas. in singleLep PD(2017)')
-                leg2.AddEntry(sample.teffs['direct'], 'direct meas. in ttZ MC(2016)')
+                leg2.AddEntry(sample.teffs['direct'], 'direct meas. in WZ Fall17')
                 leg2.AddEntry(sample.hist_shape[j], 'ttZ distribution','f')
 
                 leg2.Draw()
@@ -226,14 +237,14 @@ for trigger in triggers:
                 latex1.SetTextSize(0.04)
                 latex1.SetTextAlign(11) # align right
                 latex1.DrawLatex(0.16,0.96,'CMS #bf{#it{'+extraText+'}}')
-                latex1.DrawLatex(0.72,0.96,"#bf{35.9fb^{-1}} (13TeV)")
+                latex1.DrawLatex(0.80,0.96,"(13TeV)")
 
 
-                plot_dir = os.path.join(plot_directory, "trigger_TnP_2017", "SingleLep", "efficiency", trigger, c)
+                plot_dir = os.path.join(plot_directory, "trigger_TnP_2017", "Fall17", "efficiency", trigger, c)
                 if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
 
                 for f in ['.png','.pdf','.root']:
-                    can.Print(plot_dir+"/lep_pt_%s_%s"%(j,sample.name)+f)
+                    can.Print(plot_dir+"/lep_pt_%s_%s_v2"%(j,sample.name)+f)
 
 
                 #sample.hists[m].Divide(sample.hist_ref)

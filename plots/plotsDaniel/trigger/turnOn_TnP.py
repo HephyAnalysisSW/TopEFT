@@ -71,22 +71,21 @@ def turnon_func(x, par):
 #postProcessing_directory = "TopEFT_PP_v12/dilep/"
 #from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
-from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
-
-#data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-#postProcessing_directory = "TopEFT_PP_v14/dilep/"
-#from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+#data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
+#from  TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed_trigger import *
 #
-#data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
-#postProcessing_directory = "TopEFT_PP_v14/dilep/"
-#from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
+#data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+#postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
+#from TopEFT.samples.cmgTuples_Summer17_mAODv2_postProcessed import *
 
 data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
-postProcessing_directory = "TopEFT_PP_2017_v19/dilep/"
-#from TopEFT.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
-from TopEFT.samples.cmgTuples_Summer17_mAODv2_postProcessed import *
+postProcessing_directory = "TopEFT_PP_v14/dilep/"
+from  TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
+postProcessing_directory = "TopEFT_PP_v14/dilep/"
+from  TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
 
 # presel for measuring efficiencies in single lep datasets
 presel = "nlep==2&&nGoodElectrons==1&&nGoodMuons==1&&(lep_pdgId[0]*lep_pdgId[1])<0"
@@ -97,7 +96,7 @@ trigger_singleEle = ["HLT_Ele27_WPTight_Gsf", "HLT_Ele25_eta2p1_WPTight_Gsf", "H
 trigger_singleMu  = ["HLT_IsoMu24", "HLT_IsoTkMu24"]
 
 #trigger_singleEle_2017 = ["HLT_Ele35_WPTight_Gsf"]
-trigger_singleEle_2017 = ["HLT_ele", "HLT_ele_pre"]
+trigger_singleEle_2017 = ["HLT_ele"]#, "HLT_ele_pre"]
 trigger_singleMu_2017  = ["HLT_mu"]#["HLT_IsoMu27"]#, "HLT_IsoMu30"]
 
 

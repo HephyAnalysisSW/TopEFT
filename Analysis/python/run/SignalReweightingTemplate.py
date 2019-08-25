@@ -116,9 +116,15 @@ if __name__ == "__main__":
     # reweighting class
     cacheDir = os.path.join( results_directory, 'SignalReweightingTemplate' )
     
-    source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+    #source_gen = dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00
+    #source_gen = dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00 ## there shouldn't be a different between the two
+    source_gen = ewkDM_central
 
-    for target in allSamples_dim6top:
+    #allTargets = allSamples_dim6top
+    #allTargets = ewkDM_currents + [ ewkDM_central ]
+    allTargets = ewkDM_all
+
+    for target in allTargets:
         target_gen = target
 
         signalReweighting = SignalReweighting( source_sample = source_gen, target_sample = target_gen, cacheDir = cacheDir)

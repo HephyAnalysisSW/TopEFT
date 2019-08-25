@@ -230,16 +230,16 @@ class Process:
         mod_c = modified_couplings.keys()
         mod_c.sort()
         
-        mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c ] )
-        return ( '_'.join( [self.config.model_name, self.process, mod_c_str ])).rstrip('_')
+        mod_c_str = "_".join( [ "%s_%8.6f"%( k, modified_couplings[k] ) for k in mod_c if modified_couplings[k]!=self.config.default_model_couplings[k] ] )
+        return ( '_'.join( [self.config.model_name, self.process, mod_c_str.replace('.','p').replace('-','m') ])).rstrip('_')
     
     def getKey(self, modified_couplings):
         key = {"process":self.process, "nEvents":self.nEvents}
         for k in self.config.all_model_couplings:
             if k in modified_couplings.keys():
-                key[k] = modified_couplings[k]
+                key[k] = float(modified_couplings[k])
             else:
-                key[k] = 0.
+                key[k] = self.config.default_model_couplings[k]
         return key
     
     def hasXSec(self, modified_couplings):

@@ -34,6 +34,13 @@ def natural_sort(list, key=lambda s:s):
 
     return lc
 
+def getCouplingFromName(name, coupling):
+    if coupling in name:
+        l = name.split('_')
+        return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
+    else:
+        return 0.
+
 def cosThetaStar( Z_mass, Z_pt, Z_eta, Z_phi, l_pt, l_eta, l_phi ):
 
     Z   = ROOT.TVector3()
@@ -169,6 +176,11 @@ def checkRootFile(f, checkForObjects=[]):
 #    print "Keys recoveredd %i zombie %i tb %i"%(rf.Recover(), rf.IsZombie(), rf.TestBit(ROOT.TFile.kRecovered))
     rf.Close()
     return good
+
+def checkEDMRootFile( f ):
+    import subprocess
+    ret = subprocess.call("edmFileUtil %s" % f, shell=True)
+    return ret==0
 
 def getChunks(sample,  maxN=-1):
     import os, subprocess
@@ -309,4 +321,18 @@ def getPlotFromChain(c, var, binning, cutString = "(1)", weight = "weight", binn
         res.SetBinContent(1 , res.GetBinContent(0) + res.GetBinContent(1))
         res.SetBinError(1 , sqrt(res.GetBinError(0)**2 + res.GetBinError(1)**2))
     return res
+
+def getGenZ(genparts):
+  for g in genparts:
+    if g['pdgId'] != 23:        continue					# pdgId == 23 for Z
+    if g['status'] != 62:	continue					# status 62 is last gencopy before it decays into ll/nunu
+    return g
+  return None
+
+def getGenPhoton(genparts):
+  for g in genparts:								# Type 0: no photon
+    if g['pdgId'] != 22:        continue					# pdgId == 22 for photons
+    if g['status'] != 23:	continue					# for photons, take status 23
+    return g
+  return None
 
