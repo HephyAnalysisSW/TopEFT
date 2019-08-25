@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 #binning in pt and eta
-ptBorders = [30, 50, 70, 100, 140, 200, 300, 600, 1000]
+ptBorders = [30, 50, 70, 100, 140, 200, 300, 600]
 
 ptBins = []
 etaBins = [[0,0.8], [0.8,1.6], [ 1.6, 2.4]]
@@ -84,8 +84,6 @@ class btagEfficiency:
         # Input files
         if not (sfFile and effFile):
             raise NotImplementedError("MC truth efficiency and/or SF files not defined!")
-        print sfFile
-        print effFile
         self.scaleFactorFile = sfFile
         self.mcEfficiencyFile = effFile
 

@@ -14,6 +14,7 @@ from TopEFT.Tools.user            import plot_directory
 from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue, deltaR, deltaR2
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
+from TopEFT.Tools.triggerSelector import triggerSelector
 
 #
 # Arguments
@@ -27,9 +28,11 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM', action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
-argParser.add_argument('--plot_directory',     action='store',      default='80X_v14')
-argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-njet3p-btag1p-onZ')
+argParser.add_argument('--plot_directory',     action='store',      default='80X_mva_v21')
+argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-min_mll12-njet1p-btag0-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
+argParser.add_argument('--WZpowheg',           action='store_true', default=False,             help="Use WZ powheg sample" )
+argParser.add_argument('--reweightWZ',           action='store_true', default=False,             help="Reweight to WZ powheg sample?" )
 args = argParser.parse_args()
 
 #
@@ -45,16 +48,21 @@ if args.noData:                       args.plot_directory += "_noData"
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
+if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
+if args.reweightWZ:                   args.plot_directory += "_WZreweight"
 if args.normalize: args.plot_directory += "_normalize"
 if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
 #
 # Make samples, will be searched for in the postProcessing directory
 #
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
 from TopEFT.samples.cmgTuples_Summer16_mAODv2_postProcessed import *
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
-from TopEFT.samples.cmgTuples_Data25ns_80X_03Feb_postProcessed import *
+data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+postProcessing_directory = "TopEFT_PP_2016_mva_v21/trilep/"
+from TopEFT.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
 
+data_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
 if args.signal == "ttZ01j":
     postProcessing_directory = "TopEFT_PP_v14/trilep/"
     from TopEFT.samples.cmgTuples_signals_Summer16_mAODv2_postProcessed import *
@@ -118,37 +126,39 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
-scaling = { i+1:0 for i in range(len(signals)) }
+#scaling = { i+1:0 for i in range(len(signals)) }
+scaling = { 1:0 }
 
 def drawPlots(plots, mode, dataMCScale):
   for log in [False, True]:
     plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, mode + ("_log" if log else ""), args.selection)
     for plot in plots:
       if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot
+      postFix = " (legacy)"
       if not args.noData: 
-        if mode == "all": plot.histos[1][0].legendText = "Data"
-        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)"
+        if mode == "all": plot.histos[1][0].legendText = "Data" + postFix
+        if mode == "SF":  plot.histos[1][0].legendText = "Data (SF)" + postFix
       extensions_ = ["pdf", "png", "root"] if mode == 'all' else ['png']
 
       plotting.draw(plot,
 	    plot_directory = plot_directory_,
         extensions = extensions_,
-	    #ratio = {'yRange':(0.1,1.9)} if not args.noData else {},
+	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
+	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ) if not args.normalize else drawObjects( not args.noData, 1.0 , lumi_scale ),
         copyIndexPHP = True,
       )
 
 # define 3l selections
 def getLeptonSelection( mode ):
-    if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
-    elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
-    elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
-    elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
-    elif mode=='all':    return "nGoodMuons+nGoodElectrons==3"
+    if   mode=="mumumu": return "nMuons_tight_3l==3&&nElectrons_tight_3l==0"
+    elif mode=="mumue":  return "nMuons_tight_3l==2&&nElectrons_tight_3l==1"
+    elif mode=="muee":   return "nMuons_tight_3l==1&&nElectrons_tight_3l==2"
+    elif mode=="eee":    return "nMuons_tight_3l==0&&nElectrons_tight_3l==3"
+    elif mode=='all':    return "nMuons_tight_3l+nElectrons_tight_3l==3"
 
 # reweighting 
 if args.reweightPtZToSM:
@@ -192,7 +202,7 @@ def getDPhiZLep( event, sample ):
     event.dPhiZLep = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
 
 def getDPhiZJet( event, sample ):
-    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nJetSelected') #nJetSelected
+    event.dPhiZJet = deltaPhi(event.jet_phi[0], event.Z_phi) if event.njet>0 and event.Z_mass>0 else float('nan') #nJetSelected
 
 def getSelectedJets( event, sample ):
     jetVars     = ['eta','pt','phi','btagCSV','DFbb', 'DFb', 'id']
@@ -449,11 +459,49 @@ def getCosThetaStar( event, sample ):
 
 sequence.append( getCosThetaStar )
 
-def getLeptonSelection( mode ):
-  if   mode=="mumumu": return "nGoodMuons==3&&nGoodElectrons==0"
-  elif mode=="mumue":  return "nGoodMuons==2&&nGoodElectrons==1"
-  elif mode=="muee":   return "nGoodMuons==1&&nGoodElectrons==2"
-  elif mode=="eee":    return "nGoodMuons==0&&nGoodElectrons==3"
+def getM3l( event, sample ):
+    # get the invariant mass of the 3l system
+    l = []
+    for i in range(3):
+        l.append(ROOT.TLorentzVector())
+        l[i].SetPtEtaPhiM(event.lep_pt[i], event.lep_eta[i], event.lep_phi[i],0)
+    event.threelmass = (l[0] + l[1] + l[2]).M()
+
+sequence.append( getM3l )
+
+def getWpt( event, sample):
+
+    # get the lepton and met
+    lepton  = ROOT.TLorentzVector()
+    met     = ROOT.TLorentzVector()
+    lepton.SetPtEtaPhiM(event.lep_pt[event.nonZ_l1_index], event.lep_eta[event.nonZ_l1_index], event.lep_phi[event.nonZ_l1_index], 0)
+    met.SetPtEtaPhiM(event.met_pt, 0, event.met_phi, 0)
+
+    # get the W boson candidate
+    W   = lepton + met
+    event.W_pt = W.Pt()
+
+sequence.append( getWpt )
+
+def getLooseLeptonMult( event, sample ):
+    leptons = [getObjDict(event, 'lep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId','mediumMuonId'], i) for i in range(len(event.lep_pt))]
+    lepLoose = [ l for l in leptons if l['pt'] > 10 and ((l['mediumMuonId'] and abs(l['pdgId'])==13) or abs(l['pdgId'])==11)  ]
+    event.nLepLoose = len(lepLoose)
+
+sequence.append( getLooseLeptonMult )
+
+def get_powheg_reweight( histo_pow, histo_amc ):
+    def get_histo_reweight(Z_pt):
+        return histo_pow.GetBinContent(histo_amc.FindBin( Z_pt ))/histo_amc.GetBinContent(histo_amc.FindBin( Z_pt ) )
+    return get_histo_reweight
+
+WZ_amcatnlo.Z_pt_histo    = WZ_amcatnlo.get1DHistoFromDraw("Z_pt", [10,0,500], selectionString= cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+WZ_amcatnlo.Z_pt_histo.Scale(1./WZ_amcatnlo.Z_pt_histo.Integral())
+WZ_powheg.Z_pt_histo      =   WZ_powheg.get1DHistoFromDraw("Z_pt", [10,0,500], selectionString= cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+WZ_powheg.Z_pt_histo.Scale(1./WZ_powheg.Z_pt_histo.Integral())
+
+ZptRW = get_powheg_reweight( WZ_powheg.Z_pt_histo, WZ_amcatnlo.Z_pt_histo )
+
 
 #
 # Loop over channels
@@ -464,17 +512,8 @@ allModes   = ['mumumu','mumue','muee', 'eee']
 for index, mode in enumerate(allModes):
     yields[mode] = {}
     if not args.noData:
-        if mode == "mumumu":
-            data_sample = SingleMuon_Run2016
-            data_sample.texName = "data (3#mu)"
-        elif mode == "eee":
-            data_sample = SingleElectron_Run2016
-            data_sample.texName = "data (3e)"
-        else:
-            data_sample = SingleEleMu_Run2016
-        if   mode=="mumue": data_sample.texName = "data (2#mu, 1e)"
-        if   mode=="muee": data_sample.texName = "data (1#mu, 2e)"
-
+        data_sample = Run2016
+        data_sample.texName = "data (legacy)"
         data_sample.setSelectionString([getFilterCut(isData=True), getLeptonSelection(mode)])
         data_sample.name           = "data"
         data_sample.read_variables = ["evt/I","run/I"]
@@ -492,17 +531,26 @@ for index, mode in enumerate(allModes):
     if args.onlyTTZ:
         mc = [ TTZ_mc ]
     else:
-        mc             = [ TTZ_mc , TTW, TZQ, TTX, WZ, rare ]#, nonprompt ]
+        if args.WZpowheg:
+            mc             = [ TWZ, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
+        else:
+            mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc + signals:
       sample.scale          = lumi_scale
+      #if args.WZpowheg and sample in [WZ_powheg]:
+      #  sample.scale          = lumi_scale * 4.666/4.42965 # get same x-sec as amc@NLO
       #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
       #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-      sample.read_variables = ['reweightBTagCSVv2_SF/F']
-      #sample.weight         = lambda event, sample: event.reweightBTagCSVv2_SF
-      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode)])
+      sample.read_variables = ['reweightBTagCSVv2_SF/F', 'reweightBTagDeepCSV_SF/F', 'reweightPU36fb/F', 'reweightLeptonSFSyst_tight_3l/F', 'reweightLeptonTrackingSF_tight_3l/F', 'reweightTrigger_tight_3l/F', "Z_pt/F"]
+      if sample in [WZ_amcatnlo] and args.reweightWZ:
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*event.reweightLeptonSFSyst_tight_3l*event.reweightLeptonTrackingSF_tight_3l*event.reweightTrigger_tight_3l*ZptRW(event.Z_pt)
+      else:
+          sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*event.reweightLeptonSFSyst_tight_3l*event.reweightLeptonTrackingSF_tight_3l*event.reweightTrigger_tight_3l
+      tr = triggerSelector(2016)
+      sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode), tr.getSelection("MC")])
 
     if not args.noData:
       stack = Stack(mc, data_sample)
@@ -516,7 +564,7 @@ for index, mode in enumerate(allModes):
             sample.reduceFiles( to = 1 )
 
     # Use some defaults
-    Plot.setDefaults(stack = stack, weight = weight_, selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+    Plot.setDefaults(stack = stack, weight = staticmethod(weight_), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
 
     plots = []
     
@@ -547,7 +595,14 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
-        binning=[25,0,500],
+        binning=[20,0,400],
+    ))
+    
+    plots.append(Plot(
+        name = "W_pt",
+        texX = 'p_{T}(W) (GeV)', texY = 'Number of Events / 20 GeV',
+        attribute = lambda event, sample:event.W_pt,
+        binning=[20,0,400],
     ))
     
     plots.append(Plot(
@@ -566,6 +621,13 @@ for index, mode in enumerate(allModes):
         name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[4,0,400],
+    ))
+    
+    plots.append(Plot(
+        name = "invM_3l",
+        texX = 'M(3l) (GeV)', texY = 'Number of Events',
+        attribute = lambda event, sample:event.threelmass,
+        binning=[25,0,500],
     ))
     
     plots.append(Plot(
@@ -772,6 +834,18 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nJetSelected/I" ), #nJetSelected
+      binning=[8,-0.5,7.5],
+    ))
+    
+    plots.append(Plot(
+      texX = 'N_{b-tag}', texY = 'Number of Events',
+      attribute = TreeVariable.fromString( "nBTag/I" ), #nJetSelected
+      binning=[4,-0.5,3.5],
+    ))
+    
+    plots.append(Plot(
+      texX = 'N_{l, loose}', texY = 'Number of Events',
+      name = 'nLepLoose', attribute = lambda event, sample: event.nLepLoose,
       binning=[5,2.5,7.5],
     ))
     

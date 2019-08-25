@@ -41,6 +41,7 @@ class SystematicEstimator:
 
     # For the datadriven subclasses which often need the same getYieldFromDraw we write those yields to a cache
     def yieldFromCache(self, setup, sample, c, selectionString, weightString):
+        print selectionString
         s = (sample, c, selectionString, weightString)
         if self.helperCache and self.helperCache.contains(s):
           return self.helperCache.get(s)
@@ -53,7 +54,7 @@ class SystematicEstimator:
         sysForKey = setup.sys.copy()
         sysForKey['reweight'] = 'TEMP'
         reweightKey ='["' + '", "'.join(sorted([i for i in setup.sys['reweight']])) + '"]' # little hack to preserve order of list when being dumped into json
-        return region, channel, json.dumps(sysForKey, sort_keys=True).replace('"TEMP"',reweightKey), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
+        return region, channel.name, json.dumps(sysForKey, sort_keys=True).replace('"TEMP"',reweightKey), json.dumps(setup.parameters, sort_keys=True), json.dumps(setup.lumi, sort_keys=True)
 
     def replace(self, i, r):
         try:
@@ -63,6 +64,7 @@ class SystematicEstimator:
 
     def cachedEstimate(self, region, channel, setup, save=True, overwrite=False):
         key =  self.uniqueKey(region, channel, setup)
+        #print "contains?", self.cache.contains(key)
         if (self.cache and self.cache.contains(key)) and not overwrite:
             res = self.cache.get(key)
             logger.debug( "Loading cached %s result for %r : %r"%(self.name, key, res) )
@@ -115,16 +117,22 @@ class SystematicEstimator:
     #    down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonFastSimSFDown']}))
     #    return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
+    def highNJetSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['((nJetSelected>=3)*1.2+(nJetSelected<3)*1.0)']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['((nJetSelected>=3)*0.8+(nJetSelected<3)*1.0)']}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
     def btaggingSFbSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Up']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_b_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_b_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_b_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFlSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Up']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTag_SF_l_Down']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_l_Up']}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightBTagDeepCSV_SF_l_Down']}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def btaggingSFFSSystematic(self, region, channel, setup):
@@ -135,24 +143,58 @@ class SystematicEstimator:
 
     def leptonSFSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFUp']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFSystUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonSFSystDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def leptonTrackingSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonTrackingSFUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightLeptonTrackingSFDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def eleSFSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightEleSFStatUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightEleSFStatDown_%s'%setup.leptonId]}))
+        return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
+
+    def muSFSystematic(self, region, channel, setup):
+        ref  = self.cachedEstimate(region, channel, setup)
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightMuSFStatUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightMuSFStatDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
     def triggerSystematic(self, region, channel, setup):
         ref  = self.cachedEstimate(region, channel, setup)
-        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupUp']}))
-        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightDilepTriggerBackupDown']}))
+        up   = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightTriggerUp_%s'%setup.leptonId]}))
+        down = self.cachedEstimate(region, channel, setup.systematicClone({'reweight':['reweightTriggerDown_%s'%setup.leptonId]}))
         return abs(0.5*(up-down)/ref) if ref > 0 else max(up, down)
 
-    def reweight2D(self, region, channel, setup, f):
+    def reweight2D(self, region, channel, setup, function):
         ref = 0
         for r in setup.reweightRegions:
-            if r.vals['Z_pt'][0] >= region.vals['Z_pt'][0] and (r.vals['Z_pt'][1] <= region.vals['Z_pt'][1] or region.vals['Z_pt'][1] == -1) and r.vals['cosThetaStar'][0] >= region.vals['cosThetaStar'][0] and r.vals['cosThetaStar'][1] <= region.vals['cosThetaStar'][1]:
+            # super dirty way to get the correct pT(Z) and cos(Theta*) string
+            Z_pt_var  = [ x for x in r.vals.keys() if 'pt' in x ][0]
+            cosTS_var = [ x for x in r.vals.keys() if 'cos' in x ][0]
+            if r.vals[Z_pt_var][0] >= region.vals[Z_pt_var][0] and (r.vals[Z_pt_var][1] <= region.vals[Z_pt_var][1] or region.vals[Z_pt_var][1] == -1) and r.vals[cosTS_var][0] >= region.vals[cosTS_var][0] and r.vals[cosTS_var][1] <= region.vals[cosTS_var][1]:
+                # This only works if the reweightRegions are aligned!!
+                val     = self.cachedEstimate(r, channel, setup)
+                weight  = function(r.vals[Z_pt_var][0], r.vals[cosTS_var][0])
+                ref += val*weight
+        return ref
+
+    def reweight1D(self, region, channel, setup, function):
+        ref = 0
+        for r in setup.reweightRegions:
+            # super dirty way to get the correct pT(Z) and cos(Theta*) string
+            Z_pt_var  = [ x for x in r.vals.keys() if 'pt' in x ][0]
+            cosTS_var = [ x for x in r.vals.keys() if 'cos' in x ][0]
+            if r.vals[Z_pt_var][0] >= region.vals[Z_pt_var][0] and (r.vals[Z_pt_var][1] <= region.vals[Z_pt_var][1] or region.vals[Z_pt_var][1] == -1) and r.vals[cosTS_var][0] >= region.vals[cosTS_var][0] and r.vals[cosTS_var][1] <= region.vals[cosTS_var][1]:
                 # This only works if the reweightRegions are aligned!!
                 #print "in", r
                 val     = self.cachedEstimate(r, channel, setup)
-                weight  = f(r.vals['Z_pt'][0], r.vals['cosThetaStar'][0])
+                weight  = function(r.vals[Z_pt_var][0])
                 ref += val*weight
             #else:
             #    print "out", r

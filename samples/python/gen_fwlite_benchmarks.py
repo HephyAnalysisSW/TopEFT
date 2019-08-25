@@ -13,6 +13,13 @@ from TopEFT.Tools.user import results_directory
 import logging
 logger = logging.getLogger(__name__)
 
+import glob
+
+gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
+# Robert first ttZ_ll dim6top scan
+#dim6top_ttZ_ll_LO_scan = Sample.fromDirectory("dim6top_ttZ_ll_LO_scan", texName = "ttZ (scan)", directory = [os.path.join( gen_dir, "fwlite_ttZ_ll_LO_scan")])
+dim6top_ttZ_ll_LO_scan = Sample.fromDirectory("dim6top_ttZ_ll_LO_scan", texName = "ttZ (scan)", directory = [os.path.join( gen_dir, "fwlite_ttZ_ll_LO_highStat_scan")])
+
 # Robert GENSIM 0j benchmarks 09Nov17 (used for analysis development)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 ewkDM_ttZ_ll_gen                                             = Sample.fromDirectory("ewkDM_ttZ_ll_gen",                                                                           texName ="SM",                                                       directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll_GS/")])
@@ -50,268 +57,54 @@ ewkDMGZ_ttgamma_gen_DVG_0p250000                = Sample.fromDirectory("ewkDMGZ_
 ewkDMGZ_ttgamma_gen_DVG_0p500000                = Sample.fromDirectory("ewkDMGZ_ttgamma_gen_DVG_0p500000",                  texName ="C_{2,V}^{#gamma} = 0.5",                              directory = os.path.join( gen_dir,"ewkDMGZ_ttgamma_GS_DVG_0p500000") )
 ewkDMGZ_ttgamma_gen_DVG_m0p250000               = Sample.fromDirectory("ewkDMGZ_ttgamma_gen_DVG_m0p250000",                 texName ="C_{2,V}^{#gamma} = -0.25",                            directory = os.path.join( gen_dir,"ewkDMGZ_ttgamma_GS_DVG_m0p250000") )
 
-## Daniel GENSIM 0j benchmarks Jan18 local production (for propaganda plots and reweighting studies)
+### Daniel GENSIM 0j benchmarks Jan18 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/gen/v2/"
 
-logger.info("Loading dim6top signals")
+allSampleNames  = glob.glob(gen_dir+"dim6top_LO_ttZ_ll_c*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")]
 
-# dipole scan
-dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p00_ctZI_1p00/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m2p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m2p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p80  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p80", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p60  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p60", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m2p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m2p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p40  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p40", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p80  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p80", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p40  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p40", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p60  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p60", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p20  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p20", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p60  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p60", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p40  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p40", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p60  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p60", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p20  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p20", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p40  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p40", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p20  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p20", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m2p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m2p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p80  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p80", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m2p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m2p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p20  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p20", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p80  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p80", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p80_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m0p40_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p20  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p20", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m2p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m2p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m2p00_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p80  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p80", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p60_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p60  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p60", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_0p40/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_2p00_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p40  = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p40", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p60   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p60" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m1p60/")])
-dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_m1p20_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p60_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m2p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m2p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p60    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p60"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_1p60/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p80   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p80" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_m0p80/")])
-dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_2p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_2p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p00_ctZI_2p00/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p40   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p40" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_m0p40/")])
-dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p80    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p80"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_1p20_ctZI_0p80/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p20   = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p20" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_m1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_0p00/")])
-dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p20    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p20"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p40_ctZI_1p20/")])
-dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p40    = Sample.fromDirectory("dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p40"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_ctZ_0p80_ctZI_0p40/")])
+dim6top_currents_daniel  = []
+dim6top_dipoles_daniel   = []
 
-# current scan
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m24p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m24p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_7p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_7p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_7p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_7p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m24p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_7p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_7p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m24p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m24p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m24p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m21p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m21p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m14p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m14p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m3p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m3p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m3p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_7p00/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_10p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_10p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_10p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_10p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m17p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m17p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m21p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_14p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_14p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_3p50    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_3p50"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_14p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_14p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_10p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_10p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_4p00_cpt_3p50    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_4p00_cpt_3p50"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_4p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_8p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m21p00 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m21p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m21p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m10p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m10p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_10p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_10p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_10p50/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_0p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_0p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_0p00/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_3p50    = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_3p50"  , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m8p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m17p50  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_14p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_14p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m7p00   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m7p00" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_0p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m17p50 = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m17p50", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m17p50/")])
-dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_m4p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_28p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_28p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_28p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m7p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m7p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_m7p00/")])
-dim6top_LO_ttZ_ll_cpQM_20p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_20p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_20p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_12p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_12p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_12p00_cpt_3p50/")])
-dim6top_LO_ttZ_ll_cpQM_24p00_cpt_14p00  = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_24p00_cpt_14p00", directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_24p00_cpt_14p00/")])
-dim6top_LO_ttZ_ll_cpQM_16p00_cpt_3p50   = Sample.fromDirectory("dim6top_LO_ttZ_ll_cpQM_16p00_cpt_3p50" , directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll_cpQM_16p00_cpt_3p50/")])
+logger.info("Loading ewkDM signals from %s", gen_dir)
+for s in allSampleNames:
+    if len(s) > 50:
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
+        continue
+    if s.startswith('dim6top_LO_ttZ_ll_cp'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_currents_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p50','p500000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    elif s.startswith('dim6top_LO_ttZ_ll_ct'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_dipoles_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p20','p200000').replace('p40','p400000').replace('p60','p600000').replace('p80','p800000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    else:
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
 
-allSamples_dim6top = [ locals()[x] for x in locals().keys() if x.startswith("dim6top") ]
+## extended scan
 
-dim6top_dipoles  = [ locals()[x] for x in locals().keys() if ( x.startswith("dim6top") and 'ctZ' in x) ]
-dim6top_currents = [ locals()[x] for x in locals().keys() if ( x.startswith("dim6top") and 'cpQM' in x) ]
+gen_dir = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/gen/v3/"
 
-logger.info("Loaded %s samples from directory %s", len(allSamples_dim6top), gen_dir)
+allSampleNames  = glob.glob(gen_dir+"dim6top_LO_ttZ_ll_c*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")]
+
+logger.info("Loading ewkDM signals from %s", gen_dir)
+for s in allSampleNames:
+    if len(s) > 50:
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
+        continue
+    if s.startswith('dim6top_LO_ttZ_ll_cp'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_currents_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p50','p500000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    elif s.startswith('dim6top_LO_ttZ_ll_ct'):
+        # changed naming convention, need to do some stupid gymnastics to be consistent
+        dim6top_dipoles_daniel.append(Sample.fromDirectory(s.replace('p00', 'p000000').replace('p20','p200000').replace('p40','p400000').replace('p60','p600000').replace('p80','p800000'), directory = [os.path.join( gen_dir, "%s/"%s)]))
+    else:
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
+
 
 ## Robert GEN 0j benchmarks Jan30 local production (for propaganda plots and reweighting studies)
 gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
 
-import glob
 allSampleNames  = glob.glob(gen_dir+"ewkDM_ttZ_ll_D*")
 allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")] 
 ewkDM_central   = Sample.fromDirectory('ewkDM_ttZ_ll', directory = [os.path.join( gen_dir, "ewkDM_ttZ_ll/")])
@@ -321,6 +114,9 @@ ewkDM_dipoles   = []
 
 logger.info("Loading ewkDM signals")
 for s in allSampleNames:
+    if len(s) > 50:
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
+        continue
     if s.startswith('ewkDM_ttZ_ll_DC1'):
         ewkDM_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
     elif s.startswith('ewkDM_ttZ_ll_DC2'):
@@ -332,4 +128,40 @@ ewkDM_all = [ewkDM_central] + ewkDM_currents + ewkDM_dipoles
 logger.info("Loaded %s samples from directory %s", len(ewkDM_all), gen_dir)
 
 
+## Fine scan of dim6top
+gen_dir = "/afs/hephy.at/data/rschoefbeck02/TopEFT/skims/gen/v2/"
+
+allSampleNames  = glob.glob(gen_dir+"dim6top_LO_ttZ_ll_c*")
+allSampleNames  = [ x.replace(gen_dir, '') for x in allSampleNames if glob.glob(x+"/*.root")]
+dim6top_central   = Sample.fromDirectory('dim6top_LO_ttZ_ll', directory = [os.path.join( gen_dir, "dim6top_LO_ttZ_ll/")])
+
+dim6top_currents  = []
+dim6top_dipoles   = []
+
+logger.info("Loading ewkDM signals")
+for s in allSampleNames:
+    if len(s) > 50:
+        logger.info("Skipping sample %s because I don't know how to categorize it (current or dipole plane).",s)
+        continue
+    if s.startswith('dim6top_LO_ttZ_ll_cp'):
+        dim6top_currents.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
+    elif s.startswith('dim6top_LO_ttZ_ll_ct'):
+        dim6top_dipoles.append(Sample.fromDirectory(s, directory = [os.path.join( gen_dir, "%s/"%s)]))
+    else:
+        logger.info("Don't know what to do with sample %s, can't categorize into current or dipole.", s)
+
+dim6top_currents_names = [ x.name for x in dim6top_currents]
+dim6top_dipoles_names = [ x.name for x in dim6top_dipoles]
+
+# Add the coarse scan to the fine scan
+for cur in dim6top_currents_daniel:
+    if not cur.name in dim6top_currents_names:
+        dim6top_currents += [cur]
+    
+for cur in dim6top_dipoles_daniel:
+    if not cur.name in dim6top_dipoles_names:
+        dim6top_dipoles += [cur]
+
+dim6top_all = [dim6top_central] + dim6top_currents + dim6top_dipoles
+logger.info("Loaded %s samples from directory %s", len(dim6top_all), gen_dir)
 

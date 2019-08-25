@@ -23,6 +23,9 @@ class GenSearch:
             if p[ind]>0: res.append(self.genParticles[p[ind]])
         return res
 
+    def mothers(self, p):
+        return [p.mother(i) for i in xrange( p.numberOfMothers()) ]
+
     def isLast(self, p ):
         ''' Returns true if the decay products of p do not contain a particle with p.pdgId() '''
         return p['pdgId'] not in [d['pdgId'] for d in self.daughters( p )]
@@ -37,18 +40,18 @@ class GenSearch:
             return self.descend(cands[0])
         return p
 
-    #def ascend(self, p):
-    #    ''' Returns the first particle of the same pdgId in the decay chain started by p
-    #    '''
-    #    cands = filter(lambda q:abs(q.pdgId())==abs(p.pdgId()), self.mothers(p) )
-    #    #if len(cands)>1: print "Warning: Found more than one particle with same pdgId %i in decay chain %r -> %r."%(p['pdgId'], p, cands)
-    #    if len(cands)>0:
-    #        if cands[0]==p:return p
-    #        return self.ascend(cands[0])
-    #    return p
+    def ascend(self, p):
+        ''' Returns the first particle of the same pdgId in the decay chain started by p
+        '''
+        cands = filter(lambda q:abs(q['pdgId'])==abs(p['pdgId']), self.mothers(p) )
+        #if len(cands)>1: print "Warning: Found more than one particle with same pdgId %i in decay chain %r -> %r."%(p['pdgId'], p, cands)
+        if len(cands)>0:
+            if cands[0]==p:return p
+            return self.ascend(cands[0])
+        return p
 
     def print_decay( self, p, prefix = ""):
-        print prefix+" %s(pt %3.2f, eta %3.2f, phi %3.2f)" % ( pdgToName(p.pdgId()), p.pt(), p.eta(), p.phi())
+        print prefix+" %s(pt %3.2f, eta %3.2f, phi %3.2f)" % ( pdgToName(p['pdgId']), p['pt'], p['eta'], p['phi'])
         for d in self.daughters( self.descend( p ) ):
             self.print_decay( d, prefix = prefix+'--')
 

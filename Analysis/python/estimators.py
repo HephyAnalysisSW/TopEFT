@@ -1,29 +1,11 @@
 from TopEFT.Analysis.MCBasedEstimate              import MCBasedEstimate
 
+class estimatorList:
+    def __init__(self, setup, samples=['TTZ', 'WZ', 'TTX', 'TTW', 'ZG', 'rare', 'pseudoData', 'ZZ', 'XG','ZZZ','WZZ','WWZ','TZQ']): #rare_noZZ
+        for s in samples:
+            setattr(self, s, MCBasedEstimate(name="%s_%s"%(s, setup.year), sample=setup.samples[s]))
+        
+    def constructEstimatorList(self, samples):
+        self.estimatorList = [ getattr(self, s) for s in samples ]
+        return self.estimatorList
 
-from SetupHelpers import channels 
-from Setup import Setup
-from TopEFT.Analysis.Region import Region
-setup = Setup()
-
-estimators = {}
-
-## Data-driven estimators
-# non so far
-
-## main MC based estimators
-for mc in ['TTZ', 'WZ', 'TTX', 'TTW', 'TZQ', 'rare', 'nonprompt', 'pseudoData']:
-    estimators[mc] = [MCBasedEstimate(name=mc, sample=setup.samples[mc])]
-
-# check if all estimators have unique name
-estimatorNames = [e.name for eList in estimators.values() for e in eList]
-assert len(set(estimatorNames)) == len(estimatorNames), "Names of bkgEstimators are not unique: %s"%",".join(estimatorNames)
-
-# constuct estimator lists
-def constructEstimatorList(eList):
-    estimatorList = []
-    for e in eList:
-        estimatorList += estimators[e]
-    return estimatorList
-
-allEstimators = constructEstimatorList(estimators.keys())

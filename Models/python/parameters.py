@@ -172,3 +172,106 @@ dim6top_LO = {
     ['cQb8',   0.000000e+00],
     ['ctb8',   0.000000e+00],
 ]}
+
+dim6top_LO_v2 = {
+    'dim6':[\
+    ['Lambda',  1.000000e+03], # Lambda 
+    ['ctp',     0.000000e+00], # ctp 
+    ['ctpI',    0.000000e+00], # ctpI 
+    ['cpQM',    0.000000e+00], # cpQM 
+    ['cpQ3',    0.000000e+00], # cpQ3 
+    ['cpt',     0.000000e+00], # cpt 
+    ['cpb',     0.000000e+00], # cpb 
+    ['cptb',    0.000000e+00], # cptb 
+    ['cptbI',   0.000000e+00], # cptbI 
+    ['ctW',     0.000000e+00], # ctW 
+    ['ctZ',     0.000000e+00], # ctZ 
+    ['ctWI',    0.000000e+00], # ctWI 
+    ['ctZI',    0.000000e+00], # ctZI 
+    ['cbW',     0.000000e+00], # cbW 
+    ['cbWI',    0.000000e+00], # cbWI 
+    ['ctG',     0.000000e+00], # ctG 
+    ['ctGI',    0.000000e+00], # ctGI 
+    ['cQlM1',   0.000000e+00], # cQlM1 
+    ['cQlM2',   0.000000e+00], # cQlM2 
+    ['cQlM3',   0.000000e+00], # cQlM3 
+    ['cQl31',   0.000000e+00], # cQl31 
+    ['cQl32',   0.000000e+00], # cQl32 
+    ['cQl33',   0.000000e+00], # cQl33 
+    ['cQe1',    0.000000e+00], # cQe1 
+    ['cQe2',    0.000000e+00], # cQe2 
+    ['cQe3',    0.000000e+00], # cQe3 
+    ['ctl1',    0.000000e+00], # ctl1 
+    ['ctl2',    0.000000e+00], # ctl2 
+    ['ctl3',    0.000000e+00], # ctl3 
+    ['cte1',    0.000000e+00], # cte1 
+    ['cte2',    0.000000e+00], # cte2 
+    ['cte3',    0.000000e+00], # cte3 
+    ['ctlS1',   0.000000e+00], # ctlS1 
+    ['ctlSI1',  0.000000e+00], # ctlSI1 
+    ['ctlS2',   0.000000e+00], # ctlS2 
+    ['ctlSI2',  0.000000e+00], # ctlSI2 
+    ['ctlS3',   0.000000e+00], # ctlS3 
+    ['ctlSI3',  0.000000e+00], # ctlSI3 
+    ['ctlT1',   0.000000e+00], # ctlT1 
+    ['ctlTI1',  0.000000e+00], # ctlTI1 
+    ['ctlT2',   0.000000e+00], # ctlT2 
+    ['ctlTI2',  0.000000e+00], # ctlTI2 
+    ['ctlT3',   0.000000e+00], # ctlT3 
+    ['ctlTI3',  0.000000e+00], # ctlTI3 
+    ['cblS1',   0.000000e+00], # cblS1 
+    ['cblSI1',  0.000000e+00], # cblSI1 
+    ['cblS2',   0.000000e+00], # cblS2 
+    ['cblSI2',  0.000000e+00], # cblSI2 
+    ['cblS3',   0.000000e+00], # cblS3 
+    ['cblSI3',  0.000000e+00], # cblSI3 
+    ['cQq83',   0.000000e+00], # cQq83 
+    ['cQq81',   0.000000e+00], # cQq81 
+    ['cQu8',    0.000000e+00], # cQu8 
+    ['cQd8',    0.000000e+00], # cQd8 
+    ['ctq8',    0.000000e+00], # ctq8 
+    ['ctu8',    0.000000e+00], # ctu8 
+    ['ctd8',    0.000000e+00], # ctd8 
+    ['cQq13',   0.000000e+00], # cQq13 
+    ['cQq11',   0.000000e+00], # cQq11 
+    ['cQu1',    0.000000e+00], # cQu1 
+    ['cQd1',    0.000000e+00], # cQd1 
+    ['ctq1',    0.000000e+00], # ctq1 
+    ['ctu1',    0.000000e+00], # ctu1 
+    ['ctd1',    0.000000e+00], # ctd1 
+    ['cQQ1',    0.000000e+00], # cQQ1 
+    ['cQQ8',    0.000000e+00], # cQQ8 
+    ['cQt1',    0.000000e+00], # cQt1 
+    ['cQb1',    0.000000e+00], # cQb1 
+    ['ctt1',    0.000000e+00], # ctt1 
+    ['ctb1',    0.000000e+00], # ctb1 
+    ['cQt8',    0.000000e+00], # cQt8 
+    ['cQb8',    0.000000e+00], # cQb8 
+    ['ctb8',    0.000000e+00], # ctb8 
+    ['ctQqu1',  0.000000e+00], # ctQqu1 
+    ['ctQqu1I', 0.000000e+00], # ctQqu1I 
+    ['ctQqu8',  0.000000e+00], # ctQqu8 
+    ['ctQqu8I', 0.000000e+00], # ctQqu8I 
+    ['cbQqd1',  0.000000e+00], # cbQqd1 
+    ['cbQqd1I', 0.000000e+00], # cbQqd1I 
+    ['cbQqd8',  0.000000e+00], # cbQqd8 
+    ['cbQqd8I', 0.000000e+00], # cbQqd8I 
+    ['cQtqd1',  0.000000e+00], # cQtqd1 
+    ['cQtqd1I', 0.000000e+00], # cQtqd1I 
+    ['cQtqd8',  0.000000e+00], # cQtqd8 
+    ['cQtqd8I', 0.000000e+00], # cQtqd8I 
+    ['cQbqu1',  0.000000e+00], # cQbqu1 
+    ['cQbqu1I', 0.000000e+00], # cQbqu1I 
+    ['cQbqu8',  0.000000e+00], # cQbqu8 
+    ['cQbqu8I', 0.000000e+00], # cQbqu8I 
+    ['cbtud1',  0.000000e+00], # cbtud1 
+    ['cbtud1I', 0.000000e+00], # cbtud1I 
+    ['cbtud8',  0.000000e+00], # cbtud8 
+    ['cbtud8I', 0.000000e+00], # cbtud8I 
+    ['cQtQb1',  0.000000e+00], # cQtQb1 
+    ['cQtQb8',  0.000000e+00], # cQtQb8 
+    ['cQtQb1I', 0.000000e+00], # cQtQb1I 
+    ['cQtQb8I', 0.000000e+00], # cQtQb8I 
+]}
+
+

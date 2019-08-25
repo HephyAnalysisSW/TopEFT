@@ -21,16 +21,26 @@ if __name__ == '__main__':
     # Logging
     import TopEFT.Tools.logger as logger_
     logger = logger_.get_logger(options.logLevel, logFile = None )
-
+    
     overwrite = options.overwrite
+    multithreading = not options.nomultithreading
     maxN = options.maxN
+    forceProxy = False
 
 else:
     # Logging
     import logging
+    import subprocess
     logger = logging.getLogger(__name__)
-
-    overwrite = False 
+    multithreading = False
+    overwrite = False
+    forceProxy = False
+    try:
+        proxyCheck = subprocess.check_output( 'voms-proxy-info' )
+    except subprocess.CalledProcessError:
+        forceProxy = True
+    #if proxyCheck.startswith("Error: Could not find or load main class error"): 
+    #    forceProxy = True
     maxN =      -1
 
 # TopEFT
@@ -43,7 +53,7 @@ import pickle
 
 class heppy_mapper:
 
-    def __init__(self, heppy_samples, dpm_directories, cache_file):
+    def __init__(self, heppy_samples, dpm_directories, cache_file, multithreading=True, path_substrings = None):
         # Read cache file, if exists
         if os.path.exists( cache_file ) and not overwrite:
             self.sample_map = pickle.load( file(cache_file) )
@@ -64,7 +74,7 @@ class heppy_mapper:
             for data_path in dpm_directories:
                 logger.info( "Walking dpm directory %s", data_path )
                 walker = walk_dpm( data_path )
-                self.cmg_directories[ data_path ] = walker.walk_dpm_cmgdirectories('.',  maxN = maxN )
+                self.cmg_directories[ data_path ] = walker.walk_dpm_cmgdirectories('.',  maxN = maxN, path_substrings = path_substrings)
                 
                 #del walker
 
@@ -94,7 +104,7 @@ class heppy_mapper:
                 else:
                     normalization, files = walker.combine_cmg_directories(\
                             cmg_directories = {dpm_directory:self.cmg_directories[data_path][dpm_directory] for data_path, dpm_directory in heppy_sample.candidate_directories }, 
-                            multithreading = not options.nomultithreading, 
+                            multithreading = multithreading, 
                         )
                     logger.info( "Sample %s: Found a total of %i files with normalization %3.2f", heppy_sample.name, len(files), normalization)
                     tmp_files = []
@@ -123,6 +133,10 @@ class heppy_mapper:
             else:
                 logger.info( "Skipping to write %s because map is empty.", cache_file )
 
+    def dump_files_dict( self, filename):
+        pickle.dump( {k.name:val.files for k, val in self.sample_map.iteritems()}, file(filename,'w') )
+        logger.info( "Written %s", filename )
+    
     @property                
     def heppy_sample_names( self ):
         return [s.name for s in self.sample_map.keys()]
@@ -145,77 +159,80 @@ class heppy_mapper:
 from RootTools.core.helpers import renew_proxy
 # Make proxy in afs to allow batch jobs to run
 proxy_path = os.path.expandvars('$HOME/private/.proxy')
-proxy = renew_proxy( proxy_path )
+if not forceProxy:
+    proxy = renew_proxy( proxy_path )
+else:
+    logger.info("Not checking your proxy. Asuming you know it's still valid.")
+    proxy = proxy_path
 logger.info( "Using proxy %s"%proxy )
 
-mc_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_80X_1l_v14.pkl'
-robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
-mc_dpm_directories = robert_80X_1l_v14
-from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, robert_80X_1l_v14, mc_cache_file)
-
-# Summer17 MC
-Summer17_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer17_92X_1l_v19.pkl'
-robert_92X_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19']
-mc_dpm_directories = robert_92X_1l_v19
-from CMGTools.RootTools.samples.samples_13TeV_RunIISummer17MiniAODv2 import mcSamples as heppy_Summer17_samples
-Summer17_heppy_mapper = heppy_mapper( heppy_Summer17_samples, robert_92X_1l_v19, Summer17_cache_file)
-
-# Fall17 MC
-Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v2.pkl'
-daniel_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v2']
-mc_dpm_directories = daniel_94X
-from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAODv2 import mcSamples as heppy_Fall17_samples
-Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, daniel_94X, Fall17_cache_file)
-
-# Data 2017 + 17Nov2017
-data_cache_file_2017 = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2017_data_92X_1l_v19+17Nov2017.pkl'
-robert_1l_v19 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/92X_1l_v19', '/dpm/oeaw.ac.at//home/cms/store/user/schoef/cmgTuples/94X_1l_v1', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v4']
-data_dpm_directories = robert_1l_v19
-from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
-data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017)
-
-## Data ReminiAOD
-#data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v14.pkl'
-#robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v14']
-#data_dpm_directories = robert_80X_1l_v14
+## Data 2016, 03Feb2017
+#data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v1_2.pkl'
+#robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v1']
+#data_dpm_directories = robert_2016_1l_v1
 #from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
+#data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
-# Data ReminiAOD
-data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_80X_1l_v15.pkl'
-robert_80X_1l_v14 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_1l_v15']
-data_dpm_directories = robert_80X_1l_v14
+# Data 2016, 07Aug17
+data_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2016_data_2016_1l_v14_2.pkl'
+daniel_2016_1l_v13 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16']
+data_dpm_directories = daniel_2016_1l_v13
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-data_03Feb2017_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file)
+data_07Aug17_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)
 
-
-# Private signal MC
-signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_Summer16_2l_v12.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v12']
-signal_dpm_directories = robert
-from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
-signal_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
-
-# Private signal MC with 0 jets (LO)
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttZ0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_1l_v12']
-signal_dpm_directories = robert
-from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttZ0j_signal_samples
-signal_0j_heppy_mapper = heppy_mapper( ttZ0j_signal_samples, signal_dpm_directories, signal_cache_file)
+# Summer16 MC
+mc_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_1l_v14_5.pkl'
+robert_2016_1l_v1 = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v14', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v16', '/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v16']
+mc_dpm_directories = robert_2016_1l_v1
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, mc_cache_file, multithreading=multithreading)
 
 # Private signal MC with 0 jets (LO) and 0 lepton requirement
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_v12.pkl'
-robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_0l_v12', '/dpm/oeaw.ac.at//home/cms/store/user/schoef/cmgTuples/80X_0l_35']
+signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_ttX0j_0l_5f_MLM_signals_RunIISummer16MiniAODv2_2016_1l_v18.pkl'
+robert = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/2016_1l_v18']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import signalSamples as ttX0j_signal_samples
-signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file)
+signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading)
 
-# Private signal MC with up to one extra jet and madspin (LO)
-signal_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/80X_signal_ttZ01j_2l_madspin_v12.pkl'
-daniel = ['/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/80X_2l_v12']
-signal_dpm_directories = daniel
-from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as heppy_signal_samples
-signal_madspin_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file)
+# Data 2017, 17Nov2017
+data_cache_file_2017 = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/Run2017_data_94X_1l_v9.pkl'
+robert_1l_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v9']
+data_dpm_directories = robert_1l_94X
+from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as heppy_data_samples_2017
+data_Run2017_heppy_mapper = heppy_mapper( heppy_data_samples_2017, data_dpm_directories , data_cache_file_2017, multithreading=multithreading)
 
+# Fall17 MC
+Fall17_cache_file = '/afs/hephy.at/data/dspitzbart01/TopEFT/dpm_sample_caches/94X_MC_Fall17_94X_1l_v10_6.pkl'
+robert_94X = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/94X_1l_v10', '/dpm/oeaw.ac.at/home/cms/store/user/dspitzba/cmgTuples/94X_1l_v10']
+mc_dpm_directories = robert_94X
+from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
+Fall17_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, Fall17_cache_file, multithreading=multithreading)
 
+# Summer16 MC for Deeplepton training
+lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3.pkl' 
+robert_lepton2016_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/lepton/']
+mc_dpm_directories = robert_lepton2016_v3
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["lepton2016_v3"])
+## Summer17 MC for lepton training
+##lepton_2017_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Fall17_2017_lepton.pkl' 
+#lepton_2017_cache_file = '/afs/hephy.at/work/g/gmoertl/lepton/dpm_sample_caches/94X_MC_Fall17_2017_lepton.pkl'
+#georg_lepton_2017_v2 = ['/dpm/oeaw.ac.at/home/cms/store/user/gmortl/cmgTuples/lepton2017']
+#mc_dpm_directories = georg_lepton_2017_v2 
+#from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_Fall17_samples
+#lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
+
+# Summer16 MC fullevents for Deeplepton
+lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v4.pkl' 
+robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+mc_dpm_directories =robert_2016_1l_full_events 
+from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
+lepton_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading)
+#lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
+
+# Data 2016, 07Aug17
+data_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
+robert_2016_1l_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+data_dpm_directories = robert_2016_1l_v3
+from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
+lepton_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data_cache_file, multithreading=multithreading)

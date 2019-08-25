@@ -1,13 +1,14 @@
 #/DataFormats/BTauReco/
 #/EgammaAnalysis/ElectronTools/
-#/FWCore/GuiBrowsers
 /.gitignore/
+/FWCore/GuiBrowsers
 /PhysicsTools/Heppy/
 /PhysicsTools/HeppyCore/
 /PhysicsTools/PatAlgos/
 /EgammaAnalysis/ElectronTools/
 /RecoEgamma/ElectronIdentification/
 /RecoEgamma/PhotonIdentification/
+/RecoEgamma/EgammaTools/
 #/RecoBTag/Combined/
 #/RecoBTag/Configuration/
 #/RecoBTag/DeepFlavour/

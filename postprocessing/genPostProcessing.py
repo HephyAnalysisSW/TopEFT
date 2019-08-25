@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' Analysis script for gen plots
+''' Make flat ntuple from GEN data tier 
 '''
 #
 # Standard imports and batch mode
@@ -18,7 +18,8 @@ from RootTools.core.standard             import *
 from TopEFT.Tools.user                   import skim_output_directory
 from TopEFT.Tools.GenSearch              import GenSearch
 from TopEFT.Tools.helpers                import deltaR2, cosThetaStar
-
+from TopEFT.Tools.HyperPoly              import HyperPoly
+from TopEFT.Tools.WeightInfo             import WeightInfo
 #
 # Arguments
 # 
@@ -27,12 +28,14 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true', help='Run only on a small subset of the data?')#, default = True)
 argParser.add_argument('--overwrite',          action='store_true', help='Overwrite?')#, default = True)
-argParser.add_argument('--targetDir',          action='store',      default='v2')
-argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_sm', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
+argParser.add_argument('--targetDir',          action='store',      default='v3')
+argParser.add_argument('--sample',             action='store',      default='fwlite_ttZ_ll_LO_scan', help="Name of the sample loaded from fwlite_benchmarks. Only if no inputFiles are specified")
 argParser.add_argument('--inputFiles',         action='store',      nargs = '*', default=[])
-argParser.add_argument('--targetSampleName',         action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
-argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,                          help="Maximum number of simultaneous jobs.")
-argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,                         help="Run only job i")
+argParser.add_argument('--targetSampleName',   action='store',      default=None, help="Name of the sample in case inputFile are specified. Otherwise ignored")
+argParser.add_argument('--nJobs',              action='store',      nargs='?', type=int, default=1,  help="Maximum number of simultaneous jobs.")
+argParser.add_argument('--job',                action='store',      nargs='?', type=int, default=0,  help="Run only job i")
+argParser.add_argument('--addReweights',       action='store_true',   help="Add reweights?")
+argParser.add_argument('--interpolationOrder', action='store',      nargs='?', type=int, default=2,  help="Interpolation order for EFT weights.")
 args = argParser.parse_args()
 
 #
@@ -51,12 +54,39 @@ else:
     sample_file = "$CMSSW_BASE/python/TopEFT/samples/fwlite_benchmarks.py"
     samples = imp.load_source( "samples", os.path.expandvars( sample_file ) )
     sample = getattr( samples, args.sample )
+    print sample.files
 
-maxN = -1
+maxEvents = -1
 if args.small: 
     args.targetDir += "_small"
-    maxN = 500
-    sample.files=sample.files[:2]
+    maxEvents=100 # Number of files
+    sample.files=sample.files[:1]
+
+# Load reweight pickle file if supposed to keep weights. 
+extra_variables = []
+if args.addReweights:
+    weightInfo = WeightInfo( sample.reweight_pkl )
+    # Determine coefficients for storing in vector
+    # Sort Ids wrt to their position in the card file
+
+    # weights for the ntuple
+    rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in weightInfo.variables)+"]")
+    rw_vector.nMax  = weightInfo.nid
+    extra_variables.append(rw_vector)
+
+    # coefficients for the weight parametrization
+    param_vector      = TreeVariable.fromString( "p[C/F]" )
+    param_vector.nMax = HyperPoly.get_ndof(weightInfo.nvar, args.interpolationOrder)
+    hyperPoly         = HyperPoly( args.interpolationOrder )
+    extra_variables.append(param_vector)
+    extra_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
+
+def interpret_weight(weight_id):
+    str_s = weight_id.split('_')
+    res={}
+    for i in range(len(str_s)/2):
+        res[str_s[2*i]] = float(str_s[2*i+1].replace('m','-').replace('p','.'))
+    return res
 
 output_directory = os.path.join(skim_output_directory, 'gen', args.targetDir, sample.name) 
 if not os.path.exists( output_directory ): 
@@ -71,6 +101,7 @@ if args.nJobs>1:
     logger.info( "Running job %i/%i over %i files from a total of %i.", args.job, args.nJobs, n_files_after, n_files_before)
 
 products = {
+    #'lhe':{'type':'LHEEventProduct', 'label':("externalLHEProducer")},
     'gp':{'type':'vector<reco::GenParticle>', 'label':("genParticles")},
     'genJets':{'type':'vector<reco::GenJet>', 'label':("ak4GenJets")},
     'genMET':{'type':'vector<reco::GenMET>',  'label':("genMetTrue")},
@@ -83,6 +114,7 @@ def varnames( vec_vars ):
 variables  = ["run/I", "lumi/I", "evt/l"]
 # MET
 variables += ["GenMet_pt/F", "GenMet_phi/F"]
+
 # jet vector
 jet_read_vars       =  "pt/F,eta/F,phi/F"
 jet_read_varnames   =  varnames( jet_read_vars )
@@ -105,6 +137,8 @@ variables     += ["Z_pt/F", "Z_phi/F", "Z_eta/F", "Z_mass/F", "Z_cosThetaStar/F"
 # gamma vector
 gamma_read_varnames= [ 'pt', 'phi', 'eta', 'mass']
 variables     += ["gamma_pt/F", "gamma_phi/F", "gamma_eta/F", "gamma_mass/F"]
+if args.addReweights:
+    variables.append('rw_nominal/F')
 
 def fill_vector( event, collection_name, collection_varnames, objects):
     setattr( event, "n"+collection_name, len(objects) )
@@ -116,9 +150,39 @@ reader = sample.fwliteReader( products = products )
 
 def filler( event ):
 
-    event.evt, event.lumi, event.run = reader.evt
+    event.run, event.lumi, event.evt = reader.evt
 
     if reader.position % 100==0: logger.info("At event %i/%i", reader.position, reader.nEvents)
+
+    if args.addReweights:
+        event.nrw = weightInfo.nid
+        lhe_weights = reader.products['lhe'].weights()
+        weights      = []
+        param_points = []
+        for weight in lhe_weights:
+            # Store nominal weight (First position!) 
+            if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
+            if not weight.id in weightInfo.id: continue
+            pos = weightInfo.data[weight.id]
+            event.rw_w[pos] = weight.wgt
+            weights.append( weight.wgt )
+            interpreted_weight = interpret_weight(weight.id) 
+            for var in weightInfo.variables:
+                getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
+            # weight data for interpolation
+            if not hyperPoly.initialized: param_points.append( tuple(interpreted_weight[var] for var in weightInfo.variables) )
+
+        # Initialize
+        if not hyperPoly.initialized: hyperPoly.initialize( param_points )
+        coeff = hyperPoly.get_parametrization( weights )
+
+        # = HyperPoly(weight_data, args.interpolationOrder)
+        event.np = hyperPoly.ndof
+        event.chi2_ndof = hyperPoly.chi2_ndof(coeff, weights)
+        #logger.debug( "chi2_ndof %f coeff %r", event.chi2_ndof, coeff )
+        logger.debug( "chi2_ndof %f", event.chi2_ndof )
+        for n in xrange(hyperPoly.ndof):
+            event.p_C[n] = coeff[n]
 
     # All gen particles
     gp      = reader.products['gp']
@@ -201,7 +265,7 @@ output_file = ROOT.TFile( output_filename, 'recreate')
 output_file.cd()
 maker = TreeMaker(
     sequence  = [ filler ],
-    variables = [ TreeVariable.fromString(x) for x in variables ],
+    variables = [ TreeVariable.fromString(x) for x in variables ] + extra_variables,
     treeName = "Events"
     )
 
@@ -218,7 +282,7 @@ while reader.run( ):
     maker.run()
 
     counter += 1
-    if counter == maxN:  break
+    if counter == maxEvents:  break
 
 logger.info( "Done with running over %i events.", reader.nEvents )
 

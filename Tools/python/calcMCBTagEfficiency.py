@@ -4,10 +4,13 @@ from TopEFT.Tools.user import *
 
 import time, hashlib
 
-from TopEFT.samples.heppy_dpm_samples import mc_heppy_mapper
+from TopEFT.samples.heppy_dpm_samples import mc_heppy_mapper, Fall17_heppy_mapper
 
 tt = mc_heppy_mapper.from_heppy_samplename("TTLep_pow")
 WWW = mc_heppy_mapper.from_heppy_samplename("WWW")
+
+tt_17 = Fall17_heppy_mapper.from_heppy_samplename("TTLep_pow")
+WW_17 = Fall17_heppy_mapper.from_heppy_samplename("WW")
 
 etaBorders = sorted(list(set(sum(etaBins,[]))))
 
@@ -95,11 +98,37 @@ presel = "(Sum$(Jet_pt>30&&abs(Jet_eta)<2.4&&Jet_id))>=2&&Sum$(LepGood_pt>20&&ab
 
 # new method
 #res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8484') #to test
-res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='(Jet_DFbb+Jet_DFb)', btagWP='0.6324') #to test
+# btag WP for deepCSV 0.6324 in 80X, 0.4941 in 94X
+
+## Fall17
+#res = getBTagMCTruthEfficiencies2D(tt_17.chain, cut=presel, overwrite=False, btagVar='(Jet_DFbb+Jet_DFb)', btagWP='0.4941') #to test
+#print "Efficiencies:"
+#print res
+#pickle.dump(res, \
+#    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_deepCSV_eta.pkl'), 'w')
+#)
+#
+#res = getBTagMCTruthEfficiencies2D(tt_17.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8838')
+#print "Efficiencies:"
+#print res
+#pickle.dump(res, \
+#    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Fall17_2j_2l_CSVv2_eta.pkl'), 'w')
+#)
 
 
+## Moriond17
+#res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='(Jet_DFbb+Jet_DFb)', btagWP='0.6324') #to test
+#print "Efficiencies:"
+#print res
+#pickle.dump(res, \
+#    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'), 'w')
+#)
+
+res = getBTagMCTruthEfficiencies2D(tt.chain, cut=presel, overwrite=False, btagVar='Jet_btagCSV', btagWP='0.8484') #to test
 print "Efficiencies:"
 print res
 pickle.dump(res, \
-    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_deepCSV_eta.pkl'), 'w')
+    file(os.path.expandvars('$CMSSW_BASE/src/TopEFT/Tools/data/btagEfficiencyData/TTLep_pow_Moriond17_2j_2l_CSVv2_eta.pkl'), 'w')
 )
+
+

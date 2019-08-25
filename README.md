@@ -1,26 +1,35 @@
 # TopEFT
 Repository for work on top quark coupling measurements
 
-## Installation CMSSW_8_0_X
+## Gridpacks:  
+  
+Code taken from the TTXPheno/gridpacks repository. Cards available there!  
+Available gridpacks, pkl files, customize cards and STDOUTs stored at:  
+```  
+/afs/hephy.at/data/llechner01/TopEFT/gridpacks/<date>/<process>/order<poly order>/  
+```  
+### 25/09/2018  
+2nd order WC gridpacks  
+Reference Point: ctZ = 4., ctZI = 4., ctW = 4., ctWI = 4.  
+Run cards and proc cards taken from TTGamma_Dilept CMS Analysis
+changed to DIM6 model with DIM6 <= 1 for the gamma vertex
 
-```
-cmsrel CMSSW_8_0_28
-cd CMSSW_8_0_28/src
-cmsenv
-git cms-init
-git clone https://github.com/danbarto/TopEFT
-./TopEFT/setup80X.sh
-```
+| process               | poly order | # coeff | Wilson coefficients  | Link to GEN-SIM events | Link to MiniAOD events |  
+|:---------------------:|:----------:|:-------:|:--------------------:|:----------------------:|:----------------------:|  
+| ttgamma dilept        | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma semilept t    | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma semilept tbar | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+| ttgamma had           | 2          | 4       | ctZ, ctZI, ctW, ctWI |                        |                        |  
+
+
 ## Installation CMSSW_9_4_X
 
 ```
-cmsrel CMSSW_9_4_1
-cd CMSSW_9_4_1/src
+cmsrel CMSSW_9_4_6_patch1
+cd CMSSW_9_4_6_patch1/src
 cmsenv
 git cms-init
 git clone https://github.com/danbarto/TopEFT
-cd TopEFT
-git checkout -b 94X_dev origin/94X_dev
 cd $CMSSW_BASE/src
 ./TopEFT/setup94X.sh
 ```

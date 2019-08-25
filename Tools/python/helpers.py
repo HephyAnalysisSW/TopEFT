@@ -5,6 +5,7 @@ import ROOT
 from math import pi, sqrt, cos, sin, sinh, log, cosh
 from array import array
 import itertools
+import timeit
 
 # Logging
 import logging
@@ -13,8 +14,8 @@ logger = logging.getLogger(__name__)
 #scripts
 ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/TopEFT/Tools/scripts/tdrstyle.C")
 ROOT.setTDRStyle()
-#mZ=91.1876
-mZ = 91.2
+mZ=91.1876
+#mZ = 91.2
 
 def natural_sort(list, key=lambda s:s):
     """
@@ -35,7 +36,7 @@ def natural_sort(list, key=lambda s:s):
     return lc
 
 def getCouplingFromName(name, coupling):
-    if coupling in name:
+    if "%s_"%coupling in name:
         l = name.split('_')
         return float(l[l.index(coupling)+1].replace('p','.').replace('m','-'))
     else:
@@ -107,6 +108,30 @@ def closestOSDLMassToMZ(leptons):
         v.SetPtEtaPhiM(leptons[i]['pt'], leptons[i]['eta'], leptons[i]['phi'], 0.)
     dlMasses = [((vecs[comb[0]] + vecs[comb[1]]).M(), comb[0], comb[1])  for comb in itertools.combinations(inds, 2) if leptons[comb[0]]['pdgId']*leptons[comb[1]]['pdgId'] < 0 and abs(leptons[comb[0]]['pdgId']) == abs(leptons[comb[1]]['pdgId']) ]
     return min(dlMasses, key=lambda (m,i1,i2):abs(m-mZ)) if len(dlMasses)>0 else (float('nan'), -1, -1)
+
+def getSortedZCandidates(leptons):
+    inds = range(len(leptons))
+    vecs = [ ROOT.TLorentzVector() for i in inds ]
+    for i, v in enumerate(vecs):
+        v.SetPtEtaPhiM(leptons[i]['pt'], leptons[i]['eta'], leptons[i]['phi'], 0.)
+    dlMasses = [((vecs[comb[0]] + vecs[comb[1]]).M(), comb[0], comb[1])  for comb in itertools.combinations(inds, 2) if leptons[comb[0]]['pdgId']*leptons[comb[1]]['pdgId'] < 0 and abs(leptons[comb[0]]['pdgId']) == abs(leptons[comb[1]]['pdgId']) ]
+    # sort the candidates, only keep the best ones
+    dlMasses = sorted(dlMasses, key=lambda (m,i1,i2):abs(m-mZ))
+    usedIndices = []
+    bestCandidates = []
+    for m in dlMasses:
+        if m[1] not in usedIndices and m[2] not in usedIndices:
+            usedIndices += m[1:3]
+            bestCandidates.append(m)
+    return bestCandidates
+
+def getMinDLMass(leptons):
+    inds = range(len(leptons))
+    vecs = [ ROOT.TLorentzVector() for i in inds ]
+    for i, v in enumerate(vecs):
+        v.SetPtEtaPhiM(leptons[i]['pt'], leptons[i]['eta'], leptons[i]['phi'], 0.)
+    dlMasses = [((vecs[comb[0]] + vecs[comb[1]]).M(), comb[0], comb[1])  for comb in itertools.combinations(inds, 2) ]
+    return min(dlMasses), dlMasses
 
 def m3( jets ):
     if not len(jets)>=3: return float('nan'), -1, -1, -1
@@ -217,6 +242,7 @@ def getChunks(sample,  maxN=-1):
     return goodChunks, sumWeights
 
 def getObjFromFile(fname, hname):
+    gDir = ROOT.gDirectory.GetName()
     f = ROOT.TFile(fname)
     assert not f.IsZombie()
     f.cd()
@@ -225,6 +251,7 @@ def getObjFromFile(fname, hname):
     ROOT.gDirectory.cd('PyROOT:/')
     res = htmp.Clone()
     f.Close()
+    ROOT.gDirectory.cd(gDir+':/')
     return res
 
 def writeObjToFile(fname, obj):
@@ -335,4 +362,58 @@ def getGenPhoton(genparts):
     if g['status'] != 23:	continue					# for photons, take status 23
     return g
   return None
+
+def getGenB(genparts):
+    for g in genparts:
+        if abs(g['pdgId']) != 5:        continue
+        if g['status'] != 23:   continue
+        return g
+    return None
+
+def timeit(method):
+    import time
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        logger.debug("Method %s took %f  seconds", method.__name__, te-ts)
+#        if 'log_time' in kw:
+#            name = kw.get('log_name', method.__name__.upper())
+#            kw['log_time'][name] = int((te - ts) * 1000)
+#        else:
+#            print '%r  %2.2f ms' % \
+#                  (method.__name__, (te - ts) * 1000)
+        return result
+    return timed
+
+import collections
+import functools
+
+# https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
+class memoized(object):
+   '''Decorator. Caches a function's return value each time it is called.
+   If called later with the same arguments, the cached value is returned
+   (not reevaluated).
+   '''
+   def __init__(self, func):
+      self.func = func
+      self.cache = {}
+   def __call__(self, *args):
+      if not isinstance(args, collections.Hashable):
+         # uncacheable. a list, for instance.
+         # better to not cache than blow up.
+         return self.func(*args)
+      if args in self.cache:
+         return self.cache[args]
+      else:
+         value = self.func(*args)
+         self.cache[args] = value
+         return value
+   def __repr__(self):
+      '''Return the function's docstring.'''
+      return self.func.__doc__
+   def __get__(self, obj, objtype):
+      '''Support instance methods.'''
+      return functools.partial(self.__call__, obj)
+
 

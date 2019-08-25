@@ -16,12 +16,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Process:
-    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db'):
+    def __init__(self, process, nEvents, config, xsec_cache = 'xsec_DBv2.db', reweight=False):
 
         self.process            = process
         self.config             = config
         self.processCardDir     = os.path.join(self.config.data_path, 'processCards')
         self.processCardFile    = process+'.dat'
+        self.reweight           = reweight
 
         # template process card file
         self.templateProcessCard = os.path.join(self.processCardDir, self.processCardFile)
@@ -47,7 +48,7 @@ class Process:
         self.__writeProcessCard()
         
         logger.info( "Running MG executable: python %s -f %s", self.config.MG5_tmpdir+'/bin/mg5_aMC', self.tmpProcessCard )
-        subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
+        subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard], cwd=self.config.uniquePath)
         logger.info( "Done with MG executable" ) 
 
         # copy files from central gridpack
@@ -61,6 +62,18 @@ class Process:
             target = os.path.join( self.processTmpDir, 'Cards', filename )
             shutil.copyfile( source, target )
             logger.debug( "Done with %s -> %s", source, target )
+        
+        # copy reweight cards
+        if self.reweight:
+            source = os.path.join( self.config.data_path,  'template', 'template_reweight_card_'+self.config.model_name+'.dat')
+            target = os.path.join( self.processTmpDir, 'Cards', 'reweight_card.dat' )
+            print target
+            shutil.copyfile( source, target )
+            if os.path.isfile(target):
+                logger.debug( "Done with %s -> %s", source, target )
+            else:
+                logger.info("File copy failed. WTF!")
+        
 
         # Append to me5_configuration.txt 
         with open( os.path.join( self.processTmpDir, 'Cards/me5_configuration.txt'), 'a') as f:
@@ -142,7 +155,12 @@ class Process:
                 os.makedirs( self.GP_outputDir )
 
             logger.info( "Preparing gridpack" )
-            output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), '-f'])
+            #print "Testing reweighting"
+            if self.reweight:
+                # not yet working
+                output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), 'reweight', '-f'])
+            else:
+                output = subprocess.check_output([os.path.join( self.config.uniquePath, 'processtmp/bin/generate_events' ), '-f'])
 
             logger.info( "Stitching together all the parts of the gridpack" )
             subprocess.call(['tar', 'xaf', os.path.join( self.config.uniquePath, 'processtmp/run_01_gridpack.tar.gz'), '--directory', self.config.uniquePath])

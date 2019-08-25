@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 try:    data_directory = sys.modules['__main__'].data_directory
 except: from TopEFT.Tools.user import data_directory
 
-data_directory = '/afs/hephy.at/data/rschoefbeck01/cmgTuples/'
+data_directory = '/afs/hephy.at/data/dspitzbart02/cmgTuples/'
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'TopEFT_PP_2017_v19/singlelep'
+except: postProcessing_directory = 'TopEFT_PP_2017_mva_v7/singlelep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 

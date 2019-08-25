@@ -141,7 +141,7 @@ class walk_dpm:
          
         return result 
 
-    def walk_dpm_cmgdirectories( self, rel_path = '.', __result = {}, maxN = -1, path_substrings = []):
+    def walk_dpm_cmgdirectories( self, rel_path = '.', __result = {}, maxN = -1, path_substrings = None):
         ''' Recursively looks for directories that look like cmg directories
         '''
         res = self.ls( rel_path )
@@ -151,7 +151,7 @@ class walk_dpm:
             logger.debug( "Found CMG dir: %s", rel_path )
             abs_path = self.abs_path(rel_path)
             # If we're not interested, return
-            for substr in path_substrings:
+            for substr in ( path_substrings if path_substrings is not None else [] ):
                 if not substr in abs_path:
                     logger.debug( "Couldn't find %s in %s. Skip.", substr, abs_path )
                     return result
@@ -221,5 +221,5 @@ if __name__ == "__main__":
     import TopEFT.Tools.logger as logger
     logger = logger.get_logger('DEBUG')
 
-    walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/80X_2/JetHT')
-    cmg_directories = walker.walk_dpm_cmgdirectories('.', maxN = 1,  path_substrings = [ 'Run2016B' ] )
+    walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/ewkDM_ttZ_ll/')
+    cmg_directories = walker.walk_dpm_cmgdirectories('.', maxN = 1 )

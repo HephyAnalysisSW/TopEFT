@@ -24,6 +24,7 @@ gs  = math.sqrt(4*math.pi*aS)
 gw  = ee/sw
 
 # 1/lambda**2 [1/TeV**2]
+# from http://feynrules.irmp.ucl.ac.be/attachment/wiki/HEL/HEL.fr#L794
 lambdaSqInv = {
     'cuB':  g1/(2*(MW/1000)**2),
     'cuG':  gs/(MW/1000)**2,

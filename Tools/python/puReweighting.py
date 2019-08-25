@@ -40,15 +40,18 @@ def getReweightingFunction(data="PU_2100_XSecCentral", mc="Spring15"):
     #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Fall15.root", 'MC'), histoData)
     #elif mc=='Spring16':
     #    mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Spring16.root", 'MC'), histoData)
-    if mc=='Summer16':
-        mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Summer16.root", 'pileup'), histoData)
+    if type(mc)==type(""):
+        if mc=='Summer16':
+            mcProfile = extendHistoTo(getObjFromFile("$CMSSW_BASE/src/TopEFT/Tools/data/puReweightingData/MCProfile_Summer16.root", 'pileup'), histoData)
+        else:
+            raise ValueError( "Don't know about MC PU profile %s" %mc )
     else:
-        raise ValueError( "Don't know about MC PU profile %s" %mc )
+        mcProfile = extendHistoTo(mc, histoData)
 
     mcProfile.Scale(1./mcProfile.Integral())
 
     # Create reweighting histo
-    reweightingHisto = histoData.Clone( '_'.join(['reweightingHisto', data, mc]) )
+    reweightingHisto = histoData.Clone( '_'.join(['reweightingHisto', data]) )
     reweightingHisto.Divide(mcProfile)
 
     # Define reweightingFunc

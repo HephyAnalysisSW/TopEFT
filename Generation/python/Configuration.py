@@ -31,7 +31,7 @@ def makeUniquePath():
     return uniquePath
 
 class Configuration:
-    def __init__(self, model_name):
+    def __init__(self, model_name, MG260=False):
 
         self.model_name = model_name
         self.__isPreInitialized = False
@@ -55,7 +55,7 @@ class Configuration:
 
         # MG5 directories
 
-        if self.model_name == 'dim6top_LO':
+        if self.model_name == 'dim6top_LO' or self.model_name == 'dim6top_LO_v2' or MG260:
             logger.warning( "Model dim6top_LO: Using MG 2.6.0!") 
             self.MG5_tarball     = '/afs/hephy.at/data/rschoefbeck02/MG/MG5_aMC_v2.6.0.tar.gz' # From MG webpage --> WARNING: No matching PDFs for pattern: Ct10nlo.LHgrid
             self.MG5_tmpdir      = os.path.join(self.uniquePath, 'MG5_aMC_v2_6_0')
