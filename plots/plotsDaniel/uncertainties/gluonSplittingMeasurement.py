@@ -19,9 +19,6 @@ args = argParser.parse_args()
 from RootTools.core.standard import *
 from TopEFT.Tools.user import data_directory
 
-data_directory = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-postProcessing_directory = "TopEFT_PP_v14/trilep/"
-
 from TopEFT.samples.color           import color
 from TopEFT.Tools.cutInterpreter    import cutInterpreter
 from TopEFT.Tools.helpers           import deltaR, deltaR2, deltaPhi
@@ -35,7 +32,6 @@ import TopEFT.Tools.logger as logger
 import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
-
 
 data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
 postProcessing_directory = "TopEFT_PP_2016_mva_v2/dilep/"
