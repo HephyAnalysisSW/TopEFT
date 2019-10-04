@@ -275,11 +275,11 @@ full_events_2017_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dp
 #lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
 
 # Data 2016, 07Aug17
-data16_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
-tim_2016_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/MET/']  #['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
+data16_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v6.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
+tim_2016_v3 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/']  #['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']
 data_dpm_directories = tim_2016_v3
 from CMGTools.RootTools.samples.samples_13TeV_DATA2016 import dataSamples as heppy_data_samples
-full_events_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data16_cache_file, multithreading=multithreading)
+full_events_2016_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data16_cache_file, multithreading=multithreading, path_substrings = ['_v6'])
 
 # Data 2017, 31Mar18
 data17_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/Run2017_data_2017_full_events_v1.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/Run2016_data_2016_full_events_v3.pkl'
