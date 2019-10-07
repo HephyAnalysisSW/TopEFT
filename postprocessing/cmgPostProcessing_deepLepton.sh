@@ -19,9 +19,9 @@
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT200to400 DYJetsToLL_M50_HT200to400_ext #SPLIT100
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT400to600 DYJetsToLL_M50_HT400to600_ext #SPLIT100
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT600to800  #SPLIT100
-#python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT800to1200  #SPLIT100
-#python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT1200to2500  #SPLIT100
-#python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT2500toInf  #SPLIT100
+python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT800to1200  #SPLIT100
+python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT1200to2500  #SPLIT100
+python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample DYJetsToLL_M50_HT2500toInf  #SPLIT100
 
 
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016B_07Aug17_v2 #SPLIT200
@@ -29,7 +29,7 @@
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016D_07Aug17 #SPLIT200
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016E_07Aug17 #SPLIT200
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016F_07Aug17 #SPLIT200
-python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016G_07Aug17 #SPLIT200
+#python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016G_07Aug17 #SPLIT200
 #python cmgPostProcessing_deepLepton.py --deepLepton --skim dilep --forceProxy --fileBasedSplitting --overwrite --remakeTTVLeptonMVA --year 2016 --processingEra deepLepton_v5 --sample  MET_Run2016H_07Aug17 #SPLIT200
 
 

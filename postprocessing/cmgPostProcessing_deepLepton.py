@@ -577,7 +577,7 @@ new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 
 
 
 # variables for Tims Analysis
-new_variables.extend( ['Qll/F', 'mll/F', 'ptll/F', 'mtautau/F', 'mt_min/F', 'met_mu_pt/F'] )
+#new_variables.extend( ['Qll/F', 'mll/F', 'ptll/F', 'mtautau/F', 'mt_min/F', 'met_mu_pt/F'] )
 
 if addSystematicVariations:
     read_variables += map(TreeVariable.fromString, [\
