@@ -8,7 +8,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     skim_directory      = "/afs/hephy.at/data/dspitzbart01/TopEFT/skims/"
     tmp_directory       = "/afs/hephy.at/data/rschoefbeck02/TopEFT_tmp/"
     plot_directory      = "/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/"
-    data_directory      = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
+    data_directory      = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
     #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     #postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
