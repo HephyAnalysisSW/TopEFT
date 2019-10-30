@@ -34,7 +34,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',      action='store',      default='analysisPlots_4l')
-argParser.add_argument('--selection',           action='store',      default='quadlep-lepSelQuad-njet1p-btag0-onZZ-min_mll12')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
+argParser.add_argument('--selection',           action='store',      default='quadlepTWZ-onZ1-noZ2')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
@@ -525,13 +525,16 @@ flavor_sign_bins = [  {"name":"e^{#pm} e^{#mp}",            "condition":getCond(
                     ]
 
 def find_flavor_sign_bin( event, sample ):
-
     #event.flavor_bin = [_bin("condition")(event, sample) for _bin in flavor_sign_bins]
-    event.flavor_bin = 0
+    event.flavor_bin = -1
     for i, _bin in enumerate(flavor_sign_bins):
         if _bin["condition"](event, sample):
             event.flavor_bin = i
-            break
+            #print "PDG1:", event.lep_pdgId[event.nonZ1_l1_index_4l]
+            #print "PDG2:", event.lep_pdgId[event.nonZ1_l2_index_4l]
+            #print "Bin:", i, _bin["name"]
+            #break
+    #print "-------------------"
 
 sequence.append( find_flavor_sign_bin )
 
@@ -902,7 +905,6 @@ for index, mode in enumerate(allModes):
       if plot.name == "flavor":
         for i, l in enumerate(plot.histos):
           for j, h in enumerate(l):
-            yields[mode][plot.stack[i][j].name] = h.GetBinContent(h.FindBin(0.5+index))
             for k, _bin in enumerate(flavor_sign_bins):
                 h.GetXaxis().SetBinLabel(k+2, _bin["name"])
     if args.noData: yields[mode]["data"] = 0
