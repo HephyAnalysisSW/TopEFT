@@ -184,6 +184,8 @@ for i, r in enumerate(regions):
         hists[p].legendOption = 'f'
         if not p == 'total':
            hists[p].style = styles.fillStyle( getattr(color, p.replace('_2016','')), lineColor=getattr(color,p.replace('_2016','')), errors=False )
+           hists[p].SetFillColor(getattr(color, p.replace('_2016','')))
+           hists[p].SetLineColor(getattr(color, p.replace('_2016','')))
 
         if options.postFit:
             if preYield.val > 0 and pYield.val > 0:
@@ -323,6 +325,7 @@ hists['observed'].style = styles.errorStyle( ROOT.kBlack, markerSize = 1.2 )
 
 if options.signal:
     hists['BSM'].style = styles.lineStyle( ROOT.kRed+1, width=1, dashed=False)
+    hists['BSM'].SetLineColor(ROOT.kRed+1)
 
 boxes = []
 ratio_boxes = []
@@ -338,14 +341,16 @@ for ib in range(1, 1 + hists['total'].GetNbinsX() ):
     # uncertainty box in main histogram
     box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max([0.006, val-sys]), hists['total'].GetXaxis().GetBinUpEdge(ib), max([0.006, val+sys]) )
     box.SetLineColor(ROOT.kGray+2)
-    box.SetFillStyle(3005)
+    box.SetLineWidth(0)
+    box.SetFillStyle(3254)
     box.SetFillColorAlpha(ROOT.kGray+2, 1.0)
     
     # uncertainty box in ratio histogram
     r_box = ROOT.TBox( hists['total'].GetXaxis().GetBinLowEdge(ib),  max(0.1, 1-sys_rel), hists['total'].GetXaxis().GetBinUpEdge(ib), min(1.9, 1+sys_rel) )
-    r_box.SetLineColor(ROOT.kOrange-4)
-    r_box.SetFillStyle(1001)
-    r_box.SetFillColorAlpha(ROOT.kOrange-4, 0.7)
+    r_box.SetLineColor(ROOT.kGray+2)#(ROOT.kOrange-4)
+    r_box.SetLineWidth(2)
+    r_box.SetFillStyle(3254)#(1001)
+    r_box.SetFillColorAlpha(ROOT.kGray+2, 1.0)#(ROOT.kOrange-4, 0.7)
 
     boxes.append( box )
     hists['total'].SetBinError(ib, 0)
@@ -400,7 +405,7 @@ def drawLabelsLower( regions ):
     diff = (max-min) / len(regions)
     
     lines  = [(min+6*diff, 0.11, "N_{b} = 0"),      (min+13.5*diff, 0.11, "N_{b} #geq 0"),    (min+21*diff, 0.11, "N_{b} #geq 1"),    (min+28.5*diff, 0.11, "N_{b} #geq 1")]
-    lines += [(min+6*diff, 0.22, "N_{j} #geq 1"),   (min+13.5*diff, 0.22, "N_{j} #geq 0"),    (min+21*diff, 0.22, "N_{j} #geq 3"),    (min+28.5*diff, 0.22, "N_{j} #geq 1")]
+    lines += [(min+6*diff, 0.22, "N_{j} #geq 1"),   (min+13.5*diff, 0.22, "N_{j} #geq 1"),    (min+21*diff, 0.22, "N_{j} #geq 3"),    (min+28.5*diff, 0.22, "N_{j} #geq 1")]
     lines += [(min+6*diff, 0.33, "N_{l} = 3"),      (min+13.5*diff, 0.33, "N_{l} = 4"),       (min+21*diff, 0.33, "N_{l} = 3"),       (min+28.5*diff, 0.33, "N_{l} = 4")]
 
     return [tex.DrawLatex(*l) for l in lines]
@@ -446,7 +451,7 @@ def drawDivisions(regions):
 #   line.SetLineColor(38)
     line.SetLineWidth(1)
     line.SetLineStyle(2)
-    lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) if min+3*i*diff<0.74 else (min+3*i*diff,  0.013, min+3*i*diff, 0.52) for i in range(1,10) ]
+    lines = [ (min+3*i*diff,  0.013, min+3*i*diff, 0.93) if (min+3*i*diff<0.53 or min+3*i*diff>0.86) else (min+3*i*diff,  0.013, min+3*i*diff, 0.66) for i in range(1,10) ]
     return [line.DrawLineNDC(*l) for l in lines] + [tex.DrawLatex(*l) for l in []] + [tex2.DrawLatex(*l) for l in lines2]
 
 
@@ -479,23 +484,29 @@ def setBinLabels( hist ):
         else:
             hist.GetXaxis().SetBinLabel(i, "%s"%(i-15))
 
-def getLegend():
-    #dummy = ROOT.TH1F('asdf','',1,0,1)
-    #dummy.SetFillStyle(3005)
-    #dummy.SetLineColor(ROOT.kBlack)
-    #dummy.SetBinContent(1,0.0001)
-    #dummy.Draw()
-    #box = ROOT.TBox( 0,  0, 1, 1 )
-    #box.SetFillStyle(3005)
-    #box.SetFillColorAlpha(ROOT.kGray+2, 1.0)
-    #box.Draw()
-    
-    leg = ROOT.TLegend(0.74,0.50,0.95,0.54)
+
+def getLegendLeft():
+    leg = ROOT.TLegend(0.53,0.69,0.69,0.89)
     leg.SetFillColor(ROOT.kWhite)
     leg.SetShadowColor(ROOT.kWhite)
     leg.SetBorderSize(0)
     leg.SetTextSize(0.035)
+    leg.AddEntry(hists['observed'], 'Data', 'e1p' )
+    for proc in processes[:4]:
+        leg.AddEntry(hists[proc[0]], proc[1], 'f' )
+    #leg.AddEntry(boxes[0], 'Uncertainty', 'f')
+    return [leg]
+
+def getLegendRight():
+    leg = ROOT.TLegend(0.70,0.69,0.86,0.89)
+    leg.SetFillColor(ROOT.kWhite)
+    leg.SetShadowColor(ROOT.kWhite)
+    leg.SetBorderSize(0)
+    leg.SetTextSize(0.035)
+    for proc in processes[4:]:
+        leg.AddEntry(hists[proc[0]], proc[1], 'f' )
     leg.AddEntry(boxes[0], 'Uncertainty', 'f')
+    leg.AddEntry(hists['BSM'], 'EFT best-fit', 'l')
     return [leg]
 
 def getRatioLegend():
@@ -507,7 +518,7 @@ def getRatioLegend():
     leg.AddEntry(ratio_boxes[0], 'Uncertainty', 'f')
     return [leg]
 
-drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,1)) + boxes + drawDivisions( regions ) + getLegend()# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
+drawObjects = drawObjects( isData=isData, lumi=round(lumiStr,1)) + boxes + drawDivisions( regions ) + getLegendRight() +getLegendLeft()# + drawLabels( regions ) + drawLabels2( regions ) + drawDivisions( regions )# + drawBinNumbers( len(regions) )
 
 bkgHists = []
 for p,tex in processes:
@@ -543,12 +554,13 @@ plotting.draw(
             ),
     plot_directory = os.path.join(plot_directory, "signalRegions_v3"),
     logX = False, logY = True, sorting = False, 
+    legend = None,
     #legend = (0.75,0.80-0.010*32, 0.95, 0.80),
-    legend = (0.74,0.54, 0.95, 0.89),
+    #legend = (0.74,0.54, 0.95, 0.89),
     widths = {'x_width':1300, 'y_width':700, 'y_ratio_width':300},
-    #yRange = (0.3,3000.),
+    yRange = (0.7,9000.),
     #yRange = (0.03, [0.001,0.5]),
-    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions) + getRatioLegend(), 'texY':'Data / Pred.', 'histos':[(1,0),(2,0)] if options.signal else [(1,0)],
+    ratio = {'yRange': (0.51, 1.49), 'drawObjects':ratio_boxes + drawLabelsLower( regions ) +drawHeadlineLower( regions ) + drawDivisionsLower(regions), 'texY':'Data / Pred.', 'histos':[(1,0),(2,0)] if options.signal else [(1,0)],
             'histModifications': [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2), lambda h: h.GetXaxis().SetTitleSize(32), lambda h: h.GetXaxis().SetLabelSize(27), lambda h: h.GetXaxis().SetLabelOffset(0.035)]} ,
     drawObjects = drawObjects + [hists['observed']],
     histModifications = [lambda h: h.GetYaxis().SetTitleSize(32), lambda h: h.GetYaxis().SetLabelSize(28), lambda h: h.GetYaxis().SetTitleOffset(1.2)],

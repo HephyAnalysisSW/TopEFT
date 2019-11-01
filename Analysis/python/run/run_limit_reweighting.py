@@ -390,7 +390,7 @@ def wrapper(s):
                                 if njetUnc>0:
                                     c.specifyUncertainty('WZ_njet',     binname, name, 1+njetUnc)
                                 if setup == setup3l:
-                                    c.specifyUncertainty('WZ_bb',     binname, name, 1.08)
+                                    c.specifyUncertainty('WZ_bb',     binname, name, 1.16)
                                 c.specifyUncertainty('WZ_powheg',     binname, name, WZ_powheg)
                             
                             if name.count('nonprompt'):    c.specifyUncertainty('nonprompt',   binname, name, 1.30)
