@@ -202,6 +202,11 @@ def checkRootFile(f, checkForObjects=[]):
     rf.Close()
     return good
 
+def checkEDMRootFile( f ):
+    import subprocess
+    ret = subprocess.call("edmFileUtil %s" % f, shell=True)
+    return ret==0
+
 def getChunks(sample,  maxN=-1):
     import os, subprocess
     chunks = [{'name':x} for x in os.listdir(sample.path) if x.startswith(sample.chunkString+'_Chunk') or x==sample.chunkString]

@@ -16,7 +16,7 @@ import TopEFT.Tools.logger as logger
 process_path = os.path.expandvars("$CMSSW_BASE/src/TopEFT/Generation/data/processCards")
 processes    = [os.path.splitext(f)[0] for f in os.listdir(process_path) if os.path.isfile(os.path.join(process_path, f)) and f.endswith('.dat')]
 
-
+# Argument parser
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--process',     action='store',         default='ttZ',      choices=processes,     help="Which process?")
 argParser.add_argument('--model',       action='store',         default='HEL_UFO',  choices=['ewkDM', 'ewkDM2', 'ewkDMGZ', 'HEL_UFO', 'TopEffTh', 'dim6top_LO', 'dim6top_LO_v2'], help="Which madgraph model?")

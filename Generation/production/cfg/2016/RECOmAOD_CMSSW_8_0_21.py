@@ -26,13 +26,13 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:step1_DIGI2RAW.root'),
-    fileNames = cms.untracked.vstring('root://hephyse.oeaw.ac.at//dpm/oeaw.ac.at/home/cms/store/user/dspitzba/ewkDM_ttZ_ll_noH/ewkDM/171024_115112/0000/TOP-RunIISummer15wmLHEGS-00013_103.root'),
+    #fileNames = cms.untracked.vstring('root://hephyse.oeaw.ac.at//store/user/schoef/ewkDM_ttZ_ll/09Nov17-GS-3/171112_110607/0000/step0_10.root'),
+    fileNames = cms.untracked.vstring('file:/afs/hephy.at/work/r/rschoefbeck/CMS/gen/CMSSW_8_0_21/src/step0.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 

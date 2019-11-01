@@ -57,6 +57,8 @@ class resultsDB:
         self.columns        = self.columns + ["value"]
         self.columnString   = ", ".join([ s+" text" for s in self.columns ])
 
+        logger.debug( "Initializing resultsDB %s", self.database_file )
+
         self.connect()
         try:
             with self.conn:

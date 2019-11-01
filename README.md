@@ -29,7 +29,7 @@ cmsrel CMSSW_9_4_6_patch1
 cd CMSSW_9_4_6_patch1/src
 cmsenv
 git cms-init
-git clone https://github.com/danbarto/TopEFT
+git clone https://github.com/HephyAnalysisSW/TopEFT
 cd $CMSSW_BASE/src
 ./TopEFT/setup94X.sh
 ```

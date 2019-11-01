@@ -48,7 +48,7 @@ class Process:
         self.__writeProcessCard()
         
         logger.info( "Running MG executable: python %s -f %s", self.config.MG5_tmpdir+'/bin/mg5_aMC', self.tmpProcessCard )
-        subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard])
+        subprocess.check_output(["python", self.config.MG5_tmpdir+'/bin/mg5_aMC', '-f', self.tmpProcessCard], cwd=self.config.uniquePath)
         logger.info( "Done with MG executable" ) 
 
         # copy files from central gridpack

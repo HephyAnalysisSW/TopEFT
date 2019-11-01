@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('root://hephyse.oeaw.ac.at//dpm/oeaw.ac.at/home/cms/store/user/schoef/ewkDM_ttZ_ll_DC1A_0p500000_DC1V_m1p000000/ewkDM_09Nov17/171110_055432/0000/TOP-RunIISummer15wmLHEGS-00013_1.root'),
+    fileNames = cms.untracked.vstring('file:/afs/hephy.at/work/r/rschoefbeck/CMS/gen/CMSSW_7_1_25_patch2/src/TOP-RunIISummer15wmLHEGS-00013.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_genParticles_*_*', 
         'drop *_genParticlesForJets_*_*', 
