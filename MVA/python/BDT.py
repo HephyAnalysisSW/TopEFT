@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from Analysis.TMVA.Wrapper       import Wrapper, example_methods
+from Analysis.TMVA.Trainer       import Trainer
+from Analysis.TMVA.Reader        import Reader
+from Analysis.TMVA.defaults      import default_methods, default_factory_settings 
 from TopEFT.Tools.user           import plot_directory
 from TopEFT.Tools.user           import mva_directory 
 from TopEFT.Tools.cutInterpreter import *
@@ -52,9 +54,6 @@ read_variables = [\
                     "Z2_mass_4l/F",
                     ]
 
-calc_variables = [\
-                   ]
-
 # sequence 
 sequence = []
 def myFancyVar( event ):
@@ -68,29 +67,37 @@ mva_variables =  {
                     #"myvar2" :(lambda event: event.myFancyVar), # from sequence
                  }
 
-# TMVA Wrapper instance
-mva = Wrapper( 
-    signal = signal, 
-    backgrounds = backgrounds, 
-    output_directory = mva_directory, 
-    plot_directory   = plot_directory, 
-    mva_variables    = mva_variables,
-    label            = "Test", 
-    fractionTraining = args.trainingFraction, 
-    )
+## TMVA Trainer instance
+#trainer = Trainer( 
+#    signal = signal, 
+#    backgrounds = backgrounds, 
+#    output_directory = mva_directory, 
+#    plot_directory   = plot_directory, 
+#    mva_variables    = mva_variables,
+#    label            = "Test", 
+#    fractionTraining = args.trainingFraction, 
+#    )
+#
+#trainer.createTestAndTrainingSample( 
+#    read_variables   = read_variables,   
+#    sequence         = sequence,
+#    weightString     = weightString,
+#    overwrite        = args.overwrite, 
+#    )
+#
+#trainer.addMethod(method = default_methods["BDT"])
+#trainer.addMethod(method = default_methods["MLP"])
+#
+#trainer.trainMVA( factory_settings = default_factory_settings )
+#trainer.plotEvaluation()
 
-mva.createTestAndTrainingSample( 
-    read_variables   = read_variables,   
-    sequence         = sequence,
-    weightString     = weightString,
-    overwrite        = args.overwrite, 
-    )
+reader = Reader( 
+    mva_variables    = mva_variables, 
+    output_directory = mva_directory,
+    label            = "Test")
 
-mva.addMethod(method = example_methods["BDT"])
-mva.addMethod(method = example_methods["MLP"])
+reader.addMethod(method = default_methods["BDT"])
+#reader.addMethod(method = default_methods["MLP"])
 
-mva.trainMVA( 
-    factory_settings = [ "!V", "!Silent", "Color", "DrawProgressBar", "Transformations=I;D;P;G,D", "AnalysisType=Classification" ], 
-    )
-
-mva.plotEvaluation()
+print reader.evaluate("BDT", met_pt=100, ht=-210)
+print reader.evaluate("BDT", met_pt=120, ht=-210)
