@@ -29,10 +29,18 @@
 #python analysisPlots_3l_2016.py --selection trilep-njet2p-btag1-onZ
 #python analysisPlots_3l_2016.py --selection trilep-njet2-btag1p-onZ
 
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet0
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet0p
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet1
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet1p
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet0
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet0p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet1
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet1p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1p
+
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet2p
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2p
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0p
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1
+python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1p
 

@@ -585,8 +585,10 @@ for index, mode in enumerate(allModes):
     TTZ_mc = TTZtoLLNuNu
 
     if args.year == 2016:
-        #mc            = [ TTWW, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
-        mc              = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        # TWZ
+        #mc              = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        # TTWW
+        mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTWW, TTW, TTZtoLLNuNu, WZ_amcatnlo, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
     else:
