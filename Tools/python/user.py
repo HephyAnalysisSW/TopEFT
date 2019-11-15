@@ -51,3 +51,17 @@ if os.environ['USER'] in ['llechner']:
     analysis_results                = results_directory
     
     runOnGentT2 = False
+
+if os.environ['USER'] in ['ttschida']:
+    tmp_directory                   = "/afs/hephy.at/data/cms04/ttschida/Top_tmp/"
+    results_directory               = "/afs/hephy.at/data/cms04/ttschida/TopEFT/results/"
+    skim_directory                  = "/afs/hephy.at/data/cms04/ttschida/TopEFT/skims/"
+    skim_output_directory           = "/afs/hephy.at/data/cms04/ttschida/TopEFT/skims/"
+    plot_directory                  = "/afs/hephy.at/user/t/ttschida/www/HiggsWithoutHiggs/TopEFT/"
+    data_directory                  = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
+    postprocessing_output_directory = "/afs/hephy.at/data/cms04/ttschida/TopEFT/cmgTuples/"
+    analysis_results                = results_directory
+    mva_directory                   = "/afs/hephy.at/data/cms04/ttschida/TopEFT/mva/"
+
+    runOnGentT2 = False
+
