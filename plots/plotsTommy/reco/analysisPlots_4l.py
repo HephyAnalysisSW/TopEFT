@@ -556,9 +556,38 @@ def getLooseLeptonMult( event, sample ):
     leptons = [getObjDict(event, 'lep_', ['eta','pt','phi','charge', 'pdgId', 'sourceId','mediumMuonId'], i) for i in range(len(event.lep_pt))]
     lepLoose = [ l for l in leptons if l['pt'] > 10 and ((l['mediumMuonId'] and abs(l['pdgId'])==13) or abs(l['pdgId'])==11)  ]
     event.nLepLoose = len(lepLoose)
-
+    
 sequence.append( getLooseLeptonMult )
 
+
+#MVA
+from Analysis.TMVA.Reader        import Reader
+from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1
+from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
+from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
+from TopEFT.Tools.user  import mva_directory
+
+sequence.extend( mva_sequence )
+read_variables.extend( mva_read_variables )
+
+reader = Reader(
+    mva_variables    = mva_variables,
+    weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/",
+    label            = "Test")
+
+#reader.addMethod(method = default_metho
+
+def makeDiscriminator( mva ):
+    def _getDiscriminator( event, sample ):
+        kwargs = {name:func(event, None) for name, func in mva_variables.iteritems()}
+        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
+        print mva['name'], getattr( event, mva['name'] ) 
+    return _getDiscriminator
+
+mvas = [bdt1]
+for mva in mvas:
+    reader.addMethod(method = mva)
+    sequence.append( makeDiscriminator(mva) )
 
 #
 # Loop over channels
@@ -587,8 +616,12 @@ for index, mode in enumerate(allModes):
     if args.year == 2016:
         # TWZ
         #mc              = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        #mc              = [ yt_TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
         # TTWW
-        mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
+        # TZZ 
+
+        mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare2, WWZ, WZZ, ZZZ ]
+        #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTWW, TTW, TTZtoLLNuNu, WZ_amcatnlo, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
     else:
@@ -634,7 +667,14 @@ for index, mode in enumerate(allModes):
       attribute = lambda event, sample: event.flavor_bin,
       binning=[len(flavor_sign_bins)+1, -1, len(flavor_sign_bins)],
     ))
-    
+
+    for mva in mvas:
+        plots.append(Plot(
+            texX = mva['name'], texY = 'Number of Events',
+            name = mva['name'], attribute = lambda event, sample: getattr( event, mva['name'] ),
+            binning=[20, 0, 1],
+        ))
+
     plots.append(Plot(
       name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nVert/I" ),
