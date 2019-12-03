@@ -203,7 +203,9 @@ except:
 
 if options.fileBasedSplitting:
     len_orig = len(sample.files)
+    heppy = sample.heppy
     sample = sample.split( n=options.nJobs, nSub=options.job)
+    sample.heppy = heppy
     if sample is None:  
         logger.info( "No such sample. nJobs %i, job %i numer of files %i", options.nJobs, options.job, len_orig )
         sys.exit(0)
@@ -379,26 +381,40 @@ if isSingleLep:
     branchKeepStrings_DATAMC += ['HLT_*']
 if options.deepLepton:
     branchKeepStrings_DATAMC += ['nDL_*', 'DL_*']
+
+new_variables = []
 # Load reweight pickle file if supposed to keep weights. 
-extra_variables = []
 if options.addReweights and isMC:
 
     # Determine coefficients for storing in vector
     # Sort Ids wrt to their position in the card file
 
-    weightInfo = WeightInfo( sample.reweight_pkl )
+    weightInfo = WeightInfo( sample.heppy.reweight_pkl )
 
     # weights for the ntuple
     rw_vector       = TreeVariable.fromString( "rw[w/F,"+",".join(w+'/F' for w in weightInfo.variables)+"]")
     rw_vector.nMax  = weightInfo.nid
-    extra_variables.append(rw_vector)
+    new_variables.append(rw_vector)
 
     # coefficients for the weight parametrization
     param_vector      = TreeVariable.fromString( "p[C/F]" )
     param_vector.nMax = HyperPoly.get_ndof(weightInfo.nvar, options.interpolationOrder)
     hyperPoly         = HyperPoly( options.interpolationOrder )
-    extra_variables.append(param_vector)
-    extra_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
+    new_variables.append(param_vector)
+    new_variables.append(TreeVariable.fromString( "chi2_ndof/F"))
+
+    # that's how we store eft weights in the CMG LHEWeightAnalyzer
+    keys = weightInfo.data.keys()
+    keys.sort()
+    eft_key_map = {30000+i:k for i,k in enumerate(keys)}
+
+    # weight interpreting function
+    def interpret_weight(weight_id):
+        str_s = weight_id.split('_')
+        res={}
+        for i in range(len(str_s)/2):
+            res[str_s[2*i]] = float(str_s[2*i+1].replace('m','-').replace('p','.'))
+        return res
 
 # Jet variables to be read from chain
 jetCorrInfo = ['corr/F', 'corr_JECUp/F', 'corr_JECDown/F'] if addSystematicVariations else []
@@ -437,7 +453,7 @@ if options.keepPhotons:
     read_variables += [ TreeVariable.fromString('ngamma/I'),
                         VectorTreeVariable.fromString('gamma[pt/F,eta/F,phi/F,mass/F,idCutBased/I,pdgId/I]') ]
 
-new_variables = [ 'weight/F', 'triggerDecision/I']
+new_variables+= [ 'weight/F', 'triggerDecision/I']
 new_variables+= [ 'jet[%s]'% ( ','.join(jetVars) ) ]
 
 lepton_branches_read  = lepton_branches_mc if isMC else lepton_branches_data
@@ -499,7 +515,8 @@ if isMC:
     read_variables.append( VectorTreeVariable.fromString('genPartAll[pt/F,eta/F,phi/F,mass/F,pdgId/I,status/I,charge/I,motherId/I,grandmotherId/I,nMothers/I,motherIndex1/I,motherIndex2/I,nDaughters/I,daughterIndex1/I,daughterIndex2/I,isPromptHard/I]', nMax=200 )) # default nMax is 100, which would lead to corrupt values in this case
     read_variables.append( TreeVariable.fromString('genWeight/F') )
     read_variables.append( TreeVariable.fromString('nIsr/I') )
-    read_variables.append( VectorTreeVariable.fromString('LHEweight[wgt/F,id/I]',  nMax=1100) )
+    read_variables.append( TreeVariable.fromString('nLHEweight/I') )
+    read_variables.append( VectorTreeVariable.fromString('LHEweight[wgt/F,id/I]',  nMax=30000) )
     if options.keepPhotons:
         read_variables.append( VectorTreeVariable.fromString('gamma[mcPt/F]') )
 
@@ -652,18 +669,23 @@ def filler( event ):
         event.reweightTriggerDown   = 1
 
         if options.addReweights:
-            event.nrw    = weightInfo.nid
-            lhe_weights  = reader.products['lhe'].weights()
+
             weights      = []
             param_points = []
-            for weight in lhe_weights:
+            for i_weight in range(r.nLHEweight):
+                weight_id  = r.LHEweight_id[i_weight]
+                weight_wgt = r.LHEweight_wgt[i_weight]
                 # Store nominal weight (First position!) 
-                if weight.id=='rwgt_1': event.rw_nominal = weight.wgt
-                if not weight.id in weightInfo.id: continue
-                pos = weightInfo.data[weight.id]
-                event.rw_w[pos] = weight.wgt
-                weights.append( weight.wgt )
-                interpreted_weight = interpret_weight(weight.id)
+                if weight_id==29999: event.rw_nominal = weight_wgt
+                if not weight_id>=30000: continue
+                if eft_key_map.has_key(weight_id):
+                    weight_id = eft_key_map[weight_id]
+                else:
+                    continue
+                pos = weightInfo.data[weight_id]
+                event.rw_w[pos] = weight_wgt
+                weights.append( weight_wgt )
+                interpreted_weight = interpret_weight(weight_id)
                 for var in weightInfo.variables:
                     getattr( event, "rw_"+var )[pos] = interpreted_weight[var]
                 # weight data for interpolation
@@ -1186,7 +1208,7 @@ def filler( event ):
 # Create a maker. Maker class will be compiled. This instance will be used as a parent in the loop
 treeMaker_parent = TreeMaker(
     sequence  = [ filler ],
-    variables = [ TreeVariable.fromString(x) for x in new_variables ],
+    variables = [ TreeVariable.fromString(x) if type(x)==type("") else x for x in new_variables ],
     treeName = "Events"
     )
 

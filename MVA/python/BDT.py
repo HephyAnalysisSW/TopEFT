@@ -67,29 +67,46 @@ mva_variables =  {
                     #"myvar2" :(lambda event: event.myFancyVar), # from sequence
                  }
 
-## TMVA Trainer instance
-#trainer = Trainer( 
-#    signal = signal, 
-#    backgrounds = backgrounds, 
-#    output_directory = mva_directory, 
-#    plot_directory   = plot_directory, 
-#    mva_variables    = mva_variables,
-#    label            = "Test", 
-#    fractionTraining = args.trainingFraction, 
-#    )
-#
-#trainer.createTestAndTrainingSample( 
-#    read_variables   = read_variables,   
-#    sequence         = sequence,
-#    weightString     = weightString,
-#    overwrite        = args.overwrite, 
-#    )
-#
+# TMVA Trainer instance
+trainer = Trainer( 
+    signal = signal, 
+    backgrounds = backgrounds, 
+    output_directory = mva_directory, 
+    plot_directory   = plot_directory, 
+    mva_variables    = mva_variables,
+    label            = "Test", 
+    fractionTraining = args.trainingFraction, 
+    )
+
+trainer.createTestAndTrainingSample( 
+    read_variables   = read_variables,   
+    sequence         = sequence,
+    weightString     = weightString,
+    overwrite        = args.overwrite, 
+    )
+
 #trainer.addMethod(method = default_methods["BDT"])
-#trainer.addMethod(method = default_methods["MLP"])
-#
-#trainer.trainMVA( factory_settings = default_factory_settings )
-#trainer.plotEvaluation()
+trainer.addMethod(method = default_methods["MLP"])
+
+for i_ntrees, ntrees in enumerate([10, 20, 50]):
+    my_bdt = {
+            "type"                : ROOT.TMVA.Types.kBDT,
+            "name"                : "myBDT%i"%ntrees,
+            "color"               : ROOT.kGreen + i_ntrees ,
+            "options"             : ["!H","!V","NTrees=%i"%ntrees,"BoostType=Grad","Shrinkage=0.20","UseBaggedBoost","GradBaggingFraction=0.5","SeparationType=GiniIndex","nCuts=5","PruneMethod=NoPruning","MaxDepth=2"]
+            }
+    trainer.addMethod(method = my_bdt )
+    my_bdt = {
+            "type"                : ROOT.TMVA.Types.kBDT,
+            "name"                : "myBDT%i_1"%ntrees,
+            "color"               : ROOT.kRed + i_ntrees,
+            "options"             : ["!H","!V","NTrees=%i"%ntrees,"BoostType=Grad","Shrinkage=0.20","UseBaggedBoost","GradBaggingFraction=0.5","SeparationType=GiniIndex","nCuts=5","PruneMethod=NoPruning","MaxDepth=1"]
+            }
+    trainer.addMethod(method = my_bdt )
+
+
+trainer.trainMVA( factory_settings = default_factory_settings )
+trainer.plotEvaluation()
 
 reader = Reader( 
     mva_variables    = mva_variables, 
