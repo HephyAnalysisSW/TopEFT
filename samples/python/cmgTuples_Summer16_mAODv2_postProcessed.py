@@ -126,6 +126,8 @@ TTLep_pow       = Sample.fromDirectory(name="TTLep_pow",        treeName="Events
 singleTop       = Sample.fromDirectory(name="singleTop",        treeName="Events", isData=False, color=color.singleTop,         texName="t/#bar{t}",                             directory=directories['singleTop'])
 background      = Sample.fromDirectory(name="background",        treeName="Events", isData=False, color=color.nonprompt,        texName="background",                           directory=directories['background'])
 
+
+yt_TWZ_filter  = Sample.fromDirectory(name="yt_TWZ_filter",     treeName="Events", isData=False, color=ROOT.kRed,              texName="TWZ",                                  directory="/afs/hephy.at/data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/yt_tWZ_filter/")
 ## set sample selection strings for the nonprompt and Zgamma sample
 #nonpromptMC.setSelectionString('nLeptons_FO_3l_genPrompt<=2')
 #ZGTo2LG.setSelectionString('nLeptons_FO_3l_genPrompt>2')
