@@ -17,8 +17,7 @@ from TopEFT.MVA.MVA_TWZ import bdt1, bdt2, bdt3, bdt4, mlp1, mlp2, sequence, rea
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--plot_directory',     action='store',             default=None)
-argParser.add_argument('--selection',          action='store', type=str,   default=None)#'quadlepTWZ')#"quadlepTWZ-onZ1-noZ2")
-#argParser.add_argument('--selection',          action='store', type=str,   default="btag1-njet1p")#-btag1-njet1p")#None)
+argParser.add_argument('--selection',          action='store', type=str,   default='quadlepTWZoddFlav-onZ1-noZ2')
 argParser.add_argument('--trainingFraction',   action='store', type=float, default=0.5)
 argParser.add_argument('--small',              action='store_true')
 argParser.add_argument('--overwrite',          action='store_true')
