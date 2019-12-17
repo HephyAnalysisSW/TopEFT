@@ -24,7 +24,7 @@ special_cuts = {
     "WlepPt20":          "lep_pt[nonZ_l1_index]>20",
     "quadlep":           "nLeptons_tight_4l>=4&&min_dl_mass>12&&totalLeptonCharge==0",
     "quadlepTWZ":        "nLeptons_tight_4l>=4",
-    "trilepTTWW":        "nLeptons_tight_4l>=3",
+    "quadlepTWZoddFlav": "nLeptons_tight_4l>=4&&(abs(lep_pdgId[nonZ1_l1_index_4l])!=abs(lep_pdgId[nonZ1_l2_index_4l]))",
     "Zcand":             "Z_mass>0",
 #    "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
     "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight_3l>0)>0 && Sum$(lep_pt>20&&lep_tight_3l>0)>1 && Sum$(lep_pt>10&&lep_tight_3l>0)>2",
@@ -42,11 +42,13 @@ special_cuts = {
     "tightZ":            "Z_fromTight>0",
     "onZZ":              "abs(Z1_mass_4l-91.1876)<20&&abs(Z2_mass_4l-91.1876)<20",
     "onZ1":              "abs(Z1_mass_4l-91.1876)<20",
+    "onZ2":              "abs(Z2_mass_4l-91.1876)<20",
     "offZ2":             "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.1876)>20",
     "offZ2met":          "(1)",# taken care off in plot script. Think of something better! "abs(Z2_mass_4l-91.1876)>20",
     "onZloose":          "abs(Z_mass-91.1876)<15",
     "offZ":              "abs(Z_mass-91.1876)>10",
     "offZSF":            "(abs(Z_mass-91.1876)>10&&(nGoodElectrons==2||nGoodMuons==2))||(nGoodElectrons!=2&&nGoodMuons!=2)",#cut Z-Window only for SF dilep events, only usable for nlep==2 (I guess)
+    "None":              "(1)",
   }
 
 continous_variables = [ ("metSig", "metSig"), ("mll", "Z_mass"), ("met", "met_pt"), ("mt2ll", "dl_mt2ll"), ("mt2blbl", "dl_mt2blbl"), ("htCMG", "htJet40j"), ("photon","photon_pt"), ("ZlldPhi","Z_lldPhi"), ("Zpt","Z_pt"), ("min_mll", "min_dl_mass")]
