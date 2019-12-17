@@ -167,7 +167,7 @@ def drawPlots(plots, mode, dataMCScale):
 	    plot_directory = plot_directory_,
         extensions = extensions_,
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = True,
+	    logX = False, logY = log, sorting = False, #True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
@@ -562,9 +562,12 @@ sequence.append( getLooseLeptonMult )
 
 #MVA
 from Analysis.TMVA.Reader        import Reader
-from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1
-from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
-from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
+#from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1, bdt2, mlp1
+#from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
+#from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
+from TopEFT.MVA.MVA_TWZ import mva_variables, bdt1, bdt2, mlp1, mlp2
+from TopEFT.MVA.MVA_TWZ import sequence as mva_sequence
+from TopEFT.MVA.MVA_TWZ import read_variables as mva_read_variables
 from TopEFT.Tools.user  import mva_directory
 
 sequence.extend( mva_sequence )
@@ -575,16 +578,20 @@ reader = Reader(
     weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/",
     label            = "Test")
 
-#reader.addMethod(method = default_metho
-
 def makeDiscriminator( mva ):
     def _getDiscriminator( event, sample ):
         kwargs = {name:func(event, None) for name, func in mva_variables.iteritems()}
         setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
-        print mva['name'], getattr( event, mva['name'] ) 
+        #print mva['name'], getattr( event, mva['name'] ) 
     return _getDiscriminator
 
-mvas = [bdt1]
+def discriminator_getter(name):
+    def _disc_getter( event, sample ):
+        return getattr( event, name )
+    return _disc_getter
+
+#mvas = [ mlp1 ]
+mvas = [ bdt1, bdt2, mlp1, mlp2 ]
 for mva in mvas:
     reader.addMethod(method = mva)
     sequence.append( makeDiscriminator(mva) )
@@ -609,18 +616,18 @@ for index, mode in enumerate(allModes):
         lumi_scale                 = data_sample.lumi/1000
 
     if args.noData: lumi_scale = 35.9 if args.year == 2016 else 41.0
+    lumi_scale = 300
     weight_ = lambda event, sample: event.weight
     
     TTZ_mc = TTZtoLLNuNu
 
     if args.year == 2016:
         # TWZ
-        #mc              = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        #mc              = [ yt_TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        # TTWW
+        #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
         # TZZ 
-
-        mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare2, WWZ, WZZ, ZZZ ]
+        #mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare_for_TZZ ]
+        
         #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTWW, TTW, TTZtoLLNuNu, WZ_amcatnlo, nonpromptMC, TTX_rare2, rare, ZZ ]
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
@@ -639,6 +646,8 @@ for index, mode in enumerate(allModes):
           sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightTrigger_tight_4l*event.reweightPU36fb*event.reweightLeptonSF_tight_4l #*event.reweightLeptonSF_tight_4l #*nTrueInt36fb_puRW(event.nTrueInt)
       tr = triggerSelector(args.year)
       sample.setSelectionString([getFilterCut(isData=False, year=args.year), getLeptonSelection(mode), tr.getSelection("MC")])
+
+    yt_TWZ_filter.scale = lumi_scale * 1.07314
 
     if not args.noData:
       stack = Stack(mc, data_sample)
@@ -667,14 +676,32 @@ for index, mode in enumerate(allModes):
       attribute = lambda event, sample: event.flavor_bin,
       binning=[len(flavor_sign_bins)+1, -1, len(flavor_sign_bins)],
     ))
-
+###########################
     for mva in mvas:
         plots.append(Plot(
             texX = mva['name'], texY = 'Number of Events',
-            name = mva['name'], attribute = lambda event, sample: getattr( event, mva['name'] ),
-            binning=[20, 0, 1],
+            name = mva['name'], attribute = discriminator_getter(mva['name']),
+            binning=[25, 0, 1],
         ))
-
+    
+#    plots.append(Plot(
+#        texX = '#Delta#phi(ZZ)', texY = 'Number of Events',
+#        name = 'deltaPhi_ZZ', attribute = lambda event, sample: event.deltaPhi_ZZ,
+#        binning=[16, 0, pi],
+#    ))
+    
+#    plots.append(Plot(
+#        texX = '#Delta#eta(ZZ)', texY = 'Number of Events',
+#        name = 'deltaEta_ZZ', attribute = lambda event, sample: event.deltaEta_ZZ,
+#        binning=[16, 0, 8],
+#    ))
+    
+#    plots.append(Plot(
+#        texX = '#DeltaR(ZZ)', texY = 'Number of Events',
+#        name = 'deltaR_ZZ', attribute = lambda event, sample: event.deltaR_ZZ,
+#        binning=[16, 0, 8]
+#    ))
+        
     plots.append(Plot(
       name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nVert/I" ),
@@ -983,5 +1010,6 @@ for mode in ["comb1","comb2","comb3","all"]:
     if mode == "all": drawPlots(allPlots['mumumumu'], mode, dataMCScale)
 
 logger.info( "Done with prefix %s and selectionString %s", args.selection, cutInterpreter.cutString(args.selection) )
+
 
 
