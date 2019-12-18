@@ -565,7 +565,7 @@ from Analysis.TMVA.Reader        import Reader
 #from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1, bdt2, mlp1
 #from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
 #from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
-from TopEFT.MVA.MVA_TWZ import mva_variables, bdt1, bdt2, mlp1, mlp2
+from TopEFT.MVA.MVA_TWZ import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
 from TopEFT.MVA.MVA_TWZ import sequence as mva_sequence
 from TopEFT.MVA.MVA_TWZ import read_variables as mva_read_variables
 from TopEFT.Tools.user  import mva_directory
@@ -591,7 +591,7 @@ def discriminator_getter(name):
     return _disc_getter
 
 #mvas = [ mlp1 ]
-mvas = [ bdt1, bdt2, mlp1, mlp2 ]
+mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
 for mva in mvas:
     reader.addMethod(method = mva)
     sequence.append( makeDiscriminator(mva) )
@@ -624,7 +624,7 @@ for index, mode in enumerate(allModes):
     if args.year == 2016:
         # TWZ
         #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
         # TZZ 
         #mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare_for_TZZ ]
         

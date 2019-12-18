@@ -50,7 +50,7 @@ dirs['TTW']             = ['TTWToLNu_ext_comb']
 dirs['TTWW']            = ['TTWW']
 dirs['TTWZ']            = ['TTWZ']
 dirs['TTX_rare']        = ["TTTT", "tZq_ll_ext","TTHnobb_pow", "THW", "THQ", "TTZZ","TTZToLLNuNu_m1to10"] # everything except ttZ and t(t)gamma
-dirs['TTX_rare2']       = ["TTTT", "TTHnobb_pow", "THW", "THQ", "TTZZ", "TTZToLLNuNu_m1to10"] # same as TTX_rare but without tZq_ll_ext
+dirs['TTX_rare_TWZ']    = ["TTTT", "TTHnobb_pow", "THW", "THQ", "TTZZ", "TTZToLLNuNu_m1to10"] # same as TTX_rare but without tZq_ll_ext
 
 dirs['TTLep_pow']       = ['TTLep_pow']
 dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_powheg']
@@ -108,7 +108,7 @@ TTW             = Sample.fromDirectory(name="TTW",              treeName="Events
 TTWW            = Sample.fromDirectory(name="TTWW",             treeName="Events", isData=False, color=ROOT.kRed,               texName="TTWW",                                 directory=directories['TTWW'])
 TTWZ            = Sample.fromDirectory(name="TTWZ",             treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="TTWZ",                                 directory=directories['TTWZ'])
 TTX_rare        = Sample.fromDirectory(name="TTX_rare",         treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="TTX(rare)",                            directory=directories['TTX_rare'])
-TTX_rare2       = Sample.fromDirectory(name="TTX_rare2",        treeName="Events", isData=False, color=ROOT.kRed-10,            texName="TTX(rare)",                            directory=directories['TTX_rare2'])
+TTX_rare_TWZ    = Sample.fromDirectory(name="TTX_rare_TWZ",     treeName="Events", isData=False, color=ROOT.kRed-10,            texName="TTX(rare)",                            directory=directories['TTX_rare_TWZ'])
 TTTT            = Sample.fromDirectory(name="TTTT",             treeName="Events", isData=False, color=ROOT.kYellow,            texName="TTTT",                                 directory=directories['TTTT'])
 
 ZZ              = Sample.fromDirectory(name="ZZ",               treeName="Events", isData=False, color=color.ZZ,                texName="ZZ",                                   directory=directories['ZZ'])
@@ -124,10 +124,14 @@ DY_LO           = Sample.fromDirectory(name="DY_LO",            treeName="Events
 nonpromptMC     = Sample.fromDirectory(name="nonprompt",        treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt (MC)",                       directory=directories['nonprompt'])
 TTLep_pow       = Sample.fromDirectory(name="TTLep_pow",        treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}(2l)",                          directory=directories['TTLep_pow'])
 singleTop       = Sample.fromDirectory(name="singleTop",        treeName="Events", isData=False, color=color.singleTop,         texName="t/#bar{t}",                             directory=directories['singleTop'])
-background      = Sample.fromDirectory(name="background",        treeName="Events", isData=False, color=color.nonprompt,        texName="background",                           directory=directories['background'])
+background      = Sample.fromDirectory(name="background",       treeName="Events", isData=False, color=color.nonprompt,         texName="background",                           directory=directories['background'])
 
 
-yt_TWZ_filter  = Sample.fromDirectory(name="yt_TWZ_filter",     treeName="Events", isData=False, color=ROOT.kRed,              texName="TWZ",                                  directory="/afs/hephy.at/data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/yt_tWZ_filter/")
+yt_TWZ_filter   = Sample.fromDirectory(name="yt_TWZ_filter",    treeName="Events", isData=False, color=ROOT.kRed,               texName="TWZ",                                  directory="/afs/hephy.at/data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/yt_tWZ_filter/")
+yt_TWZ          = Sample.fromDirectory(name="yt_TWZ",           treeName="Events", isData=False, color=ROOT.kRed,               texName="TWZ",                                  directory="/afs/hephy.at/data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/yt_tWZ/")
+yt_TZZ          = Sample.fromDirectory(name="yt_TZZ",           treeName="Events", isData=False, color=ROOT.kRed,               texName="TZZ",                                  directory="/afs/hephy.at//data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v22/dilepTiny/yt_tZZ/")
+yt_TWW          = Sample.fromDirectory(name="yt_TWW",           treeName="Events", isData=False, color=ROOT.kRed,               texName="TWW",                                  directory="/afs/hephy.at//data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/yt_tWW/")
+dim6top_TTW     = Sample.fromDirectory(name="dim6top_TTW",      treeName="Events", isData=False, color=ROOT.kRed,               texName="TTW",                                  directory="/afs/hephy.at/data/rschoefbeck01/cmgTuples/TopEFT_PP_2016_mva_v21/dilepTiny/dim6top_ttW/")
 ## set sample selection strings for the nonprompt and Zgamma sample
 #nonpromptMC.setSelectionString('nLeptons_FO_3l_genPrompt<=2')
 #ZGTo2LG.setSelectionString('nLeptons_FO_3l_genPrompt>2')

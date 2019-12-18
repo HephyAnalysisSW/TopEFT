@@ -5,6 +5,9 @@ from operator                    import attrgetter
 from math import pi, sqrt, cosh
 import ROOT
 
+# helpers
+from TopEFT.Tools.helpers import deltaPhi, deltaR2, deltaR
+
 # Logger
 import TopEFT.Tools.logger as logger
 logger = logger.get_logger("INFO", logFile = None )
@@ -47,52 +50,6 @@ def flavorBin( event, sample=None):
     elif    event.nMuons_tight_4l==0 and event.nElectrons_tight_4l==4: event.flavorBin = 5    
 sequence.append( flavorBin )
 
-# 3l
-#def deltaPhi_Z_nonZ_l1(event, sample=None):
-#    dphi = event.Z_phi - event.lep_phi[event.nonZ_l1_index]
-#    if  dphi > pi:
-#        dphi -= 2.0*pi
-#    if dphi <= -pi:
-#        dphi += 2.0*pi
-#    event.deltaPhi_Z_nonZ_l1 = abs(dphi)
-#sequence.append( deltaPhi_Z_nonZ_l1 )
-
-#def deltaEta_Z_nonZ_l1(event, sample=None):
-#    event.deltaEta_Z_nonZ_l1 = abs(event.Z_eta - event.lep_eta[event.nonZ_l1_index])
-#sequence.append( deltaEta_Z_nonZ_l1 )
-
-#def deltaR_Z_nonZ_l1(event, sample=None):
-#    event.deltaR_Z_nonZ_l1 = sqrt( (event.deltaPhi_Z_nonZ_l1)**2 + (event.deltaEta_Z_nonZ_l1)**2 )
-#sequence.append( deltaR_Z_nonZ_l1 )
-
-# 4l
-# helpers
-def deltaPhi(phi1, phi2):
-    dphi = phi2-phi1
-    if  dphi > pi:
-        dphi -= 2.0*pi
-    if dphi <= -pi:
-        dphi += 2.0*pi
-    return abs(dphi)
-
-def deltaR2(l1, l2):
-    return deltaPhi(l1['phi'], l2['phi'])**2 + (l1['eta'] - l2['eta'])**2
-
-def deltaR(l1, l2):
-    return sqrt(deltaR2(l1,l2))
-
-def cosThetaStar( Z_mass, Z_pt, Z_eta, Z_phi, l_pt, l_eta, l_phi ):
-    Z   = ROOT.TVector3()
-    l   = ROOT.TVector3()
-    Z.SetPtEtaPhi( Z_pt, Z_eta, Z_phi )
-    l.SetPtEtaPhi( l_pt, l_eta, l_phi )
-
-    # get cos(theta) and the lorentz factor, calculate cos(theta*)
-    cosTheta = Z*l / (sqrt(Z*Z) * sqrt(l*l))
-    gamma   = sqrt( 1 + Z_pt**2/Z_mass**2 * cosh(Z_eta)**2 )
-    beta    = sqrt( 1 - 1/gamma**2 )
-    return (-beta + cosTheta) / (1 - beta*cosTheta)
-
 # 4l
 def getDeltaPhi(event, sample=None):
     event.nonZl1_Z1_deltaPhi = deltaPhi(event.lep_phi[event.nonZ1_l1_index_4l], event.Z1_phi_4l)
@@ -114,11 +71,6 @@ def getDeltaR(event, sample=None):
     event.jet1_nonZl1_deltaR = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]})
     event.jet1_nonZl2_deltaR = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
 sequence.append( getDeltaR )
-
-def getCosThetaStar(event, sample=None):
-    event.nonZ1_l1_cosThetaStar = cosThetaStar( event.Z1_mass_4l, event.Z1_pt_4l, event.Z1_eta_4l, event.Z1_phi_4l, event.lep_pt[event.nonZ1_l1_index_4l], event.lep_eta[event.nonZ1_l1_index_4l], event.lep_phi[event.nonZ1_l1_index_4l]) 
-    event.nonZ1_l2_cosThetaStar = cosThetaStar( event.Z1_mass_4l, event.Z1_pt_4l, event.Z1_eta_4l, event.Z1_phi_4l, event.lep_pt[event.nonZ1_l2_index_4l], event.lep_eta[event.nonZ1_l2_index_4l], event.lep_phi[event.nonZ1_l2_index_4l])
-sequence.append( getCosThetaStar )
 
 ## met, ht, nonZ1_pt/eta, Z1_pt, nJet, nBTag, lep1_eta
 #mva_variables =  {
@@ -164,10 +116,8 @@ mva_variables = {
                 # nonZ: M or (DR)
                 "mva_nonZ1_l1_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l1_index_4l]),
 #                "mva_nonZ1_l1_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l1_index_4l]),
-                "mva_nonZ1_l1_cosThetaStar" :(lambda event, sample: event.nonZ1_l1_cosThetaStar),
                 "mva_nonZ1_l2_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l2_index_4l]),
 #                "mva_nonZ1_l2_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l2_index_4l]),
-                "mva_nonZ1_l2_cosThetaStar" :(lambda event, sample: event.nonZ1_l2_cosThetaStar),
 
                 "mva_Z1_pt_4l"              :(lambda event, sample: event.Z1_pt_4l),
                 "mva_Z1_eta_4l"             :(lambda event, sample: event.Z1_eta_4l),
@@ -239,6 +189,14 @@ mlp2 = {
 "name"                : "mlp2",
 "layers"              : [1],
 "color"               : ROOT.kYellow,
+"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
+}
+
+mlp3 = {
+"type"                : ROOT.TMVA.Types.kMLP,
+"name"                : "mlp3",
+"layers"              : [2],
+"color"               : ROOT.kBlue,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
 
