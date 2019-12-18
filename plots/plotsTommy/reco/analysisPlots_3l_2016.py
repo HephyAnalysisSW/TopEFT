@@ -383,6 +383,7 @@ for index, mode in enumerate(allModes):
         lumi_scale                 = data_sample.lumi/1000
 
     if args.noData: lumi_scale = 35.9
+    lumi_scale = 300
     weight_ = lambda event, sample: event.weight
 
     TTZ_mc = TTZtoLLNuNu
