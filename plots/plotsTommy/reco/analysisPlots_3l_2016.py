@@ -83,7 +83,7 @@ def drawPlots(plots, mode, dataMCScale):
 	    plot_directory = plot_directory_,
         extensions = extensions_,
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = True,
+	    logX = False, logY = log, sorting = False, #True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
 	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
@@ -333,6 +333,38 @@ def getLooseLeptonMult( event, sample ):
 
 sequence.append( getLooseLeptonMult )
 
+#MVA
+from Analysis.TMVA.Reader   import Reader
+from TopEFT.MVA.MVA_TWZ     import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
+from TopEFT.MVA.MVA_TWZ     import sequence as mva_sequence
+from TopEFT.MVA.MVA_TWZ     import read_variables as mva_read_variables
+from TopEFT.Tools.user      import mva_directory
+
+sequence.extend( mva_sequence )
+read_variables.extend( mva_read_variables )
+
+reader = Reader(
+    mva_variables    = mva_variables,
+    weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/",
+    label            = "Test")
+
+def makeDiscriminator( mva ):
+    def _getDiscriminator( event, sample ):
+        kwargs = {name:func(event,None) for name, func in mva_variables.iteritems()}
+        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
+        #print mva['name'], getattr( event, mva['name'] )
+    return _getDiscriminator
+
+def discriminator_getter(name):
+    def _disc_getter( event, sample ):
+        return getattr( event, name )
+    return _disc_getter
+
+mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
+for mva in mvas:
+    reader.addMethod(method=mva)
+    sequence.append( makeDiscriminator(mva) )
+
 #
 # Loop over channels
 #
@@ -359,7 +391,7 @@ for index, mode in enumerate(allModes):
         mc             = [ TWZ, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
     else:
         #mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
-        mc             = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]#, Xgamma ]
+        mc             = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]#, Xgamma ]
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc:
@@ -372,6 +404,8 @@ for index, mode in enumerate(allModes):
       sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*event.reweightLeptonSFSyst_tight_3l*event.reweightLeptonTrackingSF_tight_3l*event.reweightTrigger_tight_3l
       tr = triggerSelector(2016)
       sample.setSelectionString([getFilterCut(isData=False), getLeptonSelection(mode), tr.getSelection("MC")])
+
+    yt_TWZ_filter.scale = lumi_scale * 1.07314
 
     if not args.noData:
       stack = Stack(mc, data_sample)
@@ -392,6 +426,13 @@ for index, mode in enumerate(allModes):
       attribute = lambda event, sample: 0.5 + index,
       binning=[4, 0, 4],
     ))
+
+    for mva in mvas:
+        plots.append(Plot(
+            texX = mva['name'], texY = 'Number of Events',
+            name = mva['name'], attribute = discriminator_getter(mva['name']),
+            binning=[25, 0, 1],
+        ))
     
     plots.append(Plot(
       name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',

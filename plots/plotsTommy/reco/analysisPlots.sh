@@ -36,11 +36,13 @@
 #python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1
 #python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet1p
 
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet2p
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2p
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0p
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1
-python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1-njet2p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-btag1p-njet2p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet0p
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1
+#python analysisPlots_4l.py --selection quadlepTWZ-onZ1-noZ2-njet1p
 
+python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ
+python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p

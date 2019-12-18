@@ -24,6 +24,7 @@ read_variables = [\
                     "nonZ1_l1_index_4l/I", "nonZ_l1_index/I",
                     "nonZ1_l2_index_4l/I", "nonZ_l2_index/I",
                     "Z1_pt_4l/F", "Z1_eta_4l/F", "Z1_phi_4l/F", "Z1_mass_4l/F", "Z1_cosThetaStar_4l/F",
+                    "Z_pt/F", "Z_eta/F", "Z_phi/F", "Z_mass/F",
                     "jet[pt/F,eta/F,phi/F,btagDeepCSV/F]",
                     "nMuons_tight_4l/I", "nElectrons_tight_4l/I",
                     "nMuons_tight_3l/I", "nElectrons_tight_3l/I",
@@ -48,28 +49,42 @@ def flavorBin( event, sample=None):
     elif    event.nMuons_tight_4l==2 and event.nElectrons_tight_4l==2: event.flavorBin = 3
     elif    event.nMuons_tight_4l==1 and event.nElectrons_tight_4l==3: event.flavorBin = 4
     elif    event.nMuons_tight_4l==0 and event.nElectrons_tight_4l==4: event.flavorBin = 5    
-sequence.append( flavorBin )
+#sequence.append( flavorBin )
 
-# 4l
 def getDeltaPhi(event, sample=None):
-    event.nonZl1_Z1_deltaPhi = deltaPhi(event.lep_phi[event.nonZ1_l1_index_4l], event.Z1_phi_4l)
-    event.nonZl2_Z1_deltaPhi = deltaPhi(event.lep_phi[event.nonZ1_l2_index_4l], event.Z1_phi_4l)
+    # 4l
+#    event.nonZl1_Z1_deltaPhi = deltaPhi(event.lep_phi[event.nonZ1_l1_index_4l], event.Z1_phi_4l)
+#    event.nonZl2_Z1_deltaPhi = deltaPhi(event.lep_phi[event.nonZ1_l2_index_4l], event.Z1_phi_4l)
+    # 3l
+    event.nonZl1_Z_deltaPhi = deltaPhi(event.lep_phi[event.nonZ_l1_index], event.Z_phi)
 sequence.append( getDeltaPhi )
 
 def getDeltaEta(event, sample=None):
-    event.nonZl1_Z1_deltaEta = abs(event.lep_eta[event.nonZ1_l1_index_4l] - event.Z1_eta_4l) 
-    event.nonZl2_Z1_deltaEta = abs(event.lep_eta[event.nonZ1_l2_index_4l] - event.Z1_eta_4l)
+    # 4l
+#    event.nonZl1_Z1_deltaEta = abs(event.lep_eta[event.nonZ1_l1_index_4l] - event.Z1_eta_4l) 
+#    event.nonZl2_Z1_deltaEta = abs(event.lep_eta[event.nonZ1_l2_index_4l] - event.Z1_eta_4l)
+    # 3l
+    event.nonZl1_Z_deltaEta = abs(event.lep_eta[event.nonZ_l1_index] - event.Z_eta)
 sequence.append( getDeltaEta )
 
 def getDeltaR(event, sample=None):
-    event.nonZl1_Z1_deltaR   = deltaR({'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
-    event.nonZl2_Z1_deltaR   = deltaR({'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
-    event.jet0_Z1_deltaR     = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
-    event.jet0_nonZl1_deltaR = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]})
-    event.jet0_nonZl2_deltaR = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
-    event.jet1_Z1_deltaR     = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
-    event.jet1_nonZl1_deltaR = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]})
-    event.jet1_nonZl2_deltaR = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
+    # 4l
+#    event.nonZl1_Z1_deltaR     = deltaR({'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
+#    event.nonZl2_Z1_deltaR     = deltaR({'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
+#    event.jet0_Z1_deltaR       = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
+#    event.jet0_nonZl1_deltaR   = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]})
+#    event.jet0_nonZl2_deltaR   = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
+#    event.jet1_Z1_deltaR       = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.Z1_eta_4l, 'phi':event.Z1_phi_4l})
+#    event.jet1_nonZl1_deltaR   = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]})
+#    event.jet1_nonZl2_deltaR   = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
+##    event.nonZl1_nonZl2_deltaR = deltaR({'eta':event.lep_eta[event.nonZ1_l1_index_4l], 'phi':event.lep_phi[event.nonZ1_l1_index_4l]}, {'eta':event.lep_eta[event.nonZ1_l2_index_4l], 'phi':event.lep_phi[event.nonZ1_l2_index_4l]})
+
+    # 3l
+    event.nonZl1_Z_deltaR      = deltaR({'eta':event.lep_eta[event.nonZ_l1_index], 'phi':event.lep_phi[event.nonZ_l1_index]}, {'eta':event.Z_eta, 'phi':event.Z_phi})
+    event.jet0_Z_deltaR        = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.Z_eta, 'phi':event.Z_phi})
+    event.jet0_nonZl1_deltaR   = deltaR({'eta':event.jet_eta[0], 'phi':event.jet_phi[0]}, {'eta':event.lep_eta[event.nonZ_l1_index], 'phi':event.lep_phi[event.nonZ_l1_index]})
+    event.jet1_Z_deltaR        = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.Z_eta, 'phi':event.Z_phi})
+    event.jet1_nonZl1_deltaR   = deltaR({'eta':event.jet_eta[1], 'phi':event.jet_phi[1]}, {'eta':event.lep_eta[event.nonZ_l1_index], 'phi':event.lep_phi[event.nonZ_l1_index]})
 sequence.append( getDeltaR )
 
 ## met, ht, nonZ1_pt/eta, Z1_pt, nJet, nBTag, lep1_eta
@@ -113,39 +128,51 @@ mva_variables = {
 
 # 4l
 
-                # nonZ: M or (DR)
-                "mva_nonZ1_l1_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l1_index_4l]),
-#                "mva_nonZ1_l1_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l1_index_4l]),
-                "mva_nonZ1_l2_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l2_index_4l]),
-#                "mva_nonZ1_l2_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l2_index_4l]),
+#                "mva_nonZ1_l1_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l1_index_4l]),
+##                "mva_nonZ1_l1_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l1_index_4l]),
+#                "mva_nonZ1_l2_pt"           :(lambda event, sample: event.lep_pt[event.nonZ1_l2_index_4l]),
+##                "mva_nonZ1_l2_eta"          :(lambda event, sample: event.lep_eta[event.nonZ1_l2_index_4l]),
+##                "mva_nonZl1_nonZl2_deltaR"  :(lambda event, sample: event.nonZl1_nonZl2_deltaR),                
 
-                "mva_Z1_pt_4l"              :(lambda event, sample: event.Z1_pt_4l),
-                "mva_Z1_eta_4l"             :(lambda event, sample: event.Z1_eta_4l),
-                "mva_Z1_cosThetaStar_4l"    :(lambda event, sample: event.Z1_cosThetaStar_4l),
-                "mva_Z1_mass_4l"            :(lambda event, sample: event.Z1_mass_4l),  
-                # DR statt M
+#                "mva_Z1_pt_4l"              :(lambda event, sample: event.Z1_pt_4l),
+#                "mva_Z1_eta_4l"             :(lambda event, sample: event.Z1_eta_4l),
+#                "mva_Z1_cosThetaStar_4l"    :(lambda event, sample: event.Z1_cosThetaStar_4l),
+#                "mva_Z1_mass_4l"            :(lambda event, sample: event.Z1_mass_4l),  
              
-                "mva_nonZl1_Z1_deltaPhi"    :(lambda event, sample: event.nonZl1_Z1_deltaPhi),
-                "mva_nonZl1_Z1_deltaEta"    :(lambda event, sample: event.nonZl1_Z1_deltaEta),
-                "mva_nonZl1_Z1_deltaR"      :(lambda event, sample: event.nonZl1_Z1_deltaR),
+#                "mva_nonZl1_Z1_deltaPhi"    :(lambda event, sample: event.nonZl1_Z1_deltaPhi),
+#                "mva_nonZl1_Z1_deltaEta"    :(lambda event, sample: event.nonZl1_Z1_deltaEta),
+#                "mva_nonZl1_Z1_deltaR"      :(lambda event, sample: event.nonZl1_Z1_deltaR),
+#                "mva_nonZl2_Z1_deltaPhi"    :(lambda event, sample: event.nonZl2_Z1_deltaPhi),
+#                "mva_nonZl2_Z1_deltaEta"    :(lambda event, sample: event.nonZl2_Z1_deltaEta),
+#                "mva_nonZl2_Z1_deltaR"      :(lambda event, sample: event.nonZl2_Z1_deltaR),
 
-                "mva_nonZl2_Z1_deltaPhi"    :(lambda event, sample: event.nonZl2_Z1_deltaPhi),
-                "mva_nonZl2_Z1_deltaEta"    :(lambda event, sample: event.nonZl2_Z1_deltaEta),
-                "mva_nonZl2_Z1_deltaR"      :(lambda event, sample: event.nonZl2_Z1_deltaR),
-
-                "mva_jet0_Z1_deltaR"        :(lambda event, sample: event.jet0_Z1_deltaR        if event.nJetSelected >=1 else -1),
-                "mva_jet0_nonZl1_deltaR"    :(lambda event, sample: event.jet0_nonZl1_deltaR    if event.nJetSelected >=1 else -1),
-                "mva_jet0_nonZl2_deltaR"    :(lambda event, sample: event.jet0_nonZl2_deltaR    if event.nJetSelected >=1 else -1),
-                "mva_jet1_Z1_deltaR"        :(lambda event, sample: event.jet1_Z1_deltaR        if event.nJetSelected >=2 else -1),
-                "mva_jet1_nonZl1_deltaR"    :(lambda event, sample: event.jet1_nonZl1_deltaR    if event.nJetSelected >=2 else -1),
-                "mva_jet1_nonZl2_deltaR"    :(lambda event, sample: event.jet1_nonZl2_deltaR    if event.nJetSelected >=2 else -1),
+#                "mva_jet0_Z1_deltaR"        :(lambda event, sample: event.jet0_Z1_deltaR        if event.nJetSelected >=1 else -1),
+#                "mva_jet0_nonZl1_deltaR"    :(lambda event, sample: event.jet0_nonZl1_deltaR    if event.nJetSelected >=1 else -1),
+#                "mva_jet0_nonZl2_deltaR"    :(lambda event, sample: event.jet0_nonZl2_deltaR    if event.nJetSelected >=1 else -1),
+#                "mva_jet1_Z1_deltaR"        :(lambda event, sample: event.jet1_Z1_deltaR        if event.nJetSelected >=2 else -1),
+#                "mva_jet1_nonZl1_deltaR"    :(lambda event, sample: event.jet1_nonZl1_deltaR    if event.nJetSelected >=2 else -1),
+#                "mva_jet1_nonZl2_deltaR"    :(lambda event, sample: event.jet1_nonZl2_deltaR    if event.nJetSelected >=2 else -1),
 
 # 3l
-#                "mva_nonZ_l1_pt"  :(lambda event, sample: event.lep_pt[event.nonZ_l1_index]),
-#                "mva_nonZ_l1_eta" :(lambda event, sample: event.lep_eta[event.nonZ_l1_index]),
-#                "mva_deltaPhi"    :(lambda event, sample: event.deltaPhi_Z_nonZ_l1),
-#                "mva_deltaEta"    :(lambda event, sample: event.deltaEta_Z_nonZ_l1),
-#                "mva_deltaR"      :(lambda event, sample: event.deltaR_Z_nonZ_l1),
+
+                "mva_nonZ_l1_pt"            :(lambda event, sample: event.lep_pt[event.nonZ_l1_index]),
+#                "mva_nonZ_l1_eta"           :(lambda event, sample: event.lep_eta[event.nonZ_l1_index]),
+                
+                "mva_Z_pt"                  :(lambda event, sample: event.Z_pt),
+                "mva_Z_eta"                 :(lambda event, sample: event.Z_eta),
+                "mva_Z_mass"                :(lambda event, sample: event.Z_mass),
+
+                "mva_nonZl1_Z_deltaPhi"     :(lambda event, sample: event.nonZl1_Z_deltaPhi),
+                "mva_nonZl1_Z_deltaEta"     :(lambda event, sample: event.nonZl1_Z_deltaEta),
+                "mva_nonZl1_Z_deltaR"       :(lambda event, sample: event.nonZl1_Z_deltaR),
+            
+                "mva_jet0_Z_deltaR"         :(lambda event, sample: event.jet0_Z_deltaR         if event.nJetSelected >=1 else -1),
+                "mva_jet0_nonZl1_deltaR"    :(lambda event, sample: event.jet0_nonZl1_deltaR    if event.nJetSelected >=1 else -1),
+                "mva_jet1_Z_deltaR"         :(lambda event, sample: event.jet1_Z_deltaR         if event.nJetSelected >=2 else -1),
+                "mva_jet1_nonZl1_deltaR"    :(lambda event, sample: event.jet1_nonZl1_deltaR    if event.nJetSelected >=2 else -1),
+
+
+            
                 }
 
 bdt1 = {
@@ -195,7 +222,7 @@ mlp2 = {
 mlp3 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp3",
-"layers"              : [2],
+"layers"              : [1,5],
 "color"               : ROOT.kBlue,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
