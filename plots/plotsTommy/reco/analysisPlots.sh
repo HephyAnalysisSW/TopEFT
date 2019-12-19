@@ -46,7 +46,22 @@
 
 #python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ --noData
 #python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p --noData
-python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p-btag1p --noData
-python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p-btag1 --noData
-python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet2p-btag1p --noData
-python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet2p-btag1 --noData
+#python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p-btag1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet1p-btag1 --noData
+#python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet2p-btag1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TWZ_filter_HwH_WZ_TEST --selection trilep-onZ-njet2p-btag1 --noData
+
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet1p-btag1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet1p-btag1 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p-btag1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p-btag1 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p-btag1p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p-btag1 --noData
+##python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p-btag2 --noData
+
+python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p-btag1 --noData
+python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p --noData
+python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p --noData
+python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p --noData

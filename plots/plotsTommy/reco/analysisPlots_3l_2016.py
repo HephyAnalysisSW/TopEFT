@@ -343,15 +343,27 @@ from TopEFT.Tools.user      import mva_directory
 sequence.extend( mva_sequence )
 read_variables.extend( mva_read_variables )
 
-reader = Reader(
-    mva_variables    = mva_variables,
-    weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/",
-    label            = "Test")
+#reader = Reader(
+#    mva_variables    = mva_variables,
+#    weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/",
+#    label            = "Test")
+
+reader_TTZ = Reader(
+    mva_variables     = mva_variables,
+    weight_directory  = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/TTZ/",
+    label             = "Test")
+
+reader_WZ  = Reader(
+    mva_variables     = mva_variables,
+    weight_directory  = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/WZ/",
+    label             = "Test")
 
 def makeDiscriminator( mva ):
     def _getDiscriminator( event, sample ):
         kwargs = {name:func(event,None) for name, func in mva_variables.iteritems()}
-        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
+#        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
+        setattr( event, "TTZ_"+mva['name'], reader_TTZ.evaluate(mva['name'], **kwargs))
+        setattr( event, "WZ_"+mva['name'], reader_WZ.evaluate(mva['name'], **kwargs))
         #print mva['name'], getattr( event, mva['name'] )
     return _getDiscriminator
 
@@ -359,10 +371,12 @@ def discriminator_getter(name):
     def _disc_getter( event, sample ):
         return getattr( event, name )
     return _disc_getter
-
+    
 mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
 for mva in mvas:
-    reader.addMethod(method=mva)
+#    reader.addMethod(method=mva)
+    reader_TTZ.addMethod(method=mva)
+    reader_WZ.addMethod(method=mva)
     sequence.append( makeDiscriminator(mva) )
 
 #
@@ -428,13 +442,61 @@ for index, mode in enumerate(allModes):
       binning=[4, 0, 4],
     ))
 
+#    for mva in mvas:
+#        plots.append(Plot(
+#            texX = mva['name'], texY = 'Number of Events',
+#            name = mva['name'], attribute = discriminator_getter(mva['name']),
+#            binning=[25, 0, 1],
+#        ))
+
+#    for mva in mvas:
+#        plots.append(Plot(
+#            texX = mva['name']+"_coarse", texY = 'Number of Events',
+#            name = mva['name'], attribute = discriminator_getter(mva['name']),
+#            binning=[10, 0, 1],
+#        ))
+
     for mva in mvas:
         plots.append(Plot(
-            texX = mva['name'], texY = 'Number of Events',
-            name = mva['name'], attribute = discriminator_getter(mva['name']),
+            texX = 'TTZ_'+mva['name'], texY = 'Number of Events',
+            name = 'TTZ_'+mva['name'], attribute = discriminator_getter('TTZ_'+mva['name']),
             binning=[25, 0, 1],
         ))
-    
+
+    for mva in mvas:
+        plots.append(Plot(
+            texX = 'TTZ_'+mva['name']+'_coarse', texY = 'Number of Events',
+            name = 'TTZ_'+mva['name']+'_coarse', attribute = discriminator_getter('TTZ_'+mva['name']),
+            binning=[10, 0, 1],
+        ))
+
+    for mva in mvas:
+        plots.append(Plot(
+            texX = 'WZ_'+mva['name'], texY = 'Number of Events',
+            name = 'WZ_'+mva['name'], attribute = discriminator_getter('WZ_'+mva['name']),
+            binning=[25, 0, 1],
+        ))
+
+    for mva in mvas:
+        plots.append(Plot(
+            texX = 'WZ_'+mva['name']+'_coarse', texY = 'Number of Events',
+            name = 'WZ_'+mva['name']+'_coarse', attribute = discriminator_getter('WZ_'+mva['name']),
+            binning=[10, 0, 1],
+        ))
+
+
+    plots.append(Plot(
+        texX = 'TTZ mlp2 WZ bdt1', texY = 'Number of Events',
+        name = 'TTZ_mlp2_WZ_bdt1', attribute = lambda event, sample: event.TTZ_mlp2 if event.WZ_bdt1 > 0.8 else -1,
+        binning=[25, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'TTZ mlp2 WZ bdt1_coarse', texY = 'Number of Events',
+        name = 'TTZ_mlp2_WZ_bdt1_coarse', attribute = lambda event, sample: event.TTZ_mlp2 if event.WZ_bdt1 > 0.8 else -1,
+        binning=[10, 0, 1],
+    ))
+
     plots.append(Plot(
       name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nVert/I" ),
