@@ -21,6 +21,7 @@ read_variables = [\
                     "ht/F",
                     "lep[pt/F,eta/F,phi/F]",
                     "Z_pt/F", "Z_eta/F", "Z_phi/F", "Z_mass/F",
+                    "nonZ_l1_index/I",
                     "jet[pt/F,eta/F,phi/F,btagDeepCSV/F]",
                     "nMuons_tight_3l/I", "nElectrons_tight_3l/I",
                     "nlep/I",
