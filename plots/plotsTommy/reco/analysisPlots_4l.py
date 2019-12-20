@@ -565,10 +565,10 @@ from Analysis.TMVA.Reader        import Reader
 #from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1, bdt2, mlp1
 #from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
 #from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
-from TopEFT.MVA.MVA_TWZ import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
-from TopEFT.MVA.MVA_TWZ import sequence as mva_sequence
-from TopEFT.MVA.MVA_TWZ import read_variables as mva_read_variables
-from TopEFT.Tools.user  import mva_directory
+from TopEFT.MVA.MVA_TWZ_4l import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
+from TopEFT.MVA.MVA_TWZ_4l import sequence as mva_sequence
+from TopEFT.MVA.MVA_TWZ_4l import read_variables as mva_read_variables
+from TopEFT.Tools.user     import mva_directory
 
 sequence.extend( mva_sequence )
 read_variables.extend( mva_read_variables )
