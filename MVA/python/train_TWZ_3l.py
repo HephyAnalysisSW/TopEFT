@@ -45,10 +45,12 @@ signal = yt_TWZ_filter
 #exit()
 
 # WZ
-backgrounds = [ WZ_amcatnlo ]
+#backgrounds = [ WZ_amcatnlo ]
 
 # TTZ
-#backgrounds = [ TTZtoLLNuNu ]
+backgrounds = [ TTZtoLLNuNu ]
+
+#backgrounds = [ WZ_amcatnlo, TTZtoLLNuNu ]
 
 samples = backgrounds + [signal]
 for sample in samples:
