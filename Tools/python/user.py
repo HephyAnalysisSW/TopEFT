@@ -9,7 +9,7 @@ if os.environ['USER'] in ['schoef', 'rschoefbeck', 'schoefbeck']:
     tmp_directory       = "/afs/hephy.at/data/rschoefbeck02/TopEFT_tmp/"
     plot_directory      = "/afs/hephy.at/user/r/rschoefbeck/www/TopEFT/"
     data_directory      = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
-    mva_directory       = "/afs/hephy.at/data/rschoefbeck01/TopEFT_MVA/"
+    mva_directory       = "/afs/hephy.at/data/cms04/ttschida/weights/"
     #data_directory      = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     #postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"
@@ -61,7 +61,7 @@ if os.environ['USER'] in ['ttschida']:
     data_directory                  = "/afs/hephy.at/data/dspitzbart02/cmgTuples/"
     postprocessing_output_directory = "/afs/hephy.at/data/cms04/ttschida/TopEFT/cmgTuples/"
     analysis_results                = results_directory
-    mva_directory                   = "/afs/hephy.at/data/cms04/ttschida/TopEFT/mva/"
+    mva_directory                   = "/afs/hephy.at/data/cms04/ttschida/weights/"
 
     runOnGentT2 = False
 

@@ -61,7 +61,23 @@
 #python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p-btag1 --noData
 ##python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p-btag2 --noData
 
-python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p-btag1 --noData
-python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p --noData
-python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p --noData
-python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p-btag1 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4p --noData
+
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2p-btag2 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2-btag2 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3-btag2p --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3-btag2 --noData
+
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet2 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet3 --noData
+#python analysisPlots_3l_2016.py --plot_directory TEST --selection trilep-onZ-njet4 --noData
+
+
+python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet2p-btag1p --noData
+python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet2p-btag1 --noData
+python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet3p-btag1p --noData
+python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet3p-btag1 --noData
+

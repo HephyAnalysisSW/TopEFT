@@ -10,7 +10,7 @@ import itertools
 
 from math                         import sqrt, cos, sin, pi, acos, cosh
 from RootTools.core.standard      import *
-from TopEFT.Tools.user            import plot_directory
+from TopEFT.Tools.user            import plot_directory, mva_directory
 from TopEFT.Tools.helpers         import deltaPhi, getObjDict, getVarValue, deltaR, deltaR2
 from TopEFT.Tools.objectSelection import getFilterCut
 from TopEFT.Tools.cutInterpreter  import cutInterpreter
@@ -350,12 +350,12 @@ read_variables.extend( mva_read_variables )
 
 reader_TTZ = Reader(
     mva_variables     = mva_variables,
-    weight_directory  = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/TTZ/",
+    weight_directory  = os.path.join( mva_directory, "3l", "TTZ"),
     label             = "Test")
 
 reader_WZ  = Reader(
     mva_variables     = mva_variables,
-    weight_directory  = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/WZ/",
+    weight_directory  = os.path.join( mva_directory, "3l", "WZ"),
     label             = "Test")
 
 def makeDiscriminator( mva ):
