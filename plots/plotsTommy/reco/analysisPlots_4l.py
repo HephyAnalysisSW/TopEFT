@@ -37,6 +37,7 @@ argParser.add_argument('--plot_directory',      action='store',      default='an
 argParser.add_argument('--selection',           action='store',      default='quadlepTWZ-onZ1-noZ2')  # quadlep-lepSelQuad-njet2p-btag0p-onZ1-offZ2 or quadlep-lepSelQuad-njet2p-btag1p-onZ1-offZ2 for signal regions
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
 argParser.add_argument('--WZpowheg',            action='store_true', default=False,             help="Use WZ powheg sample" )
+argParser.add_argument('--nominalSignal',      action='store_true', default=False,             help="Use the nominal signal sample?" )
 argParser.add_argument('--WZmllmin01',          action='store_true', default=False,             help="Use WZ mllmin01 sample" )
 argParser.add_argument('--DYincl',              action='store_true', default=False,             help="Use inclusive DY sample (for dilep)" )
 argParser.add_argument('--year',                action='store',      default=2016,   type=int,  help="Which year?" )
@@ -621,10 +622,13 @@ for index, mode in enumerate(allModes):
     
     TTZ_mc = TTZtoLLNuNu
 
+
+    TWZ_sample = TWZ if args.nominalSignal else yt_TWZ_filter
     if args.year == 2016:
         # TWZ
         #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        #mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        mc              = [ TWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
         # TZZ 
         #mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare_for_TZZ ]
         
@@ -633,6 +637,7 @@ for index, mode in enumerate(allModes):
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
     else:
         mc             = [ TTZtoLLNuNu_17, TTX_17, rare_17, ZZ_17 ]
+        raise NotImplementedError
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 

@@ -27,6 +27,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='analysisPlots_3l_2016')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-min_mll12-njet1p-btag0-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
+argParser.add_argument('--nominalSignal',      action='store_true', default=False,             help="Use the nominal signal sample?" )
 argParser.add_argument('--WZpowheg',           action='store_true', default=False,             help="Use WZ powheg sample" )
 args = argParser.parse_args()
 
@@ -41,6 +42,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 if args.small:                        args.plot_directory += "_small"
 if args.noData:                       args.plot_directory += "_noData"
 if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
+if args.nominalSignal:                args.plot_directory += "_nominalSignal"
 if args.normalize: args.plot_directory += "_normalize"
 #
 # Make samples, will be searched for in the postProcessing directory
@@ -402,11 +404,13 @@ for index, mode in enumerate(allModes):
 
     TTZ_mc = TTZtoLLNuNu
 
+    tWZ_sample = TWZ if args.nominalSignal else yt_TWZ_filter
+
     if args.WZpowheg:
-        mc             = [ TWZ, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
+        mc             = [ tWZ_sample, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
     else:
         #mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
-        mc             = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]#, Xgamma ]
+        mc             = [ tWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]#, Xgamma ]
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc:
