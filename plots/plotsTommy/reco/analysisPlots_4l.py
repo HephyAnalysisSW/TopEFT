@@ -31,6 +31,8 @@ argParser.add_argument('--signal',             action='store',      default=None
 argParser.add_argument('--onlyTTZ',            action='store_true', default=False,           help="Plot only ttZ")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+argParser.add_argument('--noNonPrompt',                             action='store_true',     help='Exclude non prompt??' )
+argParser.add_argument('--sorting',                                 action='store_true',     help='Sorting?', )
 argParser.add_argument('--TTZ_LO',                                   action='store_true',     help='Use LO TTZ?', )
 argParser.add_argument('--reweightPtZToSM',     action='store_true', help='Reweight Pt(Z) to the SM for all the signals?', )
 argParser.add_argument('--plot_directory',      action='store',      default='analysisPlots_4l')
@@ -59,11 +61,14 @@ logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
+if args.noNonPrompt:                  args.plot_directory += "_noNonPrompt"
+if args.sorting:                      args.plot_directory += "_sorting"
 if args.noData:                       args.plot_directory += "_noData"
 if args.signal:                       args.plot_directory += "_signal_"+args.signal
 if args.onlyTTZ:                      args.plot_directory += "_onlyTTZ"
 if args.TTZ_LO:                       args.plot_directory += "_TTZ_LO"
 if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
+if args.nominalSignal:                args.plot_directory += "_nominalSignal"
 if args.WZmllmin01:                   args.plot_directory += "_WZmllmin01"
 if args.normalize: args.plot_directory += "_normalize"
 if args.reweightPtZToSM: args.plot_directory += "_reweightPtZToSM"
@@ -147,8 +152,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Preliminary' if plotData else 'CMS Simulation'), 
-      (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale)
+      (0.15, 0.95, 'CMS Preliminary' if plotData else 'Simulation'), 
+      (0.45, 0.95, 'L=%i fb^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%i fb^{-1} (13 TeV)' % lumi_scale)
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
@@ -168,10 +173,10 @@ def drawPlots(plots, mode, dataMCScale):
 	    plot_directory = plot_directory_,
         extensions = extensions_,
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = False, #True,
-	    yRange = (0.03, "auto") if log else (0.001, "auto"),
+	    logX = False, logY = log, sorting = args.sorting, #True,
+	    yRange = (0.8, "auto") if log else (0.001, "auto"),
 	    scaling = scaling if args.normalize else {},
-	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
+	    legend = [ (0.19,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
         copyIndexPHP = True,
       )
@@ -514,23 +519,25 @@ def getCond(*args):
     return _condition
     
 
-flavor_sign_bins = [  {"name":"e^{#pm} e^{#mp}",            "condition":getCond("nonZ1_l_ee", "nonZ1_l_OS")},
-                      {"name":"#mu^{#pm} #mu^{#mp}",        "condition":getCond("nonZ1_l_mumu","nonZ1_l_OS")},
+flavor_sign_bins = [  
+                      {"name":"l^{#pm} l^{#mp}",            "condition":getCond("nonZ1_l_SF", "nonZ1_l_OS")},
+#                      {"name":"e^{#pm} e^{#mp}",            "condition":getCond("nonZ1_l_ee", "nonZ1_l_OS")},
+#                      {"name":"#mu^{#pm} #mu^{#mp}",        "condition":getCond("nonZ1_l_mumu","nonZ1_l_OS")},
                       {"name":"e^{#pm} #mu^{#mp}",          "condition":getCond("nonZ1_l_OF","nonZ1_l_OS")},
                       {"name":"e^{#plus} e^{#plus}",        "condition":getCond("nonZ1_l_ee","nonZ1_l_SSp")},
                       {"name":"e^{#minus} e^{#minus}",      "condition":getCond("nonZ1_l_ee","nonZ1_l_SSm")},
                       {"name":"#mu^{#plus} #mu^{#plus}",    "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSp")},
                       {"name":"#mu^{#minus} #mu^{#minus}",  "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSm")},
-                      {"name":"l^{#plus} #bar{l}^{#plus}",  "condition":getCond("nonZ1_l_OF","nonZ1_l_SSp")},
-                      {"name":"l^{#minus} #bar{l}^{#minus}","condition":getCond("nonZ1_l_OF","nonZ1_l_SSm")}
+                      {"name":"e^{#plus} #mu^{#plus}",      "condition":getCond("nonZ1_l_OF","nonZ1_l_SSp")},
+                      {"name":"e^{#minus} #mu^{#minus}", "condition":getCond("nonZ1_l_OF","nonZ1_l_SSm")}
                     ]
 
 def find_flavor_sign_bin( event, sample ):
-    #event.flavor_bin = [_bin("condition")(event, sample) for _bin in flavor_sign_bins]
     event.flavor_bin = -1
     for i, _bin in enumerate(flavor_sign_bins):
         if _bin["condition"](event, sample):
             event.flavor_bin = i
+            break
             #print "PDG1:", event.lep_pdgId[event.nonZ1_l1_index_4l]
             #print "PDG2:", event.lep_pdgId[event.nonZ1_l2_index_4l]
             #print "Bin:", i, _bin["name"]
@@ -582,8 +589,13 @@ reader = Reader(
 def makeDiscriminator( mva ):
     def _getDiscriminator( event, sample ):
         kwargs = {name:func(event, None) for name, func in mva_variables.iteritems()}
-        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
-        #print mva['name'], getattr( event, mva['name'] ) 
+        val = reader.evaluate(mva['name'], **kwargs)
+        
+        # stretch
+        if 'mlp' in mva['name']:
+            val = max( 0, min( 1, 0.5 + 1.15*(val-0.5) ) )
+        
+        setattr( event, mva['name'], val)
     return _getDiscriminator
 
 def discriminator_getter(name):
@@ -626,18 +638,24 @@ for index, mode in enumerate(allModes):
     TWZ_sample = TWZ if args.nominalSignal else yt_TWZ_filter
     if args.year == 2016:
         # TWZ
-        #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        #mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        mc              = [ TWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, rare, ZZ, nonprompt_TWZ_4l ]
+        #mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, rare, ZZ, nonprompt_TWZ_4l ]
+        mc              = [ TWZ_sample, TTZ_mc, TTX_rare_TWZ, rare, ZZ ]
+        if not args.noNonPrompt:
+            mc.append( nonprompt_TWZ_4l )
         # TZZ 
-        #mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare_for_TZZ ]
+        #mc              = [ yt_TZZ, ZZ, TTZ_mc, rare, nonprompt_TWZ_4l, TTX_rare_for_TZZ ]
         
-        #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
-        #mc             = [ TTWW, TTW, TTZtoLLNuNu, WZ_amcatnlo, nonpromptMC, TTX_rare2, rare, ZZ ]
+        #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonprompt_TWZ_4l, TTX_rare2, rare, ZZ ]
+        #mc             = [ TTWW, TTW, TTZtoLLNuNu, nonprompt_TWZ_4l, TTX_rare2, rare, ZZ ]
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
     else:
         mc             = [ TTZtoLLNuNu_17, TTX_17, rare_17, ZZ_17 ]
         raise NotImplementedError
+
+    # specifications
+    TTZtoLLNuNu.texName = "t#bar{t}Z" 
+    TZQ.color           = ROOT.kRed - 9
 
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -677,10 +695,11 @@ for index, mode in enumerate(allModes):
     ))
 
     plots.append(Plot(
-      name = 'flavor', texX = 'flavor', texY = 'Number of Events',
+      name = 'flavor', texX = '', texY = 'Number of Events',
       attribute = lambda event, sample: event.flavor_bin,
-      binning=[len(flavor_sign_bins)+1, -1, len(flavor_sign_bins)],
+      binning=[len(flavor_sign_bins), 0, len(flavor_sign_bins)],
     ))
+
 ###########################
     for mva in mvas:
         plots.append(Plot(
@@ -980,7 +999,7 @@ for index, mode in enumerate(allModes):
         for i, l in enumerate(plot.histos):
           for j, h in enumerate(l):
             for k, _bin in enumerate(flavor_sign_bins):
-                h.GetXaxis().SetBinLabel(k+2, _bin["name"])
+                h.GetXaxis().SetBinLabel(k+1, _bin["name"])
     if args.noData: yields[mode]["data"] = 0
 
     yields[mode]["MC"] = sum(yields[mode][s.name] for s in mc)

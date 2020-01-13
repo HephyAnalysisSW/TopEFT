@@ -24,6 +24,7 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
+argParser.add_argument('--sorting',                                 action='store_true',     help='Sort MCs?', )
 argParser.add_argument('--plot_directory',     action='store',      default='analysisPlots_3l_2016')
 argParser.add_argument('--selection',          action='store',      default='trilep-Zcand-lepSelTTZ-min_mll12-njet1p-btag0-onZ')
 argParser.add_argument('--normalize',           action='store_true', default=False,             help="Normalize yields" )
@@ -40,6 +41,7 @@ logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 if args.small:                        args.plot_directory += "_small"
+if args.sorting:                      args.plot_directory += "_sorting"
 if args.noData:                       args.plot_directory += "_noData"
 if args.WZpowheg:                     args.plot_directory += "_WZpowheg"
 if args.nominalSignal:                args.plot_directory += "_nominalSignal"
@@ -63,8 +65,8 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     tex.SetTextSize(0.04)
     tex.SetTextAlign(11) # align right
     lines = [
-      (0.15, 0.95, 'CMS Preliminary' if plotData else 'CMS Simulation'), 
-      (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%3.1f fb{}^{-1} (13 TeV)' % lumi_scale)
+      (0.15, 0.95, 'CMS Preliminary' if plotData else 'Simulation'), 
+      (0.45, 0.95, 'L=%i fb^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%i fb^{-1} (13 TeV)' % lumi_scale)
     ]
     return [tex.DrawLatex(*l) for l in lines] 
 
@@ -82,14 +84,14 @@ def drawPlots(plots, mode, dataMCScale):
       extensions_ = ["pdf", "png", "root"] if mode == 'all' else ['png']
 
       plotting.draw(plot,
-	    plot_directory = plot_directory_,
+        plot_directory = plot_directory_,
         extensions = extensions_,
-	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
-	    logX = False, logY = log, sorting = False, #True,
-	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = scaling if args.normalize else {},
-	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
-	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ) if not args.normalize else drawObjects( not args.noData, 1.0 , lumi_scale ),
+        ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
+        logX = False, logY = log, sorting = args.sorting, #True,
+        yRange = (0.8, "auto") if log else (0.001, "auto"),
+        scaling = scaling if args.normalize else {},
+        legend = [ (0.19,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
+        drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ) if not args.normalize else drawObjects( not args.noData, 1.0 , lumi_scale ),
         copyIndexPHP = True,
       )
 
@@ -398,21 +400,24 @@ for index, mode in enumerate(allModes):
         data_sample.style          = styles.errorStyle(ROOT.kBlack)
         lumi_scale                 = data_sample.lumi/1000
 
-    if args.noData: lumi_scale = 35.9
     lumi_scale = 300
     weight_ = lambda event, sample: event.weight
 
     TTZ_mc = TTZtoLLNuNu
-
     tWZ_sample = TWZ if args.nominalSignal else yt_TWZ_filter
 
     if args.WZpowheg:
-        mc             = [ tWZ_sample, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonpromptMC, Xgamma ]
+        mc             = [ tWZ_sample, TTZ_mc , TTX, WZ_powheg, rare, ZZ, nonprompt_TWZ_3l, Xgamma ]
     else:
-        #mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonpromptMC, Xgamma ]
-        mc             = [ tWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]#, Xgamma ]
-    for sample in mc: sample.style = styles.fillStyle(sample.color)
+        #mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonprompt_TWZ_3l, Xgamma ]
+        mc             = [ tWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonprompt_TWZ_3l ]#, Xgamma ]
 
+    # specifications
+    TTZtoLLNuNu.texName = "t#bar{t}Z" 
+    TZQ.color           = ROOT.kRed - 9
+
+    for sample in mc: sample.style = styles.fillStyle(sample.color)
+    
     for sample in mc:
       sample.scale          = lumi_scale
       #if args.WZpowheg and sample in [WZ_powheg]:
@@ -439,7 +444,7 @@ for index, mode in enumerate(allModes):
     Plot.setDefaults(stack = stack, weight = staticmethod(weight_), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
 
     plots = []
-    
+
     plots.append(Plot(
       name = 'yield', texX = 'yield', texY = 'Number of Events',
       attribute = lambda event, sample: 0.5 + index,
@@ -452,7 +457,7 @@ for index, mode in enumerate(allModes):
 #            name = mva['name'], attribute = discriminator_getter(mva['name']),
 #            binning=[25, 0, 1],
 #        ))
-
+#
 #    for mva in mvas:
 #        plots.append(Plot(
 #            texX = mva['name']+"_coarse", texY = 'Number of Events',
@@ -471,7 +476,8 @@ for index, mode in enumerate(allModes):
         plots.append(Plot(
             texX = 'TTZ_'+mva['name']+'_coarse', texY = 'Number of Events',
             name = 'TTZ_'+mva['name']+'_coarse', attribute = discriminator_getter('TTZ_'+mva['name']),
-            binning=[10, 0, 1],
+            #binning=[10, 0, 1],
+            binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
         ))
 
     for mva in mvas:
@@ -485,7 +491,8 @@ for index, mode in enumerate(allModes):
         plots.append(Plot(
             texX = 'WZ_'+mva['name']+'_coarse', texY = 'Number of Events',
             name = 'WZ_'+mva['name']+'_coarse', attribute = discriminator_getter('WZ_'+mva['name']),
-            binning=[10, 0, 1],
+            #binning=[10, 0, 1],
+            binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
         ))
 
 
@@ -498,7 +505,8 @@ for index, mode in enumerate(allModes):
     plots.append(Plot(
         texX = 'TTZ mlp2 WZ bdt1_coarse', texY = 'Number of Events',
         name = 'TTZ_mlp2_WZ_bdt1_coarse', attribute = lambda event, sample: event.TTZ_mlp2 if event.WZ_bdt1 > 0.8 else -1,
-        binning=[10, 0, 1],
+        binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
+        #binning=[10, 0, 1],
     ))
 
     plots.append(Plot(
@@ -506,57 +514,57 @@ for index, mode in enumerate(allModes):
       attribute = TreeVariable.fromString( "nVert/I" ),
       binning=[50,0,50],
     ))
-    
+
     plots.append(Plot(
         texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "met_pt/F" ),
         binning=[400/20,0,400],
     ))
-    
+
     plots.append(Plot(
         texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "met_phi/F" ),
         binning=[10,-pi,pi],
     ))
-    
+
     plots.append(Plot(
         texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[20,0,400],
     ))
-    
+
     plots.append(Plot(
         name = "W_pt",
         texX = 'p_{T}(W) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = lambda event, sample:event.W_pt,
         binning=[20,0,400],
     ))
-    
+
     plots.append(Plot(
         name = 'Z_pt_coarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 50 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[16,0,800],
     ))
-    
+
     plots.append(Plot(
         name = 'Z_pt_superCoarse', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[3,0,600],
     ))
-    
+
     plots.append(Plot(
         name = 'Z_pt_analysis', texX = 'p_{T}(ll) (GeV)', texY = 'Number of Events / 100 GeV',
         attribute = TreeVariable.fromString( "Z_pt/F" ),
         binning=[4,0,400],
     ))
-    
+
     plots.append(Plot(
         name = "invM_3l",
         texX = 'M(3l) (GeV)', texY = 'Number of Events',
         attribute = lambda event, sample:event.threelmass,
         binning=[25,0,500],
     ))
-    
+
     plots.append(Plot(
         texX = '#Delta#phi(ll)', texY = 'Number of Events',
         attribute = TreeVariable.fromString( "Z_lldPhi/F" ),
@@ -569,7 +577,7 @@ for index, mode in enumerate(allModes):
         attribute = lambda event, sample:event.dPhiZLep,
         binning=[10,0,pi],
     ))
-    
+
     #plots.append(Plot(
     #    name = "O2_sign",
     #    texX = 'O2/|O2|', texY = 'Number of Events',
@@ -633,7 +641,7 @@ for index, mode in enumerate(allModes):
     #    binning=[20,0,200],
     #))
 
-    
+
     #plots.append(Plot(
     #    name = "nForwardJet_Pt30_eta3",
     #    texX = 'nJet p_{T}(j)>30 GeV', texY = 'Number of Events',
@@ -668,61 +676,61 @@ for index, mode in enumerate(allModes):
     #    attribute = lambda event, sample:event.nJetForward70_eta3,
     #    binning=[10,0,10],
     #))
-    
+
     #plots.append(Plot( #FIXME -> what is this? Didn't understand the formula
     #    name = "dPhiZL_RF",
     #    texX = '#Delta#phi(Z,l) in Z RF', texY = 'Number of Events',
     #    attribute = lambda event, sample:event.dPhiZLep_RF,
     #    binning=[10,0,pi],
     #))
-    
+
     plots.append(Plot(
         name = "dPhiZJet",
         texX = '#Delta#phi(Z,j1)', texY = 'Number of Events',
         attribute = lambda event, sample:event.dPhiZJet,
         binning=[10,0,pi],
     ))
-    
+
     plots.append(Plot(
         name = "lZ1_pt",
         texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
         binning=[30,0,300],
     ))
-    
+
     plots.append(Plot(
         name = "lZ1_pt_coarse",
         texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 40 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
         binning=[10,0,400],
     ))
-    
+
     plots.append(Plot(
         name = 'lZ1_pt_ext', texX = 'p_{T}(l_{1,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l1_index],
         binning=[20,40,440],
     ))
-    
+
     plots.append(Plot(
         name = "lZ2_pt",
         texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
         binning=[20,0,200],
     ))
-    
+
     plots.append(Plot(
         name = "lZ2_pt_coarse",
         texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 10 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
         binning=[10,0,200],
     ))
-    
+
     plots.append(Plot(
         name = 'lZ2_pt_ext', texX = 'p_{T}(l_{2,Z}) (GeV)', texY = 'Number of Events / 20 GeV',
         attribute = lambda event, sample:event.lep_pt[event.Z_l2_index],
         binning=[20,0,400],
     ))
-    
+
     plots.append(Plot(
         name = 'lnonZ1_pt',
         texX = 'p_{T}(l_{1,extra}) (GeV)', texY = 'Number of Events / 20 GeV',
@@ -770,25 +778,37 @@ for index, mode in enumerate(allModes):
         attribute = TreeVariable.fromString( "Z_mass/F" ),
         binning=[50,20,120],
     ))
-    
+
     plots.append(Plot(
       texX = 'N_{jets}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nJetSelected/I" ), #nJetSelected
       binning=[8,-0.5,7.5],
     ))
-    
+
     plots.append(Plot(
       texX = 'N_{b-tag}', texY = 'Number of Events',
       attribute = TreeVariable.fromString( "nBTag/I" ), #nJetSelected
       binning=[4,-0.5,3.5],
     ))
-    
+
     plots.append(Plot(
       texX = 'N_{l, loose}', texY = 'Number of Events',
       name = 'nLepLoose', attribute = lambda event, sample: event.nLepLoose,
       binning=[5,2.5,7.5],
     ))
-    
+
+    def set_ndiv(h):
+        h.GetXaxis().SetNdivisions(2)
+        h.GetXaxis().SetBinLabel( 1, "N_{lep}=3")
+        h.GetXaxis().SetBinLabel( 2, "N_{lep}=4")
+
+    plots.append(Plot(
+      texX = '', texY = 'Number of Events',
+      name = 'nLepLoose_3To4', attribute = lambda event, sample: event.nLepLoose,
+      binning=[2,3,5],
+    ))
+    plots[-1].histModifications = [set_ndiv]
+
     plots.append(Plot(
       texX = 'p_{T}(leading l) (GeV)', texY = 'Number of Events / 20 GeV',
       name = 'lep1_pt', attribute = lambda event, sample: event.lep_pt[0],
@@ -806,7 +826,7 @@ for index, mode in enumerate(allModes):
       name = 'lep3_pt', attribute = lambda event, sample: event.lep_pt[2],
       binning=[150/10,0,150],
     ))
-    
+
     #plots.append(Plot(
     #  texX = 'p_{T}(Z l+) (GeV)', texY = 'Number of Events / 10 GeV',
     #  name = 'lZp_pt', attribute = lambda event, sample: event.lZp_pt,
@@ -818,13 +838,13 @@ for index, mode in enumerate(allModes):
     #  name = 'lZm_pt', attribute = lambda event, sample: event.lZm_pt,
     #  binning=[20,0,200],
     #))
-    
+
     plots.append(Plot(
       texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
       name = 'jet1_pt', attribute = lambda event, sample: event.jet_pt[0],
       binning=[600/30,0,600],
     ))
-    
+
     plots.append(Plot(
       texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
       name = 'jet2_pt', attribute = lambda event, sample: event.jet_pt[1],
@@ -953,25 +973,25 @@ for index, mode in enumerate(allModes):
     #    attribute = lambda event, sample:event.minMLepB,
     #    binning=[15,0,300],
     #))
-    
+
     #plots.append(Plot(
     #    name = "LP_superCoarse", texX = 'L_{P}', texY = 'Number of Events / 0.6',
     #    attribute = lambda event, sample:event.Lp,
     #    binning=[3,-0.6,1.2],
     #))
-    
+
     plots.append(Plot(
         name = "LP_coarse", texX = 'L_{P}', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.Lp,
         binning=[10,-1,1],
     ))
-    
+
     plots.append(Plot(
         name = "LP", texX = 'L_{P}', texY = 'Number of Events / 0.1',
         attribute = lambda event, sample:event.Lp,
         binning=[20,-1,1],
     ))
-    
+
     plots.append(Plot(
         name = "LP_wide", texX = 'L_{P}', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.Lp,
@@ -1001,7 +1021,7 @@ for index, mode in enumerate(allModes):
     #    attribute = lambda event, sample:event.deltaPhi_tl,
     #    binning=[4,0,3.2],
     #))
-    
+
     #plots.append(Plot(
     #    name = "deltaPhi_tl_topRF", texX = '#Delta#phi_{t,l} in t RF', texY = 'Number of Events / 0.2',
     #    attribute = lambda event, sample:event.deltaPhi_tl_topRF,
@@ -1061,19 +1081,19 @@ for index, mode in enumerate(allModes):
     #    attribute = lambda event, sample:event.dEta_Zl2,
     #    binning=[16,0,4],
     #))
-    
+
     plots.append(Plot(
         name = "cosThetaStar", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.2',
         attribute = lambda event, sample:event.cosThetaStar,
         binning=[10,-1,1],
     ))
-    
+
     plots.append(Plot(
         name = "cosThetaStar_coarse", texX = 'cos#theta(l-)', texY = 'Number of Events / 0.4',
         attribute = lambda event, sample:event.cosThetaStar,
         binning=[5,-1,1],
     ))
-    
+
     plotting.fill(plots, read_variables = read_variables, sequence = sequence)
 
     # Get normalization yields from yield histogram

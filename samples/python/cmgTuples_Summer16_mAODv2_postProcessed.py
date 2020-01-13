@@ -51,6 +51,7 @@ dirs['TTWW']            = ['TTWW']
 dirs['TTWZ']            = ['TTWZ']
 dirs['TTX_rare']        = ["TTTT", "tZq_ll_ext","TTHnobb_pow", "THW", "THQ", "TTZZ","TTZToLLNuNu_m1to10"] # everything except ttZ and t(t)gamma
 dirs['TTX_rare_TWZ']    = ["TTTT", "TTHnobb_pow", "THW", "THQ", "TTZZ", "TTZToLLNuNu_m1to10"] # same as TTX_rare but without tZq_ll_ext
+dirs['TTX_rare_TWZ']    = ["TTTT", "TTHnobb_pow", "THW", "THQ", "TTZZ", "TTZToLLNuNu_m1to10"] # same as TTX_rare but without tZq_ll_ext
 
 dirs['TTLep_pow']       = ['TTLep_pow']
 dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_powheg']
@@ -59,7 +60,8 @@ dirs['singleTop']       = ['TToLeptons_sch_amcatnlo', 'T_tch_powheg', 'TBar_tch_
 dirs['DY_LO']              = ['DYJetsToLL_M50_LO_ext_comb'] #,'DYJetsToLL_M10to50_LO']
 #dirs['DY
 
-dirs['nonprompt']       = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
+dirs['nonprompt_TWZ_3l']    = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop']
+dirs['nonprompt_TWZ_4l']    = ['TTLep_pow'] + dirs['DY_LO'] + dirs['singleTop'] + dirs['TZQ'] + dirs["WZ_powheg"] 
 
 dirs['ZZ']              = ['ZZTo4L']#,'GluGluToZZTo2e2mu','GluGluToZZTo4e','GluGluToZZTo4mu','GluGluToZZTo2mu2tau','GluGluToZZTo2e2tau','GGHZZ4L','QQHZZ4L','WmHZZ4L','WpHZZ4L','ZHZZ4LF'] 
 #dirs['rare']            = ['WGToLNuG','WZG','WWW', 'WWZ', 'WZZ', 'ZZZ','WWDoubleTo2L']
@@ -75,7 +77,7 @@ dirs['ewkDM_ttZ_ll_noH']            = ["ewkDM_ttZ_ll_noH"]
 
 dirs['TTTT']            = ['TTTT']
 
-dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_powheg"] + dirs['TTW'] + dirs['TTX'] + dirs['rare'] + dirs['nonprompt'] +dirs['ZZ']
+dirs['pseudoData']      = dirs['TTZtoLLNuNu'] + dirs["WZ_powheg"] + dirs['TTW'] + dirs['TTX'] + dirs['rare'] + dirs['nonprompt_TWZ_3l'] +dirs['ZZ']
 #dirs['pseudoDataPriv']  = dirs['ewkDM_ttZ_ll_noH'] + dirs["WZ"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare'] + dirs['nonprompt']
 
 dirs['background']      = dirs["WZ_amcatnlo"] + dirs['TTW'] + dirs['TTX'] + dirs['TZQ'] + dirs['rare']
@@ -108,7 +110,7 @@ TTW             = Sample.fromDirectory(name="TTW",              treeName="Events
 TTWW            = Sample.fromDirectory(name="TTWW",             treeName="Events", isData=False, color=ROOT.kRed,               texName="TTWW",                                 directory=directories['TTWW'])
 TTWZ            = Sample.fromDirectory(name="TTWZ",             treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="TTWZ",                                 directory=directories['TTWZ'])
 TTX_rare        = Sample.fromDirectory(name="TTX_rare",         treeName="Events", isData=False, color=ROOT.kOrange+7,          texName="TTX(rare)",                            directory=directories['TTX_rare'])
-TTX_rare_TWZ    = Sample.fromDirectory(name="TTX_rare_TWZ",     treeName="Events", isData=False, color=ROOT.kRed-10,            texName="TTX(rare)",                            directory=directories['TTX_rare_TWZ'])
+TTX_rare_TWZ    = Sample.fromDirectory(name="TTX_rare_TWZ",     treeName="Events", isData=False, color=ROOT.kRed-10,            texName="t#bar{t}+(H/t#bar{t}/VV)",                            directory=directories['TTX_rare_TWZ'])
 TTTT            = Sample.fromDirectory(name="TTTT",             treeName="Events", isData=False, color=ROOT.kYellow,            texName="TTTT",                                 directory=directories['TTTT'])
 
 ZZ              = Sample.fromDirectory(name="ZZ",               treeName="Events", isData=False, color=color.ZZ,                texName="ZZ",                                   directory=directories['ZZ'])
@@ -121,7 +123,8 @@ ZGTo2LG         = Sample.fromDirectory(name="ZGTo2LG",          treeName="Events
 Xgamma          = Sample.fromDirectory(name="Xgamma",           treeName="Events", isData=False, color=color.ZG,                texName="X#gamma",                               directory=directories['Xgamma'])
 DY_LO           = Sample.fromDirectory(name="DY_LO",            treeName="Events", isData=False, color=color.DY,                texName="DY (LO)",                              directory=directories['DY_LO'])
 #DY_HT_LO        = Sample.fromDirectory(name="DY_HT_LO",         treeName="Events", isData=False, color=ROOT.kBlue+1,            texName="DY HT (LO)",                           directory=directories['DY_HT_LO'])
-nonpromptMC     = Sample.fromDirectory(name="nonprompt",        treeName="Events", isData=False, color=color.nonprompt,         texName="nonprompt (MC)",                       directory=directories['nonprompt'])
+nonprompt_TWZ_3l= Sample.fromDirectory(name="nonprompt_TWZ_3l", treeName="Events", isData=False, color=color.nonprompt,         texName="non prompt",                           directory=directories['nonprompt_TWZ_3l'])
+nonprompt_TWZ_4l= Sample.fromDirectory(name="nonprompt_TWZ_4l", treeName="Events", isData=False, color=color.nonprompt,         texName="non prompt",                           directory=directories['nonprompt_TWZ_4l'])
 TTLep_pow       = Sample.fromDirectory(name="TTLep_pow",        treeName="Events", isData=False, color=color.TTJets,            texName="t#bar{t}(2l)",                          directory=directories['TTLep_pow'])
 singleTop       = Sample.fromDirectory(name="singleTop",        treeName="Events", isData=False, color=color.singleTop,         texName="t/#bar{t}",                             directory=directories['singleTop'])
 background      = Sample.fromDirectory(name="background",       treeName="Events", isData=False, color=color.nonprompt,         texName="background",                           directory=directories['background'])
