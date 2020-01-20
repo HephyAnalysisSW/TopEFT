@@ -129,7 +129,7 @@
 
 #python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample dim6top_ttW #SPLIT50 
 #python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v22 --sample yt_tZZ #SPLIT50
-python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample yt_tWW #SPLIT50
+python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v22 --sample yt_tWW #SPLIT50
 #python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample yt_tWZ #SPLIT50
 #python cmgPostProcessing.py --skim dilepTiny --forceProxy --addReweights --overwrite --fileBasedSplitting --remakeTTVLeptonMVA --year 2016 --keepLHEWeights --processingEra TopEFT_PP_2016_mva_v21 --sample yt_tWZ_filter #SPLIT50
 
