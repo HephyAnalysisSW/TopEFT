@@ -195,7 +195,7 @@ from CMGTools.StopsDilepton.ttX0j_5f_MLM_signals_RunIISummer16MiniAODv2 import s
 signal_0j_0l_heppy_mapper = heppy_mapper( ttX0j_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading)
 
 # Private signal EFT MC 
-signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_eft_signals_RunIISummer16MiniAODv3_2016_1l_4.pkl'
+signal_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_signal_eft_signals_RunIISummer16MiniAODv3_2016_1l_5.pkl'
 robert = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/2016_1l_v16']
 signal_dpm_directories = robert
 from CMGTools.StopsDilepton.ewkDM_signals_RunIISummer16MiniAODv2 import signalSamples as eft_2016_signal_samples
