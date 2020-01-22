@@ -36,6 +36,8 @@ special_cuts = {
     "lepSel":            "nlep==3&&lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10&&Z_mass>0",
     "lepSelDY":          "lep_pt[0]>40&&lep_pt[1]>20",
     "lepSelDilepSUSY":   "Sum$(lep_pt>25&&lep_tight_4l>0)>1",# && Sum$(lep_pt>10&&lep_tight_4l>0)>1 ",
+#    "lepSelTTW":         "lep_pt[0]>40&&lep_pt[1]>25",
+    "lepSelTTW":         "(lep_pt[0]>25&&lep_pt[1]>25)&&((abs(lep_pdgId[0])==11&&lep_pt[0]>40)||(abs(lep_pdgId[0])==13))",
     "onZ":               "abs(Z_mass-91.1876)<10",
     "noZ12":             "((!(abs(Z1_mass_4l-91.2)<20))||(!(abs(Z2_mass_4l-91.2)<20)))",
     "noZ2":              "(!(abs(Z2_mass_4l-91.2)<20))",

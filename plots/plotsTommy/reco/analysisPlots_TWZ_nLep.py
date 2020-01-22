@@ -131,7 +131,6 @@ def getLooseLeptonMult( event, sample ):
 
 sequence.append( getLooseLeptonMult )
 
-
 #
 # Loop over channels
 #
@@ -158,22 +157,14 @@ for index, mode in enumerate(allModes):
     TTZ_mc = TTZtoLLNuNu
 
     if args.year == 2016:
-        # TWZ
-        #mc              = [ TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
-        #mc              = [ yt_TWZ, TTZ_mc, TTX_rare2, TZQ, WZ_amcatnlo, rare, ZZ, nonpromptMC ]
+        mc = [ yt_TWW ]
+#        mc = [ dim6top_TTW ]
 
 #        mc = [ TWZ ]
-        mc = [ yt_TWZ ]
+#        mc = [ yt_TWZ ]
 #        mc = [ yt_TWZ_filter, yt_TWZ ]
 #        mc = [ yt_TWZ_filter ]
-        # TTWW
-        # TZZ 
 
-        #mc              = [ yt_TZZ, ZZ, TTZ_mc, WZ_amcatnlo, rare, nonpromptMC, TZQ, TTX_rare2 ]
-        #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonpromptMC, TTX_rare2, rare, ZZ ]
-        #mc             = [ TTWW, TTW, TTZtoLLNuNu, WZ_amcatnlo, nonpromptMC, TTX_rare2, rare, ZZ ]
-        #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
-    
     for sample in mc: sample.style = styles.fillStyle(sample.color)
 
     for sample in mc + signals:
