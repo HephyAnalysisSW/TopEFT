@@ -52,7 +52,7 @@
 #python analysisPlots_4l.py --plot_directory tWZ_4l --noData --selection quadlepTWZ-onZ1-noZ2-njet2-btag1p
 #python analysisPlots_4l.py --plot_directory tWZ_4l --noData --selection quadlepTWZ-onZ1-noZ2-njet2p-btag1
 #python analysisPlots_4l.py --plot_directory tWZ_4l --noData --selection quadlepTWZ-onZ1-noZ2-njet2p-btag1p
-#python analysisPlots_4l.py --plot_directory tWZ_4l --noData --selection quadlepTWZoddFlav-onZ1-noZ2-njet1p
+python analysisPlots_4l.py --plot_directory tWZ_4l --noData --selection quadlepTWZoddFlav-onZ1-noZ2-njet1p
 
 
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --sorting --selection trilep-onZ --noData
@@ -64,7 +64,7 @@
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --sorting --selection trilep-onZ-njet3p-btag1p --noData
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --sorting --selection trilep-onZ-njet3p-btag1 --noData
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --sorting --selection trilep-onZ-njet3p-btag2 --noData
-
+#
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --selection trilep-onZ --noData
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --selection trilep-onZ-njet1p --noData
 #python analysisPlots_3l_2016.py --plot_directory tWZ_3l --selection trilep-onZ-njet1p-btag1p --noData
@@ -95,12 +95,12 @@
 #python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet3p-btag1p --noData
 #python analysisPlots_3l_2016_TTZ_WZ.py --plot_directory TEST_TTZ_WZ --selection trilep-onZ-njet3p-btag1 --noData
 
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2p-btag1p-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3-btag1-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3-btag1p-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3p-btag1-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3p-btag1p-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-btag1-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-btag1p-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-met30
-python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2p-btag1-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2p-btag1p-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3-btag1-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3-btag1p-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3p-btag1-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet3p-btag1p-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-btag1-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-btag1p-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2-met30
+#python analysisPlots_TTW_2l.py --noData --selection SSdilep-lepSelTTW-njet2p-btag1-met30

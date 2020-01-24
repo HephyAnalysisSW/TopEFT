@@ -360,7 +360,7 @@ class cardFileWriter:
         '''
         import uuid, os
         ustr          = str(uuid.uuid4())
-        uniqueDirname = os.path.join(self.releaseLocation, ustr)
+        uniqueDirname = os.path.abspath(os.path.join(self.releaseLocation, ustr))
         print "Creating %s"%uniqueDirname
         os.makedirs(uniqueDirname)
         if fname is not None:  # Assume card is already written when fname is not none

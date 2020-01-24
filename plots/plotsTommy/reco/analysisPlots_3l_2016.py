@@ -446,7 +446,7 @@ for index, mode in enumerate(allModes):
     plots = []
 
     plots.append(Plot(
-      name = 'yield', texX = 'yield', texY = 'Number of Events',
+      name = 'yield', texX = '', texY = 'Number of Events',
       attribute = lambda event, sample: 0.5 + index,
       binning=[4, 0, 4],
     ))
@@ -467,14 +467,14 @@ for index, mode in enumerate(allModes):
 
     for mva in mvas:
         plots.append(Plot(
-            texX = 'Discriminator', texY = 'Number of Events',
+            texX = 'MVA_{3l}', texY = 'Number of Events',
             name = 'TTZ_'+mva['name'], attribute = discriminator_getter('TTZ_'+mva['name']),
             binning=[25, 0, 1],
         ))
 
     for mva in mvas:
         plots.append(Plot(
-            texX = 'Discriminator', texY = 'Number of Events',
+            texX = 'MVA_{3l}', texY = 'Number of Events',
             name = 'TTZ_'+mva['name']+'_coarse', attribute = discriminator_getter('TTZ_'+mva['name']),
             binning=[10, 0, 1],
             #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
@@ -482,14 +482,14 @@ for index, mode in enumerate(allModes):
 
     for mva in mvas:
         plots.append(Plot(
-            texX = 'Discriminator', texY = 'Number of Events',
+            texX = 'MVA_{3l}', texY = 'Number of Events',
             name = 'WZ_'+mva['name'], attribute = discriminator_getter('WZ_'+mva['name']),
             binning=[25, 0, 1],
         ))
 
     for mva in mvas:
         plots.append(Plot(
-            texX = 'Discriminator', texY = 'Number of Events',
+            texX = 'MVA_{3l}', texY = 'Number of Events',
             name = 'WZ_'+mva['name']+'_coarse', attribute = discriminator_getter('WZ_'+mva['name']),
             binning=[10, 0, 1],
             #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
@@ -497,16 +497,16 @@ for index, mode in enumerate(allModes):
 
 
     plots.append(Plot(
-        texX = 'Discriminator', texY = 'Number of Events',
+        texX = 'MVA_{3l}', texY = 'Number of Events',
         name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
         binning=[25, 0, 1],
     ))
 
     plots.append(Plot(
-        texX = 'Discriminator', texY = 'Number of Events',
-        name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
-        #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
-        binning=[10, 0, 1],
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        name = 'TTZ_mlp2_coarse_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        binning=Binning.fromThresholds([0, 0.15, 0.3, 0.5, 0.6, 1.0]),
+        #binning=[10, 0, 1],
     ))
 
     plots.append(Plot(
