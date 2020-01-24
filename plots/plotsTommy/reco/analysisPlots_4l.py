@@ -583,7 +583,9 @@ read_variables.extend( mva_read_variables )
 
 reader = Reader(
     mva_variables    = mva_variables,
-    weight_directory = os.path.join( mva_directory, "4l", "TTZ"),
+    weight_directory = os.path.join( mva_directory, "new_TWZ_MVA", "deltaR", "quadlepTWZoddFlav-onZ1-noZ2"),
+#   weight_directory = os.path.join( mva_directory, "4l", "TTZ"),
+#   weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/Test/deltaR/quadlepTWZ-onZ1-noZ2",
     label            = "Test")
 
 def makeDiscriminator( mva ):
