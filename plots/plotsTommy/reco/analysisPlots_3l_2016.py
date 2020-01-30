@@ -354,20 +354,22 @@ read_variables.extend( mva_read_variables )
 
 reader_TTZ = Reader(
     mva_variables     = mva_variables,
-    weight_directory  = os.path.join( mva_directory, "3l", "TTZ"),
+    weight_directory = os.path.join( mva_directory, "new_TWZ_MVA", "deltaR", "trilep-onZ_no_Z_eta"),
+    #weight_directory  = os.path.join( mva_directory, "3l", "TTZ"),
+    #weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/Test/deltaR/trilep-onZ_no_Z_eta",
     label             = "Test")
 
-reader_WZ  = Reader(
-    mva_variables     = mva_variables,
-    weight_directory  = os.path.join( mva_directory, "3l", "WZ"),
-    label             = "Test")
+#reader_WZ  = Reader(
+#    mva_variables     = mva_variables,
+#    weight_directory  = os.path.join( mva_directory, "3l", "WZ"),
+#    label             = "Test")
 
 def makeDiscriminator( mva ):
     def _getDiscriminator( event, sample ):
         kwargs = {name:func(event,None) for name, func in mva_variables.iteritems()}
 #        setattr( event, mva['name'], reader.evaluate(mva['name'], **kwargs))
         setattr( event, "TTZ_"+mva['name'], reader_TTZ.evaluate(mva['name'], **kwargs))
-        setattr( event, "WZ_"+mva['name'], reader_WZ.evaluate(mva['name'], **kwargs))
+#        setattr( event, "WZ_"+mva['name'], reader_WZ.evaluate(mva['name'], **kwargs))
         #print mva['name'], getattr( event, mva['name'] )
     return _getDiscriminator
 
@@ -380,7 +382,7 @@ mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
 for mva in mvas:
 #    reader.addMethod(method=mva)
     reader_TTZ.addMethod(method=mva)
-    reader_WZ.addMethod(method=mva)
+#    reader_WZ.addMethod(method=mva)
     sequence.append( makeDiscriminator(mva) )
 
 #
@@ -480,20 +482,20 @@ for index, mode in enumerate(allModes):
             #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
         ))
 
-    for mva in mvas:
-        plots.append(Plot(
-            texX = 'MVA_{3l}', texY = 'Number of Events',
-            name = 'WZ_'+mva['name'], attribute = discriminator_getter('WZ_'+mva['name']),
-            binning=[25, 0, 1],
-        ))
+#    for mva in mvas:
+#        plots.append(Plot(
+#            texX = 'MVA_{3l}', texY = 'Number of Events',
+#            name = 'WZ_'+mva['name'], attribute = discriminator_getter('WZ_'+mva['name']),
+#            binning=[25, 0, 1],
+#        ))
 
-    for mva in mvas:
-        plots.append(Plot(
-            texX = 'MVA_{3l}', texY = 'Number of Events',
-            name = 'WZ_'+mva['name']+'_coarse', attribute = discriminator_getter('WZ_'+mva['name']),
-            binning=[10, 0, 1],
-            #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
-        ))
+#    for mva in mvas:
+#        plots.append(Plot(
+#            texX = 'MVA_{3l}', texY = 'Number of Events',
+#            name = 'WZ_'+mva['name']+'_coarse', attribute = discriminator_getter('WZ_'+mva['name']),
+#            binning=[10, 0, 1],
+#            #binning=Binning.fromThresholds([0, 0.2, 0.4, 0.6, 1.0]),
+#        ))
 
 
     plots.append(Plot(

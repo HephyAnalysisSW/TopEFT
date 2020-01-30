@@ -25,7 +25,7 @@ read_variables = [\
                     "jet[pt/F,eta/F,phi/F,btagDeepCSV/F]",
                     "nMuons_tight_3l/I", "nElectrons_tight_3l/I",
                     "nlep/I",
-                    "Z_pt/F", "Z_eta/F", "Z_phi/F",
+                    "Z_pt/F", "Z_eta/F", "Z_phi/F", "cosThetaStar/F",
                     ]
 
 # sequence 
@@ -99,11 +99,12 @@ mva_variables = {
 #                "mva_nonZ_l1_eta"           :(lambda event, sample: event.lep_eta[event.nonZ_l1_index]),
                 
                 "mva_Z_pt"                  :(lambda event, sample: event.Z_pt),
-                "mva_Z_eta"                 :(lambda event, sample: event.Z_eta),
+#                "mva_Z_eta"                 :(lambda event, sample: event.Z_eta),
+#                "mva_Z_cosThetaStar"        :(lambda event, sample: event.cosThetaStar),
                 "mva_Z_mass"                :(lambda event, sample: event.Z_mass),
 
-                "mva_nonZl1_Z_deltaPhi"     :(lambda event, sample: event.nonZl1_Z_deltaPhi),
-                "mva_nonZl1_Z_deltaEta"     :(lambda event, sample: event.nonZl1_Z_deltaEta),
+#                "mva_nonZl1_Z_deltaPhi"     :(lambda event, sample: event.nonZl1_Z_deltaPhi),
+#                "mva_nonZl1_Z_deltaEta"     :(lambda event, sample: event.nonZl1_Z_deltaEta),
                 "mva_nonZl1_Z_deltaR"       :(lambda event, sample: event.nonZl1_Z_deltaR),
             
                 "mva_jet0_Z_deltaR"         :(lambda event, sample: event.jet0_Z_deltaR         if event.nJetSelected >=1 else -1),
