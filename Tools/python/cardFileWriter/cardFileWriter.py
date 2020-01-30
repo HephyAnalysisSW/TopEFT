@@ -354,7 +354,7 @@ class cardFileWriter:
 
         return resFile
 
-    def calcNLL(self, fname=None, options=""):
+    def calcNLL(self, fname=None, options="", rm=True):
         '''
         Does max likelihood fits, both with r=1 and a best-fit value
         '''
@@ -389,7 +389,7 @@ class cardFileWriter:
 
         #print nll
         
-        shutil.rmtree(uniqueDirname)
+        if rm: shutil.rmtree(uniqueDirname)
         
         return nll
 
