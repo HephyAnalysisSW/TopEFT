@@ -108,7 +108,8 @@ bdt4 = {
 mlp1 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp1",
-"layers"              : [3],
+#"layers"              : [3],
+"layers"              : "N+3",
 "color"               : ROOT.kRed+5,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 "mva_variables"       : mva_variables,

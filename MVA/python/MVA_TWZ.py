@@ -206,7 +206,8 @@ bdt4 = {
 mlp1 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp1",
-"layers"              : [3],
+#"layers"              : [3],
+"layers"              : "N+3",
 "color"               : ROOT.kRed+5,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
@@ -214,7 +215,8 @@ mlp1 = {
 mlp2 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp2",
-"layers"              : [1],
+#"layers"              : [1],
+"layers"              : "N+5",
 "color"               : ROOT.kYellow,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
@@ -222,7 +224,8 @@ mlp2 = {
 mlp3 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp3",
-"layers"              : [1,5],
+#"layers"              : [1,5],
+"layers"              : "N+7",
 "color"               : ROOT.kBlue,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
