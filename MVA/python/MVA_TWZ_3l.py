@@ -58,7 +58,7 @@ sequence.append( getDeltaR )
 
 ## met, ht, nonZ1_pt/eta, Z1_pt, nJet, nBTag, lep1_eta
 #mva_variables =  {
-##                    "met_pt"    :attrgetter("met_pt"), # copy
+#                    "met_pt"    :attrgetter("met_pt"), # copy
 #                    "ht"        :attrgetter("ht"), # copy
 #                    "lnonZ1_pt" :(lambda event: event.lep_pt[event.nonZ1_l1_index_4l]),
 #                    "lnonZ1_eta":(lambda event: event.lep_eta[event.nonZ1_l1_index_4l]),
@@ -81,8 +81,8 @@ mva_variables = {
                 "mva_met_pt"                :(lambda event, sample: event.met_pt),
                 "mva_nJetSelected"          :(lambda event, sample: event.nJetSelected),
                 "mva_nBTag"                 :(lambda event, sample: event.nBTag),
-#                "mva_flavorBin"             :(lambda event, sample: event.flavorBin),
-#                "mva_nlep"                  :(lambda event, sample: event.nlep),
+##                "mva_flavorBin"             :(lambda event, sample: event.flavorBin),
+##                "mva_nlep"                  :(lambda event, sample: event.nlep),
                 
 
                 "mva_jet0_pt"               :(lambda event, sample: event.jet_pt[0]          if event.nJetSelected >=1 else 0),
@@ -100,13 +100,13 @@ mva_variables = {
                 
                 "mva_Z_pt"                  :(lambda event, sample: event.Z_pt),
                 "mva_Z_eta"                 :(lambda event, sample: event.Z_eta),
-#                "mva_Z_cosThetaStar"        :(lambda event, sample: event.cosThetaStar),
+                "mva_Z_cosThetaStar"        :(lambda event, sample: event.cosThetaStar),
                 "mva_Z_mass"                :(lambda event, sample: event.Z_mass),
 
-                "mva_nonZl1_Z_deltaPhi"     :(lambda event, sample: event.nonZl1_Z_deltaPhi),
-                "mva_nonZl1_Z_deltaEta"     :(lambda event, sample: event.nonZl1_Z_deltaEta),
+##               "mva_nonZl1_Z_deltaPhi"     :(lambda event, sample: event.nonZl1_Z_deltaPhi),
+##               "mva_nonZl1_Z_deltaEta"     :(lambda event, sample: event.nonZl1_Z_deltaEta),
                 "mva_nonZl1_Z_deltaR"       :(lambda event, sample: event.nonZl1_Z_deltaR),
-            
+  
                 "mva_jet0_Z_deltaR"         :(lambda event, sample: event.jet0_Z_deltaR         if event.nJetSelected >=1 else -1),
                 "mva_jet0_nonZl1_deltaR"    :(lambda event, sample: event.jet0_nonZl1_deltaR    if event.nJetSelected >=1 else -1),
                 "mva_jet1_Z_deltaR"         :(lambda event, sample: event.jet1_Z_deltaR         if event.nJetSelected >=2 else -1),
@@ -144,7 +144,8 @@ bdt4 = {
 mlp1 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp1",
-"layers"              : [3],
+#"layers"              : "N+5",
+"layers"              : "N+7",
 "color"               : ROOT.kRed+5,
 "options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
@@ -152,16 +153,34 @@ mlp1 = {
 mlp2 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp2",
-"layers"              : [1],
+"layers"               :"N+7",
+#"layers"              : "N+5",
 "color"               : ROOT.kYellow,
-"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
+# SamplingEpoch 0.8, Sampling 0.5 !!!!
+# SamplingEpoch 0.8, Sampling 0.3
+"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.02", "DecayRate=0.01","Sampling=0.5","SamplingEpoch=0.5","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
 
 mlp3 = {
 "type"                : ROOT.TMVA.Types.kMLP,
 "name"                : "mlp3",
-"layers"              : [1,5],
+#"layers"              : [1,5],
+#"layers"              : "N,N-2",
+"layers"              : "N+5",
 "color"               : ROOT.kBlue,
-"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.03", "DecayRate=0.01","Sampling=0.3","SamplingEpoch=0.8","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
+#SamplingEpoch 1
+"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.02", "DecayRate=0.01","Sampling=0.5","SamplingEpoch=1","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
+}
+
+
+mlp = {
+"type"                : ROOT.TMVA.Types.kMLP,
+"name"                : "mlp",
+"layers"               :"N+7",
+#"layers"              : "N+5",
+"color"               : ROOT.kYellow,
+# SamplingEpoch 0.8, Sampling 0.5 !!!!
+# SamplingEpoch 0.8, Sampling 0.3
+"options"             : ["!H","!V","VarTransform=Norm,Deco","NeuronType=sigmoid","NCycles=10000","TrainingMethod=BP","LearningRate=0.02", "DecayRate=0.01","Sampling=0.5","SamplingEpoch=0.5","ConvergenceTests=1","CreateMVAPdfs=True","TestRate=10" ],
 }
 
