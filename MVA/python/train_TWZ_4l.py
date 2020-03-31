@@ -11,7 +11,7 @@ from TopEFT.Tools.user           import mva_directory
 from TopEFT.Tools.cutInterpreter import *
 
 # MVA configuration
-from TopEFT.MVA.MVA_TWZ_4l import bdt1, bdt2, bdt3, bdt4, mlp1, mlp2, mlp3, sequence, read_variables, mva_variables 
+from TopEFT.MVA.MVA_TWZ_4l import bdt1, bdt2, bdt3, bdt4, mlp1, mlp2, mlp3, mlp, sequence, read_variables, mva_variables 
 
 # Arguments
 import argparse
@@ -56,7 +56,8 @@ for sample in samples:
     if args.small:
         sample.reduceFiles(to = 1)
 
-mvas = [bdt1, bdt2, bdt3, bdt4, mlp1, mlp2, mlp3]
+#mvas = [bdt1, bdt2, bdt3, bdt4, mlp1, mlp2, mlp3]
+mvas = [mlp]
 
 ## TMVA Trainer instance
 trainer = Trainer( 
@@ -78,7 +79,7 @@ trainer.createTestAndTrainingSample(
     )
 
 #trainer.addMethod(method = default_methods["BDT"])
-trainer.addMethod(method = default_methods["MLP"])
+#trainer.addMethod(method = default_methods["MLP"])
 
 for mva in mvas:
     trainer.addMethod(method = mva)
