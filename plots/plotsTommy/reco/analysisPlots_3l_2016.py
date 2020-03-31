@@ -66,6 +66,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     tex.SetTextAlign(11) # align right
     lines = [
       (0.15, 0.95, 'CMS Preliminary' if plotData else 'Simulation'), 
+      #(0.15, 0.95, 'Private' if plotData else 'Simulation'),
       (0.45, 0.95, 'L=%i fb^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%i fb^{-1} (13 TeV)' % lumi_scale)
     ]
     return [tex.DrawLatex(*l) for l in lines] 
@@ -339,7 +340,8 @@ sequence.append( getLooseLeptonMult )
 
 #MVA
 from Analysis.TMVA.Reader   import Reader
-from TopEFT.MVA.MVA_TWZ_3l  import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
+#from TopEFT.MVA.MVA_TWZ_3l  import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
+from TopEFT.MVA.MVA_TWZ_3l  import mva_variables, mlp
 from TopEFT.MVA.MVA_TWZ_3l  import sequence as mva_sequence
 from TopEFT.MVA.MVA_TWZ_3l  import read_variables as mva_read_variables
 from TopEFT.Tools.user      import mva_directory
@@ -354,9 +356,8 @@ read_variables.extend( mva_read_variables )
 
 reader_TTZ = Reader(
     mva_variables     = mva_variables,
-    #weight_directory = os.path.join( mva_directory, "new_TWZ_MVA", "deltaR", "trilep-onZ_no_Z_eta"),
     weight_directory  = os.path.join( mva_directory, "3l", "TTZ"),
-    #weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/Test/deltaR/trilep-onZ_no_Z_eta",
+    #weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/final/3l",
     label             = "Test")
 
 #reader_WZ  = Reader(
@@ -378,7 +379,8 @@ def discriminator_getter(name):
         return getattr( event, name )
     return _disc_getter
     
-mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
+#mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
+mvas = [mlp]
 for mva in mvas:
 #    reader.addMethod(method=mva)
     reader_TTZ.addMethod(method=mva)
@@ -403,6 +405,7 @@ for index, mode in enumerate(allModes):
         lumi_scale                 = data_sample.lumi/1000
 
     lumi_scale = 300
+    #lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
 
     TTZ_mc = TTZtoLLNuNu
@@ -413,7 +416,7 @@ for index, mode in enumerate(allModes):
     else:
         #mc             = [ TWZ, TTZ_mc , TTX, WZ_amcatnlo, rare, ZZ, nonprompt_TWZ_3l, Xgamma ]
         mc             = [ tWZ_sample, TTZ_mc, TTX_rare_TWZ, TZQ, WZ_amcatnlo, rare, ZZ, nonprompt_TWZ_3l ]#, Xgamma ]
-
+        #mc             = [ WZ_amcatnlo, nonprompt_TWZ_3l, ZZ, TTZ_mc, TZQ, rare, TTX_rare_TWZ, tWZ_sample ]
     # specifications
     TTZtoLLNuNu.texName = "t#bar{t}Z" 
     TZQ.color           = ROOT.kRed - 9
@@ -500,13 +503,107 @@ for index, mode in enumerate(allModes):
 
     plots.append(Plot(
         texX = 'MVA_{3l}', texY = 'Number of Events',
-        name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
         binning=[25, 0, 1],
+    ))
+
+
+#######
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_1', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[20, 0, 1],
     ))
 
     plots.append(Plot(
         texX = 'MVA_{3l}', texY = 'Number of Events',
-        name = 'TTZ_mlp2_coarse_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_2', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[15, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_3', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[10, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_4', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[18, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_5', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[22, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_6', attribute = lambda event, sample: event.TTZ_mlp,
+        binning=[12, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test1', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[20, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test2', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[15, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test3', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[10, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test4', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[18, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test5', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[22, 0, 1],
+    ))
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_test6', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
+        binning=[12, 0, 1],
+    ))
+
+
+
+#################
+
+
+    plots.append(Plot(
+        texX = 'MVA_{3l}', texY = 'Number of Events',
+        #name = 'TTZ_mlp2_coarse_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp2-.1)/.7),1),
+        name = 'TTZ_mlp_coarse_stretched', attribute = lambda event, sample: min(max( 0, (event.TTZ_mlp-.1)/.7),1),
         binning=Binning.fromThresholds([0, 0.15, 0.3, 0.5, 0.6, 1.0]),
         #binning=[10, 0, 1],
     ))

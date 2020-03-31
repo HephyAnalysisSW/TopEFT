@@ -153,6 +153,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
     tex.SetTextAlign(11) # align right
     lines = [
       (0.15, 0.95, 'CMS Preliminary' if plotData else 'Simulation'), 
+      #(0.15, 0.95, 'Private' if plotData else 'Simulation'),
       (0.45, 0.95, 'L=%i fb^{-1} (13 TeV) Scale %3.2f'% ( lumi_scale, dataMCScale ) ) if plotData else (0.45, 0.95, 'L=%i fb^{-1} (13 TeV)' % lumi_scale)
     ]
     return [tex.DrawLatex(*l) for l in lines] 
@@ -509,7 +510,9 @@ def nonZ1_l( event, sample ):
     event.nonZ1_l_SS   = event.lep_pdgId[event.nonZ1_l1_index_4l]*event.lep_pdgId[event.nonZ1_l2_index_4l] > 0 
     event.nonZ1_l_OS   = not event.nonZ1_l_SS    
     event.nonZ1_l_SSp  = event.nonZ1_l_SS and event.lep_pdgId[event.nonZ1_l1_index_4l] < 0
-    event.nonZ1_l_SSm  = event.nonZ1_l_SS and event.lep_pdgId[event.nonZ1_l1_index_4l] > 0
+    event.nonZ1_l_SSm  = event.nonZ1_l_SS and event.lep_pdgId[event.nonZ1_l1_index_4l] > 0    
+    event.nonZ1_l_pp  = (event.nonZ1_l_ee or event.nonZ1_l_mumu) and event.nonZ1_l_SSp
+    event.nonZ1_l_mm  = (event.nonZ1_l_ee or event.nonZ1_l_mumu) and event.nonZ1_l_SSm
 
 sequence += [ nonZ1_l ]
 
@@ -524,10 +527,12 @@ flavor_sign_bins = [
 #                      {"name":"e^{#pm} e^{#mp}",            "condition":getCond("nonZ1_l_ee", "nonZ1_l_OS")},
 #                      {"name":"#mu^{#pm} #mu^{#mp}",        "condition":getCond("nonZ1_l_mumu","nonZ1_l_OS")},
                       {"name":"e^{#pm} #mu^{#mp}",          "condition":getCond("nonZ1_l_OF","nonZ1_l_OS")},
-                      {"name":"e^{#plus} e^{#plus}",        "condition":getCond("nonZ1_l_ee","nonZ1_l_SSp")},
-                      {"name":"e^{#minus} e^{#minus}",      "condition":getCond("nonZ1_l_ee","nonZ1_l_SSm")},
-                      {"name":"#mu^{#plus} #mu^{#plus}",    "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSp")},
-                      {"name":"#mu^{#minus} #mu^{#minus}",  "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSm")},
+#                      {"name":"e^{#plus} e^{#plus}",        "condition":getCond("nonZ1_l_ee","nonZ1_l_SSp")},
+#                      {"name":"e^{#minus} e^{#minus}",      "condition":getCond("nonZ1_l_ee","nonZ1_l_SSm")},
+#                      {"name":"#mu^{#plus} #mu^{#plus}",    "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSp")},
+#                      {"name":"#mu^{#minus} #mu^{#minus}",  "condition":getCond("nonZ1_l_mumu","nonZ1_l_SSm")},
+                      {"name":"l^{#plus} l^{#plus}",            "condition":getCond("nonZ1_l_pp")},
+                      {"name":"l^{#minus} l^{#minus}",          "condition":getCond("nonZ1_l_mm")},
                       {"name":"e^{#plus} #mu^{#plus}",      "condition":getCond("nonZ1_l_OF","nonZ1_l_SSp")},
                       {"name":"e^{#minus} #mu^{#minus}", "condition":getCond("nonZ1_l_OF","nonZ1_l_SSm")}
                     ]
@@ -573,7 +578,8 @@ from Analysis.TMVA.Reader        import Reader
 #from TopEFT.MVA.MVA_TZZ import mva_variables, bdt1, bdt2, mlp1
 #from TopEFT.MVA.MVA_TZZ import sequence as mva_sequence
 #from TopEFT.MVA.MVA_TZZ import read_variables as mva_read_variables
-from TopEFT.MVA.MVA_TWZ_4l import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3
+#from TopEFT.MVA.MVA_TWZ_4l import mva_variables, bdt1, bdt2, mlp1, mlp2, mlp3, mlp
+from TopEFT.MVA.MVA_TWZ_4l import mva_variables, mlp
 from TopEFT.MVA.MVA_TWZ_4l import sequence as mva_sequence
 from TopEFT.MVA.MVA_TWZ_4l import read_variables as mva_read_variables
 from TopEFT.Tools.user     import mva_directory
@@ -583,9 +589,8 @@ read_variables.extend( mva_read_variables )
 
 reader = Reader(
     mva_variables    = mva_variables,
-    #weight_directory = os.path.join( mva_directory, "new_TWZ_MVA", "deltaR", "quadlepTWZoddFlav-onZ1-noZ2"),
     weight_directory = os.path.join( mva_directory, "4l", "TTZ"),
-#   weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/Test/deltaR/quadlepTWZ-onZ1-noZ2",
+    #weight_directory = "/afs/hephy.at/work/t/ttschida/public/CMSSW_9_4_6_patch1/src/TopEFT/MVA/python/weights/final/4l",
     label            = "Test")
 
 def makeDiscriminator( mva ):
@@ -605,8 +610,8 @@ def discriminator_getter(name):
         return getattr( event, name )
     return _disc_getter
 
-#mvas = [ mlp1 ]
-mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
+#mvas = [ bdt1, bdt2, mlp1, mlp2, mlp3 ]
+mvas = [ mlp ]
 for mva in mvas:
     reader.addMethod(method = mva)
     sequence.append( makeDiscriminator(mva) )
@@ -632,6 +637,7 @@ for index, mode in enumerate(allModes):
 
     if args.noData: lumi_scale = 35.9 if args.year == 2016 else 41.0
     lumi_scale = 300
+    #lumi_scale = 35.9
     weight_ = lambda event, sample: event.weight
     
     TTZ_mc = TTZtoLLNuNu
@@ -642,12 +648,16 @@ for index, mode in enumerate(allModes):
         # TWZ
         #mc              = [ TWZ, TTZ_mc, TTX_rare_for_TZZ, rare, ZZ, nonprompt_TWZ_4l ]
         #mc              = [ yt_TWZ_filter, TTZ_mc, TTX_rare_TWZ, rare, ZZ, nonprompt_TWZ_4l ]
+       
+
         mc              = [ TWZ_sample, TTZ_mc, TTX_rare_TWZ, rare, ZZ ]
+        #mc               = [ nonprompt_TWZ_4l, ZZ, TTZ_mc, rare, TTX_rare_TWZ, TWZ_sample ]
         if not args.noNonPrompt:
             mc.append( nonprompt_TWZ_4l )
         # TZZ 
-        #mc              = [ yt_TZZ, ZZ, TTZ_mc, rare, nonprompt_TWZ_4l, TTX_rare_for_TZZ ]
-        
+        #mc              = [ yt_TZZ, ZZ, TTZ_mc, rare, nonprompt_TWZ_4l, TTX_rare_TWZ ]
+        #mc              = [ ZZ, TTZ_mc, rare, nonprompt_TWZ_4l, TTX_rare_TWZ, yt_TZZ ]        
+
         #mc              = [ TTWW, TTTT, TTW, TTZtoLLNuNu, nonprompt_TWZ_4l, TTX_rare2, rare, ZZ ]
         #mc             = [ TTWW, TTW, TTZtoLLNuNu, nonprompt_TWZ_4l, TTX_rare2, rare, ZZ ]
         #mc             = [ TTZtoLLNuNu, TTW, TTX_rare2, TTWW, rare ]
@@ -691,7 +701,7 @@ for index, mode in enumerate(allModes):
     plots = []
     
     plots.append(Plot(
-      name = 'yield', texX = 'yield', texY = 'Number of Events',
+      name = 'yield', texX = '', texY = 'Number of Events',
       attribute = lambda event, sample: 0.5 + index,
       binning=[5, 0, 5],
     ))
@@ -705,11 +715,73 @@ for index, mode in enumerate(allModes):
 ###########################
     for mva in mvas:
         plots.append(Plot(
-            texX = mva['name'], texY = 'Number of Events',
+            #texX = mva['name'], texY = 'Number of Events',
+            texX = 'MVA_{4l}', texY = 'Number of Events',
             name = mva['name'], attribute = discriminator_getter(mva['name']),
             binning=[25, 0, 1],
         ))
-    
+
+    for mva in mvas:
+        plots.append(Plot(
+#            texX = mva['name']+'_coarse', texY = 'Number of Events',
+            texX = 'MVA_{4l}', texY = 'Number of Events', 
+            name = mva['name']+'_coarse', attribute = discriminator_getter(mva['name']),
+            binning=[15, 0, 1],
+        ))
+
+    for mva in mvas:
+        plots.append(Plot(
+            #texX = mva['name']+'_coarse2', texY = 'Number of Events',
+            texX = 'MVA_{4l}', texY = 'Number of Events',
+            name = mva['name']+'_coarse2', attribute = discriminator_getter(mva['name']),
+            binning=[20, 0, 1],
+        ))  
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_stretched', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[25, 0, 1],
+    ))
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_test3', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[10, 0, 1],
+    ))
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_coarse_stretched', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[10, 0, 1],
+    ))
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_coarse_stretched_Test1', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[6, 0, 1],
+    ))
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_coarse_stretched_Test2', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[4, 0, 1],
+    ))
+
+    plots.append(Plot(
+        #texX = mva['name']+'_stretches', texY = 'Number of Events',
+        texX = 'MVA_{4l}', texY = 'Number of Events',
+        name = 'TTZ_mlp_coarse_stretched_Test3', attribute = lambda event, sample: min(max( 0, (event.mlp-.1)/.7),1),
+        binning=[9, 0, 1],
+    ))
+
+
+
+
 #    plots.append(Plot(
 #        texX = '#Delta#phi(ZZ)', texY = 'Number of Events',
 #        name = 'deltaPhi_ZZ', attribute = lambda event, sample: event.deltaPhi_ZZ,
