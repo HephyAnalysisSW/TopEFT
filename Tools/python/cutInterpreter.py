@@ -25,6 +25,7 @@ special_cuts = {
     "quadlep":           "nLeptons_tight_4l>=4&&min_dl_mass>12&&totalLeptonCharge==0",
     "quadlepTWZ":        "nLeptons_tight_4l>=4",
     "quadlepTWZoddFlav": "nLeptons_tight_4l>=4&&(abs(lep_pdgId[nonZ1_l1_index_4l])!=abs(lep_pdgId[nonZ1_l2_index_4l]))",
+     "quadlepTWZOFOS":   "nLeptons_tight_4l>=4&&(abs(lep_pdgId[nonZ1_l1_index_4l])!=abs(lep_pdgId[nonZ1_l2_index_4l]))&&(lep_pdgId[nonZ1_l1_index_4l]*lep_pdgId[nonZ1_l2_index_4l]<0)",
     "Zcand":             "Z_mass>0",
 #    "lepSelTTZ":         "lep_pt[0]>40&&lep_pt[1]>20&&lep_pt[2]>10",
     "lepSelTTZ":         "Sum$(lep_pt>40&&lep_tight_3l>0)>0 && Sum$(lep_pt>20&&lep_tight_3l>0)>1 && Sum$(lep_pt>10&&lep_tight_3l>0)>2",
