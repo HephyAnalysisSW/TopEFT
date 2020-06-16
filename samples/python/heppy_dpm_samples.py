@@ -223,11 +223,12 @@ lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_direct
 #lepton_2017_heppy_mapper = heppy_mapper( heppy_Fall17_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
 
 # Summer16 MC fullevents for Deeplepton
-lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v6_2.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+#lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v6_2.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
+lepton_2016_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/MC_2016_full_events_v8.pkl' #'/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v3.pkl' 
 tim_2016_full_events = [ '/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/'] 
 mc_dpm_directories = tim_2016_full_events 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
-full_events_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v6"])
+full_events_2016_mc_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v8"])
 #lepton_2016_mc_heppy_mapper.dump_files_dict( lepton_2016_cache_file.replace('.pkl', '_files_dict.pkl') )
 
 # Summer17 MC fullevents for Deeplepton
@@ -289,11 +290,12 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2017 import dataSamples as hep
 full_events_2017_data_heppy_mapper = heppy_mapper( heppy_data_samples, data_dpm_directories , data17_cache_file, multithreading=multithreading)
 
 # Signal 2016, SMS
-signal_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/signal_SMS_T2tt_dM_10to80_2016_v6.pkl'
+#signal_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/signal_SMS_T2tt_dM_10to80_2016_v8.pkl'
+signal_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/signal_SMS_T2tt_dM_10to80_2016_v7_lowerpt.pkl'
 tim_2016_signal = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/full_events/']
 signal_dpm_directories = tim_2016_signal
 from CMGTools.RootTools.samples.samples_13TeV_signals import signalSamples as heppy_signal_samples
-signal_SMS_T2tt_dM_10to80_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v6"])
+signal_Compressed_Stops_heppy_mapper = heppy_mapper( heppy_signal_samples, signal_dpm_directories, signal_cache_file, multithreading=multithreading, path_substrings = ["full_events_2016_v8"])
 
 
 #test

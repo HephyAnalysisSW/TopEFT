@@ -40,7 +40,7 @@ if os.environ['USER'] in ['gmoertl']:
     postprocessing_output_directory = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
 
 if os.environ['USER'] in ['tbrueckler']:
-    plot_directory                  = "/afs/hephy.at/user/g/tbrueckler/www/"
+    plot_directory                  = "/afs/hephy.at/user/t/tbrueckler/www/"
     skim_output_directory           = "/afs/hephy.at/data/cms03/DeepLepton/skims/"
     trainingFiles_directory         = "/afs/hephy.at/data/cms03/DeepLepton/trainfiles/"
     results_directory               = "/afs/hephy.at/data/cms03/DeepLepton/results/"

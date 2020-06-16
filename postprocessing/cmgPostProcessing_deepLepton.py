@@ -13,7 +13,7 @@ import uuid
 
 from array import array
 from operator import mul
-from math import sqrt, atan2, sin, cos, cosh, isnan
+from math import sqrt, atan2, sin, cos, cosh, isnan, pi
 
 # RootTools
 from RootTools.core.standard import *
@@ -43,6 +43,10 @@ import TopEFT.Tools.sync as sync
 #MC tools
 from TopEFT.Tools.mcTools import GenSearch, B_mesons, D_mesons, B_mesons_abs, D_mesons_abs
 genSearch = GenSearch()
+
+#for CompressedStops SFs
+from triggerEff_CompressedStops import MET_binning_list, MET_Eff_matrix, eta_binning_list, pt_binning_list, L1Mu_matrix, L2Mu_matrix, L3Mu_matrix, L1_MC, L2_MC, L3_MC, MET_MC, highMET_SF, muon_track_pt_lt10, muon_track_pt_gt10, lmuon_bins, lmuon_barrel_eff, lmuon_endcap_eff, muon_bins, muon_barrel_eff, muon_endcap_eff, ele_bins, ele_barrel_eff, ele_endcap_eff
+import numpy as np
 
 # central configuration
 targetLumi = 1000 #pb-1 Which lumi to normalize to
@@ -101,19 +105,24 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
 # Flags 
 isDiLep     =   options.skim.lower().startswith('dilep')
+is2DiLep     =   options.skim.lower().startswith('2dilep')
 isTriLep    =   options.skim.lower().startswith('trilep')
 isQuadLep   =   options.skim.lower().startswith('quadlep')
 isSingleLep =   options.skim.lower().startswith('singlelep')
 isInclusive =   options.skim.lower().count('inclusive') 
 isTiny      =   options.skim.lower().count('tiny') 
+isCompSig   =   options.skim.lower().startswith('compressed')
 
 writeToDPM = options.targetDir == '/dpm/'
 
 # Skim condition
 skimConds = []
+if is2DiLep:
+    #skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
+    skimConds.append( "(Sum$(LepGood_pt>=3.5&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>=3.5&&abs(LepOther_eta)<2.5))>=1" )
 if isDiLep:
     #skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)>=2" )
-    skimConds.append( "(Sum$(LepGood_pt>5&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>5&&abs(LepOther_eta)<2.5))>=2" )
+    skimConds.append( "(Sum$(LepGood_pt>=3.5&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>=3.5&&abs(LepOther_eta)<2.5))>=1" )
 if isTriLep:
     skimConds.append( "Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5&&LepGood_miniRelIso<0.4) + Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5&&LepOther_miniRelIso<0.4)>=2 && Sum$(LepOther_pt>10&&abs(LepOther_eta)<2.5)+Sum$(LepGood_pt>10&&abs(LepGood_eta)<2.5)>=3" )
 #    skimConds.append( "( run==%s&&lumi==%s&&evt==%s )"%(283052, 75, 124332542) )
@@ -124,6 +133,9 @@ if isSingleLep:
 if isInclusive:
     #skimConds = ["(evt==49567738&&lumi==66691)"]
     skimConds = ["(1)"]
+if isCompSig:
+    skimConds.append( "((Sum$(LepGood_pt>=5&&abs(LepGood_eta)<2.5) + Sum$(LepOther_pt>=5&&abs(LepOther_eta)<2.5))>=2)&&Sum$(abs(genPartAll_pdgId)==1000022&&genPartAll_mass==330)>=1&&Sum$(abs(genPartAll_pdgId)==1000006&&genPartAll_mass==350)>=1" )
+
 
 maxN = 100 if options.small else None
 from TopEFT.samples.helpers import fromHeppySample
@@ -142,7 +154,8 @@ else:
         if any( [ "Run" in s for s in options.samples] ):
             force_sample_map = "full_events_2016_data_heppy_mapper"
         elif any( [ "SMS_T2tt_dM_10to80" in s for s in options.samples] ):
-            force_sample_map = "signal_SMS_T2tt_dM_10to80_heppy_mapper"
+            #force_sample_map = "signal_SMS_T2tt_dM_10to80_heppy_mapper"
+            force_sample_map = "signal_Compressed_Stops_heppy_mapper"
         else: 
             force_sample_map = "full_events_2016_mc_heppy_mapper"
             #force_sample_map = "test_heppy_mapper"
@@ -167,7 +180,8 @@ assert isMC or len(samples)==1, "Don't concatenate data samples"
 xSection = samples[0].heppy.xSection if isMC else None
 
 # Trigger selection
-from TopEFT.Tools.triggerSelector import triggerSelector
+#from TopEFT.Tools.triggerSelector import triggerSelector
+from TopEFT.Tools.triggerSelector_deepLepton_analysis import triggerSelector
 ts           = triggerSelector(options.year)
 triggerCond  = ts.getSelection(options.samples[0] if isData else "MC")
 treeFormulas = {"triggerDecision": {'string':triggerCond} }
@@ -313,7 +327,7 @@ if options.FEBug:
 
     postfix += '_FEBug'
 
-output_directory = os.path.join( directory, options.skim+postfix, sample.name )
+output_directory = os.path.join( directory, options.skim+postfix+'inclSFsOther', sample.name )
 
 if os.path.exists(output_directory) and options.overwrite:
     if options.nJobs > 1:
@@ -496,7 +510,7 @@ if options.deepLepton:
     from TopEFT.Tools.DeepLeptonReader import ele_evaluator,  mu_evaluator
     mu_evaluator.verbosity = 0
     ele_evaluator.verbosity = 0
-    lepton_branches_store += ",deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F,iLepGood/I,iLepOther/I"
+    lepton_branches_store += ",deepLeptonPrompt/F,deepLeptonNonPrompt/F,deepLeptonFake/F,iLepGood/I,iLepOther/I"
 
 lepton_vars_store     = [s.split('/')[0] for s in lepton_branches_store.split(',')]
 lepton_vars_read      = [s.split('/')[0] for s in lepton_branches_read .split(',')]
@@ -576,8 +590,8 @@ if options.keepPhotons:
 new_variables.extend( ['dl_mt2ll/F', 'dl_mt2bb/F', 'dl_mt2blbl/F', 'dl_mass/F', 'dl_pt/F', 'dl_eta/F', 'dl_phi/F', 'min_dl_mass/F', 'min_dl_mass_FO_3l/F', 'min_dl_mass_loose/F', 'totalLeptonCharge/I' ] )
 
 
-# variables for Tims Analysis
-#new_variables.extend( ['Qll/F', 'mll/F', 'ptll/F', 'mtautau/F', 'mt_min/F', 'met_mu_pt/F'] )
+# variables for Compressed Stops Analysis
+new_variables.extend( ['ptll/F', 'mll/F', 'leadingLep_pt/F', 'mtautau/F', 'mt1/F', 'mt2/F', 'metMuSubtracted/F', 'dimu/O', 'diele/O', 'CRDY/O', 'CRtt2l/O', 'SR/O', 'ht25/F', 'FastSim_trigger_SF/F', 'FullSim_trigger_SF/F', 'lepton_SF/F', 'HighMET_trigger_SF/F' ] )
 
 if addSystematicVariations:
     read_variables += map(TreeVariable.fromString, [\
@@ -726,8 +740,8 @@ def filler( event ):
     event.triggerDecision = int(treeFormulas['triggerDecision']['TTreeFormula'].EvalInstance())
 
     # Leptons: Reading LepGood and LepOther and fill new LepGood collection in the output tree
-    mu_selector  = muonSelector( "vloose", year = options.year)
-    ele_selector = eleSelector( "vloose", year = options.year )
+    mu_selector  = muonSelector( "vloose35", year = options.year)
+    ele_selector = eleSelector( "vloose5", year = options.year )
     leptons      = getLeptons(r, collVars=lepton_vars_read, mu_selector = mu_selector, ele_selector = ele_selector)
     leptons.sort(key = lambda p:-p['pt'])
 
@@ -776,12 +790,17 @@ def filler( event ):
             lep['isGenPrompt'] = prompt
 
         if options.deepLepton:
-            lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = float('nan'), float('nan'), float('nan')
+            lep["deepLeptonPrompt"], lep["deepLeptonNonPrompt"], lep["deepLeptonFake"] = float('nan'), float('nan'), float('nan')
             if lep.has_key("iLepGood" ):
                 if deepLepton_mu_prediction.has_key(lep["iLepGood"]):
-                    lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_mu_prediction[lep["iLepGood"]]
+                    lep["deepLeptonPrompt"], lep["deepLeptonNonPrompt"], lep["deepLeptonFake"] = deepLepton_mu_prediction[lep["iLepGood"]]
                 if deepLepton_ele_prediction.has_key(lep["iLepGood"]):
-                    lep["deepLepton_prompt"], lep["deepLepton_nonPrompt"], lep["deepLepton_fake"] = deepLepton_ele_prediction[lep["iLepGood"]]
+                    lep["deepLeptonPrompt"], lep["deepLeptonNonPrompt"], lep["deepLeptonFake"] = deepLepton_ele_prediction[lep["iLepGood"]]
+            if lep.has_key("iLepOther" ):
+                if deepLepton_mu_prediction.has_key(lep["iLepOther"]):
+                    lep["deepLeptonPrompt"], lep["deepLeptonNonPrompt"], lep["deepLeptonFake"] = deepLepton_mu_prediction[lep["iLepOther"]]
+                if deepLepton_ele_prediction.has_key(lep["iLepOther"]):
+                    lep["deepLeptonPrompt"], lep["deepLeptonNonPrompt"], lep["deepLeptonFake"] = deepLepton_ele_prediction[lep["iLepOther"]]
 
         for b in lepton_vars_store:
             getattr(event, "lep_"+b)[iLep] = lep[b]
@@ -1017,6 +1036,207 @@ def filler( event ):
     event.nBTag      = len(bJetsDeepCSV)
 
 
+#compressed stops analysis
+#_______________________________________________________
+    
+    analysis_jets = getAllJets(r, leptonCollections[cleaningCollection], ptCut=25, jetVars = jetVarNames, absEtaCut=2.4, jetCollections=[ "JetAll"], idVar='id16')
+    event.ht25 = sum([j['pt'] for j in analysis_jets])
+    
+    analysis_mu_selector = muonSelector('vloose_cT', year = options.year)
+    analysis_ele_selector = eleSelector('vloose_cT', year = options.year)
+
+    analysis_leptons = getLeptons(r, collVars=lepton_vars_read, mu_selector = analysis_mu_selector, ele_selector = analysis_ele_selector)
+    analysis_leptons.sort(key = lambda p:-p['pt'])
+
+    analysis_muons     = filter( lambda l: abs(l['pdgId']) == 13, analysis_leptons )
+    analysis_electrons = filter( lambda l: abs(l['pdgId']) == 11, analysis_leptons )
+
+    event.nlep_selected = len(analysis_muons) + len(analysis_electrons)
+    selected_lep = analysis_muons + analysis_electrons
+
+    #event.leadingLep_pt = analysis_leptons[0]['pt'] if len(analysis_leptons) >= 2 else float('nan')
+
+    condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0)
+    #condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'])    
+
+    if condition:
+
+        if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and abs(selected_lep[0]['pdgId'])==13:
+            event.dimu = True
+        else:
+            event.dimu = False
+
+
+        if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and abs(selected_lep[0]['pdgId'])==11:
+            event.diele = True
+        else:
+            event.diele = False
+
+
+        if ((((selected_lep[0]["relIso03"]*selected_lep[0]["pt"])<5.0) or (selected_lep[0]["relIso03"]<0.1)) and (((selected_lep[1]["relIso03"]*selected_lep[1]["pt"])<5.0) or (selected_lep[1]["relIso03"]<0.1))):
+            event.CRDY = True
+            if (selected_lep[0]["sip3d"]<2.0 and selected_lep[0]["ip3d"]<0.01) and (selected_lep[1]["sip3d"]<2.0 and selected_lep[1]["ip3d"]<0.01):
+                event.CRtt2l = True
+            else:
+                event.CRtt2l = False
+        else:
+            event.CRDY = False
+        if (((selected_lep[0]["relIso03"]*selected_lep[0]["pt"])<5.0) and (selected_lep[1]["relIso03"]*selected_lep[1]["pt"])<5.0) and (selected_lep[0]["sip3d"]<2.0 and selected_lep[0]["ip3d"]<0.01) and (selected_lep[1]["sip3d"]<2.0 and selected_lep[1]["ip3d"]<0.01):
+            event.SR = True
+        else:
+            event.SR = False
+
+
+        selected_lep = sorted(selected_lep, key = lambda lep: -lep['pt'])
+        lep_1, lep_2 = selected_lep
+
+        event.leadingLep_pt = selected_lep[0]['pt']
+
+        l_1 = ROOT.TLorentzVector()
+        l_1.SetPtEtaPhiM(lep_1['pt'], lep_1['eta'], lep_1['phi'], 0 )
+        l_2 = ROOT.TLorentzVector()
+        l_2.SetPtEtaPhiM(lep_2['pt'], lep_2['eta'], lep_2['phi'], 0 )
+        ll = l_1 + l_2
+
+        event.ptll = ll.Pt()
+        event.mll = ll.M()
+        event.mt1 = sqrt( 2*lep_1["pt"]*r.met_pt*( 1 - cos( lep_1['phi'] - r.met_phi ) ))
+        event.mt2 = sqrt( 2*lep_2["pt"]*r.met_pt*( 1 - cos( lep_2['phi'] - r.met_phi ) ))
+        #event.mt_min = min(mt1, mt2)
+
+        deltaphi = lep_1["phi"] - lep_2["phi"]
+        
+        if abs(deltaphi) < 1e-12: 
+            event.mtautau == float('nan')
+        else:
+            v1 = r.met_pt * sin( r.met_phi - lep_2["phi"]  ) / ( lep_1["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
+            v2 = r.met_pt * sin( lep_1["phi"] - r.met_phi  ) / ( lep_2["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
+            v1 += 1
+            v2 += 1
+
+            tau_1 = ROOT.TLorentzVector()
+            tau_2 = ROOT.TLorentzVector()
+
+            if v1<0:
+                tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), -lep_1['eta'], lep_1['phi']+pi, 1.77682 )
+            else:
+                tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), lep_1['eta'], lep_1['phi'], 1.77682 )
+            if v2<0:
+                tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), -lep_2['eta'], lep_2['phi']+pi, 1.77682 )
+            else:
+                tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), lep_2['eta'], lep_2['phi'], 1.77682 )
+            tautau = tau_1 + tau_2
+            event.mtautau = tautau.M()
+            if v1<0 or v2<0:
+                event.mtautau *= -1
+        
+        vec = ROOT.TVector2( r.met_pt * cos(r.met_phi), r.met_pt * sin(r.met_phi) )
+        for lep in analysis_leptons:
+            if abs(lep['pdgId']) == 13:
+                vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
+        event.metMuSubtracted = vec.Mod()
+
+    else:
+        event.ptll = float('nan')
+        event.mll =  float('nan')
+        event.mt_min = float('nan')
+        event.mtautau = float('nan')
+        event.leadingLep_pt = float('nan')
+        #event.weight = 0.
+        event.mt1 = float('nan')
+        event.mt2 = float('nan')
+        event.metMuSubtracted = float('nan')
+        event.dimu = False
+        event.diele = False
+        event.CRDY = False
+        event.CRtt2l = False
+        event.SR = False
+
+#########################################
+#    #Compressed Stops SFs
+    
+    event.FastSim_trigger_SF = 1.
+    event.FullSim_trigger_SF = 1.
+    event.HighMET_trigger_SF = 0.97
+    event.lepton_SF = 1.
+    if condition:
+        #selected_lep = sorted(selected_lep, key = lambda lep: -lep['pt'])
+        #lep_1, lep_2 = selected_lep
+
+###### trigger scale factor
+
+
+        #if abs(lep_1['pdgId'])==13 and abs(lep_2['pdgId'])==13:
+        if event.dimu:
+
+            MET_bin = np.digitize(r.met_pt, MET_binning_list)
+            MET_mu_bin = np.digitize(event.metMuSubtracted, MET_binning_list)
+            l1_eta_bin = np.digitize(abs(lep_1["eta"]), eta_binning_list)
+            l2_eta_bin = np.digitize(abs(lep_2["eta"]), eta_binning_list)
+            l1_pt_bin = np.digitize(lep_1["pt"], pt_binning_list)
+            l2_pt_bin = np.digitize(lep_2["pt"], pt_binning_list)
+            eff_L1_l1 = L1Mu_matrix[l1_eta_bin][l1_pt_bin]
+            eff_L2_l1 = L2Mu_matrix[l1_eta_bin][l1_pt_bin]
+            eff_L3_l1 = L3Mu_matrix[l1_eta_bin][l1_pt_bin]
+            eff_L1_l2 = L1Mu_matrix[l2_eta_bin][l2_pt_bin]
+            eff_L2_l2 = L2Mu_matrix[l2_eta_bin][l2_pt_bin]
+            eff_L3_l2 = L3Mu_matrix[l2_eta_bin][l2_pt_bin]
+            eff_DCA_sig = 0.906
+            eff_DCA_MC = 0.962
+            eff_MET = MET_Eff_matrix[MET_mu_bin][MET_bin]
+            highMET_SF = 0.97
+            #triggerSF = eff_MET * eff_DCA_sig * eff_L1_l1 * eff_L1_l2 * eff_L2_l1 * eff_L2_l2 * eff_L3_l1 * eff_L3_l2
+            dm_triggerSF = eff_MET * eff_DCA_sig * eff_L1_l1**2 * eff_L2_l1**2 * eff_L3_l1**2
+
+            event.FastSim_trigger_SF = 1./dm_triggerSF
+            event.FullSim_trigger_SF = L1_MC**2 * L2_MC**2 * L3_MC**2 * MET_MC * eff_DCA_MC
+        #else:
+        #    if sample in signals:
+        #        event.weight *= 0.97
+        #    else:
+        #        event.weight *= 0.97
+
+#### lepton scale factor
+        #if sample in signals:
+        lepton_reco_SF = 1.
+        sel_mu = []
+        sel_ele = []
+        for lep in [lep_1, lep_2]:
+            if abs(lep['pdgId']) == 13:
+                sel_mu.append(lep)
+            else:
+                sel_ele.append(lep)
+
+        for lep in sel_mu:
+            if lep['pt']<10:
+                lepton_reco_SF *= muon_track_pt_lt10
+            else:
+                lepton_reco_SF *= muon_track_pt_gt10
+
+            lmuon_bin = np.digitize(lep['pt'], lmuon_bins)
+            muon_bin = np.digitize(lep['pt'], muon_bins)
+            if abs(lep['eta']) < 1.2:
+                lepton_reco_SF *= lmuon_barrel_eff[lmuon_bin] * muon_barrel_eff[muon_bin]
+            else:
+                lepton_reco_SF *= lmuon_endcap_eff[lmuon_bin] * muon_endcap_eff[muon_bin]
+
+        for lep in sel_ele:
+            ele_bin = np.digitize(lep['pt'], ele_bins)
+            if abs(lep['eta']) < 1.47:
+                lepton_reco_SF *= ele_barrel_eff[ele_bin]
+            else:
+                lepton_reco_SF *= ele_endcap_eff[ele_bin]
+        event.lepton_SF = lepton_reco_SF
+
+##########################################################
+
+
+
+
+
+
+
+#_______________________________________________________
     # Analysis Tim
 #    if event.nlep == 2:
 #     
